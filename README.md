@@ -7,7 +7,7 @@ Welcome to the PowerShell Codes for Windows Server Administrators repository, ma
 
 ## Features
 
-- **Log File Management**:  enables you to seamlessly move, organize, and resize Windows Server Event log files and folders, keeping your server environment well-maintained.
+- **Eventlogs-Create-New-Paths-SERVERS.ps1**:  enables you to seamlessly move, organize, and resize Windows Server Event log files and folders, keeping your server environment well-maintained.
 - **Script 2**: [coming soon]
 - **Script 3**: [coming soon]
 
