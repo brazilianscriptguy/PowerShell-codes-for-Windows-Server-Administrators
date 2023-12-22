@@ -10,7 +10,8 @@ Welcome to the PowerShell Codes for Windows Server Administrators repository, ma
 - **Eventlogs-Create-New-Paths-SERVERS.ps1**:  enables you to seamlessly move, organize, and resize Windows Server Event log files and folders, keeping your server environment well-maintained.
 - **Multiple-RDP-Access.ps1**: after the user inputs and submits the file path, the script checks for the file's existence, reads the server addresses, and initiates RDP sessions for each valid server in the list.
 - **GUID-Installed-Softwares.ps1**:  auditing installed software on Windows systems, providing a clear and comprehensive list in a user-friendly .CSV file format into My Documents folder.
-- **Move-Computers-between-OUs.ps1**: move active directory computers between OUs into same domain.
+- **Move-Computers-between-OUs.ps1**: move active directory computers into same domain between diferent OUs.
+- **List-Users-Passwors-Never-Expires.ps1**: effective for exporting a list of Active Directory users whose passwords are set to never expire in a user-friendly .CSV file format into My Documents folder.
 - **NEXT COMING SOON**:
 
 ## Customizations
