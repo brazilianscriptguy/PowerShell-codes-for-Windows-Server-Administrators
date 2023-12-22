@@ -7,13 +7,23 @@ Welcome to the PowerShell Codes for Windows Server Administrators repository, ma
 
 ## Features
 
-- **Eventlogs-Create-New-Paths-SERVERS.ps1**:  enables you to seamlessly move, organize, and resize Windows Server Event log files and folders, keeping your server environment well-maintained.
-- **Multiple-RDP-Access.ps1**: after the user inputs and submits the file path, the script checks for the file's existence, reads the server addresses, and initiates RDP sessions for each valid server in the list.
-- **GUID-Installed-Softwares.ps1**:  auditing installed software on Windows systems, providing a clear and comprehensive list in a user-friendly .CSV file format into My Documents folder.
-- **Move-Computers-between-OUs.ps1**: move active directory computers into same domain between diferent OUs.
-- **List-Users-Passwors-Never-Expires.ps1**: effective for exporting a list of Active Directory users whose passwords are set to never expire in a user-friendly .CSV file format into My Documents folder.
-- **Force-AD-Password-Expires.ps1**: force all Active Directory user passwords in a specified Organizational Unit (OU) to expire immediately and set the "ChangePasswordAtLogon" property to True.
-- **NEXT COMING SOON**:
+1. **Eventlogs-Create-New-Paths-SERVERS.ps1**: This script streamlines the management of Event Log files on Windows Servers. It allows you to move, reorganize, and adjust the size of Event Log files and folders efficiently, enhancing the organization and maintenance of your server's logging system.
+
+2. **Force-AD-Password-Expires.ps1**: Specifically designed for Active Directory environments, this script forces the expiration of all user passwords within a given Organizational Unit (OU). It sets the `ChangePasswordAtLogon` property to true, requiring users to change their passwords at their next login, thereby enhancing security.
+
+3. **GUID-Installed-Softwares.ps1**: This auditing tool generates a comprehensive list of all software installed on Windows systems, complete with their Global Unique Identifiers (GUIDs). The output is formatted into a user-friendly CSV file, which is conveniently saved in the 'My Documents' folder.
+
+4. **List-Users-Passwors-Never-Expires.ps1**: This script is an essential tool for security auditing in Active Directory environments. It exports a list of users whose passwords are set to never expire. The data is compiled into an easily accessible CSV file and stored in the 'My Documents' folder.
+
+5. **Move-Computers-between-OUs.ps1**: A vital script for Active Directory administrators, it facilitates the movement of computer accounts between different Organizational Units (OUs) within the same domain, streamlining AD management and organizational changes.
+
+6. **Multiple-RDP-Access.ps1**: Enhance remote management capabilities with this script. It reads a list of server addresses from a user-provided file, verifies their existence, and initiates Remote Desktop Protocol (RDP) sessions for each valid server, simplifying remote access to multiple servers.
+
+7. **Winget-Upgrade-Install-by-GPOs.ps1**: Ideal for Group Policy Object (GPO) deployments, this script automates the process of updating software on Windows OS using the `winget` package manager. It logs all actions in a specified file, ensuring a smooth and traceable software update process across multiple systems.
+
+8. **Winget-Upgrade-Install-Explicit.ps1**: This script offers an interactive and user-friendly approach to software updates on Windows OS. With an intuitive progress bar, it utilizes `winget` for package management, performing updates explicitly while logging the process for easy review and audit.
+
+9. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts designed to streamline your system administration tasks.
 
 ## Customizations
 
