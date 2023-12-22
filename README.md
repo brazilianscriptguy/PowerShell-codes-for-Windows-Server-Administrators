@@ -12,6 +12,7 @@ Welcome to the PowerShell Codes for Windows Server Administrators repository, ma
 - **GUID-Installed-Softwares.ps1**:  auditing installed software on Windows systems, providing a clear and comprehensive list in a user-friendly .CSV file format into My Documents folder.
 - **Move-Computers-between-OUs.ps1**: move active directory computers into same domain between diferent OUs.
 - **List-Users-Passwors-Never-Expires.ps1**: effective for exporting a list of Active Directory users whose passwords are set to never expire in a user-friendly .CSV file format into My Documents folder.
+- **Force-AD-Password-Expires.ps1**: force all Active Directory user passwords in a specified Organizational Unit (OU) to expire immediately and set the "ChangePasswordAtLogon" property to True.
 - **NEXT COMING SOON**:
 
 ## Customizations
