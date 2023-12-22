@@ -21,9 +21,10 @@ You can fine-tune the behavior of these scripts by modifying the included config
 
 ### Script Parameters
 
-Many scripts offer adjustable parameters that let you customize their functionality further. By altering these parameters, you can adapt the scripts to varying scenarios and requirements.
+Many scripts come with adjustable parameters, allowing you to further customize their functionality. By tweaking these settings, you can tailor the scripts to suit different scenarios and specific needs. Should you encounter any inconsistencies or require adjustments, please feel free to reach out to me for assistance.
 
 ## Getting Started
+Download your first Windows Server Administration tool for PowerShell and let's start managing like pros!
 
 ### Prerequisites
 
