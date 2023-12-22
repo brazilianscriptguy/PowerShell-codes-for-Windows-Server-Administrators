@@ -8,7 +8,7 @@ Welcome to the PowerShell Codes for Windows Server Administrators repository, ma
 ## Features
 
 - **Eventlogs-Create-New-Paths-SERVERS.ps1**:  enables you to seamlessly move, organize, and resize Windows Server Event log files and folders, keeping your server environment well-maintained.
-- **Script 2**: [coming soon]
+- **Multiple-RDP-Access.ps1**: after the user inputs and submits the file path, the script checks for the file's existence, reads the server addresses, and initiates RDP sessions for each valid server in the list
 - **Script 3**: [coming soon]
 
 ## Customizations
