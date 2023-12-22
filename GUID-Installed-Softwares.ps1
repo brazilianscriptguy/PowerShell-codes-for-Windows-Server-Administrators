@@ -1,28 +1,45 @@
-# PowerShell Script to List Installed Software with GUID
+# PowerShell Script to List Installed Software x86 and x64 with GUID
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Date: 22/12/2023
 
-# Configure error handling
-$ErrorActionPreference = "SilentlyContinue"
-
-# Define the log file path and name
-$logFilePath = "C:\Logs-TEMP\GUID-Installed-Softwares.log"
-# Create the log directory if it does not exist
-if (-not (Test-Path "C:\Logs-TEMP")) {
-    New-Item -Path "C:\Logs-TEMP" -ItemType Directory
+# Function to extract the GUID from the registry path
+function Get-GUIDFromPath {
+    param (
+        [string]$path
+    )
+    $splitPath = $path -split '\\'
+    return $splitPath[-1]
 }
 
-# Retrieve installed software information using registry (more efficient than Win32_Product)
-$softwareList = Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*,
-                                 HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |
-                Where-Object { $_.DisplayName -and $_.UninstallString } |
-                Select-Object DisplayName, Publisher, InstallDate, DisplayVersion, UninstallString |
-                Sort-Object DisplayName
+# Get 64-bit installed programs
+$installedPrograms64Bit = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' | 
+Where-Object { $_.DisplayName } | 
+Select-Object DisplayName, DisplayVersion, 
+    @{Name="IdentifyingNumber"; Expression={Get-GUIDFromPath $_.PSPath}}, 
+    @{Name="Architecture"; Expression={"64-bit"}}
 
-# Write the software list to the log file
-$softwareList | Format-Table -AutoSize | Out-File -FilePath $logFilePath
+# Get 32-bit installed programs
+$installedPrograms32Bit = Get-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*' | 
+Where-Object { $_.DisplayName } | 
+Select-Object DisplayName, DisplayVersion, 
+    @{Name="IdentifyingNumber"; Expression={Get-GUIDFromPath $_.PSPath}}, 
+    @{Name="Architecture"; Expression={"32-bit"}}
 
-# User feedback
-Write-Host "Software list has been saved to: $logFilePath" -ForegroundColor Green
+# Combine the lists and display the name, version, GUID (IdentifyingNumber), and architecture of each program
+$allInstalledPrograms = $installedPrograms64Bit + $installedPrograms32Bit
 
-# End of script
+# Path to the "My Documents" directory of the logged-in user
+$outputPath = [Environment]::GetFolderPath('MyDocuments') + '\InstalledPrograms.csv'
+
+# Check if the directory exists and create it if necessary
+$directory = [System.IO.Path]::GetDirectoryName($outputPath)
+if (-not (Test-Path $directory)) {
+    New-Item -ItemType Directory -Path $directory | Out-Null
+}
+
+# Export the results to a CSV file in the "My Documents" directory
+$allInstalledPrograms | Export-Csv -Path $outputPath -NoTypeInformation
+
+Write-Host "Exported to $outputPath"
+
+#End of script
