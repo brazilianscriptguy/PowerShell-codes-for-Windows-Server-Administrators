@@ -1,6 +1,6 @@
 # PowerShell Script to List Installed Software x86 and x64 with GUID
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Date: 22/12/2023
+# Update: 22/12/2023
 
 # Function to extract the GUID from the registry path
 function Get-GUIDFromPath {
@@ -29,7 +29,7 @@ Select-Object DisplayName, DisplayVersion,
 $allInstalledPrograms = $installedPrograms64Bit + $installedPrograms32Bit
 
 # Path to the "My Documents" directory of the logged-in user
-$outputPath = [Environment]::GetFolderPath('MyDocuments') + '\InstalledPrograms.csv'
+$outputPath = [Environment]::GetFolderPath('MyDocuments') + '\GUID-Installed-Softwares.csv'
 
 # Check if the directory exists and create it if necessary
 $directory = [System.IO.Path]::GetDirectoryName($outputPath)
