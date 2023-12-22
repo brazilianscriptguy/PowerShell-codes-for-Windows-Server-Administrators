@@ -1,52 +1,72 @@
-﻿# PowerShell script to move the Event Logs default paths
-# by Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# on 10/05/2023
+# PowerShell Script to Move Event Log Default Paths
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Update: 22/12/2023
 
-   # Set error handling to silently continue
-    $ErrorActionPreference = "SilentlyContinue"
+# Configure error handling to silently continue
+$ErrorActionPreference = "SilentlyContinue"
 
-    # Define the original folder for event logs and the target folder where they will be moved
-    $originalFolder = "$env:SystemRoot\system32\winevt\Logs"
-    $targetRootFolder = "L:\"
+# Define original directory for event logs
+$originalFolder = "$env:SystemRoot\system32\winevt\Logs"
 
-    # Get all log names from the system
-    $logNames = Get-WinEvent -ListLog * | Select-Object -ExpandProperty LogName
+# Specify the target root directory for the logs. Customize this path to your specific log drive letter.
+$targetRootFolder = "L:\"  # Change 'L:' to your desired drive letter
 
-    # Initialize progress bar variables
-    $totalLogs = $logNames.Count
-    $currentLogNumber = 0
+# Define the log file path and name
+$logFilePath = "C:\Logs-TEMP\EventLogsPaths.log"
+# Create the log directory if it does not exist
+if (-not (Test-Path "C:\Logs-TEMP")) {
+    New-Item -Path "C:\Logs-TEMP" -ItemType Directory
+}
 
-    # Loop through each log name
-    foreach ($logName in $logNames) {
-        # Increment the current log number
-        $currentLogNumber++
+# Function to write to log file
+function Write-Log {
+    param ([string]$message)
+    Add-Content -Path $logFilePath -Value $message
+}
 
-        # Display progress bar
-        Write-Progress -Activity "Moving Event Logs" -Status "Handling $($logName)" -PercentComplete (($currentLogNumber / $totalLogs) * 100)
+# Write initial log entry
+Write-Log "Starting Event Log Path Change Script - $(Get-Date)"
 
-        # Replace forward slashes with hyphens in log name for compatibility with folder naming
-        $escapedLogName = $logName.Replace('/', '-')
-        # Create a target folder path for the current log
-        $targetFolder = Join-Path $targetRootFolder $escapedLogName
+# Retrieve all system log names
+$logNames = Get-WinEvent -ListLog * | Select-Object -ExpandProperty LogName
 
-        # Create the target folder if it doesn't already exist
-        if (-not (Test-Path $targetFolder)) {
-            New-Item -Path $targetFolder -ItemType Directory
-        }
+# Initialize variables for progress tracking
+$totalLogs = $logNames.Count
+$currentLogNumber = 0
 
-        # Get the ACL of the original folder and set it to the target folder
-        $originalAcl = Get-Acl -Path $originalFolder -Audit -AllCentralAccessPolicies
-        Set-Acl -Path $targetFolder -AclObject $originalAcl -ClearCentralAccessPolicy
-        # Get the ACL of the target folder and set its owner to the SYSTEM account
-        $targetAcl = Get-Acl -Path $targetFolder -Audit -AllCentralAccessPolicies
-        $targetAcl.SetOwner([System.Security.Principal.NTAccount]::new("SYSTEM"))
+# Process each log
+foreach ($logName in $logNames) {
+    # Update progress
+    $currentLogNumber++
+    Write-Progress -Activity "Moving Event Logs" -Status "Processing Log: $logName" -PercentComplete (($currentLogNumber / $totalLogs) * 100)
 
-        # Create a new registry entry for AutoBackupLogFiles and set its value to 1
-        New-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\$logName" -Name "AutoBackupLogFiles" -Value "1" -PropertyType "DWord"
-        # Create a new registry entry for Flags and set its value to 1
-        New-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\$logName" -Name "Flags" -Value "1" -PropertyType "DWord"
-        # Update the File property in the registry to point to the new event log file location
-        Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\$logName" -Name "File" -Value "$targetFolder\$escapedLogName.evtx"
+    # Format log name for folder compatibility
+    $escapedLogName = $logName.Replace('/', '-')
+    $targetFolder = Join-Path $targetRootFolder $escapedLogName
+
+    # Create target directory if necessary
+    if (-not (Test-Path $targetFolder)) {
+        New-Item -Path $targetFolder -ItemType Directory
+        Write-Log "Created directory: $targetFolder"
     }
 
-    # End of script
+    # Copy ACL from original to target directory
+    $originalAcl = Get-Acl -Path $originalFolder
+    Set-Acl -Path $targetFolder -AclObject $originalAcl
+    Write-Log "Set ACL for $targetFolder"
+
+    # Update registry for log file management
+    $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\$logName"
+    New-ItemProperty -Path $regPath -Name "AutoBackupLogFiles" -Value 1 -PropertyType "DWord" -Force
+    New-ItemProperty -Path $regPath -Name "Flags" -Value 1 -PropertyType "DWord" -Force
+    Set-ItemProperty -Path $regPath -Name "File" -Value "$targetFolder\$escapedLogName.evtx"
+    Write-Log "Updated registry for $logName"
+
+    # Log progress
+    Write-Log "Processed Log: $logName"
+}
+
+# Write final log entry
+Write-Log "Completed Event Log Path Change Script - $(Get-Date)"
+
+# Script completion
