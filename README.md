@@ -34,7 +34,7 @@ Before using the scripts in this folder, ensure that the Microsoft Log Parser ut
 ## Description:
 This folder contains scripts specifically designed for selecting and processing Windows Event Log files (*.evtx). They focus on extracting particular information from these logs and then outputting the results in an easy-to-analyze CSV file format.
 
-1. **Event ID 307 - Print Audit.ps1**: This script is tailored to extract and compile detailed information from event logs associated with Event ID 307, which relates to print job activities. It's an invaluable tool for conducting audits and monitoring print operations in your environment.
+1. **Event ID 307 - Print Audit.ps1**: This script is tailored to extract from the Event Microsoft-Windows-PrintService/Operational EVTX file log, and compile detailed information from event logs associated with Event ID 307, which relates to print job activities. It's an invaluable tool for conducting audits and monitoring print operations in your environment.
    
 2. **NEXT COMING SOON**
 
