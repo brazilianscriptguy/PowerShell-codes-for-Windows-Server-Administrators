@@ -27,7 +27,7 @@ Within this repository, you will find several distinct folders. Please select a 
 
 9. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts designed to streamline your system administration tasks.
 
-## Eventlogs-Tools Folder
+## Files into Eventlogs-Tools folder
 ## Prerequisite:
 Before using the scripts in this folder, ensure that the Microsoft Log Parser utility is installed in your environment.
 
