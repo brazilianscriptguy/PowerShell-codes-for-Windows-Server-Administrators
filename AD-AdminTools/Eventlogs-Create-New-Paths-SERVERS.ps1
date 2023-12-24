@@ -69,4 +69,4 @@ foreach ($logName in $logNames) {
 # Write final log entry
 Write-Log "Completed Event Log Path Change Script - $(Get-Date)"
 
-# Script completion
+# End of script
