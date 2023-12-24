@@ -1,4 +1,4 @@
-﻿# PowerShell Script for Processing Windows Event Log Files
+# PowerShell Script for Processing Windows Event Log Files
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: 24/12/2023
 
@@ -22,7 +22,7 @@ if ($OpenFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     $OutputFormat = New-Object -ComObject "MSUtil.LogQuery.CSVOutputFormat"
 
     # SQL-like query to extract specific fields from the event log
-    $SQLQuery = "SELECT timegenerated AS data_horario, Extract_token(strings, 2, '|') AS id_usuario, Extract_token(strings, 3, '|') AS estacao_trabalho, Extract_token(strings, 4, '|') AS impressora_utilizada, Extract_token(strings, 6, '|') AS tamanho_bytes, Extract_token(strings, 7, '|') AS quantidade_paginas_impressas INTO '" + $Destination + "' FROM '" + $LogFilePath + "' WHERE eventid = 307"
+    $SQLQuery = "SELECT timegenerated AS EventTime, Extract_token(strings, 2, '|') AS UserId, Extract_token(strings, 3, '|') AS Workstation, Extract_token(strings, 4, '|') AS PrinterUsed, Extract_token(strings, 6, '|') AS ByteSize, Extract_token(strings, 7, '|') AS PagesPrinted INTO '" + $Destination + "' FROM '" + $LogFilePath + "' WHERE eventid = 307"
 
     # Displaying the progress bar
     Write-Progress -Activity "Processing Event Log" -Status "Please wait..." -PercentComplete 0
@@ -48,4 +48,4 @@ if ($OpenFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     Write-Host "No file selected."
 }
 
-#Script complet
+#End of script
