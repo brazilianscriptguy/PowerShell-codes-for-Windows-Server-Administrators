@@ -43,8 +43,10 @@ This folder contains scripts specifically designed for selecting and processing 
 4. **EventID-4648-Logon-using-explicit-credentials.ps1**: Focused on Event ID 4648 in Windows Security Event Logs, this script is adept at identifying and reporting logon activities involving explicit credentials. It systematically compiles information about the user, domain, and source IP into an organized CSV report. This script is invaluable for tracking explicit credential usage, bolstering security, and detecting unusual or unauthorized access patterns.
 
 5. **EventID-4771-Kerberos-pre-authentication-failed.ps1**: This advanced script is dedicated to processing Event ID 4771 from Windows Security Event Logs, highlighting Kerberos pre-authentication failures. By capturing and reporting these failures, it serves as a critical tool for uncovering potential security threats, including brute force attacks and misuse of credentials. Its output, in a detailed CSV format, is an essential resource for security audits and proactive defense strategies.
+   
+6. **EventID-4800-and-4801-Workstation-Locked-and-Unlocked.ps1**: This script is meticulously designed to analyze Windows Security Event Logs for Event IDs 4800 and 4801, which correspond to locking and unlocking of a workstation. It adeptly extracts and organizes key information about these security-related events, including user accounts involved, event times, and workstation IPs. The data is then presented in a structured CSV file, offering a clear view of workstation access patterns. This script is particularly valuable for security monitoring, helping administrators track user activity and identify unusual access patterns, thereby contributing to the overall security management and compliance within the organization.
 
-6. **NEXT COMING SOON**
+7. **NEXT COMING SOON**
 
 ## Customizations
 
