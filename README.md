@@ -1,4 +1,4 @@
-# Powershell-WindowsServer-Administrators
+# Powershell-Windows-Server-Administrators
 Essential scripts and tools meticulously crafted to empower Windows Server Administrators.
 
 ## Description
