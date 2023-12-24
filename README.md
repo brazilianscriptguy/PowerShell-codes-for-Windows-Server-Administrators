@@ -38,7 +38,7 @@ This folder contains scripts specifically designed for selecting and processing 
    
 2. **EventID-4624-Logon-via-RDP.ps1**: This script is meticulously designed for analyzing the Windows Security Event Log (Security.evtx). It specifically targets Event ID 4624 to generate a detailed report on Remote Desktop Protocol (RDP) logon activities. By processing this data, the script efficiently extracts and compiles vital information about RDP sessions, presenting it in a structured format for easy review and auditing purposes.
    
-3. **EventID-4625-Account-failed-to-logon.ps1**: This powerful script specializes in processing Event ID 4625 from Windows Security Event Logs, which pertains to failed logon attempts. It meticulously filters and extracts critical details from these events, effectively translating them into a comprehensive CSV format. The output file provides an insightful overview of all unsuccessful logon activities, making it an invaluable resource for security analysis and breach investigations. 
+3. **EventID-4625-Logon-account-failed.ps1**: This powerful script specializes in processing Event ID 4625 from Windows Security Event Logs, which pertains to failed logon attempts. It meticulously filters and extracts critical details from these events, effectively translating them into a comprehensive CSV format. The output file provides an insightful overview of all unsuccessful logon activities, making it an invaluable resource for security analysis and breach investigations. 
    
 4. **NEXT COMING SOON**
 
