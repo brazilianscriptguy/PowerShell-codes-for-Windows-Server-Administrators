@@ -40,7 +40,7 @@ This folder contains scripts specifically designed for selecting and processing 
    
 3. **EventID-4625-Logon-account-failed.ps1**: This powerful script specializes in processing Event ID 4625 from Windows Security Event Logs, which pertains to failed logon attempts. It meticulously filters and extracts critical details from these events, effectively translating them into a comprehensive CSV format. The output file provides an insightful overview of all unsuccessful logon activities, making it an invaluable resource for security analysis and breach investigations.
    
-4. **EventID-4648-Logon-using-explicit-credentials.ps1**:  
+4. **EventID-4648-Logon-using-explicit-credentials.ps1**: This robust script is expertly crafted to process Event ID 4648 from Windows Security Event Logs, which specifically focuses on logon activities using explicit credentials. It meticulously extracts critical details from these log entries, such as the domain, user account, and source IP address, and consolidates them into a well-structured CSV file. This script is particularly useful for in-depth security analysis, helping administrators and security professionals track explicit credential usage and identify potential security risks or policy violations within their IT environment.
    
 5. **NEXT COMING SOON**
 
