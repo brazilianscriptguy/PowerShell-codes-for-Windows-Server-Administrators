@@ -1,4 +1,4 @@
-# PowerShell Script for Processing Windows Event Log Files - Event ID 4625 (Failed AD Logon Attempts)
+# PowerShell Script for Processing Windows Event Log Files - Event ID 4648 (Logon Using Explicit Credentials)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: 24/12/2023
 
@@ -33,7 +33,7 @@ SELECT timegenerated AS EventTime,
        Extract_token(strings, 19, '|') AS SourceIP
 INTO '$Destination' 
 FROM '$LogFilePath' 
-WHERE eventid = 4625 AND 
+WHERE eventid = 4648 AND 
       UserAccount NOT IN ('SYSTEM', 'ANONYMOUS LOGON', 'LOCAL SERVICE', 'NETWORK SERVICE') 
 ORDER BY EventTime DESC
 "@
