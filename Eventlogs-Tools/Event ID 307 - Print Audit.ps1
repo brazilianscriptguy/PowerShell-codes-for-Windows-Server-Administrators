@@ -1,4 +1,4 @@
-# PowerShell Script for Processing Windows Event Log Files
+# PowerShell Script for Processing Windows Event Log Files - Event Microsoft-Windows-PrintService/Operational
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: 24/12/2023
 
