@@ -18,7 +18,7 @@ if ($OpenFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     $LogFilePath = $OpenFileDialog.FileName
     $DefaultFolder = [Environment]::GetFolderPath("MyDocuments")
     $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $Destination = Join-Path $DefaultFolder "EventID-4624-RDP-logons_$timestamp.csv"
+    $Destination = Join-Path $DefaultFolder "EventID-4624-Logon-via-RDP_$timestamp.csv"
 
     $LogQuery = New-Object -ComObject "MSUtil.LogQuery"
     $InputFormat = New-Object -ComObject "MSUtil.LogQuery.EventLogInputFormat"
