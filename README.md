@@ -1,4 +1,4 @@
-# Powershell-Windows-Server-Administrators
+# PowerShell codes for Windows Server Administrators
 Essential scripts and tools meticulously crafted to empower Windows Server Administrators.
 
 ## Description
