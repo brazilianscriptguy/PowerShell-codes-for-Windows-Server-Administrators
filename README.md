@@ -46,7 +46,9 @@ This folder contains scripts specifically designed for selecting and processing 
    
 6. **EventID-4800-and-4801-Workstation-Locked-and-Unlocked.ps1**: This script is meticulously designed to analyze Windows Security Event Logs for Event IDs 4800 and 4801, which correspond to locking and unlocking of a workstation. It adeptly extracts and organizes key information about these security-related events, including user accounts involved, event times, and workstation IPs. The data is then presented in a structured CSV file, offering a clear view of workstation access patterns. This script is particularly valuable for security monitoring, helping administrators track user activity and identify unusual access patterns, thereby contributing to the overall security management and compliance within the organization.
 
-7. **NEXT COMING SOON**
+7. **EventID-6008-System-shutsdown-unexpectedly.ps1**: This script is skillfully crafted to monitor and analyze Event ID 6008 in Windows Event Logs, which indicates an unexpected system shutdown. It proficiently aggregates the occurrences of these events, providing insights into the frequency and patterns of unexpected shutdowns. The script outputs the data into a clearly formatted CSV file, including the number of occurrences and relevant event details. This is an invaluable tool for system administrators and IT professionals to diagnose potential system instability, identify underlying issues, and enhance overall system reliability. The script's ability to automatically open the generated report for immediate review makes it highly user-friendly and efficient for rapid analysis and response to critical system events.
+   
+8. **NEXT COMING SOON**
 
 ## Customizations
 
