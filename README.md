@@ -34,9 +34,11 @@ Before using the scripts in this folder, ensure that the Microsoft Log Parser ut
 ## Description:
 This folder contains scripts specifically designed for selecting and processing Windows Event Log files (*.evtx). They focus on extracting particular information from these logs and then outputting the results in an easy-to-analyze CSV file format.
 
-1. **Event ID 307 - Print Audit.ps1**: This script is tailored to extract from the Event Microsoft-Windows-PrintService/Operational EVTX file log, and compile detailed information from event logs associated with Event ID 307, which relates to print job activities. It's an invaluable tool for conducting audits and monitoring print operations in your environment.
+1. **EventID-307-PrintAudit**: This script is tailored to extract from the Event Microsoft-Windows-PrintService/Operational EVTX file log, and compile detailed information from event logs associated with Event ID 307, which relates to print job activities. It's an invaluable tool for conducting audits and monitoring print operations in your environment.
    
-2. **NEXT COMING SOON**
+2. **EventID-4624-Logons-via-RDP.ps1**: This script is meticulously designed for analyzing the Windows Security Event Log (Security.evtx). It specifically targets Event ID 4624 to generate a detailed report on Remote Desktop Protocol (RDP) logon activities. By processing this data, the script efficiently extracts and compiles vital information about RDP sessions, presenting it in a structured format for easy review and auditing purposes.
+   
+3. **NEXT COMING SOON**
 
 ## Customizations
 
