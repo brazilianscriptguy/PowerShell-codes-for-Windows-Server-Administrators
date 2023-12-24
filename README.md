@@ -34,15 +34,17 @@ Before using the scripts in this folder, ensure that the Microsoft Log Parser ut
 ## Description:
 This folder contains scripts specifically designed for selecting and processing Windows Event Log files (*.evtx). They focus on extracting particular information from these logs and then outputting the results in an easy-to-analyze CSV file format.
 
-1. **EventID-307-PrintAudit**: This script is tailored to extract from the Event Microsoft-Windows-PrintService/Operational EVTX file log, and compile detailed information from event logs associated with Event ID 307, which relates to print job activities. It's an invaluable tool for conducting audits and monitoring print operations in your environment.
-   
-2. **EventID-4624-Logon-via-RDP.ps1**: This script is meticulously designed for analyzing the Windows Security Event Log (Security.evtx). It specifically targets Event ID 4624 to generate a detailed report on Remote Desktop Protocol (RDP) logon activities. By processing this data, the script efficiently extracts and compiles vital information about RDP sessions, presenting it in a structured format for easy review and auditing purposes.
-   
-3. **EventID-4625-Logon-account-failed.ps1**: This powerful script specializes in processing Event ID 4625 from Windows Security Event Logs, which pertains to failed logon attempts. It meticulously filters and extracts critical details from these events, effectively translating them into a comprehensive CSV format. The output file provides an insightful overview of all unsuccessful logon activities, making it an invaluable resource for security analysis and breach investigations.
-   
-4. **EventID-4648-Logon-using-explicit-credentials.ps1**: This robust script is expertly crafted to process Event ID 4648 from Windows Security Event Logs, which specifically focuses on logon activities using explicit credentials. It meticulously extracts critical details from these log entries, such as the domain, user account, and source IP address, and consolidates them into a well-structured CSV file. This script is particularly useful for in-depth security analysis, helping administrators and security professionals track explicit credential usage and identify potential security risks or policy violations within their IT environment.
-   
-5. **NEXT COMING SOON**
+1. **EventID-307-PrintAudit.ps1**: This script expertly extracts information from the Microsoft-Windows-PrintService/Operational Event Log (EVTX file), focusing on Event ID 307. It captures detailed data about print job activities, including printer usage, page counts, and job sizes. As an indispensable tool for audit and oversight, it offers deep insights into print management and operational efficiency within your environment.
+
+2. **EventID-4624-Logon-via-RDP.ps1**: Designed to scrutinize Windows Security Event Logs, this script zeroes in on Event ID 4624 to elucidate Remote Desktop Protocol (RDP) logon activities. It deftly gathers and organizes essential data about each RDP session, delivering a concise and informative CSV report. This script is ideal for administrators needing to monitor remote access, ensure compliance, and maintain security across their network.
+
+3. **EventID-4625-Logon-account-failed.ps1**: Specializing in analyzing failed logon attempts (Event ID 4625) from Windows Security Event Logs, this script adeptly filters and documents each failed attempt. By translating these logs into an informative CSV file, it offers a panoramic view of security incidents, making it an essential tool for identifying potential breaches, strengthening security measures, and understanding user behavior patterns.
+
+4. **EventID-4648-Logon-using-explicit-credentials.ps1**: Focused on Event ID 4648 in Windows Security Event Logs, this script is adept at identifying and reporting logon activities involving explicit credentials. It systematically compiles information about the user, domain, and source IP into an organized CSV report. This script is invaluable for tracking explicit credential usage, bolstering security, and detecting unusual or unauthorized access patterns.
+
+5. **EventID-4771-Kerberos-pre-authentication-failed.ps1**: This advanced script is dedicated to processing Event ID 4771 from Windows Security Event Logs, highlighting Kerberos pre-authentication failures. By capturing and reporting these failures, it serves as a critical tool for uncovering potential security threats, including brute force attacks and misuse of credentials. Its output, in a detailed CSV format, is an essential resource for security audits and proactive defense strategies.
+
+6. **NEXT COMING SOON**
 
 ## Customizations
 
