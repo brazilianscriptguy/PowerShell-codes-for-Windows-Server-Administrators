@@ -5,8 +5,10 @@ Essential scripts and tools meticulously crafted to empower Windows Server Admin
 
 Welcome to the PowerShell Codes for Windows Server Administrators repository, maintained by **@brazilianscriptguy**. As a dedicated scripter for Windows Server Administrator's Tools, I present a collection of meticulously crafted PowerShell scripts and tools tailored to simplify your administrative tasks.
 
-## Features (files into AD-AdminTools folder)
+## Features 
+Within this repository, you will find several distinct folders. Please select a folder of your interest and, as a first step, refer to the README.md file located in it main directory. This file contains detailed information about the functions available as well as any requirements necessary for their use.
 
+## Files into AD-AdminTools folder
 1. **Eventlogs-Create-New-Paths-SERVERS.ps1**: This script streamlines the management of Event Log files on Windows Servers. It allows you to move, reorganize, and adjust the size of Event Log files and folders efficiently, enhancing the organization and maintenance of your server's logging system.
 
 2. **Force-AD-Password-Expires.ps1**: Specifically designed for Active Directory environments, this script forces the expiration of all user passwords within a given Organizational Unit (OU). It sets the `ChangePasswordAtLogon` property to true, requiring users to change their passwords at their next login, thereby enhancing security.
@@ -24,6 +26,17 @@ Welcome to the PowerShell Codes for Windows Server Administrators repository, ma
 8. **Winget-Upgrade-Install-Explicit.ps1**: This script offers an interactive and user-friendly approach to software updates on Windows OS. With an intuitive progress bar, it utilizes `winget` for package management, performing updates explicitly while logging the process for easy review and audit.
 
 9. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts designed to streamline your system administration tasks.
+
+## Eventlogs-Tools Folder
+## Prerequisite:
+Before using the scripts in this folder, ensure that the Microsoft Log Parser utility is installed in your environment.
+
+## Description:
+This folder contains scripts specifically designed for selecting and processing Windows Event Log files (*.evtx). They focus on extracting particular information from these logs and then outputting the results in an easy-to-analyze CSV file format.
+
+1. **Event ID 307 - Print Audit.ps1**: This script is tailored to extract and compile detailed information from event logs associated with Event ID 307, which relates to print job activities. It's an invaluable tool for conducting audits and monitoring print operations in your environment.
+   
+2. **NEXT COMING SOON**
 
 ## Customizations
 
