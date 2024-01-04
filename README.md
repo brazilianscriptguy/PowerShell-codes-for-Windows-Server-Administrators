@@ -3,7 +3,9 @@ Essential scripts and tools meticulously crafted to empower Windows Server Admin
 
 ## Description
 
-Welcome to the PowerShell Codes for Windows Server Administrators repository, maintained by **@brazilianscriptguy**. As a dedicated scripter for Windows Server Administrator's Tools, I present a collection of meticulously crafted PowerShell scripts and tools tailored to simplify your administrative tasks.
+Welcome to the PowerShell Codes for Windows Server Administrators repository, curated by @brazilianscriptguy. This repository serves as a treasure trove of PowerShell scripts and tools, each meticulously engineered to streamline the workload of Windows Server administrators. These scripts, ranging from security management to system optimization, embody precision and user-friendliness, ensuring that administrative tasks are both simplified and effective.
+
+Delve into the repository and discover a realm where each script not only addresses specific administrative challenges but also introduces a level of efficiency and clarity that transforms routine tasks into seamless operations. Every tool here is a testament to the power of well-crafted scripting, designed to elevate the standards of server administration.
 
 ## Features 
 Within this repository, you will find several distinct folders. Please select a folder of your interest and, as a first step, refer to the README.md file located in it main directory. This file contains detailed information about the functions available as well as any requirements necessary for their use.
