@@ -1,19 +1,18 @@
-﻿# PowerShell Script to Move Computers Between OUs with Logging and GUI
+﻿# PowerShell Script with GUI for Moving Computers Between OUs, with Logging and Input Validation
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 22/12/2023
+# Update: 12/01/2024
 
-# Load Windows Forms and Active Directory module
+# Import required modules
 Add-Type -AssemblyName System.Windows.Forms
-Import-Module ActiveDirectory
+Import-Module ActiveDirectory -ErrorAction SilentlyContinue
 
-# Configure error handling
-$ErrorActionPreference = "SilentlyContinue"
-
-# Define the log file path and name
+# Define the log file path
 $logFilePath = "C:\Logs-TEMP\Move-Computers-between-OUs.log"
+
 # Create the log directory if it does not exist
-if (-not (Test-Path "C:\Logs-TEMP")) {
-    New-Item -Path "C:\Logs-TEMP" -ItemType Directory
+$logDir = Split-Path -Path $logFilePath
+if (-not (Test-Path -Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory
 }
 
 # Function to write to log file
@@ -26,50 +25,57 @@ function Write-Log {
 function Show-Form {
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "Move Computers Between OUs"
-    $form.Width = 420
-    $form.Height = 320
+    $form.Width = 450
+    $form.Height = 350
     $form.StartPosition = "CenterScreen"
 
-    # Create labels with increased width
-    $labels = @("Target OU:", "Search Base:", "Domain Controller:", "Computer List File:")
-    $positions = @(20, 60, 100, 140)
-    for ($i = 0; $i -lt $labels.Length; $i++) {
-        $label = New-Object System.Windows.Forms.Label
-        $label.Text = $labels[$i]
-        $label.Location = New-Object System.Drawing.Point(20, $positions[$i])
-        $label.Size = New-Object System.Drawing.Size(130, 20)
-        $form.Controls.Add($label)
-    }
+    # Create labels and textboxes
+    $labelsText = @("Target OU (DN):", "Source OU (DN):", "Domain Controller (FQDN):", "Computer List .TXT File:") #Ensure the .TXT file is ANSI formatted to include only one column, which should list the hostnames.
+     $positions = @(20, 60, 100, 140)
+    $textBoxes = @()
 
-    # Create textboxes
-    $textBoxes = New-Object System.Collections.ArrayList
-    for ($i = 0; $i -lt 4; $i++) {
+    foreach ($i in 0..3) {
+        $label = New-Object System.Windows.Forms.Label
+        $label.Text = $labelsText[$i]
+        $label.Location = New-Object System.Drawing.Point(10, $positions[$i])
+        $label.AutoSize = $true
+        $form.Controls.Add($label)
+
         $textBox = New-Object System.Windows.Forms.TextBox
-        $textBox.Location = New-Object System.Drawing.Point(150, $positions[$i])
-        $textBox.Size = New-Object System.Drawing.Size(240, 20)
-        $textBoxes.Add($textBox) | Out-Null
+        $textBox.Location = New-Object System.Drawing.Point(160, $positions[$i])
+        $textBox.Size = New-Object System.Drawing.Size(260, 20)
+        $textBoxes += $textBox
         $form.Controls.Add($textBox)
     }
 
-    # Create a button with increased width
+    # Create a button
     $button = New-Object System.Windows.Forms.Button
     $button.Text = "Move Computers"
-    $button.Location = New-Object System.Drawing.Point(150, 180)
-    $button.Size = New-Object System.Drawing.Size(200, 23)
+    $button.Location = New-Object System.Drawing.Point(160, 180)
+    $button.Size = New-Object System.Drawing.Size(200, 30)
     $form.Controls.Add($button)
 
     # Create a progress bar
     $progressBar = New-Object System.Windows.Forms.ProgressBar
-    $progressBar.Location = New-Object System.Drawing.Point(20, 220)
-    $progressBar.Size = New-Object System.Drawing.Size(360, 23)
-    $progressBar.Minimum = 0
-    $progressBar.Maximum = 100
+    $progressBar.Location = New-Object System.Drawing.Point(10, 220)
+    $progressBar.Size = New-Object System.Drawing.Size(410, 30)
     $form.Controls.Add($progressBar)
 
-    # Event handler for the button click
+    # Button click event with validation
     $button.Add_Click({
-        Process-Computers $textBoxes[0].Text $textBoxes[1].Text $textBoxes[2].Text $textBoxes[3].Text
-        $form.Close()
+        $isValidInput = $true
+        foreach ($textBox in $textBoxes) {
+            if ([string]::IsNullOrWhiteSpace($textBox.Text)) {
+                [System.Windows.Forms.MessageBox]::Show("Please fill in all fields.", "Input Required", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+                $isValidInput = $false
+                break
+            }
+        }
+
+        if ($isValidInput) {
+            Process-Computers $textBoxes[0].Text $textBoxes[1].Text $textBoxes[2].Text $textBoxes[3].Text $progressBar
+            $form.Close()
+        }
     })
 
     # Show the form
@@ -81,8 +87,9 @@ function Process-Computers {
     param (
         [string]$targetOU,
         [string]$searchBase,
-        [string]$domainController,
-        [string]$computerListFile
+        [string]$fqdnDomainController,
+        [string]$computerListFile,
+        [System.Windows.Forms.ProgressBar]$progressBar
     )
 
     if (Test-Path $computerListFile) {
@@ -92,7 +99,7 @@ function Process-Computers {
         Write-Log "Starting to move computers. Total count: $totalComputers"
 
         foreach ($computerName in $computers) {
-            $computer = Get-ADComputer -Filter {Name -eq $computerName} -SearchBase $searchBase -Server $domainController -ErrorAction SilentlyContinue
+            $computer = Get-ADComputer -Filter {Name -eq $computerName} -SearchBase $searchBase -Server $fqdnDomainController -ErrorAction SilentlyContinue
             if ($computer) {
                 Move-ADObject -Identity $computer.DistinguishedName -TargetPath $targetOU -ErrorAction SilentlyContinue
                 Write-Log "Moved computer $computerName to $targetOU"

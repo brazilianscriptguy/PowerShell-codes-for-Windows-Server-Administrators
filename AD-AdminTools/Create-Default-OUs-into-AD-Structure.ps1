@@ -1,4 +1,4 @@
-# PowerShell Script with GUI for Creating New OUs in Active Directory
+# PowerShell Script with GUI for Creating Specified OUs in Active Directory
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: 04/01/2024
 
@@ -8,60 +8,65 @@ Import-Module ActiveDirectory
 
 # Create and configure the main form
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Create Default Organizational Units'
-$form.Size = New-Object System.Drawing.Size(500,150)
+$form.Text = 'Create Specified Organizational Units'
+$form.Size = New-Object System.Drawing.Size(400, 250)
 $form.StartPosition = 'CenterScreen'
 
-# Create and configure the label
-$label = New-Object System.Windows.Forms.Label
-$label.Location = New-Object System.Drawing.Point(10,20)
-$label.Size = New-Object System.Drawing.Size(480,20)
-$label.Text = 'Enter the base OU path (e.g., OU=BaseOU,DC=domain,DC=com):'
-$form.Controls.Add($label)
+# Label for Destination OU
+$labelDestinationOU = New-Object System.Windows.Forms.Label
+$labelDestinationOU.Text = 'Enter the Destination OU (e.g., "OU=Dept,DC=domain,DC=com"):'
+$labelDestinationOU.Location = New-Object System.Drawing.Point(10, 20)
+$labelDestinationOU.AutoSize = $true
+$form.Controls.Add($labelDestinationOU)
 
-# Create and configure the textbox
-$textbox = New-Object System.Windows.Forms.TextBox
-$textbox.Location = New-Object System.Drawing.Point(10,40)
-$textbox.Size = New-Object System.Drawing.Size(360,20)
-$form.Controls.Add($textbox)
+# Textbox for Destination OU input
+$textBoxDestinationOU = New-Object System.Windows.Forms.TextBox
+$textBoxDestinationOU.Location = New-Object System.Drawing.Point(10, 40)
+$textBoxDestinationOU.Size = New-Object System.Drawing.Size(370, 20)
+$form.Controls.Add($textBoxDestinationOU)
 
-# Function to create a new OU and return a message indicating creation
-function Create-NewOU {
-    param (
-        [string]$ouName,
-        [string]$ouPath
-    )
-    $fullPath = "OU=$ouName,$ouPath"
-    New-ADOrganizationalUnit -Name $ouName -Path $ouPath -ProtectedFromAccidentalDeletion $true -ErrorAction Stop
-    $message = "Created OU: $ouName at path: $fullPath"
-    Write-Host $message
-    return $message
-}
+# Label for OU Names
+$labelOUNames = New-Object System.Windows.Forms.Label
+$labelOUNames.Text = 'Enter names of OUs to create (comma-separated):'
+$labelOUNames.Location = New-Object System.Drawing.Point(10, 70)
+$labelOUNames.AutoSize = $true
+$form.Controls.Add($labelOUNames)
 
-# Create and configure the button
-$button = New-Object System.Windows.Forms.Button
-$button.Location = New-Object System.Drawing.Point(10,70)
-$button.Size = New-Object System.Drawing.Size(360,30)
-$button.Text = 'Create OUs'
-$button.Add_Click({
-    $baseOUPath = $textbox.Text
+# Textbox for OU Names input
+$textBoxOUNames = New-Object System.Windows.Forms.TextBox
+$textBoxOUNames.Location = New-Object System.Drawing.Point(10, 90)
+$textBoxOUNames.Size = New-Object System.Drawing.Size(370, 20)
+$form.Controls.Add($textBoxOUNames)
+
+# Button for creating specified OUs
+$buttonCreateOU = New-Object System.Windows.Forms.Button
+$buttonCreateOU.Text = 'Create OUs'
+$buttonCreateOU.Location = New-Object System.Drawing.Point(10, 120)
+$buttonCreateOU.Size = New-Object System.Drawing.Size(150, 23)
+$buttonCreateOU.Add_Click({
+    $destinationOU = $textBoxDestinationOU.Text
+    $ouNames = $textBoxOUNames.Text -split ',' | ForEach-Object { $_.Trim() }
     
-    if (-not [string]::IsNullOrWhiteSpace($baseOUPath)) {
-        $messages = @(
-            Create-NewOU -ouName "Computers" -ouPath $baseOUPath,
-            Create-NewOU -ouName "Printers" -ouPath $baseOUPath,
-            Create-NewOU -ouName "Groups" -ouPath $baseOUPath,
-            Create-NewOU -ouName "Users" -ouPath $baseOUPath
-        )
-        $resultMessage = $messages -join "`n"
-        [System.Windows.Forms.MessageBox]::Show($resultMessage, 'Creation Results', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    } else {
-        [System.Windows.Forms.MessageBox]::Show('Please enter the base OU path.', 'Missing Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    # Validation
+    if([string]::IsNullOrWhiteSpace($destinationOU) -or $ouNames.Length -eq 0) {
+        [System.Windows.Forms.MessageBox]::Show("Please enter the Destination OU and OU names.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
     }
+
+    # Processing
+    foreach ($ouName in $ouNames) {
+        try {
+            New-ADOrganizationalUnit -Name $ouName -Path $destinationOU -ProtectedFromAccidentalDeletion $false
+        } catch {
+            [System.Windows.Forms.MessageBox]::Show("An error occurred creating '$ouName': $_", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            return
+        }
+    }
+    [System.Windows.Forms.MessageBox]::Show("Specified OUs created successfully in '$destinationOU'.", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
 })
-$form.Controls.Add($button)
+$form.Controls.Add($buttonCreateOU)
 
 # Show the form
-$form.ShowDialog()
+$form.ShowDialog() | Out-Null
 
 #End of script

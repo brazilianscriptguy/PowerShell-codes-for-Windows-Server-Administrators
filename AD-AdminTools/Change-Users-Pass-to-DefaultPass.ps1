@@ -1,6 +1,6 @@
 # PowerShell Script to Reset User Passwords in a Batch within a Specific OU
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 30/12/2023
+# Update: 10/01/2024
 
 # Import Active Directory module
 Import-Module ActiveDirectory
@@ -12,57 +12,60 @@ Add-Type -AssemblyName System.Windows.Forms
 # Create form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Reset AD User Passwords in Specific OU'
-$form.Size = New-Object System.Drawing.Size(400, 230)  # Increased window width
+$form.Size = New-Object System.Drawing.Size(400, 200)
+$form.StartPosition = 'CenterScreen'
 
-# OU label and textbox
-$ouLabel = New-Object System.Windows.Forms.Label
-$ouLabel.Location = New-Object System.Drawing.Point(10, 20)
-$ouLabel.Size = New-Object System.Drawing.Size(370, 20)  # Adjusted label width
-$ouLabel.Text = 'Enter target OU Distinguished Name:'
-$form.Controls.Add($ouLabel)
+# Label for OU
+$labelOU = New-Object System.Windows.Forms.Label
+$labelOU.Text = 'Enter the OU for password reset:'
+$labelOU.Location = New-Object System.Drawing.Point(10, 20)
+$labelOU.AutoSize = $true
+$form.Controls.Add($labelOU)
 
-$ouTextbox = New-Object System.Windows.Forms.TextBox
-$ouTextbox.Location = New-Object System.Drawing.Point(10, 40)
-$ouTextbox.Size = New-Object System.Drawing.Size(360, 20)  # Adjusted textbox width
-$form.Controls.Add($ouTextbox)
+# Textbox for OU input
+$textBoxOU = New-Object System.Windows.Forms.TextBox
+$textBoxOU.Location = New-Object System.Drawing.Point(10, 40)
+$textBoxOU.Size = New-Object System.Drawing.Size(370, 20)
+$form.Controls.Add($textBoxOU)
 
-# Password label and textbox
-$passwordLabel = New-Object System.Windows.Forms.Label
-$passwordLabel.Location = New-Object System.Drawing.Point(10, 70)
-$passwordLabel.Size = New-Object System.Drawing.Size(370, 20)  # Adjusted label width
-$passwordLabel.Text = 'Enter default password:'
-$form.Controls.Add($passwordLabel)
+# Label for Default Password
+$labelPassword = New-Object System.Windows.Forms.Label
+$labelPassword.Text = 'Enter the default password:'
+$labelPassword.Location = New-Object System.Drawing.Point(10, 70)
+$labelPassword.AutoSize = $true
+$form.Controls.Add($labelPassword)
 
-$passwordTextbox = New-Object System.Windows.Forms.TextBox
-$passwordTextbox.Location = New-Object System.Drawing.Point(10, 90)
-$passwordTextbox.Size = New-Object System.Drawing.Size(360, 20)  # Adjusted textbox width
-$form.Controls.Add($passwordTextbox)
+# Textbox for Password input
+$textBoxPassword = New-Object System.Windows.Forms.TextBox
+$textBoxPassword.Location = New-Object System.Drawing.Point(10, 90)
+$textBoxPassword.Size = New-Object System.Drawing.Size(370, 20)
+$form.Controls.Add($textBoxPassword)
 
-# Reset button
-$resetButton = New-Object System.Windows.Forms.Button
-$resetButton.Location = New-Object System.Drawing.Point(10, 120)
-$resetButton.Size = New-Object System.Drawing.Size(360, 40)  # Adjusted button size
-$resetButton.Text = 'Reset Passwords'
-$resetButton.Add_Click({
-    $targetOU = $ouTextbox.Text
-    $defaultPass = $passwordTextbox.Text
+# Button to execute password reset
+$buttonExecute = New-Object System.Windows.Forms.Button
+$buttonExecute.Text = 'Reset Passwords'
+$buttonExecute.Location = New-Object System.Drawing.Point(10, 120)
+$buttonExecute.Add_Click({
+    $OU = $textBoxOU.Text
+    $defaultPassword = $textBoxPassword.Text
 
-    if ([string]::IsNullOrWhiteSpace($targetOU) -or [string]::IsNullOrWhiteSpace($defaultPass)) {
-        [System.Windows.Forms.MessageBox]::Show('Please enter both the target OU and the default password.', 'Missing Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
-    } else {
-        try {
-            $securePass = ConvertTo-SecureString $defaultPass -AsPlainText -Force
-            Get-ADUser -Filter * -SearchBase $targetOU | ForEach-Object { Set-ADAccountPassword $_ -NewPassword $securePass -Reset -Verbose }
-            Get-ADUser -Filter * -SearchBase $targetOU | ForEach-Object { Set-ADUser $_ -ChangePasswordAtLogon $true -Verbose }
-            [System.Windows.Forms.MessageBox]::Show('Passwords reset successfully.', 'Success', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show("Error: $($_.Exception.Message)", 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        }
+    # Validation
+    if([string]::IsNullOrWhiteSpace($OU) -or [string]::IsNullOrWhiteSpace($defaultPassword)) {
+        [System.Windows.Forms.MessageBox]::Show("Please fill in all fields.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
+    }
+
+    # Processing
+    try {
+        Get-ADUser -Filter * -SearchBase $OU | Set-ADAccountPassword -NewPassword (ConvertTo-SecureString $defaultPassword -AsPlainText -Force) -Reset
+        [System.Windows.Forms.MessageBox]::Show("Passwords reset successfully.", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("An error occurred: $_", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     }
 })
-$form.Controls.Add($resetButton)
+$form.Controls.Add($buttonExecute)
 
-# Show form
-$form.ShowDialog()
+# Show the form
+$form.ShowDialog() | Out-Null
 
 #End of script

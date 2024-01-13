@@ -1,9 +1,6 @@
 ﻿# PowerShell Script to Update All Locally Installed Software on Windows Workstations - Deploy by GPO
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 22/12/2023
-
-# Setting the execution policy for this script
-Set-ExecutionPolicy Bypass -Scope Process -Force
+# Update: 12/01/2024
 
 # Log file path
 $LogPath = "C:\Logs-TEMP\Winget-Upgrade-Install-by-GPOs.log"
@@ -28,8 +25,8 @@ if (Get-Command "winget" -ErrorAction SilentlyContinue) {
     Log "winget found. Proceeding with the update."
 
     try {
-        # Executing the update
-        winget upgrade --all --silent --include-unknown | Out-File -FilePath $LogPath -Append
+        # Executing the update silently and automatically accepting all EULAs
+        winget upgrade --all --silent --include-unknown --accept-source-agreements --accept-package-agreements | Out-File -FilePath $LogPath -Append
         Log "Update completed successfully."
     } catch {
         Log "Error occurred during the update: $_"

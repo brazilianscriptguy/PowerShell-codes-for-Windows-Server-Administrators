@@ -1,14 +1,11 @@
 ﻿# PowerShell Script to automate Update Software on Windows OS - Explicit execution with progress bar
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 22/12/2023
-
-# Defining the execution policy for this script
-Set-ExecutionPolicy Bypass -Scope Process -Force
+# Update: 12/01/2024
 
 # Log file path
-$LogPath = "C:\Logs-TEMP\Winget-Upgrade-Install.log"
+$LogPath = "C:\Logs-TEMP\Winget-Upgrade-Install-Explicit.log"
 
-# Creating the log directory if necessary
+# Creating the log directory, if necessary
 $LogDir = Split-Path -Path $LogPath -Parent
 if (-not (Test-Path -Path $LogDir)) {
     New-Item -ItemType Directory -Path $LogDir -Force
@@ -25,26 +22,24 @@ function Log {
 
 # Checking if winget is installed
 if (Get-Command "winget" -ErrorAction SilentlyContinue) {
-    Log "winget found. Proceeding with update."
+    Log "winget found. Proceeding with the update."
 
     try {
-        # Retrieve list of upgradable packages
-        $upgradablePackages = winget upgrade --query | Out-String
-        $totalPackages = ($upgradablePackages -split "`n").Count
+        # Executing the update and automatically accepting all EULAs
+        $wingetPackages = winget upgrade --all --accept-source-agreements --accept-package-agreements
+        $totalPackages = $wingetPackages.Count
         $currentPackage = 0
 
-        # Display progress bar
-        Write-Progress -Activity "Updating software" -Status "$currentPackage of $totalPackages updated" -PercentComplete 0
-
-        # Executing the update
-        winget upgrade --all --silent --include-unknown | ForEach-Object {
+        foreach ($package in $wingetPackages) {
             $currentPackage++
-            Write-Progress -Activity "Updating software" -Status "$currentPackage of $totalPackages updated" -PercentComplete (($currentPackage / $totalPackages) * 100)
-            $_ | Out-File -FilePath $LogPath -Append
+            $progress = ($currentPackage / $totalPackages) * 100
+            Write-Progress -Activity "Updating Software" -Status "$($package.Name) being updated" -PercentComplete $progress
+            winget upgrade $package.Id --accept-source-agreements --accept-package-agreements | Out-File -FilePath $LogPath -Append
         }
+
         Log "Update completed successfully."
     } catch {
-        Log "Error occurred during update: $_"
+        Log "Error occurred during the update: $_"
     }
 } else {
     Log "winget not found. Update not performed."

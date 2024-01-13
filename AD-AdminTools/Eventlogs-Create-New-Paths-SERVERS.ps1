@@ -1,72 +1,76 @@
-# PowerShell Script to Move Event Log Default Paths
+# PowerShell Script to Move Event Log Default Paths with GUI and Improved Error Handling
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 22/12/2023
+# Update: 10/01/2023
 
-# Configure error handling to silently continue
-$ErrorActionPreference = "SilentlyContinue"
+# Import necessary modules
+Add-Type -AssemblyName System.Windows.Forms
+Import-Module ActiveDirectory
 
-# Define original directory for event logs
-$originalFolder = "$env:SystemRoot\system32\winevt\Logs"
+# Create and configure the main form
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'Move Event Log Default Paths'
+$form.Size = New-Object System.Drawing.Size(500, 300)
+$form.StartPosition = 'CenterScreen'
 
-# Specify the target root directory for the logs. Customize this path to your specific log drive letter.
-$targetRootFolder = "L:\"  # Change 'L:' to your desired drive letter
+# Label and TextBox for Target Root Folder
+$labelTargetRootFolder = New-Object System.Windows.Forms.Label
+$labelTargetRootFolder.Text = 'Enter the target root folder (e.g., "L:\"):'
+$labelTargetRootFolder.Location = New-Object System.Drawing.Point(10, 20)
+$labelTargetRootFolder.AutoSize = $true
+$form.Controls.Add($labelTargetRootFolder)
 
-# Define the log file path and name
-$logFilePath = "C:\Logs-TEMP\EventLogsPaths.log"
-# Create the log directory if it does not exist
-if (-not (Test-Path "C:\Logs-TEMP")) {
-    New-Item -Path "C:\Logs-TEMP" -ItemType Directory
-}
+$textBoxTargetRootFolder = New-Object System.Windows.Forms.TextBox
+$textBoxTargetRootFolder.Location = New-Object System.Drawing.Point(10, 40)
+$textBoxTargetRootFolder.Size = New-Object System.Drawing.Size(460, 20)
+$form.Controls.Add($textBoxTargetRootFolder)
 
-# Function to write to log file
-function Write-Log {
-    param ([string]$message)
-    Add-Content -Path $logFilePath -Value $message
-}
+# Progress Bar
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+$progressBar.Location = New-Object System.Drawing.Point(10, 70)
+$progressBar.Size = New-Object System.Drawing.Size(460, 20)
+$form.Controls.Add($progressBar)
 
-# Write initial log entry
-Write-Log "Starting Event Log Path Change Script - $(Get-Date)"
+# Button for executing the script
+$executeButton = New-Object System.Windows.Forms.Button
+$executeButton.Text = 'Move Logs'
+$executeButton.Location = New-Object System.Drawing.Point(10, 100)
+$executeButton.Size = New-Object System.Drawing.Size(100, 23)
 
-# Retrieve all system log names
-$logNames = Get-WinEvent -ListLog * | Select-Object -ExpandProperty LogName
-
-# Initialize variables for progress tracking
-$totalLogs = $logNames.Count
-$currentLogNumber = 0
-
-# Process each log
-foreach ($logName in $logNames) {
-    # Update progress
-    $currentLogNumber++
-    Write-Progress -Activity "Moving Event Logs" -Status "Processing Log: $logName" -PercentComplete (($currentLogNumber / $totalLogs) * 100)
-
-    # Format log name for folder compatibility
-    $escapedLogName = $logName.Replace('/', '-')
-    $targetFolder = Join-Path $targetRootFolder $escapedLogName
-
-    # Create target directory if necessary
-    if (-not (Test-Path $targetFolder)) {
-        New-Item -Path $targetFolder -ItemType Directory
-        Write-Log "Created directory: $targetFolder"
+$executeButton.Add_Click({
+    $targetRootFolder = $textBoxTargetRootFolder.Text
+    if ([string]::IsNullOrWhiteSpace($targetRootFolder)) {
+        [System.Windows.Forms.MessageBox]::Show("Please enter the target root folder.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
     }
 
-    # Copy ACL from original to target directory
-    $originalAcl = Get-Acl -Path $originalFolder
-    Set-Acl -Path $targetFolder -AclObject $originalAcl
-    Write-Log "Set ACL for $targetFolder"
+    $logNames = Get-WinEvent -ListLog * | Select-Object -ExpandProperty LogName
+    $totalLogs = $logNames.Count
+    $progressBar.Maximum = $totalLogs
+    $currentLogNumber = 0
 
-    # Update registry for log file management
-    $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\$logName"
-    New-ItemProperty -Path $regPath -Name "AutoBackupLogFiles" -Value 1 -PropertyType "DWord" -Force
-    New-ItemProperty -Path $regPath -Name "Flags" -Value 1 -PropertyType "DWord" -Force
-    Set-ItemProperty -Path $regPath -Name "File" -Value "$targetFolder\$escapedLogName.evtx"
-    Write-Log "Updated registry for $logName"
+    foreach ($logName in $logNames) {
+        $currentLogNumber++
+        $progressBar.Value = $currentLogNumber
 
-    # Log progress
-    Write-Log "Processed Log: $logName"
-}
+        $escapedLogName = $logName.Replace('/', '-')
+        $targetFolder = Join-Path $targetRootFolder $escapedLogName
 
-# Write final log entry
-Write-Log "Completed Event Log Path Change Script - $(Get-Date)"
+        if (-not (Test-Path $targetFolder)) {
+            New-Item -Path $targetFolder -ItemType Directory -ErrorAction SilentlyContinue
+            $originalAcl = Get-Acl -Path "$env:SystemRoot\system32\winevt\Logs"
+            Set-Acl -Path $targetFolder -AclObject $originalAcl -ErrorAction SilentlyContinue
 
-# End of script
+            $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\$logName"
+            Set-ItemProperty -Path $regPath -Name "File" -Value "$targetFolder\$escapedLogName.evtx" -ErrorAction SilentlyContinue
+        }
+    }
+
+    [System.Windows.Forms.MessageBox]::Show("Event logs have been moved to '$targetRootFolder'.", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+})
+
+$form.Controls.Add($executeButton)
+
+# Show the form
+$form.ShowDialog() | Out-Null
+
+#End of script
