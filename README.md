@@ -87,8 +87,28 @@ Download your first Windows Server Administration tool for PowerShell and let's 
 
 To utilize the scripts in this repository, ensure you have the following prerequisites:
 
-- Suitable for all Windows Server versions after 2016 Standard.
-- PowerShell 7.3 (or later)
+- **Operating System**: Suitable for all Windows Server versions after 2016 Standard.
+- **PowerShell Version**: PowerShell 7.3 or later.
+
+#### Additional Setup for Windows 10 Workstations
+
+To run PowerShell scripts (.PS1) that use the 'Import-Module ActiveDirectory' functionality on Windows 10 workstations, you need to install the Remote Server Administration Tools (RSAT). RSAT includes the Active Directory module and allows you to manage Windows Server roles and features from a Windows 10 PC.
+
+**Steps to Install RSAT on Windows 10:**
+
+1. **Open Settings**: Access 'Settings' on your Windows 10 computer.
+2. **Apps & Features**: Navigate to 'Apps' and then select 'Optional Features'.
+3. **Add a Feature**: Click on 'Add a feature'.
+4. **Search for RSAT**: Type "RSAT" in the search bar to display all available RSAT tools.
+5. **Select and Install**: Specifically, look for and install the following tools:
+    - RSAT: Active Directory Domain Services and Lightweight Directory Tools
+    - RSAT: DNS Server Tools (if managing DNS)
+    - RSAT: Group Policy Management Tools (if managing group policies)
+6. **Install**: Choose these tools and click 'Install'.
+
+After installing these tools, you will be able to run scripts that require the Active Directory module using the 'Import-Module ActiveDirectory' command in PowerShell. This setup enables you to perform Active Directory tasks directly from your Windows 10 workstation.
+
+**Note**: Ensure that your user account has the appropriate permissions to manage Active Directory objects. Additionally, your PC must be part of the domain or have network access to the domain controllers.
 
 ### Installation
 
