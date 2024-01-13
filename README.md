@@ -92,7 +92,7 @@ To utilize the scripts in this repository, ensure you have the following prerequ
 
 #### Additional Setup for Windows 10 Workstations
 
-To run PowerShell scripts (.PS1) that use the 'Import-Module ActiveDirectory' functionality on Windows 10 workstations, you need to install the Remote Server Administration Tools (RSAT). RSAT includes the Active Directory module and allows you to manage Windows Server roles and features from a Windows 10 PC.
+To run PowerShell scripts (.PS1) that use the `Import-Module ActiveDirectory` functionality on Windows 10 workstations, you need to install the Remote Server Administration Tools (RSAT). RSAT includes the Active Directory module and allows you to manage Windows Server roles and features from a Windows 10 PC.
 
 **Steps to Install RSAT on Windows 10:**
 
