@@ -13,10 +13,9 @@
     <script language="VBScript">
         Sub Window_OnLoad
             ' Resize and position the .PNG image
-            width = 600 : height = 805
+            width = 600 : height = 800
             window.resizeTo width, height
             window.moveTo screen.availWidth\2 - width\2, screen.availHeight\2 - height\2
-
             ' Close the warning window automatically after 05 seconds
             idTimer = window.setTimeout("vbscript:window.close", 25000)
         End Sub
