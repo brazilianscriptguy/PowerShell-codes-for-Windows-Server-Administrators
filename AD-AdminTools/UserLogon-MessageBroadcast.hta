@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <!-- 
-    HTA file to use with script UserLogon-MessageBroadcast-GPO.ps1
+    This HTA file is essential for the UserLogon-MessageBroadcast-GPO.ps1 script to function correctly.
+    It provides a graphical interface for user interactions during script execution.
+    This HTA is specifically designed to display logon messages broadcasted to users, managed by the corresponding Group Policy Object (GPO).
+    Ensure this HTA file is correctly deployed and accessible in the environment where the UserLogon-MessageBroadcast-GPO.ps1 script is implemented,
+    to ensure seamless and effective communication with users.
     Author: Luiz Hamilton Silva - @brazilianscriptguy
-    Update: 15/01/2024
+    Last Updated: 15/01/2024
 -->
 <html>
 <head>
-    <title>Message Display</title>
+    <title>Logon Message Display</title>
     <hta:application 
-        id="oHTA"
+        id="logonMessageHTA"
         border="none"
         caption="no"
         contextmenu="no"
@@ -25,25 +29,27 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: #f0f0f0; /* Added background color for better visibility */
         }
         img {
             max-width: 100%;
             height: auto;
+            border: 1px solid #ddd; /* Added border for better image visibility */
         }
     </style>
     <script language="VBScript">
         Sub Window_OnLoad
             Dim width, height
-            width = 600
-            height = 805
+            width = 600 ' Specify the width of the window
+            height = 805 ' Specify the height of the window
             window.resizeTo width, height
             window.moveTo screen.availWidth\2 - width\2, screen.availHeight\2 - height\2
-
-            idTimer = window.setTimeout("vbscript:window.close", 25000)
+            idTimer = window.setTimeout("vbscript:window.close", 25000) ' Auto-close after 25 seconds
         End Sub
     </script>
 </head>
 <body>
-    <img src="post-logon-message.png" alt="Post Logon Message"/>
+    <!-- Image showing the logon message. Replace 'post-logon-message.png' with your desired image path -->
+    <img src="post-logon-message.png" alt="Logon Message"/>
 </body>
 </html>
