@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Move Event Log Default Paths with GUI and Improved Error Handling
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 25/01/2024
+# Update: 25/02/2024
 
 # Import necessary modules
 Add-Type -AssemblyName System.Windows.Forms
