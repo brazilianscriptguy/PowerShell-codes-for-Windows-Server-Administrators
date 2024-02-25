@@ -7,7 +7,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Import-Module ActiveDirectory
 
 # Initialize logging
-$logPath = "C:\Logs-TEMP\Eventlogs-Create-New-Paths-SERVERS.log"
+$logPath = "C:\Logs-TEMP\Eventlogs-Create-New-Paths-Servers.log"
 function Write-Log {
     param([string]$message)
     Add-content -Path $logPath -Value "$(Get-Date) - $message"
