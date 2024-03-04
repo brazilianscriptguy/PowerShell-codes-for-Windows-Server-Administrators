@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Search and Delete Files with Specific Extensions
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 15/01/2024
+# Update: 04/03/2024
 
 # Load necessary assemblies for Windows Forms
 Add-Type -AssemblyName System.Windows.Forms
@@ -75,7 +75,7 @@ if ($global:directory -and $global:extensionFile) {
 $extensions = Get-FileExtensions $global:extensionFile
 $logFolder = "C:\Logs-TEMP"
 if (-not (Test-Path $logFolder)) { New-Item -Path $logFolder -ItemType Directory -Force }
-$logFilePath = Join-Path $logFolder "DeletionLog-$(Get-Date -Format 'yyyyMMddHHmmss').txt"
+$logFilePath = Join-Path $logFolder "BulkFileDeletion-Script-$(Get-Date -Format 'yyyyMMddHHmmss').txt"
 Delete-Files $global:directory $extensions $logFilePath
 [System.Windows.Forms.MessageBox]::Show("Files deleted successfully`nLog file: $logFilePath", "Information")
 } else {
