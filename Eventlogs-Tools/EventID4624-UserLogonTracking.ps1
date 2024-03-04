@@ -1,6 +1,6 @@
 ﻿# PowerShell script to search Security.evtx files for specific users' logon events (EventID 4624)
-# Author: Luiz Hamilton Silva® - luizhamilton.lhr@gmail.com
-# Updated on 16/01/2024
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Update: 04/03/2024
 
 # Add required assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
@@ -137,7 +137,7 @@ $button.Add_Click({
             $outputFiles += $outputFilePath
         }
 
-        $consolidatedFilePath = Join-Path $outputFolderPath "Consolidated_EventID4624_Logon.csv"
+        $consolidatedFilePath = Join-Path $outputFolderPath "EventID4624-UserLogonTracking.csv"
         Consolidate-SearchResults -outputFilePaths $outputFiles -consolidatedFilePath $consolidatedFilePath
 
         If (Test-Path $consolidatedFilePath) {
