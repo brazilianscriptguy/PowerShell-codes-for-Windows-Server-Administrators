@@ -1,6 +1,6 @@
 ﻿# PowerShell Script for Removing Old Certification Authority Certificates with GUI
-# Author: Luiz Hamilton Silva
-# Date: 04/03/2024
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Update: 04/03/2024
 
 # Import necessary libraries for GUI
 Add-Type -AssemblyName System.Windows.Forms
