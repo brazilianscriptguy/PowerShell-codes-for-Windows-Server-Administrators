@@ -4,4 +4,3 @@ exe
 dll
 tmp
 com
-s
