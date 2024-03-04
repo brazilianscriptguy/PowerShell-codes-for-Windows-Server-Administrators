@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Event Microsoft-Windows-PrintService/Operational
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 24/12/2023
+# Update: 04/03/2024
 
 # Importing necessary assembly for OpenFileDialog
 Add-Type -AssemblyName System.Windows.Forms
@@ -14,7 +14,7 @@ if ($OpenFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     $LogFilePath = $OpenFileDialog.FileName
     $DefaultFolder = [Environment]::GetFolderPath("MyDocuments")
     $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $Destination = Join-Path $DefaultFolder "EventID-307-PrintReport_$timestamp.csv"
+    $Destination = Join-Path $DefaultFolder "EventID307-PrintAudit_$timestamp.csv"
 
     # Setting up COM objects for querying the Event Log
     $LogQuery = New-Object -ComObject "MSUtil.LogQuery"
