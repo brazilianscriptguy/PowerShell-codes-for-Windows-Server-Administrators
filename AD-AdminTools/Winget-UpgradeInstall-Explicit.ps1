@@ -3,7 +3,7 @@
 # Update: 04/03/2024
 
 # Log file path
-$LogPath = "C:\Logs-TEMP\Winget-Upgrade-Install-Explicit.log"
+$LogPath = "C:\Logs-TEMP\Winget-UpgradeInstall-Explicit.log"
 
 # Creating the log directory, if necessary
 $LogDir = Split-Path -Path $LogPath -Parent
