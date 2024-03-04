@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Retrieve AD Groups from a Specific Domain in the Forest
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 10/01/2024
+# Update: 04/03/2024
 
 # Load the required assemblies
 Add-Type -AssemblyName System.Windows.Forms
