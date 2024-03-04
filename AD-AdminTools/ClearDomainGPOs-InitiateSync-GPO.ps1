@@ -27,7 +27,7 @@ function Log-Message {
     )
 
     $LogEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message"
-    $LogFilePath = "C:\Logs-TEMP\ClearDomainGPOs-InitiateSync.log"
+    $LogFilePath = "C:\Logs-TEMP\ClearDomainGPOs-InitiateSync-GPO.log"
     Add-Content -Path $LogFilePath -Value $LogEntry
 }
 
