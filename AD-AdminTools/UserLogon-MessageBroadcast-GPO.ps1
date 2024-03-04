@@ -1,4 +1,4 @@
-# PowerShell script to show warning at user logon on the workstations
+# PowerShell Script to Show Warning at User Logon on the Workstations
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: 04/03/2024
 
