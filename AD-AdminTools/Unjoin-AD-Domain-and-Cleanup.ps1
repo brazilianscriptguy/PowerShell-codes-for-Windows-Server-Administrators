@@ -1,8 +1,8 @@
 ﻿# PowerShell Script for Unjoining a Domain and cleaning up Afterward
-# Author: Luiz Hamilton Silva
-# Date: 18/01/2024
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Update: 04/03/2024
 
-#
+# 
 Add-Type -AssemblyName System.Windows.Forms
 
 # Function to check if the computer is part of a domain
