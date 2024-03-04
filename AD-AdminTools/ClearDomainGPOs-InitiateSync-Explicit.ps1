@@ -1,7 +1,6 @@
 ﻿# PowerShell Script for Resetting all Domain GPOs from Workstation and Resync with GUI Interface
 # Author: Luiz Hamilton Silva
-# Date: 25/02/2024
-# Modifications: Added GUI and updated log path
+# Update: 04/03/2024
 
 # Load Windows Forms and drawing assemblies
 Add-Type -AssemblyName System.Windows.Forms
