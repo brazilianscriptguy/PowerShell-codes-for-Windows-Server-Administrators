@@ -1,4 +1,4 @@
-# PowerShell Script to Reset User Passwords in a Batch within a Specific OU
+# PowerShell script to batch reset user passwords in a specific OU
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: 04/03/2024
 
