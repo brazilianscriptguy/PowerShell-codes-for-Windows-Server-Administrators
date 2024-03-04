@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Generate Report of User Accounts by Last Logon in Active Directory with Enhanced GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 05/01/2024
+# Update: 04/03/2024
 
 Add-Type -AssemblyName System.Windows.Forms
 Import-Module ActiveDirectory
@@ -58,7 +58,7 @@ $button.Add_Click({
 
         $currentDateTime = Get-Date -Format "yyyyMMdd_HHmmss"
         $myDocuments = [Environment]::GetFolderPath('MyDocuments')
-        $exportPath = Join-Path -Path $myDocuments -ChildPath "LastLogon-UserAccounts-Report-$domainFQDN-${days}_$currentDateTime.csv"
+        $exportPath = Join-Path -Path $myDocuments -ChildPath "UserAccounts-LastLogonReport-$domainFQDN-${days}_$currentDateTime.csv"
         
         try {
             $users = Search-ADAccount -UsersOnly -AccountInactive -TimeSpan ([timespan]::FromDays($days)) -Server $domainFQDN
@@ -78,4 +78,5 @@ $form.Controls.Add($button)
 
 $form.ShowDialog()
 
+#End of script
 # End of script
