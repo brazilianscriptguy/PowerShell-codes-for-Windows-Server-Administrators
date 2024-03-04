@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Generate Report of Computers in Specified Domain
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 12/01/2024
+# Update: 04/03/2024
 
 Add-Type -AssemblyName System.Windows.Forms
 Import-Module ActiveDirectory
@@ -34,7 +34,7 @@ $generateButton.Add_Click({
         try {
             $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
             $sanitizedDomainFQDN = $domainFQDN -replace "\.", "_"
-            $outputFile = "$([Environment]::GetFolderPath('MyDocuments'))\DomainComputers_${sanitizedDomainFQDN}_$timestamp.csv"
+            $outputFile = "$([Environment]::GetFolderPath('MyDocuments'))\DomainComputers-Report_${sanitizedDomainFQDN}_$timestamp.csv"
 
             $domainControllers = Get-ADComputer -Filter { (OperatingSystem -Like '*Server*') -and (IsDomainController -eq $true) } -Server $domainFQDN -Properties Name, OperatingSystem, OperatingSystemVersion | Select-Object Name, OperatingSystem, OperatingSystemVersion
             $domainComputers = Get-ADComputer -Filter { OperatingSystem -NotLike '*Server*' } -Server $domainFQDN -Properties Name, OperatingSystem, OperatingSystemVersion | Select-Object Name, OperatingSystem, OperatingSystemVersion
