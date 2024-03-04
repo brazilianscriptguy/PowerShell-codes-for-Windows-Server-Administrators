@@ -1,6 +1,6 @@
 ﻿# PowerShell script to search for files with long names in a specified directory and shortens them
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 15/01/2024
+# Update: 04/03/2024
 
 # Load necessary assemblies for Windows Forms
 Add-Type -AssemblyName System.Windows.Forms
@@ -48,7 +48,7 @@ $maxLength = Get-UserInput -message "Please enter the maximum length for file na
 
 # Set up log file path
 $logPath = "C:\Logs-TEMP"
-$logFile = Join-Path -Path $logPath -ChildPath "FileRenameLog_$(Get-Date -Format 'yyyyMMddHHmmss').txt"
+$logFile = Join-Path -Path $logPath -ChildPath "FileNamesShortening-Bulk_$(Get-Date -Format 'yyyyMMddHHmmss').log"
 
 # Create log directory if not exists
 if (-not (Test-Path -Path $logPath)) {
