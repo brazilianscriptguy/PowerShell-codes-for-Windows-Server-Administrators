@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to automate Update Software on Windows OS - Explicit execution with progress bar
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 12/01/2024
+# Update: 04/03/2024
 
 # Log file path
 $LogPath = "C:\Logs-TEMP\Winget-Upgrade-Install-Explicit.log"
