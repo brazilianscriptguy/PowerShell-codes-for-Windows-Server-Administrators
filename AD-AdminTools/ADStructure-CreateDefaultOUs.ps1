@@ -1,6 +1,6 @@
 # PowerShell Script with GUI for Creating Specified OUs in Active Directory
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 04/01/2024
+# Update: 04/04/2024
 
 # Import necessary modules
 Add-Type -AssemblyName System.Windows.Forms
