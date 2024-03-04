@@ -1,6 +1,6 @@
 ﻿# PowerShell Script for Exports AD User Attributes with GUI
 # Author: Luiz Hamilton Silva
-# Date: 25/02/2024
+# Date: 04/03/2024
 
 # Import Active Directory Module
 Import-Module ActiveDirectory
