@@ -75,7 +75,7 @@ if ($global:directory -and $global:extensionFile) {
 $extensions = Get-FileExtensions $global:extensionFile
 $logFolder = "C:\Logs-TEMP"
 if (-not (Test-Path $logFolder)) { New-Item -Path $logFolder -ItemType Directory -Force }
-$logFilePath = Join-Path $logFolder "BulkFileDeletion-Script-$(Get-Date -Format 'yyyyMMddHHmmss').txt"
+$logFilePath = Join-Path $logFolder "BulkFileDeletion-Script_$(Get-Date -Format 'yyyyMMddHHmmss').txt"
 Delete-Files $global:directory $extensions $logFilePath
 [System.Windows.Forms.MessageBox]::Show("Files deleted successfully`nLog file: $logFilePath", "Information")
 } else {
