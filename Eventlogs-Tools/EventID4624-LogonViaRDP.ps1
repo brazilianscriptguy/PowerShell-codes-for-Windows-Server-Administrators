@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Security.evtx file for Event ID 4624 (Report Logons via RDP)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 15/01/2024
+# Update: 04/03/2024
 
 Param(
     [Bool]$AutoOpen = $false
@@ -18,7 +18,7 @@ if ($OpenFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     $LogFilePath = $OpenFileDialog.FileName
     $DefaultFolder = [Environment]::GetFolderPath("MyDocuments")
     $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $Destination = Join-Path $DefaultFolder "EventID-4624-Logon-via-RDP_$timestamp.csv"
+    $Destination = Join-Path $DefaultFolder "EventID4624-LogonViaRDP_$timestamp.csv"
 
     $LogQuery = New-Object -ComObject "MSUtil.LogQuery"
     $InputFormat = New-Object -ComObject "MSUtil.LogQuery.EventLogInputFormat"
