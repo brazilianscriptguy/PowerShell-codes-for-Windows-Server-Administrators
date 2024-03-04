@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Unlock User in a DFS Namespace Access with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 12/01/2024
+# Update: 04/03/2024
 
 # Load Windows Forms and drawing libraries
 Add-Type -AssemblyName System.Windows.Forms
@@ -11,7 +11,7 @@ Add-Type -AssemblyName System.Drawing
 $ErrorActionPreference = "SilentlyContinue"
 
 # Define the log file path and name
-$logFilePath = "C:\Logs-TEMP\DFSUserUnlock.log"  # Customize as needed
+$logFilePath = "C:\Logs-TEMP\SMBShare-UserUnlock.log"  # Customize as needed
 
 # Create the log directory if it does not exist
 if (-not (Test-Path "C:\Logs-TEMP")) {
