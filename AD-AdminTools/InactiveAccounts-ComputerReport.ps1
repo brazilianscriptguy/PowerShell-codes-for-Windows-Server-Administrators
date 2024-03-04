@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Generate Report of Inactive Computer Accounts in Active Directory
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 12/01/2024
+# Update: 04/03/2024
 
 Add-Type -AssemblyName System.Windows.Forms
 Import-Module ActiveDirectory
@@ -58,7 +58,7 @@ $button.Add_Click({
 
         $currentDateTime = Get-Date -Format "yyyyMMdd_HHmmss"
         $myDocuments = [Environment]::GetFolderPath('MyDocuments')
-        $exportPath = Join-Path -Path $myDocuments -ChildPath "InActive-Computer-Accounts-Report-$domainFQDN-${days}_$currentDateTime.csv"
+        $exportPath = Join-Path -Path $myDocuments -ChildPath "InactiveAccounts-ComputerReport-$domainFQDN-${days}_$currentDateTime.csv"
         
         try {
             $inactiveComputers = Search-ADAccount -ComputersOnly -AccountInactive -TimeSpan ([timespan]::FromDays($days)) -Server $domainFQDN
