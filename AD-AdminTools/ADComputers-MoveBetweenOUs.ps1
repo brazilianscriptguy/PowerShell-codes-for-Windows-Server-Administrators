@@ -1,6 +1,6 @@
 ﻿# PowerShell Script with GUI for Moving Computers Between OUs, with Logging and Input Validation
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 12/01/2024
+# Update: 04/03/2024
 
 # Import required modules
 Add-Type -AssemblyName System.Windows.Forms
