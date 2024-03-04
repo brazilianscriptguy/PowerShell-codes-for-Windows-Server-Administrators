@@ -1,7 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Event ID 4771 (Kerberos Pre-Authentication Failed)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 24/12/2023
-
+# Update: 04/03/20234
 Param(
     [Bool]$AutoOpen = $false
 )
@@ -18,7 +17,7 @@ if ($OpenFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     $LogFilePath = $OpenFileDialog.FileName
     $DefaultFolder = [Environment]::GetFolderPath("MyDocuments")
     $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $Destination = Join-Path $DefaultFolder "EventID-4771-KerberosPreAuthFailed_$timestamp.csv"
+    $Destination = Join-Path $DefaultFolder "EventID4771-KerberosPreAuthFailed_$timestamp.csv"
 
     $LogQuery = New-Object -ComObject "MSUtil.LogQuery"
     $InputFormat = New-Object -ComObject "MSUtil.LogQuery.EventLogInputFormat"
