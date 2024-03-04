@@ -1,6 +1,6 @@
 ﻿# PowerShell Script for facilitating the uninstallation of software applications on Windows systems
-# Author: Luiz Hamilton Silva
-# Date: 17/01/2024
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Update: 04/03/2024
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
