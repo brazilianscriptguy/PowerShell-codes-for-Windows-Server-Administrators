@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Export List of AD Users with Non-Expiring Passwords to CSV with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 12/04/2023
+# Update: 04/03/2024
 
 Add-Type -AssemblyName System.Windows.Forms
 Import-Module ActiveDirectory
@@ -39,7 +39,7 @@ $exportButton.Add_Click({
     if (![string]::IsNullOrWhiteSpace($domainFQDN)) {
         try {
             $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-            $outputFile = "$([Environment]::GetFolderPath('MyDocuments'))\NeverExpiresUsers_${domainFQDN}_$timestamp.csv"
+            $outputFile = "$([Environment]::GetFolderPath('MyDocuments'))\UsersWithNonExpiringPasswords-List_${domainFQDN}_$timestamp.csv"
             
             $neverExpireUsers = Get-ADUser -Filter { PasswordNeverExpires -eq $true } -Properties PasswordNeverExpires -Server $domainFQDN |
                                Select-Object Name, SamAccountName, DistinguishedName
