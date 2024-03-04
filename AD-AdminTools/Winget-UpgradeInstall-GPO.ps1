@@ -1,9 +1,9 @@
 ﻿# PowerShell Script to Update All Locally Installed Software on Windows Workstations - Deploy by GPO
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 12/01/2024
+# Update: 04/03/2024
 
 # Log file path
-$LogPath = "C:\Logs-TEMP\Winget-Upgrade-Install-by-GPOs.log"
+$LogPath = "C:\Logs-TEMP\Winget-UpgradeInstall-GPO.log"
 
 # Creating the log directory, if necessary
 $LogDir = Split-Path -Path $LogPath -Parent
