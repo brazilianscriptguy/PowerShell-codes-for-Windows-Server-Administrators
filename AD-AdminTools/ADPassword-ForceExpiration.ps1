@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Force All Active Directory User Passwords to Immediately Expire in a Specified Domain
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 12/01/2024
+# Update: 04/03/2024
 
 # Import the Active Directory module if not already loaded
 Import-Module ActiveDirectory
