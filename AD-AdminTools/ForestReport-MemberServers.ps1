@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Generate Report of Forest Member Servers with Enhanced GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 12/01/2024
+# Update: 04/03/2024
 
 Add-Type -AssemblyName System.Windows.Forms
 Import-Module ActiveDirectory
@@ -37,7 +37,7 @@ $generateButton.Add_Click({
         $properties = "DnsHostName", "IPv4Address", "OperatingSystemVersion"
         $queryResult = Get-ADComputer -Filter $filter -Properties $properties -Server $domainFQDN
         $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-        $resultFileName = "MemberServers_${sanitizedDomainFQDN}_${timestamp}.csv"
+        $resultFileName = "ForestReport-MemberServers_${sanitizedDomainFQDN}_${timestamp}.csv"
         $resultFilePath = [System.IO.Path]::Combine([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::MyDocuments), $resultFileName)
         
         $queryResult | Select-Object DnsHostName, IPv4Address, OperatingSystemVersion | Export-Csv -Path $resultFilePath -NoTypeInformation -Encoding UTF8
