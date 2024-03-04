@@ -1,6 +1,6 @@
-# # PowerShell script to show warning at logon on the workstations
-# by Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# on 16/01/2024
+# PowerShell script to show warning at user logon on the workstations
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Update: 04/03/2024
 
 # Set error handling to be more verbose
 $ErrorActionPreference = "SilentlyContinue"
