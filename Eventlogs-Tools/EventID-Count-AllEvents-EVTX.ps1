@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Count Event IDs in an EVTX file
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 08/01/2024
+# Update: 04/03/2024
 
 Add-Type -AssemblyName System.Windows.Forms
 
@@ -31,7 +31,7 @@ if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     $events = Get-WinEvent -Path $evtxFilePath
     $eventCounts = $events | Group-Object -Property Id | Select-Object Count, Name
     $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $resultFileName = "EventCounts_${timestamp}.csv"
+    $resultFileName = "EventID-Count-AllEvents-EVTX_${timestamp}.csv"
     $resultFilePath = [System.IO.Path]::Combine([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::MyDocuments), $resultFileName)
     $eventCounts | Export-Csv -Path $resultFilePath -NoTypeInformation -Delimiter ',' -Encoding UTF8 -Force
     (Get-Content $resultFilePath) | ForEach-Object { $_ -replace 'Count', 'Counting' -replace 'Name', 'EventID' } | Set-Content $resultFilePath
