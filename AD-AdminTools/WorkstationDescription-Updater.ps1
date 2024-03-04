@@ -1,6 +1,6 @@
 ﻿# PowerShell script to Update Workstation Descriptions with Enhanced GUI
-# Author: Luiz Hamilton Silva
-# Updated on 16/01/2024
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Update: 04/03/2024
 
 # Import necessary libraries for GUI
 Add-Type -AssemblyName System.Windows.Forms
