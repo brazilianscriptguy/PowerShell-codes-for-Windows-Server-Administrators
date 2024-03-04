@@ -1,9 +1,9 @@
 ﻿# PowerShell Script for renaming C: and D: volumes on Windows workstations - implemented by a GPO
-# Author: Luiz Hamilton Silva
-# Date: 16/01/2024
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Update: 04/03/2024
 
 param (
-    [string]$LogPath = "C:\Logs-TEMP\rename-disk-volumes.log",
+    [string]$LogPath = "C:\Logs-TEMP\DiskVolumes-Rename-GPO.log",
     [string]$NewNameC,
     [string]$NewNameD = "Personal-Files"
 )
