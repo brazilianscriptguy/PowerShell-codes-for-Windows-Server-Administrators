@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to List Installed Software x86 and x64 with GUID with Enhanced GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 25/02/2024
+# Update: 04/03/2024
 
 # Import necessary modules
 Add-Type -AssemblyName System.Windows.Forms
@@ -96,7 +96,7 @@ $result = $form.ShowDialog()
 
 if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
     $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $outputFileName = "GUID-Installed-Softwares_$timestamp.csv"
+    $outputFileName = "Installed-Inventory-SoftwaresList_$timestamp.csv"
     
     if ($radioButtons.DefaultPath.Checked) {
         $outputPath = [Environment]::GetFolderPath('MyDocuments') + "\" + $outputFileName
