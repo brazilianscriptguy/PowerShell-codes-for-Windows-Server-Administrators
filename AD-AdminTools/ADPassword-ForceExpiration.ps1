@@ -6,7 +6,7 @@
 Import-Module ActiveDirectory
 
 # Define the log file path
-$logFilePath = "C:\Logs-TEMP\Force-AD-Password-Expires.log"
+$logFilePath = "C:\Logs-TEMP\ADPassword-ForceExpiration.log"
 
 # Function to write messages to the log file
 function Write-Log {
