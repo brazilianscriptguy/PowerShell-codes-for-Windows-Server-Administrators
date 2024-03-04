@@ -7,7 +7,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Import-Module ActiveDirectory -ErrorAction SilentlyContinue
 
 # Define the log file path
-$logFilePath = "C:\Logs-TEMP\Move-Computers-between-OUs.log"
+$logFilePath = "C:\Logs-TEMP\ADComputers-MoveBetweenOUs.log"
 
 # Create the log directory if it does not exist
 $logDir = Split-Path -Path $logFilePath
