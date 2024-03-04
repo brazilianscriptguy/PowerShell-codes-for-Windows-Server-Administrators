@@ -1,13 +1,13 @@
 ﻿# PowerShell Script to Find and Delete Empty Files with Enhanced GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 25/02/2024
+# Update: 04/03/2024
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 $logDir = 'C:\Logs-TEMP'
 if (-not (Test-Path $logDir)) { New-Item -Path $logDir -ItemType Directory }
-$logPath = Join-Path $logDir 'Find-and-Delete-Empty-Files.log'
+$logPath = Join-Path $logDir 'EmptyFiles-Cleanup.log'
 
 function Log-Message {
     param ([string]$Message)
