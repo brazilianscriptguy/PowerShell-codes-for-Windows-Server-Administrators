@@ -118,7 +118,7 @@ $buttonSearch.Add_Click({
 
     # Export results to a CSV file
     $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $resultFileName = "ADGroupSearch_${outputFileNamePart}_${timestamp}.csv"
+    $resultFileName = "ADGroupsAndMembers-Retrieval_${outputFileNamePart}_${timestamp}.csv"
     $resultFilePath = [System.IO.Path]::Combine([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::MyDocuments), $resultFileName)
 
     $groupInfo | Export-Csv -Path $resultFilePath -NoTypeInformation -Encoding UTF8
