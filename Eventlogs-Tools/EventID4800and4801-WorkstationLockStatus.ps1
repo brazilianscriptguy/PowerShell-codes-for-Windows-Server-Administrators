@@ -1,6 +1,6 @@
 ﻿# PowerShell Script for Processing Windows Event Log Files - Event ID 4800 and 4801 (Locked and Unlocked Workstation)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 24/12/2023
+# Update: 04/03/2024
 
 Param(
     [Bool]$AutoOpen = $true
@@ -18,7 +18,7 @@ if ($OpenFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     $LogFilePath = $OpenFileDialog.FileName
     $DefaultFolder = [Environment]::GetFolderPath("MyDocuments")
     $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $Destination = Join-Path $DefaultFolder "EventID-4800-and-4801-Workstation-Locked-and-Unlocked_$timestamp.csv"
+    $Destination = Join-Path $DefaultFolder "EventID4800and4801-WorkstationLockStatus_$timestamp.csv"
 
     $LogQuery = New-Object -ComObject "MSUtil.LogQuery"
     $InputFormat = New-Object -ComObject "MSUtil.LogQuery.EventLogInputFormat"
