@@ -1,4 +1,4 @@
-﻿# Function to create the GUI
+ # Function to create the Default GUI for My Scripts
 function Create-GUI {
     # Initialize form components
     $form = New-Object System.Windows.Forms.Form
