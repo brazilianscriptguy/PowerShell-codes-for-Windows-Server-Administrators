@@ -1,6 +1,6 @@
 # PowerShell Script to Reset User Passwords in a Batch within a Specific OU
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 10/01/2024
+# Update: 04/03/2024
 
 # Import Active Directory module
 Import-Module ActiveDirectory
