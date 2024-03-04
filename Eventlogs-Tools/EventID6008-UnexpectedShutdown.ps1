@@ -1,6 +1,6 @@
 # PowerShell Script for Monitoring Event ID 6008 - System Shuts Down Unexpectedly
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 24/12/2023
+# Update: 04/03/2024
 
 Param(
     [Bool]$AutoOpen = $true
@@ -18,7 +18,7 @@ if ($OpenFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     $LogFilePath = $OpenFileDialog.FileName
     $DefaultFolder = [Environment]::GetFolderPath("MyDocuments")
     $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $Destination = Join-Path $DefaultFolder "EventID-6008-SystemShutdownUnexpectedly_$timestamp.csv"
+    $Destination = Join-Path $DefaultFolder "EventID6008-UnexpectedShutdown_$timestamp.csv"
 
     $LogQuery = New-Object -ComObject "MSUtil.LogQuery"
     $InputFormat = New-Object -ComObject "MSUtil.LogQuery.EventLogInputFormat"
