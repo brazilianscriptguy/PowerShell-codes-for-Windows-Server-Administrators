@@ -1,7 +1,6 @@
 ﻿# PowerShell Script for Resetting all Domain GPOs from Workstation and Resync - Integration into GPO or Scheduled Task Execution
-
-# Author: Luiz Hamilton Silva
-# Date: 17/01/2024
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Update: 04/03/2024
 
 # Function to delete directories where GPOs are stored
 function Delete-GPODirectory {
