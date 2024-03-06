@@ -1,4 +1,4 @@
-﻿# PowerShell script to display BGInfo (PsTools - Sysinternals) on the Servers Desktop with improvements
+﻿# PowerShell script to display BGInfo (PsTools - Sysinternals) on the Servers Desktop with improvements - using with GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
 # Update: 06/03/2024
 
