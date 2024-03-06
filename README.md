@@ -170,4 +170,4 @@ Installing these scripts is a breeze. Follow these steps to get started:
 
 Now, you're all set to leverage the power of these PowerShell scripts for efficient Windows Server administration. Feel free to explore and customize them to suit your specific needs.
 
-For questions or further assistance, you can reach out to me at luizhamilton.lhr@gmail.com or join my WhatsApp channel: [WhatsApp Channel](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c).
+For questions or further assistance, you can reach out to me at luizhamilton.lhr@gmail.com or join my WhatsApp channel: [PowerShell-Br](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c).
