@@ -1,48 +1,45 @@
-﻿# PowerShell Script to automate Update Software on Windows OS - Explicit execution with progress bar
+# PowerShell Script to Automate Software Updates on Windows OS with Progress Display and Logging
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 04/03/2024
+# Last Updated: 06/03/2024
 
-# Log file path
+# Define log file path and ensure the log directory exists
 $LogPath = "C:\Logs-TEMP\Winget-UpgradeInstall-Explicit.log"
-
-# Creating the log directory, if necessary
-$LogDir = Split-Path -Path $LogPath -Parent
+$LogDir = Split-Path -Path $LogPath
 if (-not (Test-Path -Path $LogDir)) {
-    New-Item -ItemType Directory -Path $LogDir -Force
+    New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
 }
 
-# Function to add log entries
-function Log {
-    param (
-        [string]$Message
-    )
+# Function to log messages with timestamp
+function Log-Message {
+    Param ([string]$Message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Add-Content -Path $LogPath -Value "$timestamp - $Message"
+    "$timestamp - $Message" | Out-File -FilePath $LogPath -Append
 }
 
-# Checking if winget is installed
-if (Get-Command "winget" -ErrorAction SilentlyContinue) {
-    Log "winget found. Proceeding with the update."
+# Verify if winget is available on the system
+$wingetPath = Get-Command "winget" -ErrorAction SilentlyContinue
 
+if ($wingetPath) {
+    Log-Message "winget found. Proceeding with the update."
     try {
-        # Executing the update and automatically accepting all EULAs
-        $wingetPackages = winget upgrade --all --accept-source-agreements --accept-package-agreements
-        $totalPackages = $wingetPackages.Count
-        $currentPackage = 0
-
-        foreach ($package in $wingetPackages) {
-            $currentPackage++
-            $progress = ($currentPackage / $totalPackages) * 100
-            Write-Progress -Activity "Updating Software" -Status "$($package.Name) being updated" -PercentComplete $progress
-            winget upgrade $package.Id --accept-source-agreements --accept-package-agreements | Out-File -FilePath $LogPath -Append
+        # Indicate the start of the update process
+        Write-Progress -Activity "Starting Software Update" -Status "Preparing to update all packages..." -PercentComplete 0
+        
+        # Perform all software updates using winget with silent and automatic EULA acceptance
+        & $wingetPath "upgrade" "--all" "--accept-source-agreements" "--accept-package-agreements" "--silent" | ForEach-Object {
+            Log-Message $_
         }
-
-        Log "Update completed successfully."
+        
+        # Indicate completion
+        Write-Progress -Activity "Updating Software" -Status "Update completed successfully." -PercentComplete 100
+        Start-Sleep -Seconds 2 # Pause to show completion status
+        Log-Message "Software update process completed successfully."
     } catch {
-        Log "Error occurred during the update: $_"
+        Write-Progress -Activity "Updating Software" -Status "An error occurred during the update." -PercentComplete 100
+        Log-Message "An error occurred during the software update process: $_"
     }
 } else {
-    Log "winget not found. Update not performed."
+    Log-Message "Winget is not installed or not found in the PATH. Software updates cannot be performed."
 }
 
-# End of script
+#End of Script
