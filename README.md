@@ -12,7 +12,7 @@ Within this repository, you will find several distinct folders. Please select a 
 
 # Files into AD-AdminTools folder
 ## Prerequisite:
-To effectively utilize the scripts in this folder, it's crucial to have the capability to run PowerShell scripts (.PS1) that incorporate the `Import-Module ActiveDirectory` feature, especially on Windows 10 workstations. For this purpose, the installation of the `Remote Server Administration Tools (RSAT)` is required. 
+To effectively utilize the scripts in this folder, it's crucial to have the capability to run `PowerShell scripts (.PS1)` that incorporate the `Import-Module ActiveDirectory` feature, especially on Windows 10 workstations. For this purpose, the installation of the `Remote Server Administration Tools (RSAT)` is required. 
 
 1. **ADComputers-MoveBetweenOUs.ps1**: This script is a crucial tool for Active Directory administrators, providing the functionality to seamlessly move computer accounts between different Organizational Units (OUs) within the same domain. It streamlines the process of organizing and reorganizing computer accounts, which is especially beneficial in dynamic environments where frequent updates to account placements are necessary.
 
@@ -84,7 +84,7 @@ To effectively utilize the scripts in this folder, it's crucial to have the capa
 
 # Files into Eventlogs-Tools folder
 ## Prerequisite:
-Before using the scripts in this folder, ensure that the Microsoft Log Parser utility is installed in your environment.
+Before running the scripts in this folder, ensure that the `Microsoft Log Parser utility` is installed on your system. Moreover, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, particularly on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
 
 ## Description:
 This folder contains scripts specifically designed for selecting and processing Windows Event Log files (*.evtx). They focus on extracting particular information from these logs and then outputting the results in an easy-to-analyze CSV file format.
@@ -151,7 +151,7 @@ To run PowerShell scripts (.PS1) that use the `Import-Module ActiveDirectory` fu
     - RSAT: Group Policy Management Tools (if managing group policies)
 6. **Install**: Choose these tools and click 'Install'.
 
-After installing these tools, you will be able to run scripts that require the Active Directory module using the 'Import-Module ActiveDirectory' command in PowerShell. This setup enables you to perform Active Directory tasks directly from your Windows 10 workstation.
+After installing these tools, you will be able to run scripts that require the Active Directory module using the `Import-Module ActiveDirectory` command in PowerShell. This setup enables you to perform Active Directory tasks directly from your Windows 10 workstation.
 
 **Note**: Ensure that your user account has the appropriate permissions to manage Active Directory objects. Additionally, your PC must be part of the domain or have network access to the domain controllers.
 
