@@ -1,5 +1,5 @@
 # PowerShell codes for Windows Server Administrators
-Essential scripts and tools meticulously crafted to empower Windows Server Administrators.
+Comprehensive collection of essential scripts and tools, meticulously developed to enhance the capabilities of Windows Server Administrators.
 
 ## Description
 
