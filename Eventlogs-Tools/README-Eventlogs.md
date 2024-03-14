@@ -29,3 +29,6 @@ This folder contains scripts specifically designed for selecting and processing 
 11. **Eventlogs-Create-New-Paths-Servers.ps1**: This script is specifically developed to enhance the management of Event Log files on Windows Servers. It assists administrators in effectively reorganizing, moving, and resizing Event Log files and folders. The script plays a crucial role in optimizing the storage and accessibility of Event Log data, essential for maintaining system health and troubleshooting issues on servers.
 
 12. **NEXT COMING SOON**: Stay tuned for the next series of EventID analyses, offering more innovative and efficient tools to enhance system administration and event log management.
+
+## Additional Assistance
+For further help or to find more detailed information on prerequisites and environment configuration, please refer to the README-main.md file.
