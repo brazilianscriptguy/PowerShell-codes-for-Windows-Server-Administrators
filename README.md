@@ -113,7 +113,8 @@ This folder contains scripts specifically designed for selecting and processing 
 
 12. **NEXT COMING SOON**: Stay tuned for the next series of EventID analyses, offering more innovative and efficient tools to enhance system administration and event log management.
 
-## Customizations
+##
+### Customizations
 This repository is designed with customizability in mind, allowing you to tailor scripts to your specific needs. Below are some common customizations:
 
 ### Configuration Files
@@ -122,7 +123,7 @@ You can fine-tune the behavior of these scripts by modifying the included config
 ### Script Parameters
 Many scripts come with adjustable parameters, allowing you to further customize their functionality. By tweaking these settings, you can tailor the scripts to suit different scenarios and specific needs. Should you encounter any inconsistencies or require adjustments, please feel free to reach out to me for assistance.
 
-## Getting Started
+### Getting Started
 Download your first Windows Server Administration tool or EventID Logs tool for PowerShell and let's start managing like pros!
 
 ### Prerequisites
