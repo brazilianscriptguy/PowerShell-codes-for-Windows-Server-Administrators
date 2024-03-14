@@ -118,13 +118,13 @@ This folder contains scripts specifically designed for selecting and processing 
 This repository is designed with customizability in mind, allowing you to tailor scripts to your specific needs. Below are some common customizations:
 
 ## Configuration Files
-You can fine-tune the behavior of these scripts by modifying the included configuration files. These files typically contain settings and parameters that control script execution, ensuring they align perfectly with your server environment.
+You can fine-tune the behavior of these scripts by modifying the included configuration files. These files typically contain settings and parameters that control script execution, ensuring they align perfectly with your Windows Server environment.
 
 ## Script Parameters
 Many scripts come with adjustable parameters, allowing you to further customize their functionality. By tweaking these settings, you can tailor the scripts to suit different scenarios and specific needs. Should you encounter any inconsistencies or require adjustments, please feel free to reach out to me for assistance.
 
 ## Getting Started
-Download your first Windows Server Administration tool or EventID Logs tool for PowerShell and let's start managing like pros!
+Download your inaugural Windows Server Administration or EventID Logs tool for PowerShell now and embark on managing like a seasoned pro!
 
 ## Prerequisites
 Before running the scripts in this folder, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
