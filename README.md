@@ -113,7 +113,7 @@ This folder contains scripts specifically designed for selecting and processing 
 
 12. **NEXT COMING SOON**: Stay tuned for the next series of EventID analyses, offering more innovative and efficient tools to enhance system administration and event log management.
 
-##
+# Standard Procedures for All Folders and Scripts
 ### Customizations
 This repository is designed with customizability in mind, allowing you to tailor scripts to your specific needs. Below are some common customizations:
 
