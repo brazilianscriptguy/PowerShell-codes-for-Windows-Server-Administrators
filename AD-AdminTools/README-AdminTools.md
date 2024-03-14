@@ -2,6 +2,9 @@
 ## Prerequisite:
 To effectively utilize the scripts in this folder, it's crucial to have the capability to run `PowerShell scripts (.PS1)` that incorporate the `Import-Module ActiveDirectory` feature, especially on Windows 10 workstations. For this purpose, the installation of the `Remote Server Administration Tools (RSAT)` is required.
 
+## Description:
+This section houses scripts tailored for Active Directory Administration tasks. These scripts are crafted to streamline the management of Active Directory objects, including users, groups, and organizational units. They automate common administrative tasks such as creating, modifying, and deleting directory objects, as well as generating detailed reports on Active Directory structure, user activities, and security settings. Outputs are structured for straightforward analysis, often in CSV file format, to aid in efficient system management and audit compliance.
+
 1. **ADComputers-MoveBetweenOUs.ps1**: This script is a crucial tool for Active Directory administrators, providing the functionality to seamlessly move computer accounts between different Organizational Units (OUs) within the same domain. It streamlines the process of organizing and reorganizing computer accounts, which is especially beneficial in dynamic environments where frequent updates to account placements are necessary.
 
 2. **ADGroupsAndMembers-Retrieval.ps1**: This script offers a convenient and efficient way for administrators to retrieve and document Active Directory group information. It provides a user-friendly interface that simplifies the complexities of managing and auditing AD groups, making it an indispensable tool for administrators in maintaining the integrity and organization of group data in Active Directory.
