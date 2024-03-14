@@ -6,9 +6,8 @@ Welcome to the PowerShell Scripts Repository for Windows Server Administration, 
 
 Delve into the repository and discover a realm where each script not only addresses specific administrative challenges but also introduces a level of efficiency and clarity that transforms routine tasks into seamless operations. Every tool here is a testament to the power of well-crafted scripting, designed to elevate the standards of server administration.
 
-## Features 
-Within this repository, you will find several distinct folders. Please select a folder of interest and, as a first step, refer to the README.md file located in its main directory. This file contains detailed information about the functions available as well as any requirements necessary for their use.
-
+## Features
+This repository is organized into several specialized folders, each dedicated to a specific aspect of Windows Server administration through PowerShell scripting. To get started, we recommend selecting a folder that aligns with your current interests or administrative needs. Within each directory, you will find a README.md file—your starting point for exploring the contents. These README files offer comprehensive details about the scripts' functionalities, prerequisites for their use, and guidance on how to implement the scripts effectively. This structured approach ensures you have all the necessary information to leverage the code within each folder to its fullest potential.
 
 # Standard Procedures for All Folders and Scripts
 ## Customizations
