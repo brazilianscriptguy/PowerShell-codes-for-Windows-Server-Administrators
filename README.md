@@ -81,14 +81,15 @@ To effectively utilize the scripts in this folder, it's crucial to have the capa
 
 34. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
-# Files into Eventlogs-Tools folder
+# Files in the Eventlogs-Tools Folder
+
 ## Prerequisite:
-Before running the scripts in this folder, ensure that the `Microsoft Log Parser utility` is installed on your system. Moreover, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, particularly on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
+Before running the scripts in this folder, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
 
 ## Description:
-This folder contains scripts specifically designed for selecting and processing Windows Event Log files (*.evtx). They focus on extracting particular information from these logs and then outputting the results in an easy-to-analyze CSV file format.
+This folder contains scripts specifically designed for selecting and processing Windows Event Log files (*.evtx). They focus on extracting specific information from these logs and then outputting the results in an easy-to-analyze CSV file format.
 
-1. **EventID-Count-AllEvents-EVTX.ps1:** This script provides a comprehensive analysis tool for EVTX (Event Log) files, allowing users to select a log file and count the occurrences of each EventID within it. It simplifies the process of understanding event frequency by exporting the results to a CSV file, located in the user's Documents folder. This script is an indispensable asset for troubleshooting or auditing, as it helps in breaking down and summarizing complex event log data, making it easier for users to interpret and analyze.
+1. **EventID-Count-AllEvents-EVTX.ps1:** This script provides a comprehensive analysis tool for EVTX (Event Log) files, allowing users to select a log file and count the occurrences of each EventID within it. It simplifies the process of understanding event frequency by exporting the results to a CSV file, located in the user's Documents folder. This script is an indispensable asset for troubleshooting or auditing, as it helps break down and summarize complex event log data, making it easier for users to interpret and analyze.
 
 2. **EventID307-PrintAudit.ps1**: This advanced script specializes in extracting detailed information from the Microsoft-Windows-PrintService/Operational Event Log (EVTX file), focusing on Event ID 307. It is adept at capturing comprehensive data about print job activities, including printer usage, page counts, and job sizes. As an indispensable auditing tool, it provides deep insights into print management and operational efficiency within an environment, making it an essential resource for administrators and auditors looking to optimize print services and monitor printing activities.
 
@@ -107,45 +108,39 @@ This folder contains scripts specifically designed for selecting and processing 
 9. **EventID4800and4801-WorkstationLockStatus.ps1**: Meticulously designed to analyze Windows Security Event Logs for Event IDs 4800 and 4801, this script extracts key information about the locking and unlocking of workstations. It organizes the data into a structured CSV file, offering a clear view of workstation access patterns. This script is particularly valuable for security monitoring, helping administrators track user activity and identify unusual access patterns, thereby contributing to overall security management and compliance.
 
 10. **EventID6008-UnexpectedShutdown.ps1**: Skillfully crafted to monitor and analyze Event ID 6008 in Windows Event Logs, this script focuses on unexpected system shutdowns. It aggregates occurrences of these events, providing insights into their frequency and patterns. The data is outputted into a clearly formatted CSV file, making it an invaluable tool for diagnosing system instability and identifying underlying issues for enhanced system reliability.
-    
+
 11. **Eventlogs-Create-New-Paths-Servers.ps1**: This script is specifically developed to enhance the management of Event Log files on Windows Servers. It assists administrators in effectively reorganizing, moving, and resizing Event Log files and folders. The script plays a crucial role in optimizing the storage and accessibility of Event Log data, essential for maintaining system health and troubleshooting issues on servers.
 
 12. **NEXT COMING SOON**: Stay tuned for the next series of EventID analyses, offering more innovative and efficient tools to enhance system administration and event log management.
 
 ## Customizations
-
 This repository is designed with customizability in mind, allowing you to tailor scripts to your specific needs. Below are some common customizations:
 
 ### Configuration Files
-
 You can fine-tune the behavior of these scripts by modifying the included configuration files. These files typically contain settings and parameters that control script execution, ensuring they align perfectly with your server environment.
 
 ### Script Parameters
-
 Many scripts come with adjustable parameters, allowing you to further customize their functionality. By tweaking these settings, you can tailor the scripts to suit different scenarios and specific needs. Should you encounter any inconsistencies or require adjustments, please feel free to reach out to me for assistance.
 
 ## Getting Started
-Download your first Windows Server Administration tool for PowerShell and let's start managing like pros!
+Download your first Windows Server Administration tool or EventID Logs tool for PowerShell and let's start managing like pros!
 
 ### Prerequisites
-
-Before running the scripts in this folder, ensure that the `Microsoft Log Parser utility` is installed on your system. Moreover, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, particularly on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
+Before running the scripts in this folder, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
 To utilize the scripts in this repository, ensure you have the following prerequisites:
 
 - **Operating System**: Suitable for all Windows Server versions after 2016 Standard.
 - **PowerShell Version**: PowerShell 7.3 or later.
 
 #### Additional Setup for Windows 10 Workstations
-
 To run PowerShell scripts (.PS1) that use the `Import-Module ActiveDirectory` functionality on Windows 10 workstations, you need to install the Remote Server Administration Tools (RSAT). RSAT includes the Active Directory module and allows you to manage Windows Server roles and features from a Windows 10 PC.
 
 **Steps to Install RSAT on Windows 10:**
-
-1. **Open Settings**: Access 'Settings' on your Windows 10 computer.
-2. **Apps & Features**: Navigate to 'Apps' and then select 'Optional Features'.
+1. **Open Settings**: Go to 'Settings' on your Windows 10 computer.
+2. **Apps & Features**: Navigate to 'Apps', then select 'Optional Features'.
 3. **Add a Feature**: Click on 'Add a feature'.
-4. **Search for RSAT**: Type "RSAT" in the search bar to display all available RSAT tools.
-5. **Select and Install**: Specifically, look for and install the following tools:
+4. **Search for RSAT**: Type "RSAT" in the search bar to find all available RSAT tools.
+5. **Select and Install**: Look for and install the following tools:
     - **RSAT**: Active Directory Domain Services and Lightweight Directory Tools
     - **RSAT**: DNS Server Tools (if managing DNS)
     - **RSAT**: Group Policy Management Tools (if managing group policies)
@@ -156,13 +151,13 @@ After installing these tools, you will be able to run scripts that require the A
 **Note**: Ensure that your user account has the appropriate permissions to manage Active Directory objects. Additionally, your PC must be part of the domain or have network access to the domain controllers.
 
 ### Installation
-
-Installing these scripts is a breeze. Follow these steps to get started:
+Installing these scripts is straightforward. Follow these steps to get started:
 
 1. Clone the repository to your desired location:
 
    ```bash
    git clone https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators.git
+   ```
 
 2. Save the scripts to your preferred directory.
 
