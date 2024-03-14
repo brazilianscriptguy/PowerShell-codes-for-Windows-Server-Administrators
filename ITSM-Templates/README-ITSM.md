@@ -29,4 +29,4 @@ This directory hosts a collection of PowerShell script templates designed to str
 11. **NEXT COMING SOON**: Our continuous improvement process means new scripts will be added to address evolving ITSM needs, offering more innovative and efficient tools to enhance IT service delivery.
 
 ## Additional Assistance
-For more detailed information on script execution, prerequisites, or to request custom script development to meet specific ITSM needs, please consult the main ITSM documentation or contact the ITSM team directly.
+For further help or to find more detailed information on prerequisites and environment configuration, please refer to the README-main.md file.
