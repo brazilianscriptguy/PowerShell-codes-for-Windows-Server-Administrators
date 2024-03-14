@@ -24,7 +24,7 @@ Many scripts come with adjustable parameters, allowing you to further customize 
 Download your inaugural Windows Server Administration or EventID Logs tool for PowerShell now and embark on managing like a seasoned pro!
 
 ## Prerequisites
-Before running the scripts in this folder, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
+Before running the scripts here, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
 To utilize the scripts in this repository, ensure you have the following prerequisites:
 
 - **Operating System**: Suitable for all Windows Server versions after 2016 Standard.
