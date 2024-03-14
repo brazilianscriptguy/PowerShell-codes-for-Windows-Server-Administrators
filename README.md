@@ -114,26 +114,26 @@ This folder contains scripts specifically designed for selecting and processing 
 12. **NEXT COMING SOON**: Stay tuned for the next series of EventID analyses, offering more innovative and efficient tools to enhance system administration and event log management.
 
 # Standard Procedures for All Folders and Scripts
-### Customizations
+## Customizations
 This repository is designed with customizability in mind, allowing you to tailor scripts to your specific needs. Below are some common customizations:
 
-### Configuration Files
+## Configuration Files
 You can fine-tune the behavior of these scripts by modifying the included configuration files. These files typically contain settings and parameters that control script execution, ensuring they align perfectly with your server environment.
 
-### Script Parameters
+## Script Parameters
 Many scripts come with adjustable parameters, allowing you to further customize their functionality. By tweaking these settings, you can tailor the scripts to suit different scenarios and specific needs. Should you encounter any inconsistencies or require adjustments, please feel free to reach out to me for assistance.
 
-### Getting Started
+## Getting Started
 Download your first Windows Server Administration tool or EventID Logs tool for PowerShell and let's start managing like pros!
 
-### Prerequisites
+## Prerequisites
 Before running the scripts in this folder, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
 To utilize the scripts in this repository, ensure you have the following prerequisites:
 
 - **Operating System**: Suitable for all Windows Server versions after 2016 Standard.
 - **PowerShell Version**: PowerShell 7.3 or later.
 
-#### Additional Setup for Windows 10 Workstations
+### Additional Setup for Windows 10 Workstations
 To run PowerShell scripts (.PS1) that use the `Import-Module ActiveDirectory` functionality on Windows 10 workstations, you need to install the Remote Server Administration Tools (RSAT). RSAT includes the Active Directory module and allows you to manage Windows Server roles and features from a Windows 10 PC.
 
 **Steps to Install RSAT on Windows 10:**
@@ -151,7 +151,7 @@ After installing these tools, you will be able to run scripts that require the A
 
 **Note**: Ensure that your user account has the appropriate permissions to manage Active Directory objects. Additionally, your PC must be part of the domain or have network access to the domain controllers.
 
-### Installation
+## Installation
 Installing these scripts is straightforward. Follow these steps to get started:
 
 1. Clone the repository to your desired location:
