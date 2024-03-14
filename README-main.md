@@ -2,7 +2,7 @@
 A comprehensive collection of essential scripts and tools meticulously developed to enhance the capabilities of Windows Server Administrators.
 
 ## Description
-Welcome to the PowerShell Codes for Windows Server Administrators repository, curated by `@brazilianscriptguy`. This repository serves as a treasure trove of PowerShell scripts and tools, each meticulously engineered to streamline the workload of Windows Server administrators. These scripts range from security management to system optimization, embodying precision and user-friendliness to ensure administrative tasks are both simplified and effective.
+Welcome to the PowerShell Scripts Repository for Windows Server Administration, meticulously curated by `@brazilianscriptguy`. This collection stands as a comprehensive resource hub of PowerShell scripts and tools, each developed with the intent to ease and enhance the efficiency of Windows Server administrators' tasks. Spanning across various domains from security enhancements to system performance optimization, these scripts are crafted for precision and ease of use, ensuring that administrative workflows are streamlined and impactful. Dive into the diverse range of scripts available in the AD-AdminTools, EventLog-Tools, and ITSM-Templates sub-folders to unlock a world of administrative excellence.
 
 Delve into the repository and discover a realm where each script not only addresses specific administrative challenges but also introduces a level of efficiency and clarity that transforms routine tasks into seamless operations. Every tool here is a testament to the power of well-crafted scripting, designed to elevate the standards of server administration.
 
