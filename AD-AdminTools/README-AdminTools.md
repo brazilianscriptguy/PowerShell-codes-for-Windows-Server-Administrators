@@ -69,3 +69,6 @@ To effectively utilize the scripts in this folder, it's crucial to have the capa
 33. **WorkstationDescription-Updater.ps1**: A sophisticated tool for updating workstation descriptions in an Active Directory environment, this script features an enhanced graphical user interface (GUI) for ease of use. Administrators can input details like the server domain controller, a default description for workstations, and the target organizational unit (OU). The script also prompts for administrator credentials to ensure secure and appropriate execution. Its GUI includes a progress bar, visually indicating the update process's completion status. This utility is invaluable for IT administrators who need to update workstation descriptions on a large scale, providing an efficient and user-friendly method for managing networked computer descriptions.
 
 34. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
+
+## Additional Assistance
+For further help or to find more detailed information on prerequisites and environment configuration, please refer to the README-main.md file.
