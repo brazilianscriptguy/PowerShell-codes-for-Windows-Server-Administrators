@@ -29,6 +29,7 @@ if ($wingetPath -eq $null) {
     $possiblePaths = @(
         "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe", # Standard location for non-admin installations
         "$env:ProgramFiles\WindowsApps\Microsoft.DesktopAppInstaller_1.22.10582.0_x64__8wekyb3d8bbwe\winget.exe" # Standard location for some admin installations
+        "$env:ProgramFiles\WindowsApps\Microsoft.DesktopAppInstaller_1.22.10661.0_x64__8wekyb3d8bbwe\winget.exe" # Local padrão para instalações sem admin
     )
 
     # Check each possible path for winget
