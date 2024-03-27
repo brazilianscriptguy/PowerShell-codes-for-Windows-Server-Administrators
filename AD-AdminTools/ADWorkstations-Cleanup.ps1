@@ -1,6 +1,6 @@
 # PowerShell script to locate and remove old computer accounts from domain
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 14/03/2024
+# Update: 27/03/2024
 
 # Import necessary modules
 Add-Type -AssemblyName System.Windows.Forms
