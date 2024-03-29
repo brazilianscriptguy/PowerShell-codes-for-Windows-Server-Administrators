@@ -1,4 +1,4 @@
-### Prerequisites for Running .VBS Scripts on Windows 10 Workstations
+## Prerequisites for Running .VBS Scripts on Windows 10 Workstations
 
 1. **Windows PowerShell 5.1 or Higher**: Your workstation must have at least version 5.1 of Windows PowerShell installed. This is crucial for the proper execution of PowerShell and .VBS scripts.
 
@@ -8,7 +8,7 @@
 
 4. **Script Dependencies**: Make sure all dependencies required by the .VBS scripts are available. This could include additional scripts, files, or components essential for the scripts' operation.
 
-### Steps to Use ITSM-Templates Scripts
+## Steps to Use ITSM-Templates Scripts
 
 - **Clone ITSM-Templates Folder**: Before using the ITSM-Templates scripts, clone the entire `ITSM-Templates` folder to a local path on your workstation.
 
@@ -16,7 +16,7 @@
 
 By adhering to these prerequisites and steps, you can ensure a smooth setup and utilization of the ITSM-Templates scripts for configuring workstations running on older versions of Windows 10.
 
-## List of Scripts into ITSM-Templates folder:
+### List of Scripts into ITSM-Templates folder:
 
 1. **ITSM-DefaultVBSING.vbs**: Located at ITSM-Templates\UniqueScripts\, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
    - Disable-Windows-Firewall.vbs: Disables the Windows Firewall, allowing for network communication without firewall restrictions.
