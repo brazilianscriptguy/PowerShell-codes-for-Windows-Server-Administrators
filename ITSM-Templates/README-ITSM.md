@@ -16,6 +16,8 @@ By ensuring that these requirements are met, you can effectively run .VBS script
 
 You must clone the entire folder: ITSM-Templates to your local path and follow all the instructions in the .PDF file: `MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf` located at the root of the `ITSM-Templates` folder.
 
+## List of Scripts into ITSM-Templates folder:
+
 1. **ITSM-DefaultVBSING.vbs** Located at ITSM-Templates\UniqueScripts\, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
    - Disable-Windows-Firewall.vbs: Disables the Windows Firewall, allowing for network communication without firewall restrictions.
    - Grant-Full-Access-Gestor.vbs: Enables access to the Manager, likely granting administrative privileges or access to specific management tools.
