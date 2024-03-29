@@ -6,7 +6,7 @@ Before using the scripts within this directory, ensure that `Windows PowerShell 
 You must clone the entire folder: ITSM-Templates to your local path and follow all the instructions in the .PDF file: MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf located at the root of the ITSM-Templates folder.
 
 1. **ITSM-DefaultVBSING.vbs** Located at ITSM-Templates\UniqueScripts\, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
-   ***- Disable-Windows-Firewall.vbs***: Disables the Windows Firewall, allowing for network communication without firewall restrictions.
+   - Disable-Windows-Firewall.vbs: Disables the Windows Firewall, allowing for network communication without firewall restrictions.
    - Grant-Full-Access-Gestor.vbs: Enables access to the Manager, likely granting administrative privileges or access to specific management tools.
    - Renew-all-IP-Connections.vbs: Renews all TCP/IP connections, ensuring network connectivity is refreshed and potentially resolving network issues.
    - WSUS-Certificate-Install.vbs: Installs the WSUS (Windows Server Update Services) certificate, allowing the workstation to securely communicate with the WSUS server for updates.
