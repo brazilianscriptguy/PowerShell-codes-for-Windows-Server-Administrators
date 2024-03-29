@@ -18,7 +18,7 @@ You must clone the entire folder: ITSM-Templates to your local path and follow a
 
 ## List of Scripts into ITSM-Templates folder:
 
-1. **ITSM-DefaultVBSING.vbs** Located at ITSM-Templates\UniqueScripts\, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
+1. **ITSM-DefaultVBSING.vbs**: Located at ITSM-Templates\UniqueScripts\, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
    - Disable-Windows-Firewall.vbs: Disables the Windows Firewall, allowing for network communication without firewall restrictions.
    - Grant-Full-Access-Gestor.vbs: Enables access to the Manager, likely granting administrative privileges or access to specific management tools.
    - Renew-all-IP-Connections.vbs: Renews all TCP/IP connections, ensuring network connectivity is refreshed and potentially resolving network issues.
@@ -46,7 +46,11 @@ Overall, this script aims to configure various aspects of a Windows workstation 
 
 It is essential for the executor of the configuration procedures to pay close attention to the configurations being performed and ensure that the results align with the ITSM-Templates standard. This ensures consistency and compliance with organizational standards across all workstations.
 
-11. **NEXT COMING SOON**: Our continuous improvement process means new scripts will be added to address evolving ITSM needs, offering more innovative and efficient tools to enhance IT service delivery.
+3. **NewDNSRegistering.vbs**: Located within the directory `C:\ITSM-Templates\PostIngress\` are various scripts aimed at facilitating post-ingress configurations for workstations within the COMPANY Active Directory (AD) Forest structure. This particular script registers the new DNS data for the workstation. To execute, right-click on the script and choose `"Run with command prompt`. Upon execution, the script will register the new workstation data in the DNS Servers of the COMPANY AD Forest structure.
+
+4. **ProfileImprinting.vbs**: Located in the directory C:\ITSM-Templates\PostIngress\, this script facilitates the registration of a user's profile on the workstation. To execute, right-click on the script and select "Run with command prompt." After the user has logged on three times, the script will imprint the user's domain profile on the workstation, enabling them to use the workstation outside COMPANY's network environment.
+
+5. **NEXT COMING SOON**: Our continuous improvement process means new scripts will be added to address evolving ITSM needs, offering more innovative and efficient tools to enhance IT service delivery.
 
 ## Additional Assistance
 For further help or to find more detailed information on prerequisites and environment configuration, please refer to the README-main.md file.
