@@ -16,7 +16,7 @@
 
 By adhering to these prerequisites and steps, you can ensure a smooth setup and utilization of the ITSM-Templates scripts for configuring workstations running on older versions of Windows 10.
 
-## List of Scripts into ITSM-Templates folder:
+## List of Scripts in the ITSM-Templates Folder:
 
 1. **ITSM-DefaultVBSING.vbs**: Located at ITSM-Templates\UniqueScripts\, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
    - Disable-Windows-Firewall.vbs: Disables the Windows Firewall, allowing for network communication without firewall restrictions.
