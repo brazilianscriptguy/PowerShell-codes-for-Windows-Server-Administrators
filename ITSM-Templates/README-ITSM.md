@@ -10,7 +10,7 @@
 
 ## Steps to Use ITSM-Templates Scripts
 
-- **Clone ITSM-Templates Folder**: Before using the ITSM-Templates scripts, clone the entire `ITSM-Templates` folder to a local path on your workstation.
+- **Clone ITSM-Templates Folder to DML**: Prior to utilizing the ITSM-Templates scripts for configuring workstations, it's essential to clone the entire `ITSM-Templates` folder directly to your Definitive Media Library (DML) network path. This path should serve as your repository for scripts. 
 
 - **Follow the Checklist PDF**: Refer to the .PDF document titled `MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf`. This document, found at the root of the `ITSM-Templates` folder, contains detailed instructions on how to apply the ITSM-Templates scripts effectively.
 
