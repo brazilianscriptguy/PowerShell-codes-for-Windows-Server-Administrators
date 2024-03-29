@@ -19,6 +19,20 @@ You must clone the entire folder: ITSM-Templates to your local path and follow a
 
 Overall, this script aims to configure various aspects of a Windows workstation to align with ITSM standards and ensure a consistent and secure computing environment.
 
+2. **ITSM-ModifyREGING.vbs**: This script is intended to perform registry modifications on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
+- AddStartPageADM.reg: Configures the browser homepage, likely setting it to a specific webpage or corporate intranet site.
+- DisableUAC-LUA.reg: Disables User Account Control (UAC), potentially to reduce user prompts and restrictions for certain operations.
+- Enable-AutoShareAdmin.reg: Enables administrative sharing, allowing for easier administration and file sharing across the network.
+- Register-Owner.reg: Customizes COMPANY data in the Windows license, likely including company name or other identifying information.
+- WSUS-App-Intranet.reg: Points to the corporate WSUS (Windows Server Update Services), ensuring that the workstation receives updates from the corporate update server.
+- DesktopCurrent.reg: Configures the graphical appearance of the OS for the current user, likely adjusting settings such as desktop background and color scheme.
+- DesktopDefault.reg: Configures the graphical appearance of the OS for the default user profile, ensuring consistency in appearance for new user accounts.
+- EnableCustomLogonBackgrounds.reg: Customizes logon screen wallpapers, providing a branded or standardized appearance for the login interface.
+- Domain-Ingress-Win10x11.reg: Protects domain shares, likely by configuring security settings or access permissions to ensure secure access to shared resources.
+- ITSM-Templates.deskthemepack: Configures the desktop theme, likely including settings for desktop background, window colors, and sounds to maintain a consistent visual experience.
+
+It is essential for the executor of the configuration procedures to pay close attention to the configurations being performed and ensure that the results align with the ITSM-Templates standard. This ensures consistency and compliance with organizational standards across all workstations.
+
 11. **NEXT COMING SOON**: Our continuous improvement process means new scripts will be added to address evolving ITSM needs, offering more innovative and efficient tools to enhance IT service delivery.
 
 ## Additional Assistance
