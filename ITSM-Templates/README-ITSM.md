@@ -1,21 +1,20 @@
-# Files in the ITSM-Templates Folder
+### Prerequisites for Running .VBS Scripts on Windows 10 Workstations
 
-## Prerequisite:
+1. **Windows PowerShell 5.1 or Higher**: Your workstation must have at least version 5.1 of Windows PowerShell installed. This is crucial for the proper execution of PowerShell and .VBS scripts.
 
-Before running .VBS scripts to configure workstations on older versions of Windows 10, ensure the following requirements are met:
+2. **Administrative Privileges**: You need administrative access to the workstation to run these scripts. This level of access allows you to make necessary system-level changes.
 
-- **Windows PowerShell 5.1 or higher:** Verify that Windows PowerShell, version 5.1 or above, is installed on the workstation. This version of PowerShell provides the necessary functionality for executing PowerShell scripts, including .VBS scripts.
+3. **Script Execution Policy**: The workstation's script execution policy should permit the running of .VBS scripts. Depending on your organization's security guidelines, you might need to adjust this policy to enable script execution.
 
-- **Administrative Privileges:** You must have administrative privileges on the workstation to execute the scripts. Administrative access is necessary to make system-level changes as dictated by the scripts.
+4. **Script Dependencies**: Make sure all dependencies required by the .VBS scripts are available. This could include additional scripts, files, or components essential for the scripts' operation.
 
-- **Script Execution Policy:** Check the script execution policy on the workstation to ensure that it allows the execution of .VBS scripts. You may need to set the execution policy to allow script execution, depending on your organization's security policies.
+### Steps to Use ITSM-Templates Scripts
 
-- **Script Dependencies:** Some .VBS scripts may have dependencies on specific components or resources. Ensure that any required dependencies, such as additional scripts or files, are available and accessible on the workstation.
+- **Clone ITSM-Templates Folder**: Before using the ITSM-Templates scripts, clone the entire `ITSM-Templates` folder to a local path on your workstation.
 
-By ensuring that these requirements are met, you can effectively run .VBS scripts to configure workstations running older versions of Windows 10.
+- **Follow the Checklist PDF**: Refer to the .PDF document titled `MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf`. This document, found at the root of the `ITSM-Templates` folder, contains detailed instructions on how to apply the ITSM-Templates scripts effectively.
 
-## Very important before use ITSM-Templates scripts
-You must clone the entire folder: `ITSM-Templates` to your local path and follow all the instructions in the .PDF file: `MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf` located at the root of the `ITSM-Templates` folder.
+By adhering to these prerequisites and steps, you can ensure a smooth setup and utilization of the ITSM-Templates scripts for configuring workstations running on older versions of Windows 10.
 
 ## List of Scripts into ITSM-Templates folder:
 
