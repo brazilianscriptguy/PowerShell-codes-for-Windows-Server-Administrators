@@ -3,7 +3,7 @@
 ## Prerequisite:
 Before using the scripts within this directory, ensure that `Windows PowerShell 5.1` or higher is installed on your system. These scripts are designed for IT Service Management tasks and may utilize commands such as `Get-WmiObject` for system information retrieval and `Invoke-Command` for executing tasks on remote computers. Ensure that you have administrative privileges on the systems you intend to manage with these scripts.
 
-You must clone the entire folder: ITSM-Templates to your local path and follow all the instructions in the .PDF file: MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf located at the root of the ITSM-Templates folder.
+You must clone the entire folder: ITSM-Templates to your local path and follow all the instructions in the .PDF file: `MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf` located at the root of the `ITSM-Templates` folder.
 
 1. **ITSM-DefaultVBSING.vbs** Located at ITSM-Templates\UniqueScripts\, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
    - Disable-Windows-Firewall.vbs: Disables the Windows Firewall, allowing for network communication without firewall restrictions.
