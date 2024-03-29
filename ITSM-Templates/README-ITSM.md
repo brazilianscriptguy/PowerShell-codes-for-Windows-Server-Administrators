@@ -14,7 +14,8 @@ Before running .VBS scripts to configure workstations on older versions of Windo
 
 By ensuring that these requirements are met, you can effectively run .VBS scripts to configure workstations running older versions of Windows 10.
 
-You must clone the entire folder: ITSM-Templates to your local path and follow all the instructions in the .PDF file: `MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf` located at the root of the `ITSM-Templates` folder.
+## Very important before use ITSM-Templates scripts
+You must clone the entire folder: `ITSM-Templates` to your local path and follow all the instructions in the .PDF file: `MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf` located at the root of the `ITSM-Templates` folder.
 
 ## List of Scripts into ITSM-Templates folder:
 
