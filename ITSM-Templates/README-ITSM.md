@@ -1,7 +1,18 @@
 # Files in the ITSM-Templates Folder
 
 ## Prerequisite:
-Before using the scripts within this directory, ensure that `Windows PowerShell 5.1` or higher is installed on your system. These scripts are designed for IT Service Management tasks and may utilize commands such as `Get-WmiObject` for system information retrieval and `Invoke-Command` for executing tasks on remote computers. Ensure that you have administrative privileges on the systems you intend to manage with these scripts.
+
+Before running .VBS scripts to configure workstations on older versions of Windows 10, ensure the following requirements are met:
+
+- **Windows PowerShell 5.1 or higher:** Verify that Windows PowerShell, version 5.1 or above, is installed on the workstation. This version of PowerShell provides the necessary functionality for executing PowerShell scripts, including .VBS scripts.
+
+- **Administrative Privileges:** You must have administrative privileges on the workstation to execute the scripts. Administrative access is necessary to make system-level changes as dictated by the scripts.
+
+- **Script Execution Policy:** Check the script execution policy on the workstation to ensure that it allows the execution of .VBS scripts. You may need to set the execution policy to allow script execution, depending on your organization's security policies.
+
+- **Script Dependencies:** Some .VBS scripts may have dependencies on specific components or resources. Ensure that any required dependencies, such as additional scripts or files, are available and accessible on the workstation.
+
+By ensuring that these requirements are met, you can effectively run .VBS scripts to configure workstations running older versions of Windows 10.
 
 You must clone the entire folder: ITSM-Templates to your local path and follow all the instructions in the .PDF file: `MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf` located at the root of the `ITSM-Templates` folder.
 
