@@ -30,8 +30,6 @@ By adhering to these prerequisites and steps, you can ensure a smooth setup and 
    - CopyWallPaperDefault.vbs: Copies standardized desktop wallpapers, providing a uniform visual experience for users.
    - CopyLogonBackground.vbs: Copies standardized lock screen images, maintaining consistency in the login interface appearance. 
 
-Overall, this script aims to configure various aspects of a Windows workstation to align with ITSM standards and ensure a consistent and secure computing environment.
-
 2. **ITSM-ModifyREGING.vbs**: This script is intended to perform registry modifications on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
    - AddStartPageADM.reg: Configures the browser homepage, likely setting it to a specific webpage or corporate intranet site.
    - DisableUAC-LUA.reg: Disables User Account Control (UAC), potentially to reduce user prompts and restrictions for certain operations.
@@ -43,8 +41,6 @@ Overall, this script aims to configure various aspects of a Windows workstation 
    - EnableCustomLogonBackgrounds.reg: Customizes logon screen wallpapers, providing a branded or standardized appearance for the login interface.
    - Domain-Ingress-Win10x11.reg: Protects domain shares, likely by configuring security settings or access permissions to ensure secure access to shared resources.
    - ITSM-Templates.deskthemepack: Configures the desktop theme, likely including settings for desktop background, window colors, and sounds to maintain a consistent visual experience.
-
-It is essential for the executor of the configuration procedures to pay close attention to the configurations being performed and ensure that the results align with the ITSM-Templates standard. This ensures consistency and compliance with organizational standards across all workstations.
 
 3. **NewDNSRegistering.vbs**: Located within the directory `C:\ITSM-Templates\PostIngress\` are various scripts aimed at facilitating post-ingress configurations for workstations within the COMPANY Active Directory (AD) Forest structure. This particular script registers the new DNS data for the workstation. To execute, right-click on the script and choose `"Run with command prompt`. Upon execution, the script will register the new workstation data in the DNS Servers of the COMPANY AD Forest structure.
 
