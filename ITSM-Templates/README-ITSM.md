@@ -60,4 +60,4 @@ This Folder containing additional support scripts, according to configuration in
    - **WorkstationTimeSync**: Folder with script to synchronize workstation time, date, and time zone.
 
 ## Additional Assistance
-For further help or to find more detailed information on prerequisites and environment configuration, please refer to the README-main.md file.
+All script codes are editable and customizable to suit your preferences and information. For further assistance or detailed information on prerequisites and environment configuration, please refer to the README-main.md file.
