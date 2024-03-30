@@ -48,5 +48,16 @@ By adhering to these prerequisites and steps, you can ensure a smooth setup and 
 
 5. **NEXT COMING SOON**: Our continuous improvement process means new scripts will be added to address evolving ITSM needs, offering more innovative and efficient tools to enhance IT service delivery.
 
+## List of Scripts in the ScriptsAdditionalSupport Folder:
+This Folder containing additional support scripts, according to configuration inconsistencies already identified by IT Service Support Division.
+   - ActivateAdminShare: Folder with script to activate administrative shares; RDP and download Windows Firewall.
+   - DiskVolumes: Folder with script to locally rename disk volumes C: and D:.
+   - GetSID: Folder with Microsoft Internals application to identify the SID Security Identifier of the operating system.
+   - LegacyIngress: Folder with script to allow legacy operating system workstations to join new domains.
+   - ResetGPOs: Folder with script to reset all workstation GPOs and initiate a new synchronization.
+   - UnjoinDomain: Folder with script to unjoin workstations from the domain and clear data from the old domain.
+   - WorkStationConfiReport: Folder with script to generate configuration reports for each workstation and record them in a spreadsheet.
+   - WorkstationTimeSync: Folder with script to synchronize workstation time, date, and time zone.
+
 ## Additional Assistance
 For further help or to find more detailed information on prerequisites and environment configuration, please refer to the README-main.md file.
