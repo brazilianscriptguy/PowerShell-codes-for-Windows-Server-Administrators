@@ -1,5 +1,6 @@
-# Ensure consistent line endings for PowerShell files
+# Ensure LF as the line ending for consistency across platforms
 *.PS1 text eol=lf
-
-# Ensure consistent line endings for VBScript files
 *.VBS text eol=lf
+*.HTA text eol=lf
+# Handle text files carefully, especially if they're meant to be cross-platform
+*.TXT text auto
