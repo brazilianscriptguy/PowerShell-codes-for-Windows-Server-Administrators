@@ -74,4 +74,4 @@ This section houses scripts tailored for Active Directory Administration tasks. 
 34. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
 ## Additional Assistance
-For further help or to find more detailed information on prerequisites and environment configuration, please refer to the README-main.md file.
+All script codes can be edited and customized to fit your preferences and requirements. For additional help or detailed information regarding prerequisites and environment setup, please consult the README.md file into main root folder.
