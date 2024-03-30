@@ -31,4 +31,4 @@ This directory houses scripts tailored for selecting and processing Windows Even
 12. **NEXT COMING SOON**: Stay tuned for the next series of EventID analyses, offering more innovative and efficient tools to enhance system administration and event log management.
 
 ## Additional Assistance
-For further help or to find more detailed information on prerequisites and environment configuration, please refer to the README-main.md file.
+All script codes can be edited and customized to fit your preferences and requirements. For additional help or detailed information regarding prerequisites and environment setup, please consult the README.md file into main root folder.
