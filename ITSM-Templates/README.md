@@ -22,7 +22,7 @@ By adhering to these prerequisites and steps, you can ensure a smooth setup and 
    - Disable-Windows-Firewall.vbs: Disables the Windows Firewall, allowing for network communication without firewall restrictions.
    - Grant-Full-Access-Gestor.vbs: Enables access to the Manager, likely granting administrative privileges or access to specific management tools.
    - Renew-all-IP-Connections.vbs: Renews all TCP/IP connections, ensuring network connectivity is refreshed and potentially resolving network issues.
-   - WSUS-Certificate-Install.vbs: Installs the WSUS (Windows Server Update Services) certificate, allowing the workstation to securely communicate with the WSUS server for updates.
+   - All-Certificates-Install.vbs:  Installs local ADCS, RDS, and WSUS server certificates to establish secure connections using certificates. This script must be customized according to your specific requirements.
    - WSUS-Clean-SID.vbs: Cleans previous WSUS connections, ensuring a clean state before establishing new connections to the WSUS server.
    - CopyDefaultFolders.vbs: Copies default desktop folders and XML profiles related to desktop appearance and the start button, likely for standardizing the user experience across workstations.
    - CopyHosts.vbs: Protects network connections before installing the antivirus (AV) software, possibly by configuring network settings or adding specific entries to the hosts file.
