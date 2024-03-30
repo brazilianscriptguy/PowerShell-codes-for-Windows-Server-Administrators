@@ -1,4 +1,4 @@
-## Prerequisites for Running .VBS Scripts on Windows 10 Workstations
+## Prerequisites for Running .VBS Scripts on Windows 10 and 11 Workstations
 
 1. **Windows PowerShell 5.1 or Higher**: Your workstation must have at least version 5.1 of Windows PowerShell installed. This is crucial for the proper execution of PowerShell and .VBS scripts.
 
@@ -14,7 +14,7 @@
 
 - **Follow the Checklist PDF**: Refer to the .PDF document titled `MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf`. This document, found at the root of the `ITSM-Templates` folder, contains detailed instructions on how to apply the ITSM-Templates scripts effectively.
 
-By adhering to these prerequisites and steps, you can ensure a smooth setup and utilization of the ITSM-Templates scripts for configuring workstations running on older versions of Windows 10.
+By adhering to these prerequisites and steps, you can ensure a smooth setup and utilization of the ITSM-Templates scripts for configuring workstations running on older versions of Windows 10x11.
 
 ## List of Scripts in the ITSM-Templates Folder:
 
