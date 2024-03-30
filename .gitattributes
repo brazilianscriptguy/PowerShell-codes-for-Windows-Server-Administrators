@@ -1,0 +1,5 @@
+# Ensure consistent line endings for PowerShell files
+*.PS1 text eol=lf
+
+# Ensure consistent line endings for VBScript files
+*.VBS text eol=lf
