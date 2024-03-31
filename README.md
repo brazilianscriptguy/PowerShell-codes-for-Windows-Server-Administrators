@@ -10,41 +10,62 @@ Our repository is committed to providing scripts that not only solve common admi
 
 ## Features
 
-Organized into folders such as AD-AdminTools, EventLog-Tools, and ITSM-Templates, this repository offers specialized tools for a broad range of server administration and workstation management tasks. Highlights include:
+This repository is organized into several specialized folders (AD-AdminTools, EventLog-Tools, and ITSM-Templates), each dedicated to a specific aspect of Windows Server administration and also Windos 10 and 11 management, through PowerShell codes and .VBS scripting. To get started, we recommend selecting a folder that aligns with your current interests or administrative needs. Within each directory, you will find a README.md file—your starting point for exploring the contents. These README files offer comprehensive details about the scripts' functionalities, prerequisites for their use, and guidance on how to implement the scripts effectively. This structured approach ensures you have all the necessary information to leverage the code within each folder to its fullest potential.
 
 - **In-depth Documentation**: Each folder features a README.md file with detailed descriptions of the scripts' functions, prerequisites for use, and step-by-step implementation guides.
 - **Customizable Solutions**: Tailor the scripts to meet your unique needs by adjusting configuration files and script parameters for optimal performance in your specific environment.
 
-## Getting Started
+# Standard Procedures for All Folders and Scripts
+## Customizations
+This repository is designed with customizability in mind, allowing you to tailor scripts to your specific needs. Below are some common customizations:
 
-Kickstart your journey to more efficient Windows Server and Workstation management by downloading your first script today. Experience the difference in your daily operations with our precision-crafted tools.
+## Configuration Files
+You can fine-tune the behavior of these scripts by modifying the included configuration files. These files typically contain settings and parameters that control script execution, ensuring they align perfectly with your Windows Server environment.
+
+## Script Parameters
+Many scripts come with adjustable parameters, allowing you to further customize their functionality. By tweaking these settings, you can tailor the scripts to suit different scenarios and specific needs. Should you encounter any inconsistencies or require adjustments, please feel free to reach out to me for assistance.
+
+## Getting Started
+Download your inaugural Windows Server Administration or EventID Logs tool for PowerShell now and embark on managing like a seasoned pro!
 
 ## Prerequisites
+Before running the scripts here, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
+To utilize the scripts in this repository, ensure you have the following prerequisites:
 
-To ensure compatibility and functionality of the scripts, please adhere to the following prerequisites:
+- **Operating System Compatibility**: This collection is designed to be compatible with all versions of Windows Server released after the 2016 Standard edition and with Windows Workstation versions starting from Windows 10 (1507) onwards.
+- **PowerShell Version Requirement**: To utilize these scripts effectively, your system should be running PowerShell version 5.1 or later.
 
-- **Microsoft Log Parser Utility**: Required for specific scripts.
-- **PowerShell Execution**: The ability to run PowerShell scripts (.PS1), particularly those using `Import-Module ActiveDirectory`, is essential.
-- **System Requirements**: Compatible with all Windows Server versions after 2016 Standard and Windows 10 and 11 workstations.
-- **Recommended PowerShell Version**: PowerShell 7.3 or newer for the best experience.
+### Additional Setup for Windows 10 and 11 Workstations
+To run PowerShell scripts (.PS1) that use the `Import-Module ActiveDirectory` functionality on Windows 10 workstations, you need to install the Remote Server Administration Tools (RSAT). RSAT includes the Active Directory module and allows you to manage Windows Server roles and features from a Windows 10 PC.
 
-### Setup for Windows 10 Workstations
+**Steps to Install RSAT on Windows 10 and 11:**
+1. **Open Settings**: Go to `Settings` on your Windows 10 computer;
+2. **Apps & Features**: Navigate to `Apps`, then select `Optional Features`;
+3. **Add a Feature**: Click on `Add a feature`;
+4. **Search for RSAT**: Type "**RSAT**" in the search bar to find all available RSAT tools;
+5. **Select and Install**: Look for and install the following tools:
+    - **RSAT**: `Active Directory Domain Services and Lightweight Directory Tools`;
+    - **RSAT**: `DNS Server Tools` (if managing DNS);
+    - **RSAT**: `Group Policy Management Tools` (if managing group policies);
+6. **Install**: Choose these tools and click `Install`.
 
-Running PowerShell scripts that utilize `Import-Module ActiveDirectory` on Windows 10 requires the Remote Server Administration Tools (RSAT) installation. RSAT enables the management of Windows Server roles and features directly from Windows 10. Follow our guide for detailed installation steps.
+After installing these tools, you will be able to run scripts that require the `Active Directory module` using the `Import-Module ActiveDirectory` command in PowerShell. This setup enables you to perform Active Directory tasks directly from your Windows 10 workstation.
 
-**Note**: Ensure your account has the necessary permissions for Active Directory management, and your workstation has network access to the domain controllers.
+**Note**: Ensure that your user account has the appropriate permissions to manage Active Directory objects. Additionally, your PC must be part of the domain or have network access to the domain controllers.
 
 ## Installation
+Installing these scripts is straightforward. Follow these steps to get started:
 
-Begin utilizing the scripts with these simple steps:
+1. Clone the repository to your desired location:
 
-1. Clone the repository to your local system:
    ```bash
    git clone https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators.git
    ```
-2. Browse to your script of interest.
-3. Follow the execution guidelines to ensure the script runs smoothly in your specific setting.
 
-Should you have any questions or need further assistance, please contact luizhamilton.lhr@gmail.com or join our WhatsApp group [PowerShell-Br](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c).
+2. Save the scripts to your preferred directory.
 
-This revision aims to directly address the user's request, focusing on the script's applicability to both Windows Server administrative tasks and Windows 10 and 11 workstation management tasks, enhancing clarity and ensuring the text is inviting and informative.
+3. Execute the scripts while monitoring the location and environment to ensure proper execution.
+
+Now, you're all set to leverage the power of these PowerShell scripts for efficient Windows Server administration. Feel free to explore and customize them to suit your specific needs.
+
+For questions or further assistance, you can reach out to me at luizhamilton.lhr@gmail.com or join my WhatsApp channel: [PowerShell-Br](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c).
