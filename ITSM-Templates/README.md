@@ -24,7 +24,9 @@ By adhering to these prerequisites and steps, you can ensure a smooth setup and 
 
 Here's the sublist organized into alphabetical order:
 
-1. **ITSM-DefaultVBSING.vbs**: Located at `ITSM-Templates\UniqueScripts\`, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
+1. **ITSM-DefaultVBSING.vbs**: Located at `C:\ITSM-Templates\UniqueScripts\`, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. To execute, right-click on the script and choose `Run with command prompt`.
+
+**It encompasses ten distinct configurations:**
    - ***All-Certificates-Install.vbs***: Installs local ADCS, RDS, and WSUS server certificates to establish secure connections using certificates. This script must be customized according to your specific requirements.
    - ***CopyDefaultFolders.vbs***: Copies default desktop folders and XML profiles related to desktop appearance and the start button, likely for standardizing the user experience across workstations.
    - ***CopyHosts.vbs***: Protects network connections before installing the antivirus (AV) software, possibly by configuring network settings or adding specific entries to the hosts file.
@@ -36,7 +38,9 @@ Here's the sublist organized into alphabetical order:
    - ***Renew-all-IP-Connections.vbs***: Renews all TCP/IP connections, ensuring network connectivity is refreshed and potentially resolving network issues.
    - ***WSUS-Clean-SID.vbs***: Cleans previous WSUS connections, ensuring a clean state before establishing new connections to the WSUS server.
 
-2. **ITSM-ModifyREGING.vbs**: This script is intended to perform registry modifications on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
+2. **ITSM-ModifyREGING.vbs**: Located at `C:\ITSM-Templates\UniqueScripts\`. This script is intended to perform registry modifications on a Windows workstation as part of the IT Service Management (ITSM) process. To execute, right-click on the script and choose `Run with command prompt`.
+
+**It encompasses ten distinct configurations:**
    - ***AddStartPageADM.reg***: Configures the browser homepage, likely setting it to a specific webpage or corporate intranet site.
    - ***DisableUAC-LUA.reg***: Disables User Account Control (UAC), potentially to reduce user prompts and restrictions for certain operations.
    - ***Enable-AutoShareAdmin.reg***: Enables administrative sharing, allowing for easier administration and file sharing across the network.
@@ -48,11 +52,11 @@ Here's the sublist organized into alphabetical order:
    - ***Domain-Ingress-Win10x11.reg***: Protects domain shares, likely by configuring security settings or access permissions to ensure secure access to shared resources.
    - ***ITSM-Templates.deskthemepack***: Configures the desktop theme, likely including settings for desktop background, window colors, and sounds to maintain a consistent visual experience.
 
-3. **NewDNSRegistering.vbs**: Located within the directory `C:\ITSM-Templates\PostIngress\` are various scripts aimed at facilitating post-ingress configurations for workstations within the COMPANY Active Directory (AD) Forest structure. This particular script registers the new DNS data for the workstation. To execute, right-click on the script and choose `"Run with command prompt`. Upon execution, the script will register the new workstation data in the DNS Servers of the COMPANY AD Forest structure.
+4. **NewDNSRegistering.vbs**: Located within the directory `C:\ITSM-Templates\PostIngress\` are various scripts aimed at facilitating post-ingress configurations for workstations within the COMPANY Active Directory (AD) Forest structure. This particular script registers the new DNS data for the workstation. To execute, right-click on the script and choose `Run with command prompt`. Upon execution, the script will register the new workstation data in the DNS Servers of the COMPANY AD Forest structure.
 
-4. **ProfileImprinting.vbs**: Located in the directory C:\ITSM-Templates\PostIngress\, this script facilitates the registration of a user's profile on the workstation. To execute, right-click on the script and select "Run with command prompt." After the user has logged on three times, the script will imprint the user's domain profile on the workstation, enabling them to use the workstation outside COMPANY's network environment.
+5. **ProfileImprinting.vbs**: Located in the directory `C:\ITSM-Templates\PostIngress\`, this script facilitates the registration of a user's profile on the workstation. To execute, right-click on the script and select `Run with command prompt`. After the user has logged on three times, the script will imprint the user's domain profile on the workstation, enabling them to use the workstation outside COMPANY's network environment.
 
-5. **NEXT COMING SOON**: Our continuous improvement process means new scripts will be added to address evolving ITSM needs, offering more innovative and efficient tools to enhance IT service delivery.
+6. **NEXT COMING SOON**: Our continuous improvement process means new scripts will be added to address evolving ITSM needs, offering more innovative and efficient tools to enhance IT service delivery.
 
 ## List of Scripts in the ScriptsAdditionalSupport Folder:
 
