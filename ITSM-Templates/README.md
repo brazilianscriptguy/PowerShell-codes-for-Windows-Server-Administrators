@@ -14,7 +14,11 @@
 
 - **Follow the Checklist PDF**: Refer to the .PDF document titled `MARCH-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf`. This document, found at the root of the `ITSM-Templates` folder, contains detailed instructions on how to apply the ITSM-Templates scripts effectively.
 
-By adhering to these prerequisites and steps, you can ensure a smooth setup and utilization of the ITSM-Templates scripts for configuring workstations running on older and new versions of Windows 10x11.
+- **Review Each .VBS and .REG File Individually**: It's essential to go through each .VBS script and .REG file individually to customize them according to your preferences and requirements. This ensures that all code is tailored specifically for your needs.
+
+- **Review the CustomImages Folder**: All Windows workstation themes and appearances must be customized according to your preferences and requirements. Therefore, please review the `ITSM-Templates\CustomImages` folder to personalize your appearance images further.
+
+By adhering to these prerequisites and steps, you can ensure a smooth setup and utilization of the ITSM-Templates scripts for configuring workstations running on older and new versions of Windows 10 and 11.
 
 ## List of Scripts in the ITSM-Templates Folder:
 
