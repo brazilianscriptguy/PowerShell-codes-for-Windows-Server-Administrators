@@ -51,15 +51,17 @@ Here's the sublist organized into alphabetical order:
 5. **NEXT COMING SOON**: Our continuous improvement process means new scripts will be added to address evolving ITSM needs, offering more innovative and efficient tools to enhance IT service delivery.
 
 ## List of Scripts in the ScriptsAdditionalSupport Folder:
-This Folder containing additional support scripts, according to configuration inconsistencies already identified by IT Service Support Division.
-   - **ActivateAdminShare**: Folder with script to activate administrative shares; RDP and download Windows Firewall.
-   - **DiskVolumes**: Folder with script to locally rename disk volumes C: and D:.
-   - **GetSID**: Folder with Microsoft Internals application to identify the SID Security Identifier of the operating system.
-   - **LegacyIngress**: Folder with script to allow legacy operating system workstations to join new domains.
-   - **ResetGPOs**: Folder with script to reset all workstation GPOs and initiate a new synchronization.
-   - **UnjoinDomain**: Folder with script to unjoin workstations from the domain and clear data from the old domain.
-   - **WorkStationConfigReport**: Folder with script to generate configuration reports for each workstation and record them in a spreadsheet.
-   - **WorkstationTimeSync**: Folder with script to synchronize workstation time, date, and time zone.
+
+This folder contains additional support scripts, aligned with configuration inconsistencies previously identified by the IT Service Support Division.
+
+   - **ActivateAdminShare**: This folder includes a script designed to enable administrative shares, activate Remote Desktop Protocol (RDP), and deactivate Windows Firewall.
+   - **DiskVolumes**: This folder contains a script for locally renaming disk volumes C: and D:.
+   - **GetSID**: This folder houses a Microsoft Internals application intended for identifying the SID (Security Identifier) of the operating system.
+   - **LegacyIngress**: In this folder, there's a script aimed at allowing legacy operating system workstations to join new domains.
+   - **ResetGPOs**: This folder offers a script to reset all workstation GPOs (Group Policy Objects) and initiate a new synchronization.
+   - **UnjoinDomain**: This folder provides a script designed to unjoin workstations from the domain and clear data associated with the old domain.
+   - **WorkStationConfigReport**: Contains a script for generating configuration reports for each workstation and recording them in a spreadsheet.
+   - **WorkstationTimeSync**: This folder includes a script to synchronize workstation time, date, and time zone settings.
 
 ## Additional Assistance
 All script codes can be edited and customized to fit your preferences and requirements. For additional help or detailed information regarding prerequisites and environment setup, please consult the README.md file into main root folder.
