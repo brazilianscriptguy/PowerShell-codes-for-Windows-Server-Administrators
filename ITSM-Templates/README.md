@@ -22,7 +22,7 @@ Here's the sublist organized into alphabetical order:
 
 1. **ITSM-DefaultVBSING.vbs**: Located at `ITSM-Templates\UniqueScripts\`, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. It encompasses ten distinct configurations:
    - *All-Certificates-Install.vbs*: Installs local ADCS, RDS, and WSUS server certificates to establish secure connections using certificates. This script must be customized according to your specific requirements.
-   - CopyDefaultFolders.vbs: Copies default desktop folders and XML profiles related to desktop appearance and the start button, likely for standardizing the user experience across workstations.
+   - ***CopyDefaultFolders.vbs***: Copies default desktop folders and XML profiles related to desktop appearance and the start button, likely for standardizing the user experience across workstations.
    - CopyHosts.vbs: Protects network connections before installing the antivirus (AV) software, possibly by configuring network settings or adding specific entries to the hosts file.
    - CopyLogonBackground.vbs: Copies standardized lock screen images, maintaining consistency in the login interface appearance.
    - CopyUserLogo.vbs: Copies standardized user profile images, ensuring consistency in user interface elements across workstations.
