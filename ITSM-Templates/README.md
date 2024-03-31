@@ -1,12 +1,12 @@
-## Prerequisites for Running .VBS Scripts on Windows 10 and 11 Workstations
+## Requirements for Running .VBS Scripts on Windows 10 and 11 Workstations
 
-1. **Windows PowerShell 5.1 or Higher**: Your workstation must have at least version 5.1 of Windows PowerShell installed. This is crucial for the proper execution of PowerShell and .VBS scripts.
+1. **Windows PowerShell 5.1 or Newer**: Ensure your workstation is equipped with Windows PowerShell version 5.1 or later. This version is necessary for executing PowerShell commands and .VBS scripts effectively.
 
-2. **Administrative Privileges**: You need administrative access to the workstation to run these scripts. This level of access allows you to make necessary system-level changes.
+2. **Administrative Rights**: Administrative privileges on the workstation are required to run .VBS scripts. Such access enables the implementation of changes at the system level.
 
-3. **Script Execution Policy**: The workstation's script execution policy should permit the running of .VBS scripts. Depending on your organization's security guidelines, you might need to adjust this policy to enable script execution.
+3. **Script Execution Policy**: The script execution policy on your workstation must allow for .VBS scripts to be run. You may need to modify this policy in accordance with your organization's security standards to facilitate script execution.
 
-4. **Script Dependencies**: Make sure all dependencies required by the .VBS scripts are available. This could include additional scripts, files, or components essential for the scripts' operation.
+4. **Required Dependencies**: Verify that all dependencies needed by the .VBS scripts are in place. Dependencies can include additional scripts, files, or software components critical for the successful execution of the scripts.
 
 ## Steps to Use ITSM-Templates Scripts
 
