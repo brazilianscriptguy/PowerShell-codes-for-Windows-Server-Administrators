@@ -10,7 +10,7 @@ Our repository is committed to providing scripts that not only solve common admi
 
 ## Features
 
-This repository is organized into several specialized folders (AD-AdminTools, EventLog-Tools, and ITSM-Templates), each dedicated to a specific aspect of Windows Server administration and also Windos 10 and 11 management, through PowerShell codes and .VBS scripting. To get started, we recommend selecting a folder that aligns with your current interests or administrative needs. Within each directory, you will find a README.md file—your starting point for exploring the contents. These README files offer comprehensive details about the scripts' functionalities, prerequisites for their use, and guidance on how to implement the scripts effectively. This structured approach ensures you have all the necessary information to leverage the code within each folder to its fullest potential.
+This repository is structured into distinct folders such as AD-AdminTools, EventLog-Tools, and ITSM-Templates, each focusing on different areas of Windows Server management and Windows 10 and 11 workstation maintenance using PowerShell and VBScript. To begin, choose a folder that matches your immediate interests or administrative requirements. Inside, you'll discover a README.md file in each folder, serving as your guide to that directory's offerings. These README documents provide detailed insights into the scripts' capabilities, their prerequisites, and instructions for effective deployment. This organized setup is designed to equip you with all the information needed to fully utilize the scripts tailored to your needs.
 
 - **In-depth Documentation**: Each folder features a README.md file with detailed descriptions of the scripts' functions, prerequisites for use, and step-by-step implementation guides.
 - **Customizable Solutions**: Tailor the scripts to meet your unique needs by adjusting configuration files and script parameters for optimal performance in your specific environment.
@@ -29,8 +29,9 @@ Many scripts come with adjustable parameters, allowing you to further customize 
 Download your inaugural Windows Server Administration or EventID Logs tool for PowerShell now and embark on managing like a seasoned pro!
 
 ## Prerequisites
-Before running the scripts here, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
-To utilize the scripts in this repository, ensure you have the following prerequisites:
+Before running the EventLogs-Tools scripts here, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
+
+**To utilize the scripts in this repository, ensure you have the following prerequisites:**
 
 - **Operating System Compatibility**: This collection is designed to be compatible with all versions of Windows Server released after the 2016 Standard edition and with Windows Workstation versions starting from Windows 10 (1507) onwards.
 - **PowerShell Version Requirement**: To utilize these scripts effectively, your system should be running PowerShell version 5.1 or later.
