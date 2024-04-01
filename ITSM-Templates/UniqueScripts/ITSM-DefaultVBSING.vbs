@@ -1,5 +1,5 @@
 ' Author: @brazilianscriptguy
-' Updated: March, 29, 2024.
+' Updated: March, 30, 2024.
 ' Script for: EXECUTING ALL .VBS CONFIGURATIONS IN A SINGLE CALL - ACCORDING TO EXECUTION ORDER
 
 ' Creation of a Shell object for interaction with the operating system environment
@@ -41,13 +41,13 @@ Sub ExecuteAndLog(scriptName)
 End Sub
 
 ' Inform the user about the estimated execution time
-MsgBox "This process takes around 03 minutes. Please wait for the completion message!", vbInformation, "Execution in Progress"
+MsgBox "This process takes around 30 seconds. Please wait for the completion message!", vbInformation, "Execution in Progress"
 
 ' Execute each VBS script and log the actions
 ExecuteAndLog "AllGeneralConfigs\Disable-Windows-Firewall.vbs"
 ExecuteAndLog "AllGeneralConfigs\Grant-Full-Access-Legacy-App.vbs"
 ExecuteAndLog "AllGeneralConfigs\Renew-all-IP-Connections.vbs"
-ExecuteAndLog "AllGeneralConfigs\WSUS-Certificate-Install.vbs"
+ExecuteAndLog "AllGeneralConfigs\All-Certificates-Install.vbs"
 ExecuteAndLog "AllGeneralConfigs\WSUS-Clean-SID.vbs"
 ExecuteAndLog "DefaultBackground\DesktopScreen\CopyDefaultFolders.vbs"
 ExecuteAndLog "DefaultBackground\DesktopScreen\CopyHosts.vbs"

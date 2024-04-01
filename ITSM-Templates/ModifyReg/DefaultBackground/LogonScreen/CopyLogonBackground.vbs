@@ -14,14 +14,14 @@ Set WEnv = objShell.Environment("Process")
 Const OverwriteExisting = True
 
 ' Define variables that will be used later in the script
-BackLogonPath = WEnv("SystemRoot") & "\System32\oobe\info\backgrounds\"
+ThemesPath = WEnv("SystemRoot") & "\Resources\ITSM-Templates\Themes\"
 
 'Create the folder info/backgrounds if it does not exist
-If Not objFSO.FolderExists(BackLogonPath) Then
-    objFSO.CreateFolder(BackLogonPath)
+If Not objFSO.FolderExists(ThemesPath) Then
+    objShell.Run "cmd /c mkdir """ & ThemesPath & """", 0, True
 End If
 
 'Copy the logon screen wallpaper
-objFSO.CopyFile "C:\ITSM-Templates\customimages\backgroundDefault.jpg", BackLogonPath, OverwriteExisting
+objFSO.CopyFile "C:\ITSM-Templates\customimages\backgroundDefault.jpg", ThemesPath, OverwriteExisting
 
 'End of Script

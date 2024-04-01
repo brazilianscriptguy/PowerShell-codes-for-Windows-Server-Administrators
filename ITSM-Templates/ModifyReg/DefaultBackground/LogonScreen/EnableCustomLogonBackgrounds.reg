@@ -6,6 +6,6 @@ Windows Registry Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP]
 @=""
-"LockScreenImagePath"="C:\\Windows\\System32\\oobe\\info\\backgrounds\\backgroundDefault.jpg"
-"LockScreenImageUrl"="C:\\Windows\\System32\\oobe\\info\\backgrounds\\backgroundDefault.jpg"
+"LockScreenImagePath"="C:\\Windows\\Resources\\ITSM-Templates\\Themes\\backgroundDefault.jpg"
+"LockScreenImageUrl"="C:\\Windows\\Resources\\ITSM-Templates\\Themes\\backgroundDefault.jpg"
 "LockScreenImageStatus"=dword:00000001
