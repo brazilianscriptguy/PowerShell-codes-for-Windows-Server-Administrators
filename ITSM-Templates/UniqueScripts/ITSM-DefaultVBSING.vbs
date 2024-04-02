@@ -51,9 +51,9 @@ ExecuteAndLog "AllGeneralConfigs\All-Certificates-Install.vbs"
 ExecuteAndLog "AllGeneralConfigs\WSUS-Clean-SID.vbs"
 ExecuteAndLog "DefaultBackground\DesktopScreen\CopyDefaultFolders.vbs"
 ExecuteAndLog "DefaultBackground\DesktopScreen\CopyHosts.vbs"
+ExecuteAndLog "DefaultBackground\DesktopScreen\CopyLogonBackground.vbs"
 ExecuteAndLog "DefaultBackground\DesktopScreen\CopyUserLogo.vbs"
 ExecuteAndLog "DefaultBackground\DesktopScreen\CopyWallPaperDefault.vbs"
-ExecuteAndLog "DefaultBackground\LogonScreen\CopyLogonBackground.vbs"
 
 ' Display a completion message to the user
 MsgBox "VBS scripts executed!", vbInformation, "Process Finished!"
