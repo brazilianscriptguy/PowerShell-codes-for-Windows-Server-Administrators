@@ -43,8 +43,7 @@ regFiles = Array( _
     "C:\ITSM-Templates\ModifyReg\DefaultBackground\DesktopScreen\DesktopCurrent.reg", _
     "C:\ITSM-Templates\ModifyReg\DefaultBackground\DesktopScreen\DesktopDefault.reg", _
     "C:\ITSM-Templates\ModifyReg\DefaultBackground\DesktopScreen\EnableCustomLogonBackgrounds.reg", _
-    "C:\ITSM-Templates\ModifyReg\AllGeneralConfigs\Domain-Ingress-Win10x11.reg", _
-    "C:\ITSM-Templates\ModifyReg\UserDesktopTheme\ITSM-Templates.deskthemepack" _
+    "C:\ITSM-Templates\ModifyReg\AllGeneralConfigs\Domain-Ingress-Win10x11.reg" _
 )
 
 For Each regFile In regFiles
