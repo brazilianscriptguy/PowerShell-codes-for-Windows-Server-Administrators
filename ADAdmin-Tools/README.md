@@ -33,41 +33,41 @@ This section contains scripts designed specifically for Active Directory (AD) ad
 
 13. **Generate-DomainComputersReport.ps1**: Creates an exhaustive list of all computers within a given AD domain, aiding in inventory and management practices.
 
-14. **Uninstall-SelectedApp.ps1**: Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
+14. **Initiate-MultipleRDPSessions.ps1**: Enables the initiation of RDP sessions to multiple servers simultaneously, significantly enhancing remote management capabilities.
 
-15. **Initiate-MultipleRDPSessions.ps1**: Enables the initiation of RDP sessions to multiple servers simultaneously, significantly enhancing remote management capabilities.
+15. **Inventory-InstalledSoftwareList.ps1**: Compiles a detailed inventory of installed software, presenting the data in an easy-to-analyze format, ideal for auditing and tracking purposes.
 
-16. **Inventory-InstalledSoftwareList.ps1**: Compiles a detailed inventory of installed software, presenting the data in an easy-to-analyze format, ideal for auditing and tracking purposes.
+16. **List-UsersWithNonExpiringPasswords.ps1**: Generates a list of users with non-expiring passwords, helping enforce policy compliance and improve security posture.
 
-17. **List-UsersWithNonExpiringPasswords.ps1**: Generates a list of users with non-expiring passwords, helping enforce policy compliance and improve security posture.
+17. **Move-ADComputersBetweenOUs.ps1**: Facilitates the relocation of computer accounts between OUs within AD, simplifying organizational structure adjustments.
 
-18. **Move-ADComputersBetweenOUs.ps1**: Facilitates the relocation of computer accounts between OUs within AD, simplifying organizational structure adjustments.
+18. **Purge-ExpiredCAsViaGPO.ps1**: Assists in removing outdated Certification Authority (CA) certificates through GPO, maintaining a secure and current certificate environment.
 
-19. **Purge-ExpiredCAsViaGPO.ps1**: Assists in removing outdated Certification Authority (CA) certificates through GPO, maintaining a secure and current certificate environment.
+19. **Remove-EmptyFiles.ps1**: Detects and deletes empty files across the system, optimizing storage and maintaining a clutter-free environment.
 
-20. **Remove-EmptyFiles.ps1**: Detects and deletes empty files across the system, optimizing storage and maintaining a clutter-free environment.
+20. **Remove-ExpiredCAsExplicitly.ps1**: Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
 
-21. **Remove-ExpiredCAsExplicitly.ps1**: Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
+21. **Rename-DiskVolumesViaGPO.ps1**: Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
 
-22. **Rename-DiskVolumesViaGPO.ps1**: Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
+22. **Report-ADMemberServers.ps1**: Produces detailed reports on member servers within an AD domain, facilitating oversight and management of server resources.
 
-23. **Report-ADMemberServers.ps1**: Produces detailed reports on member servers within an AD domain, facilitating oversight and management of server resources.
+23. **Report-ADUserLastLogon.ps1**: Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
 
-24. **Report-ADUserLastLogon.ps1**: Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
+24. **Report-InactiveComputerAccounts.ps1**: Targets and reports inactive computer accounts, aiding in the clean-up and optimization of AD resources.
 
-25. **Report-InactiveComputerAccounts.ps1**: Targets and reports inactive computer accounts, aiding in the clean-up and optimization of AD resources.
+25. **Reset-UserPasswordsToDefault.ps1**: Allows for the bulk resetting of user passwords to a default value within a specified OU, enhancing security management efficiency.
 
-26. **Reset-UserPasswordsToDefault.ps1**: Allows for the bulk resetting of user passwords to a default value within a specified OU, enhancing security management efficiency.
+26. **ResetAndSync-DomainGPOs.ps1**: Comprehensive reset and synchronization of Domain GPOs, ensuring policies are up-to-date and effectively applied.
 
-27. **ResetAndSync-DomainGPOs.ps1**: Comprehensive reset and synchronization of Domain GPOs, ensuring policies are up-to-date and effectively applied.
+27. **Retrieve-ADGroupsAndMembers.ps1**: Streamlines the retrieval and documentation of AD group and member information, aiding in audit and compliance efforts.
 
-28. **Retrieve-ADGroupsAndMembers.ps1**: Streamlines the retrieval and documentation of AD group and member information, aiding in audit and compliance efforts.
+28. **Shorten-LongFileNamesBulk.ps1**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
-29. **Shorten-LongFileNamesBulk.ps1**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
+29. **Synchronize-WorkstationTimeGUI.ps1**: Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
 
-30. **Synchronize-WorkstationTimeGUI.ps1**: Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
+30. **Unlock-SMBShareUserAccess.ps1**: Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
 
-31. **Unlock-SMBShareUserAccess.ps1**: Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
+31. **Uninstall-SelectedApp.ps1**: Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
 
 32. **Update-WorkstationDescriptionsGUI.ps1**: Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
 
