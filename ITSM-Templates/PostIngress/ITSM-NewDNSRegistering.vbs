@@ -1,45 +1,54 @@
 ' Author: @brazilianscriptguy
-' Updated: March, 29, 2024.
+' Updated: March 29, 2024.
 ' Script for: RENEWING ALL IP ADDRESS CONFIGURATIONS OF THE LOCAL MACHINE AND REGISTERING THE NEW STATION INFORMATION IN THE DOMAIN DNS
 
-' Declaration of variables to be used in the script
-Dim objShell, objFSO, objExecObject, strOutput, strLogFile, objLog
+' Declaration of variables that will be used in the script
+Dim objShell, objFSO, objExecObject, strOutput, logFolderPath, strLogFile, objLog
 
-' Creation of the object to interact with the operating system's script library
+' Creating an object to interact with the operating system's script library
 Set objShell = CreateObject("WScript.Shell")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 
-' Check the creation of a local folder for ITSM-Templates execution log files
-If Not objFSO.FolderExists("C:\ITSM-Logs") Then
-    objFSO.CreateFolder("C:\ITSM-Logs")
+' Setting the path for the log folder and log file
+logFolderPath = "C:\ITSM-Logs"
+strLogFile = logFolderPath & "\ITSM-NewDNSRegistering.log"
+
+' Check and create a local folder for the log files of the GSTI-Templates execution
+If Not objFSO.FolderExists(logFolderPath) Then
+    objFSO.CreateFolder(logFolderPath)
 End If
 
-' Define the folder and log file name
-strLogFile = "C:\ITSM-Logs\ITSM-NewDNSRegistering.log"
+' Opening the log file in append mode
 Set objLog = objFSO.OpenTextFile(strLogFile, 8, True)
 
-' Show the initial message of script execution and inform the waiting time
-MsgBox "This process takes about 2 minutes. Please wait for the new DNS registration!", vbInformation, "New DNS Registration"
-
-' Function to add occurrences in the log file
+' Function to add occurrences to the log file
 Sub ExecuteCommandAndLog(command)
     Dim strDateTime
     strDateTime = Now()
-    objLog.WriteLine "Executing command at " & strDateTime & ": " & command
-
+    AddLogEntry "Executing command: " & command
+    
     Set objExecObject = objShell.Exec(command)
 
-    ' Capture command execution and write it to the log file
+    ' Capture the command execution and log it
     Do While Not objExecObject.StdOut.AtEndOfStream
         strOutput = objExecObject.StdOut.ReadAll()
-        objLog.WriteLine strOutput
+        AddLogEntry strOutput
     Loop
 
-    objLog.WriteLine "Command completed at " & Now()
-    objLog.WriteLine "--------------------------------------------------"
+    AddLogEntry "Command completed."
+    AddLogEntry "--------------------------------------------------"
 End Sub
 
-' Execute the IPCONFIG command of the operating system, with options to: release current addresses; clear the local DNS cache; renew network addresses via DHCP; register new DNS table
+' Function to add entries to the log
+Sub AddLogEntry(actionDescription)
+    objLog.WriteLine Now & " - " & actionDescription
+    ' Removed objLog.Flush as it's not supported by TextStream
+End Sub
+
+' Show the initial script execution message and inform about the wait time
+MsgBox "DNS registration takes about 25 seconds. Please wait for the completion message!", vbInformation, "New DNS Registration"
+
+' Execute the operating system's IPCONFIG and NETSH commands
 ExecuteCommandAndLog "ipconfig /release"
 ExecuteCommandAndLog "ipconfig /flushdns"
 ExecuteCommandAndLog "ipconfig /renew"
@@ -50,7 +59,15 @@ ExecuteCommandAndLog "netsh int winsock reset"
 ' Enable IPv6 settings for all local network adapters
 ExecuteCommandAndLog "cmd.exe /c powershell.exe -ExecutionPolicy Bypass Enable-NetAdapterBinding -Name '*' -ComponentID ms_tcpip6"
 
-' Show the final message of script execution
-MsgBox "New DNS Registration Complete!", vbInformation, "DNS Registration Complete"
+' Show the final script execution message
+MsgBox "DNS Registration completed! Check the log file at " & strLogFile & " for details.", vbInformation, "DNS Registration Completion"
+
+' Close the log file
+objLog.Close
+
+' Cleaning up objects
+Set objShell = Nothing
+Set objLog = Nothing
+Set objFSO = Nothing
 
 ' End of Script
