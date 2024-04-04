@@ -2,8 +2,12 @@ A) Cleanup-InactiveADWorkstations.ps1 needs a function to .log;
 
 B) Export-ADUserAttributesGUI.ps1 must be revised all code errors
 
-c) Installed-Inventory-SoftwaresList.ps1 must be revise to implement the machine %COMPUTERNAME% name onto file name
+c) Installed-Inventory-SoftwaresList.ps1 must be revise to implement the machine %COMPUTERNAME% name onto file name;
 
 D) Purge-ExpiredCAsViaGPO.ps1 needs a function to .log;
 
-E) 
+E) Remove-EmptyFiles.ps1  must be revised all code errors;
+
+E) Remove-ExpiredCAsExplicitly.ps1 needs a function to .log;
+
+
