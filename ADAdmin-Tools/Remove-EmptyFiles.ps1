@@ -15,6 +15,11 @@ function Log-Message {
     Add-Content -Path $logPath -Value "[$timestamp] $Message"
 }
 
+# Define UI components at the script scope
+$folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
+$listBox = New-Object System.Windows.Forms.ListBox
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+
 function Find-EmptyFiles {
     $listBox.Items.Clear()
     $files = Get-ChildItem -Path $folderBrowserDialog.SelectedPath -File -Recurse -ErrorAction SilentlyContinue
@@ -44,11 +49,9 @@ function Delete-EmptyFiles {
     $listBox.Items.Clear()
 }
 
-# Setup UI Elements
 function SetupUIElements {
     param ($form)
-    $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-    $listBox = New-Object System.Windows.Forms.ListBox
+    
     $listBox.Location = New-Object System.Drawing.Point(10,10)
     $listBox.Size = New-Object System.Drawing.Size(560,280)
     $form.Controls.Add($listBox)
@@ -74,7 +77,6 @@ function SetupUIElements {
     $buttonOpenFolder.Add_Click({ if ($folderBrowserDialog.SelectedPath) { Start-Process explorer.exe -ArgumentList $folderBrowserDialog.SelectedPath } })
     $form.Controls.Add($buttonOpenFolder)
 
-    $progressBar = New-Object System.Windows.Forms.ProgressBar
     $progressBar.Location = New-Object System.Drawing.Point(10,340)
     $progressBar.Size = New-Object System.Drawing.Size(560,20)
     $form.Controls.Add($progressBar)
