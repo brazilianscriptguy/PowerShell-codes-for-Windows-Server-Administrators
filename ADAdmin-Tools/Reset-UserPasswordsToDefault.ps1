@@ -12,7 +12,7 @@ Add-Type -AssemblyName System.Windows.Forms
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
-$logFileName = "${scriptName}-log.txt"
+$logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 
 # Ensure the log directory exists
