@@ -7,7 +7,7 @@ This section contains scripts designed specifically for Active Directory (AD) ad
 
 ### Script Descriptions (Alphabetically Ordered):
 
-1. **Broadcast-UserLogonMessageViaGPO.ps1**: Displays customizable warning messages on workstations upon user login, leveraging GPO for wide-reaching communication in IT managed environments.
+1. **Broadcast-UserLogonMessageViaGPO.ps1 and broadcast-logonmessage.hta**: Displays customizable warning messages on workstations upon user login, leveraging GPO for wide-reaching communication in IT managed environments.
 
 2. **BulkShorten-FileNames.ps1**: Finds and shortens filenames that exceed a certain length limit, improving system compatibility and reducing errors related to long filenames.
 
@@ -21,13 +21,13 @@ This section contains scripts designed specifically for Active Directory (AD) ad
 
 7. **CreateOUs-DefaultADStructure.ps1**: Assists in creating a standardized AD infrastructure with predefined OUs, streamlining new domain setups or reorganizations.
 
-8. **Delete-FilesByExtensionBulk.ps1**: Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
+8. **Delete-FilesByExtensionBulk.ps1 and Delete-FilesByExtensionBulk.txt**: Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
 
 9. **DomainUnjoinAndCleanupGUI.ps1**: Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
 
 10. **Enforce-ADUserPasswordExpiration.ps1**: Forces password expiration for users within a specified OU, bolstering security by ensuring regular password updates.
 
-11. **Enhance-BGInfoDisplayViaGPO.ps1**: Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
+11. **Enhance-BGInfoDisplayViaGPO.ps1 and Enhance-BGInfoDisplayViaGPO.bgi**: Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
 
 12. **Export-ADUserAttributesGUI.ps1**: Simplifies the extraction of AD user attributes for audits or reports, featuring a GUI for enhanced user interaction.
 
