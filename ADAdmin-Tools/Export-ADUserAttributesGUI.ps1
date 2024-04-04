@@ -1,4 +1,4 @@
-﻿# PowerShell Script for Exports AD User Attributes with GUI
+﻿# PowerShell Script for Exporting AD User Attributes with GUI
 # Author: Luiz Hamilton Silva
 # Update: March, 04, 2024
 
@@ -12,7 +12,6 @@ Add-Type -AssemblyName System.Drawing
 # Define available attributes
 $attributes = @("Name", "samAccountName", "GivenName", "Surname", "DisplayName", "Mail", "Department", "Title")
 
-# Function to create GUI for attribute selection, domain input, and to show progress
 function Show-ExportForm {
     # Create the form
     $form = New-Object System.Windows.Forms.Form
@@ -20,23 +19,21 @@ function Show-ExportForm {
     $form.Size = New-Object System.Drawing.Size(350, 500)
     $form.StartPosition = 'CenterScreen'
 
-    # Create label for attributes
+    # Attributes label
     $labelAttributes = New-Object System.Windows.Forms.Label
     $labelAttributes.Location = New-Object System.Drawing.Point(10, 10)
     $labelAttributes.Size = New-Object System.Drawing.Size(320, 20)
     $labelAttributes.Text = 'Select AD User Attributes:'
     $form.Controls.Add($labelAttributes)
 
-    # Create listbox for attribute selection
+    # Attributes selection listbox
     $listBox = New-Object System.Windows.Forms.CheckedListBox
     $listBox.Location = New-Object System.Drawing.Point(10, 40)
     $listBox.Size = New-Object System.Drawing.Size(320, 200)
-    foreach ($attr in $attributes) {
-        $listBox.Items.Add($attr, $false)
-    }
+    $attributes | ForEach-Object { $listBox.Items.Add($_, $false) }
     $form.Controls.Add($listBox)
 
-    # Create label and textbox for domain input
+    # Domain input label and textbox
     $labelDomain = New-Object System.Windows.Forms.Label
     $labelDomain.Location = New-Object System.Drawing.Point(10, 250)
     $labelDomain.Size = New-Object System.Drawing.Size(320, 20)
@@ -48,29 +45,29 @@ function Show-ExportForm {
     $textBoxDomain.Size = New-Object System.Drawing.Size(320, 20)
     $form.Controls.Add($textBoxDomain)
 
-    # Create progress bar
+    # Progress bar
     $progressBar = New-Object System.Windows.Forms.ProgressBar
     $progressBar.Location = New-Object System.Drawing.Point(10, 400)
     $progressBar.Size = New-Object System.Drawing.Size(320, 23)
     $progressBar.Style = 'Continuous'
     $form.Controls.Add($progressBar)
 
-    # Create submit button
+    # Submit button
     $submitButton = New-Object System.Windows.Forms.Button
     $submitButton.Location = New-Object System.Drawing.Point(155, 430)
     $submitButton.Size = New-Object System.Drawing.Size(75, 23)
     $submitButton.Text = 'Submit'
     $form.Controls.Add($submitButton)
 
-    # Create close button
+    # Close button
     $closeButton = New-Object System.Windows.Forms.Button
     $closeButton.Location = New-Object System.Drawing.Point(255, 430)
     $closeButton.Size = New-Object System.Drawing.Size(75, 23)
     $closeButton.Text = 'Close'
-    $closeButton.Add_Click({$form.Close()})
+    $closeButton.Add_Click({ $form.Close() })
     $form.Controls.Add($closeButton)
 
-    # Submit button click event
+    # Submit button event
     $submitButton.Add_Click({
         $selectedAttributes = $listBox.CheckedItems
         $domainName = $textBoxDomain.Text
@@ -79,6 +76,12 @@ function Show-ExportForm {
             [System.Windows.Forms.MessageBox]::Show("No attributes selected or domain entered.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
             return
         }
+
+        # Generate timestamp and output file path
+        $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+        $myDocuments = [System.Environment]::GetFolderPath('MyDocuments')
+        $sanitizedDomainName = $domainName -replace '[\\\/:\*\?"<>\|]', '' # Basic sanitization for file path
+        $outputPath = Join-Path $myDocuments "Export-ADUserAttributesGUI_${sanitizedDomainName}_$timestamp.csv"
 
         # Disable form elements
         $submitButton.Enabled = $false
@@ -89,55 +92,46 @@ function Show-ExportForm {
         # Start export process in a background job
         $BackgroundJob = Start-Job -ScriptBlock {
             param($selectedAttributes, $domainName, $outputPath)
-            try {
-                $users = Get-ADUser -Filter * -Property $selectedAttributes -Server $domainName
-                $userCount = $users.Count
-                $processedCount = 0
+            Import-Module ActiveDirectory
+            $users = Get-ADUser -Filter * -Property $selectedAttributes -Server $domainName
+            $users | Select-Object $selectedAttributes | Export-Csv -Path $outputPath -NoTypeInformation -Append
+        } -ArgumentList @($selectedAttributes, $domainName, $outputPath)
 
-                foreach ($user in $users) {
-                    $user | Select-Object $selectedAttributes | Export-Csv -Path $outputPath -NoTypeInformation -Append
-                    $processedCount++
-                    $percentComplete = ($processedCount / $userCount) * 100
-                    [System.Management.Automation.PSCmdlet]::WriteProgress((New-Object System.Management.Automation.ProgressRecord 1, "Exporting Users", "Processed $processedCount of $userCount") -percentComplete $percentComplete)
-                }
-            } catch {
-                Write-Error "Error occurred during export: $_"
-            }
-        } -ArgumentList $selectedAttributes, $domainName, $outputPath
-
-        # Timer to update progress bar
-        $timer = New-Object System.Windows.Forms.Timer
-        $timer.Interval = 500 # Update every 500 milliseconds
-        $timer.Add_Tick({
-            $job = Get-Job -Id $BackgroundJob.Id
-            if ($job.State -eq 'Running') {
-                $progress = $job.ChildJobs[0].Progress.PercentComplete
-                $progressBar.Value = $progress -gt 0 ? $progress : 0
-            } elseif ($job.State -eq 'Completed') {
+# Timer to update progress bar
+$timer = New-Object System.Windows.Forms.Timer
+$timer.Interval = 500 # Update every 500 milliseconds
+$timer.Add_Tick({
+    if ($BackgroundJob -and (Get-Job -Id $BackgroundJob.Id -ErrorAction SilentlyContinue)) {
+        $job = Get-Job -Id $BackgroundJob.Id
+        if ($job.State -eq 'Running') {
+            # Optional: Update logic for the progress bar if applicable
+        } elseif ($job.State -eq 'Completed') {
+            if ($timer -ne $null) {
                 $timer.Stop()
-                $progressBar.Value = 100
-                Receive-Job -Job $BackgroundJob
-                Remove-Job -Job $BackgroundJob
-                [System.Windows.Forms.MessageBox]::Show("Export completed. File saved at $outputPath", "Export Complete", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-                $submitButton.Enabled = $true
-                $listBox.Enabled = $true
-                $textBoxDomain.Enabled = $true
-                $closeButton.Enabled = $true
             }
-        })
-        $timer.Start()
+            $progressBar.Value = 100
+            Receive-Job -Job $BackgroundJob | Out-Null
+            Remove-Job -Job $BackgroundJob
+            [System.Windows.Forms.MessageBox]::Show("Export completed. File saved at $outputPath", "Export Complete", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+            # Re-enable form elements
+            $submitButton.Enabled = $true
+            $listBox.Enabled = $true
+            $textBoxDomain.Enabled = $true
+            $closeButton.Enabled = $true
+        }
+    } else {
+        if ($timer -ne $null) {
+            $timer.Stop() # Stop the timer if the job doesn't exist to prevent error messages
+        }
+    }
+})
+$timer.Start()
+
     })
 
     # Show the form
     $form.ShowDialog() | Out-Null
 }
 
-# Generate timestamp and output file path
-$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-$myDocuments = [System.Environment]::GetFolderPath('MyDocuments')
-$outputPath = Join-Path $myDocuments "Export-ADUserAttibutesGUI_$timestamp.csv"
-
 # Main execution
 Show-ExportForm
-
-#End of script
