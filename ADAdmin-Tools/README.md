@@ -7,7 +7,7 @@ This section contains scripts designed specifically for Active Directory (AD) ad
 
 ### Script Descriptions (Alphabetically Ordered):
 
-1. **AutomateSoftwareUpdates-WingetGPO.ps1**: Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
+1. **UpdateSoftware-WingetGPO.ps1**: Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
 
 2. **Broadcast-UserLogonMessageViaGPO.ps1**: Displays customizable warning messages on workstations upon user login, leveraging GPO for wide-reaching communication in IT managed environments.
 
@@ -63,7 +63,7 @@ This section contains scripts designed specifically for Active Directory (AD) ad
 
 28. **Retrieve-ADGroupsAndMembers.ps1**: Streamlines the retrieval and documentation of AD group and member information, aiding in audit and compliance efforts.
 
-29. **Setup-DefaultADStructures.ps1**: Assists in creating a standardized AD infrastructure with predefined OUs, streamlining new domain setups or reorganizations.
+29. **CreateOUs-DefaultADStructure.ps1**: Assists in creating a standardized AD infrastructure with predefined OUs, streamlining new domain setups or reorganizations.
 
 30. **Shorten-LongFileNamesBulk.ps1**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
