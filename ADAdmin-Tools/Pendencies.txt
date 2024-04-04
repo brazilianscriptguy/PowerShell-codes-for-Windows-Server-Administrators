@@ -14,4 +14,4 @@ F) Reset-UserPasswordsToDefault.ps1 needs a function to .log;
 
 G) Setup-DefaultADStructures.ps1 needs a function to .log;
 
-
+Update-WorkstationDescriptionsGUI.ps1 needs a function to .log;
