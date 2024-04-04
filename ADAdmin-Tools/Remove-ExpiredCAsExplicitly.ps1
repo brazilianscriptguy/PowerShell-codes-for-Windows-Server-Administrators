@@ -6,6 +6,27 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+# Logging Function
+function Write-Log {
+    Param(
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+
+        [Parameter(Mandatory = $false)]
+        [string]$Path = "C:\Logs-TEMP\Remove-ExpiredCAsExplicitly.log"
+    )
+
+    # Create the log directory if it does not exist
+    $dir = Split-Path $Path
+    if (-not (Test-Path -Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+    }
+
+    # Write the log message with a timestamp
+    $logEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message"
+    Add-Content -Path $Path -Value $logEntry
+}
+
 # Initialize form components
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Remove Old CA Certificates'
@@ -38,7 +59,6 @@ $executeButton.Location = New-Object System.Drawing.Point(10, 220)
 $executeButton.Size = New-Object System.Drawing.Size(120, 30)
 $executeButton.Text = 'Execute'
 $executeButton.Add_Click({
-    # Get thumbprints from the textbox
     $thumbprints = $textBoxThumbprints.Text -split "`r`n"
 
     if ($thumbprints.Count -eq 0) {
@@ -46,25 +66,31 @@ $executeButton.Add_Click({
         return
     }
 
+    Write-Log -Message "Starting removal of specified CA certificates."
     $progressBar.Visible = $true
     $progressBar.Maximum = $thumbprints.Count
     $progressBar.Value = 0
 
-    # Remove certificates with specific thumbprints
     foreach ($thumbprint in $thumbprints) {
         $thumbprint = $thumbprint.Trim()
-        $certificates = Get-ChildItem -Path Cert:\ -Recurse | Where-Object {$_.Thumbprint -eq $thumbprint}
+        if (-not [string]::IsNullOrWhiteSpace($thumbprint)) {
+            Write-Log -Message "Processing certificate with thumbprint: $thumbprint"
+            $certificates = Get-ChildItem -Path Cert:\ -Recurse | Where-Object {$_.Thumbprint -eq $thumbprint}
 
-        foreach ($certificate in $certificates) {
-            try {
-                $certificate | Remove-Item -Force -Verbose
-            } catch {
-                [System.Windows.Forms.MessageBox]::Show("Error removing certificate with thumbprint: $thumbprint`nError: $_", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            foreach ($certificate in $certificates) {
+                try {
+                    $certificate | Remove-Item -Force -Verbose
+                    Write-Log -Message "Successfully removed certificate with thumbprint: $thumbprint"
+                } catch {
+                    Write-Log -Message "Error removing certificate with thumbprint: $thumbprint - Error: $_"
+                    [System.Windows.Forms.MessageBox]::Show("Error removing certificate with thumbprint: $thumbprint`nError: $_", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                }
             }
         }
         $progressBar.Value++
     }
     $progressBar.Visible = $false
+    Write-Log -Message "Certificate removal process completed."
     [System.Windows.Forms.MessageBox]::Show("Certificate removal completed.", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
 })
 $form.Controls.Add($executeButton)
