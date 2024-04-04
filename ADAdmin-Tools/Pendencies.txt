@@ -12,4 +12,6 @@ E) Remove-ExpiredCAsExplicitly.ps1 needs a function to .log;
 
 F) Reset-UserPasswordsToDefault.ps1 needs a function to .log;
 
+G) Setup-DefaultADStructures.ps1 needs a function to .log;
+
 
