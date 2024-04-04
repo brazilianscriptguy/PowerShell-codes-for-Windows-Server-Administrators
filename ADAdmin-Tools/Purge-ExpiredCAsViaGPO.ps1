@@ -5,23 +5,47 @@
 # Set execution policy to Unrestricted
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
 
+# Logging Function
+function Write-Log {
+    Param(
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+
+        [Parameter(Mandatory = $false)]
+        [string]$Path = "C:\Logs-TEMP\Purge-ExpiredCAsViaGPO.log"
+    )
+
+    # Create the log directory if it does not exist
+    $dir = Split-Path $Path
+    if (-not (Test-Path -Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+    }
+
+    # Write the log message with a timestamp
+    $logEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message"
+    Add-Content -Path $Path -Value $logEntry
+}
+
 function Remove-OldCACertificates {
     param (
         [string[]]$Thumbprints
     )
+
+    Write-Log -Message "Starting the removal of old CA certificates."
 
     # Remove certificates with specific thumbprints
     foreach ($thumbprint in $Thumbprints) {
         $certificates = Get-ChildItem -Path Cert:\ -Recurse | Where-Object {$_.Thumbprint -eq $thumbprint}
         
         foreach ($certificate in $certificates) {
-            $certificate | Remove-Item -Force -Verbose
+            $msg = "Removing certificate with thumbprint: $($certificate.Thumbprint) - $($certificate.FriendlyName)"
+            Write-Log -Message $msg
+            $certificate | Remove-Item -Force -Verbose 4>&1 | ForEach-Object {Write-Log -Message $_.ToString()}
         }
     }
-}
 
-# You must run this command to encouter the thumbprints 
-# This cmdlet obtains the certificate thumbprint: Get-ChildItem -Path 'cert:\LocalMachine\My' | Select Thumbprint,FriendlyName,NotAfter 
+    Write-Log -Message "Completed the removal of old CA certificates."
+}
 
 # Specify the thumbprints to remove
 $thumbprints = @(
