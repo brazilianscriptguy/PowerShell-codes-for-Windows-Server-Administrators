@@ -10,4 +10,6 @@ E) Remove-EmptyFiles.ps1  must be revised all code errors;
 
 E) Remove-ExpiredCAsExplicitly.ps1 needs a function to .log;
 
+F) Reset-UserPasswordsToDefault.ps1 needs a function to .log;
+
 
