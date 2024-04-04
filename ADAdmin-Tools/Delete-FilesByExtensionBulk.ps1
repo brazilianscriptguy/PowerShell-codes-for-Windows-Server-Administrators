@@ -1,46 +1,75 @@
-﻿# PowerShell Script to Search and Delete Files with Specific Extensions
+﻿# Enhanced PowerShell Script to Search and Delete Files with Specific Extensions with Integrated Logging
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: March, 04, 2024
+# Enhancement: Integrated logging functionalities
 
-# Load necessary assemblies for Windows Forms
+# Load necessary assemblies for Windows Forms and Logging Function
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
+# Logging Function
+function Write-Log {
+    Param(
+        [string]$Message,
+        [ValidateSet("INFO", "WARN", "ERROR", "DEBUG")]
+        [string]$Level = "INFO",
+        [string]$logPath = "C:\Logs-TEMP\Delete-FilesByExtensionBulk.log"
+    )
+    $logEntry = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [$Level] $Message"
+    Add-Content -Path $logPath -Value $logEntry
+}
+
+# Initial Script Execution Log
+Write-Log -Message "Script execution started." -Level INFO
+
 # Function to select a directory using FolderBrowserDialog
 function Select-Directory {
+    Write-Log -Message "Prompting user to select a directory." -Level DEBUG
     $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
     $folderBrowser.Description = "Select the directory to search and delete files"
-    $folderBrowser.ShowDialog() | Out-Null
-    return $folderBrowser.SelectedPath
+    if ($folderBrowser.ShowDialog() -eq 'OK') {
+        Write-Log -Message "Directory selected: $($folderBrowser.SelectedPath)" -Level INFO
+        return $folderBrowser.SelectedPath
+    } else {
+        Write-Log -Message "Directory selection cancelled by user." -Level WARN
+        return $null
+    }
 }
 
 # Function to select a text file containing file extensions
 function Select-ExtensionFile {
+    Write-Log -Message "Prompting user to select an extension file." -Level DEBUG
     $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
     $OpenFileDialog.Filter = "Text files (*.txt)|*.txt"
     $OpenFileDialog.Multiselect = $false
-    $OpenFileDialog.ShowDialog() | Out-Null
-    return $OpenFileDialog.FileName
+    if ($OpenFileDialog.ShowDialog() -eq 'OK') {
+        Write-Log -Message "Extension file selected: $($OpenFileDialog.FileName)" -Level INFO
+        return $OpenFileDialog.FileName
+    } else {
+        Write-Log -Message "Extension file selection cancelled by user." -Level WARN
+        return $null
+    }
 }
 
 # Function to read file extensions from a specified file and return them as an array
 function Get-FileExtensions($extensionFilePath) {
     $extensions = Get-Content -Path $extensionFilePath
-    return $extensions -split '\s+|\,|\;' | Where-Object { $_ -ne '' }
+    $extensionsArray = $extensions -split '\s+|\,|\;' | Where-Object { $_ -ne '' }
+    Write-Log -Message "Extensions loaded: $($extensionsArray -join ', ')" -Level INFO
+    return $extensionsArray
 }
 
 # Function to delete files based on selected extensions and directory, and log the actions
-function Delete-Files($directory, $extensions, $logPath) {
-    $logContent = @()
+function Delete-Files($directory, $extensions) {
     foreach ($extension in $extensions) {
+        Write-Log -Message "Starting deletion for extension: $extension" -Level INFO
         $filesToDelete = Get-ChildItem -Path $directory -Filter "*.$extension" -Recurse -ErrorAction SilentlyContinue
         foreach ($file in $filesToDelete) {
             Remove-Item -Path $file.FullName -Force
-            $logContent += "Deleted file: $($file.FullName)"
+            Write-Log -Message "Deleted file: $($file.FullName)" -Level INFO
         }
     }
-    $logContent | Out-File -FilePath $logPath -Append
 }
 
 # Create the main GUI form
@@ -86,5 +115,8 @@ $form.Controls.Add($buttonDeleteFiles)
 
 #Show the form
 $form.ShowDialog() | Out-Null
+
+# At the end of script execution
+Write-Log -Message "Script execution completed." -Level INFO
 
 #End of script
