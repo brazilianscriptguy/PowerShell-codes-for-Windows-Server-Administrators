@@ -1,17 +1,9 @@
-A) Cleanup-InactiveADWorkstations.ps1 needs a function to .log;
+A) Cleanup-InactiveADWorkstations.ps1 needs a function to .log; MUST TEST INTO AD
 
 B) Export-ADUserAttributesGUI.ps1 must be revised all code errors MUST TEST INTO AD
-
-c) Installed-Inventory-SoftwaresList.ps1 must be revise to implement the machine %COMPUTERNAME% name onto file name;
-
-D) Purge-ExpiredCAsViaGPO.ps1 needs a function to .log;
-
-E) Remove-EmptyFiles.ps1  must be revised all code errors;
-
-E) Remove-ExpiredCAsExplicitly.ps1 needs a function to .log;
 
 F) Reset-UserPasswordsToDefault.ps1 needs a function to .log; MUST TEST INTO AD 
 
 G) CreateOUs-DefaultADStructures.ps1 needs a function to .log; MUST TEST INTO AD
 
-H) Update-WorkstationDescriptionsGUI.ps1 needs a function to .log;
+H) Update-WorkstationDescriptionsGUI.ps1 needs a function to .log;  MUST TEST INTO AD
