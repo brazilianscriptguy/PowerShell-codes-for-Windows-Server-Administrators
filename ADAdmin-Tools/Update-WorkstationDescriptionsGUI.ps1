@@ -5,6 +5,29 @@
 # Import necessary libraries for GUI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+Import-Module ActiveDirectory
+
+# Determine the script name and set up logging path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
+
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory | Out-Null
+}
+
+# Logging function
+function Log-Message {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] $Message"
+    Add-Content -Path $logPath -Value $logEntry
+}
 
 # Initialize form components
 $form = New-Object System.Windows.Forms.Form
@@ -60,23 +83,24 @@ $executeButton.Location = New-Object System.Drawing.Point(10, 230)
 $executeButton.Size = New-Object System.Drawing.Size(75, 23)
 $executeButton.Text = 'Execute'
 $executeButton.Add_Click({
-    # Get the values from the textboxes
+    Log-Message "Starting update operation."
     $dc = $textBoxDC.Text
     $defaultDesc = $textBoxDesc.Text
     $ou = $textBoxOU.Text
 
-    # Prompt for admin credentials
     $credential = Get-Credential -Message "Enter admin credentials"
-
-    # Execute your update logic using provided credentials
+    
     try {
         Get-ADComputer -Server $dc -Filter * -SearchBase $ou -Credential $credential -ErrorAction Stop | ForEach-Object {
             Set-ADComputer -Server $dc -Identity $_.DistinguishedName -Description $defaultDesc -Credential $credential
+            Log-Message "Updated $_.Name with description '$defaultDesc'"
         }
-        $progressBar.Value = 100  # Update the progress bar to 100% to indicate completion
+        $progressBar.Value = 100
         [System.Windows.Forms.MessageBox]::Show("Update operation completed.")
+        Log-Message "Update operation completed successfully."
     } catch {
         [System.Windows.Forms.MessageBox]::Show("Error: " + $_.Exception.Message)
+        Log-Message "Error encountered: $_"
     }
 })
 $form.Controls.Add($executeButton)
@@ -90,6 +114,6 @@ $closeButton.Add_Click({ $form.Close() })
 $form.Controls.Add($closeButton)
 
 # Show the form
-$form.ShowDialog()
+$form.ShowDialog() | Out-Null
 
 #End of script
