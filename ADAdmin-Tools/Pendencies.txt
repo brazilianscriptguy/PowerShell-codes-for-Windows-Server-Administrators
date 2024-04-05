@@ -12,6 +12,6 @@ E) Remove-ExpiredCAsExplicitly.ps1 needs a function to .log;
 
 F) Reset-UserPasswordsToDefault.ps1 needs a function to .log; MUST TEST INTO AD 
 
-G) Setup-DefaultADStructures.ps1 needs a function to .log;
+G) CreateOUs-DefaultADStructures.ps1 needs a function to .log; MUST TEST INTO AD
 
-Update-WorkstationDescriptionsGUI.ps1 needs a function to .log;
+H) Update-WorkstationDescriptionsGUI.ps1 needs a function to .log;
