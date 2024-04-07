@@ -5,7 +5,7 @@
 param (
     [string]$LogPath = "c:\Logs-TEMP\AutoDeployment-ZoomFullMeetings.log",
     [string]$ZoomMSIPath = "$env:logonserver\netlogon\zoom-msi-folder\AutoDeployment-ZoomFullMeetings.msi",
-    [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{334503B4-0A36-45A2-8206-A6B37A1F8B5B}" #Refers to ZOOM FULL MEETINGS version 5.17.11 (34827)
+    [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{334503B4-0A36-45A2-8206-A6B37A1F8B5B}" #GUID refers to ZOOM FULL MEETINGS version 5.17.11 (34827)
 )
 
 $ErrorActionPreference = "Stop"
