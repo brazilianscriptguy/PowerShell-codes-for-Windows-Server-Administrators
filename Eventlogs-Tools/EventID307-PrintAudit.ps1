@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Event Microsoft-Windows-PrintService/Operational
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 04/03/2024
+# Updated: April 7, 2024
 
 # Importing necessary assembly for OpenFileDialog
 Add-Type -AssemblyName System.Windows.Forms
