@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Event ID 4625 (Failed AD Logon Attempts)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 04/03/2024
+# Updated: April 7, 2024
 
 Param(
     [Bool]$AutoOpen = $false
