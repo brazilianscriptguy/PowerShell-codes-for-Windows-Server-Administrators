@@ -1,9 +1,9 @@
-﻿# PowerShell script to display BGInfo (PsTools - Sysinternals) on the Servers Desktop with improvements - using with GPO
+# PowerShell script to depoly PowerShell MSI package via GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: March, 04, 2024
+# Update: March 4, 2024
 
 param (
-    [string]$LogPath = "c:\Logs-TEMP\AutoDeployment-PowerShell.log",
+    [string]$LogPath = "C:\Logs-TEMP\AutoDeployment-PowerShell.log",
     [string]$PowerShellMSIPath = "$env:logonserver\netlogon\powershell-msi-folder\Install-PowerShell-MSI.msi",
     [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{B06D1894-3827-4E0C-A092-7DC50BE8B210}" #GUID refers to the PS Version 5.1.19041.4170
 )
@@ -44,4 +44,4 @@ try {
     Log "An error occurred: $_"
 }
 
-#End of script
+# End of script
