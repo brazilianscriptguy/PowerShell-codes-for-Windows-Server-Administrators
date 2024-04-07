@@ -4,7 +4,7 @@
 
 param (
     [string]$LogPath = "C:\Logs-TEMP\AutoDeployment-PowerShell.log",
-    [string]$PowerShellMSIPath = "$env:logonserver\netlogon\powershell-msi-folder\Install-PowerShell-MSI.msi",
+    [string]$PowerShellMSIPath = "$env:logonserver\netlogon\powershell-msi-folder\AutoDeployment-PowerShell.msi",
     [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{B06D1894-3827-4E0C-A092-7DC50BE8B210}" #GUID refers to the PS Version 5.1.19041.4170
 )
 
