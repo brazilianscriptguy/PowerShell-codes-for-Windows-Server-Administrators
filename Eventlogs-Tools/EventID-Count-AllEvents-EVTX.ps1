@@ -1,6 +1,6 @@
-﻿# PowerShell Script to Count Event IDs in an EVTX file
+# PowerShell Script to Count Event IDs in an EVTX File
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 04/03/2024
+# Updated: April 7, 2024
 
 Add-Type -AssemblyName System.Windows.Forms
 
