@@ -6,7 +6,7 @@ Before running the scripts in this folder, ensure that the `Microsoft Log Parser
 ## Description:
 This directory houses scripts tailored for selecting and processing Windows Event Log files (*.evtx). These scripts are dedicated to extracting pertinent information from the logs, subsequently generating outputs in a CSV file format that is straightforward to analyze.
 
-Script Descriptions (Alphabetically Ordered):
+### Script Descriptions (Alphabetically Ordered):
 1. **EventID-Count-AllEvents-EVTX.ps1:** This script provides a comprehensive analysis tool for EVTX (Event Log) files, allowing users to select a log file and count the occurrences of each EventID within it. It simplifies the process of understanding event frequency by exporting the results to a CSV file, located in the user's Documents folder. This script is an indispensable asset for troubleshooting or auditing, as it helps break down and summarize complex event log data, making it easier for users to interpret and analyze.
 
 2. **EventID307-PrintAudit.ps1**: This advanced script specializes in extracting detailed information from the Microsoft-Windows-PrintService/Operational Event Log (EVTX file), focusing on Event ID 307. It is adept at capturing comprehensive data about print job activities, including printer usage, page counts, and job sizes. As an indispensable auditing tool, it provides deep insights into print management and operational efficiency within an environment, making it an essential resource for administrators and auditors looking to optimize print services and monitor printing activities.
