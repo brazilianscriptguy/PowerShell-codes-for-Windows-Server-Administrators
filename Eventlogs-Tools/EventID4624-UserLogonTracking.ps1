@@ -1,6 +1,6 @@
 ﻿# PowerShell script to search Security.evtx files for specific users' logon events (EventID 4624)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 04/03/2024
+# Updated: April 7, 2024
 
 # Add required assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
