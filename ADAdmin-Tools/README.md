@@ -7,9 +7,11 @@ This section contains scripts designed specifically for Active Directory (AD) ad
 
 ### Script Descriptions (Alphabetically Ordered):
 
-1. **AutoDeployment-PowerShell.ps1**: automates the installation of PowerShell across Windows servers in an enterprise environment. Designed to streamline system administration tasks, this script leverages Group Policy Objects (GPO) for efficient deployment, ensuring that the latest version of PowerShell is installed on all targeted servers.
+1. **AutoDeployment-PowerShell.ps1**: Streamlines PowerShell installation on workstations and servers using Group Policy Objects (GPO) for enhanced system administration tasks.
+   
+3. **AutoDeploymnet-ZOOMFullMeetings.ps1**: Automates the deployment of Zoom Full Meetings on workstations through Group Policy Objects (GPO) in enterprise environments.
 
-2. **AutoInstaller-FusionInventoryAgent.vbs**: 
+4. **AutoInstaller-FusionInventoryAgent.vbs**: Facilitates the deployment of FusionInventory Agent on workstations and servers, optimizing inventory management via Group Policy Objects (GPO).
    
 3. **Broadcast-UserLogonMessageViaGPO.ps1 and broadcast-logonmessage.hta**: Displays customizable warning messages on workstations upon user login, leveraging GPO for wide-reaching communication in IT managed environments.
    
