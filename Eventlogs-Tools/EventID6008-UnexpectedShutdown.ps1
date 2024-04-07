@@ -1,6 +1,6 @@
 # PowerShell Script for Monitoring Event ID 6008 - System Shuts Down Unexpectedly
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 04/03/2024
+# Updated: April 7, 2024
 
 Param(
     [Bool]$AutoOpen = $true
