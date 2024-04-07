@@ -3,7 +3,7 @@
 To effectively utilize the scripts in this folder, it's essential to have the ability to run `PowerShell scripts (.PS1)` that incorporate the `Import-Module ActiveDirectory` command, especially on Windows 10 workstations. Installation of the `Remote Server Administration Tools (RSAT)` is required for this purpose.
 
 ## Description:
-This section presents an extensive collection of PowerShell scripts and Visual Basic scripts, meticulously crafted to streamline and enhance the administration of Active Directory (AD) and Windows Server environments. These tools are engineered to automate and simplify a wide array of administrative tasks across AD objects such as users, groups, and organizational units (OUs), as well as server management and software deployment operations.
+This section showcases a comprehensive suite of PowerShell and Visual Basic scripts, expertly designed to streamline the management of Active Directory (AD) and Windows Server environments. These tools are specifically developed to automate and simplify a broad spectrum of administrative tasks involving AD objects like users, groups, and organizational units (OUs), along with server management and software deployment processes. Each script is designed to generate .LOG files and .CSV output results, facilitating easy analysis and documentation of administrative actions and outcomes.
 
 ### Script Descriptions (Alphabetically Ordered):
 
