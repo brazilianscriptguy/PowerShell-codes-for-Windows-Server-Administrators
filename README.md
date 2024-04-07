@@ -4,7 +4,7 @@ This repository is a curated collection of PowerShell and VBScript scripts tailo
 
 ## Introduction
 
-Welcome to the PowerShell and VBScript Repository, a comprehensive source of scripts and tools specifically designed for enhancing the efficiency of managing Windows Server environments and Windows 10 and 11 workstations. Whether you're looking to bolster security, optimize system performance, or streamline administrative workflows, our collection in the **AD-AdminTools, EventLog-Tools, and ITSM-Templates** folders is here to elevate your management capabilities.
+Welcome to the PowerShell and VBScript Repository, a comprehensive source of scripts and tools specifically designed for enhancing the efficiency of managing Windows Server environments and Windows 10 and 11 workstations. Whether you're looking to bolster security, optimize system performance, or streamline administrative workflows, our collection in the **ADAdmin-Tools**, **EventLog-Tools**, and **ITSM-Templates** folders is here to elevate your management capabilities.
 
 Our repository is committed to providing scripts that not only solve common administrative and management challenges but also introduce enhanced efficiency and clarity into your operations. Dive into our diverse collection and discover how our scripts can transform your approach to server and workstation management.
 
