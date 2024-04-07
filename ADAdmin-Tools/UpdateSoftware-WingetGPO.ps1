@@ -5,57 +5,49 @@
 # Log file path
 $LogPath = "C:\Logs-TEMP\UpdateSoftware-WingetGPO.log"
 
-# Create log directory if necessary
+# Ensure the log directory exists
 $LogDir = Split-Path -Path $LogPath -Parent
 if (-not (Test-Path -Path $LogDir)) {
     New-Item -ItemType Directory -Path $LogDir -Force
 }
 
-# Function to add entries to the log
+# Function to log messages
 function Log {
-    param (
-        [string]$Message
-    )
+    param ([string]$Message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Add-Content -Path $LogPath -Value "$timestamp - $Message"
 }
 
-# Attempt to locate winget in the system PATH
-$wingetPath = Get-Command "winget" -ErrorAction SilentlyContinue
+# Attempt to dynamically locate winget in the Program Files\WindowsApps directory
+$wingetSearchBase = "C:\Program Files\WindowsApps"
+$wingetSearchPattern = 'Microsoft.DesktopAppInstaller_*__8wekyb3d8bbwe\winget.exe'
 
-if ($wingetPath -eq $null) {
-    Log "winget not found in the system PATH. Checking standard locations."
-    # Define standard locations where winget might be installed
-    $possiblePaths = @(
-        "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe", # Standard location for non-admin installations
-        "$env:ProgramFiles\WindowsApps\Microsoft.DesktopAppInstaller_1.22.10582.0_x64__8wekyb3d8bbwe\winget.exe" # Standard location for some admin installations
-        "$env:ProgramFiles\WindowsApps\Microsoft.DesktopAppInstaller_1.22.10661.0_x64__8wekyb3d8bbwe\winget.exe" # Standard location for some admin installations
-    )
+# Perform search
+$wingetPath = Get-ChildItem -Path $wingetSearchBase -Filter 'winget.exe' -Recurse -ErrorAction Ignore | 
+              Where-Object { $_.FullName -like "*$wingetSearchPattern" } | 
+              Select-Object -ExpandProperty FullName -First 1
 
-    # Check each possible path for winget
-    foreach ($path in $possiblePaths) {
-        if (Test-Path -Path $path) {
-            $wingetPath = $path
-            Log "winget found at: $wingetPath"
-            break
-        }
-    }
-}
-
-# Check if winget was located after checking
-if ($wingetPath -eq $null) {
-    Log "winget not found. Software updates will not be performed."
+if ($wingetPath) {
+    Log "winget found at: $wingetPath"
+} else {
+    Log "winget not found. Please verify the installation and path."
     exit
 }
 
 Log "Starting software updates with winget..."
 
-# Perform the update silently and automatically accept all EULA agreements
+# Update process
 try {
-    Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$wingetPath`" upgrade --all --silent --include-unknown --accept-source-agreements --accept-package-agreements" -NoNewWindow -Wait -PassThru | Out-File -FilePath $LogPath -Append
-    Log "Update completed successfully."
-} catch {
-    Log "Error occurred during the update: $_"
-}
+    $wingetCommandQuery = "& `"$wingetPath`" upgrade --query `"WINGET.EXE`""
+    $wingetUpdateAvailable = Invoke-Expression $wingetCommandQuery | Out-String
 
-# End of script
+    if ($wingetUpdateAvailable -match "No applicable update found") {
+        Log "No update available for WINGET.EXE."
+    } else {
+        $wingetCommandUpgrade = "& `"$wingetPath`" upgrade `"WINGET.EXE`" --silent --accept-package-agreements --accept-source-agreements"
+        Invoke-Expression $wingetCommandUpgrade
+        Log "WINGET.EXE update completed successfully."
+    }
+} catch {
+    Log "An error occurred during the update: $_"
+}
