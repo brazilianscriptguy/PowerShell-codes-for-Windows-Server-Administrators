@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Event ID 4648 (Logon Using Explicit Credentials)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: 04/03/2024
+# Updated: April 7, 2024
 
 Param(
     [Bool]$AutoOpen = $false
