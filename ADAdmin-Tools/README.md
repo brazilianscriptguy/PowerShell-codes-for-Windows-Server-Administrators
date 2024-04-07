@@ -9,7 +9,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 1. **AutoDeployment-PowerShell.ps1**: Streamlines PowerShell installation on workstations and servers using Group Policy Objects (GPO) for enhanced system administration tasks.
 
-2. **AutoDeploymnet-ZOOMFullMeetings.ps1**: Automates the deployment of Zoom Full Meetings on workstations through Group Policy Objects (GPO) in enterprise environments.
+2. **AutoDeployment-ZOOMFullMeetings.ps1**: Automates the deployment of Zoom Full Meetings on workstations through Group Policy Objects (GPO) in enterprise environments.
 
 3. **AutoInstaller-FusionInventoryAgent.vbs**: Facilitates the deployment of FusionInventory Agent on workstations and servers, optimizing inventory management via Group Policy Objects (GPO).
 
