@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to UNLOCK ALL ADMINISTRATIVE SHARES, RDP, AND TURN OFF WINDOWS FIREWALL
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: April 09, 2024.
+# Update: April 9, 2024.
 
 # Log file path
 $logPath = "c:\ITSM-Logs\Unlock-All-AdminShares.log"
