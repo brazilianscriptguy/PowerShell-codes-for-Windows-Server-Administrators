@@ -65,13 +65,13 @@ After joining a worksation to the domain, for both internal and external COMPANY
 
 This folder contains additional support scripts, aligned with configuration inconsistencies previously identified by the IT Service Support Division.
 
-   - **ActivateAdminShare**: This folder includes a script designed to enable administrative shares, activate Remote Desktop Protocol (RDP), and deactivate Windows Firewall.
    - **DiskVolumes**: This folder contains a script for locally renaming disk volumes C: and D:.
    - **Export-Custom-Themes**: This folder contains a script for exporting the custom theme files.
    - **GetSID**: This folder houses a Microsoft Internals application intended for identifying the SID (Security Identifier) of the operating system.
    - **LegacyIngress**: In this folder, there's a script aimed at allowing legacy operating system workstations to join new domains.
    - **ResetGPOs**: This folder offers a script to reset all workstation GPOs (Group Policy Objects) and initiate a new synchronization.
    - **UnjoinDomain**: This folder provides a script designed to unjoin workstations from the domain and clear data associated with the old domain.
+   - **UnlockAllAdminShares**: This folder includes a script designed to enable administrative shares, activate Remote Desktop Protocol (RDP), and deactivate Windows Firewall.
    - **WorkStationConfigReport**: Contains a script for generating configuration reports for each workstation and recording them in a spreadsheet.
    - **WorkstationTimeSync**: This folder includes a script to synchronize workstation time, date, and time zone settings.
 
