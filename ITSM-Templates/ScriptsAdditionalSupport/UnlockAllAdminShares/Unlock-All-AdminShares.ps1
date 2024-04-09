@@ -1,4 +1,4 @@
-﻿# PowerShell Script to UNLOCK ALL ADMINISTRATIVE SHARES, RDP, AND TURN OFF WINDOWS FIREWALL
+# PowerShell Script to UNLOCK ALL ADMINISTRATIVE SHARES, ACTIVATE RDP, TURN OFF WINDOWS FIREWALL, AND DISABLE WINDOWS DEFENDER
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: April 9, 2024.
 
@@ -57,4 +57,3 @@ Write-Log $completionMessage
 Write-Output $completionMessage
 
 # End of Script
-
