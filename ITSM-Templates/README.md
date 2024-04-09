@@ -71,7 +71,7 @@ This folder contains additional support scripts, aligned with configuration inco
    - **LegacyIngress**: In this folder, there's a script aimed at allowing legacy operating system workstations to join new domains.
    - **ResetGPOs**: This folder offers a script to reset all workstation GPOs (Group Policy Objects) and initiate a new synchronization.
    - **UnjoinDomain**: This folder provides a script designed to unjoin workstations from the domain and clear data associated with the old domain.
-   - **UnlockAllAdminShares**: This folder includes a script designed to enable administrative shares, activate Remote Desktop Protocol (RDP), and deactivate Windows Firewall.
+   - **UnlockAllAdminShares**: This folder contains a script crafted to unlock all administrative shares, activate Remote Desktop Protocol (RDP), turn off Windows Firewall, and disable Windows Defender.
    - **WorkStationConfigReport**: Contains a script for generating configuration reports for each workstation and recording them in a spreadsheet.
    - **WorkstationTimeSync**: This folder includes a script to synchronize workstation time, date, and time zone settings.
 
