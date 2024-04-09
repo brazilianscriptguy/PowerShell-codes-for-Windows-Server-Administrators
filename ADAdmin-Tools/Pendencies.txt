@@ -5,5 +5,3 @@ B) Export-ADUserAttributesGUI.ps1 must be revised all code errors MUST TEST INTO
 F) Reset-UserPasswordsToDefault.ps1 needs a function to .log; MUST TEST INTO AD 
 
 G) CreateOUs-DefaultADStructures.ps1 needs a function to .log; MUST TEST INTO AD
-
-H) Update-WorkstationDescriptionsGUI.ps1 needs a function to .log;  MUST TEST INTO AD
