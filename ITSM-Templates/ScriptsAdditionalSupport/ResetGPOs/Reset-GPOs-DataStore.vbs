@@ -1,54 +1,58 @@
 ' Author: @brazilianscriptguy
-' Updated: March, 29, 2024.
+' Updated: April 9, 2024.
 ' Script to: RESET ALL DOMAIN GPO SETTINGS AND INITIATE A NEW SYNCHRONIZATION
 
-' Script test section for debugging with and without execution errors
+' Function to delete directories where the GPOs are stored
+Function RemoveGPODirectory(directoryPath)
+    On Error Resume Next
+    Dim fso
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If fso.FolderExists(directoryPath) Then
+        fso.DeleteFolder directoryPath, True
+        WScript.Echo "GPO directory deleted: " & directoryPath
+    End If
+End Function
+
+' Function for logging
+Sub LogMessage(message)
+    Dim fs, logFile
+    Set fs = CreateObject("Scripting.FileSystemObject")
+    Set logFile = fs.OpenTextFile("C:\GSTI-Logs\Reset-GPOs-DataStore.log", 8, True)
+    logFile.WriteLine(Now & " - " & message)
+    logFile.Close
+End Sub
+
 On Error Resume Next
 
-' Create object to interact with the operating system script library
+' Registering the start of script execution
+LogMessage "Start of script execution."
+
+' Resetting GPOs using "setup security.inf"
+Set shell = CreateObject("WScript.Shell")
+shell.Run "secedit /configure /db reset.sdb /cfg C:\Windows\security\templates\setup security.inf /overwrite /quiet", 0, True
+LogMessage "GPOs reset using setup security.inf"
+
+' Resetting GPOs using "defltbase.inf"
+shell.Run "secedit /configure /db reset.sdb /cfg %windir%\inf\defltbase.inf /areas USER_POLICY, MACHINE_POLICY, SECURITYPOLICY /overwrite /quiet", 0, True
+LogMessage "GPOs reset using defltbase.inf"
+
+' Deleting the registry key where current GPO settings reside
 Set objShell = CreateObject("WScript.Shell")
-
-' Check the creation of a local folder for ITSM-Templates execution log files
-If Not objFSO.FolderExists("C:\ITSM-Logs") Then
-    Set objFSO = CreateObject("Scripting.FileSystemObject")
-    objFSO.CreateFolder("C:\ITSM-Logs")
-End If
-
-' Define the folder and log file name
-strLogFile = "C:\ITSM-Logs\Reset-GPOs-DataStore.log"
-Set objLog = objFSO.OpenTextFile(strLogFile, 8, True)
-
-' Function to log messages
-Sub Log(Message)
-    timestamp = Now()
-    objLog.WriteLine timestamp & ": " & Message
-End Sub
-
-' Deleting the Registry key where current GPO settings reside
 objShell.RegDelete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy"
-Log "Registry key deleted: HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy"
-
-' Function to delete directories where GPOs are stored
-Sub DeleteFolder(strFolderPath)
-    Dim objFSO
-    Set objFSO = CreateObject("Scripting.FileSystemObject")
-    If objFSO.FolderExists(strFolderPath) Then
-        objFSO.DeleteFolder strFolderPath, True
-        Log "Folder deleted: " & strFolderPath
-    End If
-End Sub
+LogMessage "Registry key of GPOs deleted."
 
 ' Removing Group Policy directories
-DeleteFolder objShell.ExpandEnvironmentStrings("%WinDir%\System32\GroupPolicy")
-DeleteFolder objShell.ExpandEnvironmentStrings("%WinDir%\System32\GroupPolicyUsers")
-DeleteFolder objShell.ExpandEnvironmentStrings("%WinDir%\SysWOW64\GroupPolicy")
-DeleteFolder objShell.ExpandEnvironmentStrings("%WinDir%\SysWOW64\GroupPolicyUsers")
+RemoveGPODirectory "%windir%\System32\GroupPolicy"
+RemoveGPODirectory "%windir%\System32\GroupPolicyUsers"
+RemoveGPODirectory "%windir%\SysWOW64\GroupPolicy"
+RemoveGPODirectory "%windir%\SysWOW64\GroupPolicyUsers"
 
-' Restarting the system after 15 seconds
-objShell.Run "shutdown /r /f /t 15 /c ""System will restart in 15 seconds! And the GPOs will be re-synchronized!""", 0, False
-Log "System will restart in 15 seconds for GPO resynchronization."
+' Registering the successful completion of script execution
+LogMessage "Script execution completed successfully."
 
-' Closing the log file
-objLog.Close
+' Scheduling system reboot after 15 seconds
+WScript.Sleep 15000
+Set objShell = CreateObject("WScript.Shell")
+objShell.Run "shutdown /r /f /t 15 /c ""System will restart in 15 seconds for GPO re-synchronization!""", 0, True
 
 ' End of Script
