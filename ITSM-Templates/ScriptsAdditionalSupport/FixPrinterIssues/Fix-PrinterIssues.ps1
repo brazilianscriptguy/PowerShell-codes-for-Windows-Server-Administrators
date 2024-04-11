@@ -1,8 +1,3 @@
-﻿# Tribunal de Justiça do Estado do Amapá
-# Secretaria de Estrutura de Tecnologia da Informação e de Comunicação
-# Coordenadoria de Segurança da Informação e Serviços de Data Centers
-# Atualizado em: 11/04/2024
-# Script para: LIMPAR FILA DE IMPRESSÃO E, RESETAR TODOS OS DRIVERS E SPOOLER DA ESTAÇÃO
 
 # Adiciona os tipos necessários para criar uma interface gráfica do usuário (GUI)
 Add-Type -AssemblyName System.Windows.Forms
@@ -10,7 +5,7 @@ Add-Type -AssemblyName System.Drawing
 
 # Determina o nome do script e configura o caminho para o log
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$logDir = 'C:\GSTI-Logs'
+$logDir = 'C:\ITSM-Logs'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 
