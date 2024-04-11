@@ -67,6 +67,7 @@ This folder contains additional support scripts, aligned with configuration inco
 
    - **DiskVolumes**: This folder contains a script for locally renaming disk volumes C: and D:.
    - **Export-Custom-Themes**: This folder contains a script for exporting the custom theme files.
+   - **FixPrinterIssues**: This folder contains a script for solving spooler and printer driver issues.
    - **GetSID**: This folder houses a Microsoft Internals application intended for identifying the SID (Security Identifier) of the operating system.
    - **LegacyIngress**: In this folder, there's a script aimed at allowing legacy operating system workstations to join new domains.
    - **ResetGPOs**: This folder offers a script to reset all workstation GPOs (Group Policy Objects) and initiate a new synchronization.
