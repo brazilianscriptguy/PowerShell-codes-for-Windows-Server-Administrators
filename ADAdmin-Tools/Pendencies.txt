@@ -1,7 +1,3 @@
-A) Cleanup-InactiveADWorkstations.ps1 needs a function to .log; MUST TEST INTO AD
-
-B) Export-ADUserAttributesGUI.ps1 must be revised all code errors MUST TEST INTO AD
-
 F) Reset-UserPasswordsToDefault.ps1 needs a function to .log; MUST TEST INTO AD 
 
 G) CreateOUs-DefaultADStructures.ps1 needs a function to .log; MUST TEST INTO AD
