@@ -1,6 +1,6 @@
 # PowerShell Script to RETRIEVE OPERATING SYSTEM AND BIOS INFORMATION OF THE WORKSTATION AND MAP IT INTO A .CSV SPREADSHEET
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 29, 2024
+# Update: April 11, 2024.
 
 # Retrieve the workstation hostname
 $hostname = $env:COMPUTERNAME
