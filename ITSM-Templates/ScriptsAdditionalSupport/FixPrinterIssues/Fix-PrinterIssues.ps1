@@ -1,20 +1,23 @@
+# Powershel script to Reset Spooler and Reset Printer Drivers
+# Author: @brazilianscriptguy
+# Update: April 11, 2024.
 
-# Adiciona os tipos necessários para criar uma interface gráfica do usuário (GUI)
+# Adds the necessary types to create a graphical user interface (GUI)
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Determina o nome do script e configura o caminho para o log
+# Determines the script name and sets up the log path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\ITSM-Logs'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 
-# Garante que o diretório de log exista
+# Ensures the log directory exists
 if (-not (Test-Path $logDir)) {
     New-Item -Path $logDir -ItemType Directory | Out-Null
 }
 
-# Função de Logging
+# Logging function
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
@@ -25,57 +28,57 @@ function Log-Message {
     Add-Content -Path $logPath -Value $logEntry
 }
 
-# Função para parar e iniciar o spooler, limpando o diretório PRINTERS
+# Function to stop and start the spooler, clearing the PRINTERS directory
 function Method1 {
-    Log-Message "Método 1 iniciado."
+    Log-Message "Method 1 started."
     Stop-Service -Name spooler -Force
     $printersPath = "$env:systemroot\System32\spool\PRINTERS\*"
     Remove-Item -Path $printersPath -Force -Recurse
     Start-Service -Name spooler
-    Log-Message "Fila de impressão limpa."
+    Log-Message "Print queue cleared."
 }
 
-# Função para modificar dependências do serviço de spooler e reiniciar o serviço
+# Function to modify spooler service dependencies and restart the service
 function Method2 {
-    Log-Message "Método 2 iniciado."
+    Log-Message "Method 2 started."
     Stop-Service -Name spooler -Force
     sc.exe config spooler depend= RPCSS
     Start-Service -Name spooler
     Stop-Service -Name spooler -Force
     sc.exe config spooler depend= RPCSS
     Start-Service -Name spooler
-    Log-Message "Dependência do spooler resetada."
+    Log-Message "Spooler dependency reset."
 }
 
-# Configuração da GUI
+# GUI Configuration
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Ferramenta de Solução de Problemas de Impressora'
+$form.Text = 'Printer Troubleshooting Tool'
 $form.Size = New-Object System.Drawing.Size(300,200)
 $form.StartPosition = 'CenterScreen'
 
-# Botão para o Método 1
+# Button for Method 1
 $method1Button = New-Object System.Windows.Forms.Button
 $method1Button.Location = New-Object System.Drawing.Point(50,30)
 $method1Button.Size = New-Object System.Drawing.Size(180,30)
-$method1Button.Text = 'Limpar Fila de Impressão'
+$method1Button.Text = 'Clear Print Queue'
 $method1Button.Add_Click({
     Method1
-    [System.Windows.Forms.MessageBox]::Show('Fila de impressão limpa.', 'Método 1 Concluído')
+    [System.Windows.Forms.MessageBox]::Show('Print queue cleared.', 'Method 1 Completed')
 })
 $form.Controls.Add($method1Button)
 
-# Botão para o Método 2
+# Button for Method 2
 $method2Button = New-Object System.Windows.Forms.Button
 $method2Button.Location = New-Object System.Drawing.Point(50,70)
 $method2Button.Size = New-Object System.Drawing.Size(180,30)
-$method2Button.Text = 'Resetar Dependência do Spooler'
+$method2Button.Text = 'Reset Spooler Dependency'
 $method2Button.Add_Click({
     Method2
-    [System.Windows.Forms.MessageBox]::Show('Dependência do spooler resetada.', 'Método 2 Concluído')
+    [System.Windows.Forms.MessageBox]::Show('Spooler dependency reset.', 'Method 2 Completed')
 })
 $form.Controls.Add($method2Button)
 
-# Exibe a GUI
+# Display the GUI
 $form.ShowDialog()
 
-# Fim do script
+# End of script
