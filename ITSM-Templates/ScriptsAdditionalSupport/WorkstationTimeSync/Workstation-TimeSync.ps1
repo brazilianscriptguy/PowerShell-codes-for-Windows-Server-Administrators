@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Update and Sync Workstation Local Time
 # Author: @brazilianscriptguy
-# Updated: March, 29, 2024
+# Updated: April 11, 2024.
 
 # Suppress unwanted messages for a cleaner execution environment
 $WarningPreference = 'SilentlyContinue'
@@ -11,20 +11,26 @@ $DebugPreference = 'SilentlyContinue'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Define and prepare the log directory and file
-$logPath = "C:\ITSM-Logs\Workstation-TimeSync.log"
-if (-not (Test-Path "C:\ITSM-Logs")) {
-    New-Item -ItemType Directory -Path "C:\ITSM-Logs" | Out-Null
+# Determines the script name and sets up the log path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\ITSM-Logs'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
+
+# Ensures the log directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory | Out-Null
 }
 
-# Initialize global log messages array
-$Global:logMessages = @()
-
-# Function to add log messages with timestamp
-function Add-Log {
-    param ([string]$Message)
+# Logging function
+function Log-Message {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message
+    )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $Global:logMessages += "${timestamp}: $Message"
+    $logEntry = "[$timestamp] $Message"
+    Add-Content -Path $logPath -Value $logEntry
 }
 
 # Create and configure the main form
@@ -86,7 +92,7 @@ $button.Add_Click({
     try {
         $timeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($timeZoneId)
         Set-TimeZone -Id $timeZone.Id | Out-Null
-        Add-Log "Time zone set to $($timeZone.DisplayName)."
+        Log-Message "Time zone set to $($timeZone.DisplayName)."
     } catch {
         [System.Windows.Forms.MessageBox]::Show("Failed to update the time zone. Time zone ID not found.") | Out-Null
         return
@@ -102,7 +108,7 @@ $button.Add_Click({
     # Configure and synchronize time with the chosen server
     w32tm /config /manualpeerlist:$timeServer /syncfromflags:manual /reliable:yes /update | Out-Null
     w32tm /resync /rediscover | Out-Null
-    Add-Log "Time synchronized with server $timeServer."
+    Log-Message "Time synchronized with server $timeServer."
 
     # Inform user of successful update and synchronization
     [System.Windows.Forms.MessageBox]::Show("Time zone updated and time synchronized.") | Out-Null
