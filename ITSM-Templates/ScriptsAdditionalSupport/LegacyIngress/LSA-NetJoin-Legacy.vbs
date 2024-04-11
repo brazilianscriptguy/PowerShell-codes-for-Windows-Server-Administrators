@@ -1,5 +1,5 @@
 ' Author: @brazilianscriptguy
-' Update: March, 29, 2024
+' Update: April 11, 2024.
 ' Script for: ALLOWING WORKSTATIONS WITH LEGACY OPERATING SYSTEMS TO JOIN THE DOMAIN, FOR MICROSOFT PROTECTION
 
 ' Test script section for debugging with and without execution errors
