@@ -26,7 +26,9 @@ You can fine-tune the behavior of these scripts by modifying the included config
 Many scripts come with adjustable parameters, allowing you to further customize their functionality. By tweaking these settings, you can tailor the scripts to suit different scenarios and specific needs. Should you encounter any inconsistencies or require adjustments, please feel free to reach out to me for assistance.
 
 ## Getting Started
-Download your inaugural Windows Server Administration or EventID Logs tool for PowerShell now and embark on managing like a seasoned pro!
+Download your initial Windows Server Administration Tool or EventID Logs tool for PowerShell now and begin managing like a pro. Additionally, you can download the VBScript ToolSet ITSM-Tools for configuring Windows Workstations!
+
+Each PowerShell Script (.PS1) can be executed by right-clicking and selecting `Run with PowerShell`, and VBScript files can be run by right-clicking and choosing `Run with command prompt`.
 
 ## Prerequisites
 Before running the EventLogs-Tools scripts here, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully leverage these scripts, you must have the ability to execute `PowerShell scripts (.PS1)`, specifically those utilizing the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This necessitates the installation of the `Remote Server Administration Tools (RSAT)`.
