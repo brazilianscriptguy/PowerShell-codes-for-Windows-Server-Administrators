@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to UNJOIN MACHINE FROM DOMAIN AND PERFORM CLEANUP AFTER UNJOIN
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 29, 2024
+# Update: April 11, 2024
 
 # Add necessary libraries for Windows GUI components
 Add-Type -AssemblyName System.Windows.Forms
