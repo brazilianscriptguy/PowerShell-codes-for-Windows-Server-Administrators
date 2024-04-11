@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to EXPORTS THE CUSTOM THEMES FILES
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: April 11, 2024.
 
 # Windows Theme Customization Files Export Script with GUI
 # Now exporting specific theme customization files to C:\ITSM-Logs\Exported-Themes
