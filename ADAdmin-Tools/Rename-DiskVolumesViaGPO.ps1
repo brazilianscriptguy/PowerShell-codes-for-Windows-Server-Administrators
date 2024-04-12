@@ -1,24 +1,31 @@
-﻿# PowerShell Script for renaming C: and D: volumes on Windows workstations - implemented by a GPO
+﻿# PowerShell Script to CHANGE THE NAMES OF DISK VOLUMES TO THE HOSTNAME OF THE MACHINE AND PERSONAL DATA DISK.
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: April 11, 2024.
 
-param (
-    [string]$LogPath = "C:\Logs-TEMP\Rename-DiskVolumesViaGPO.log",
-    [string]$NewNameC,
-    [string]$NewNameD = "Personal-Files"
-)
+# Determines the script name and sets up the log path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\ITSM-Logs'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
 
-$ErrorActionPreference = 'SilentlyContinue'
-
-function Log {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$Msg
-    )
-    Add-Content -Path $LogPath -Value "$(Get-Date) - $Msg" -ErrorAction Stop
+# Ensures the log directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory | Out-Null
 }
 
-function Rename-Volume {
+# Logging function
+function Log-Message {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] $Message"
+    Add-Content -Path $logPath -Value $logEntry
+}
+
+# Function to rename the volumes of disks C: and D:
+function RenameVolume {
     param (
         [Parameter(Mandatory=$true)]
         [string]$VolumePath,
@@ -27,27 +34,31 @@ function Rename-Volume {
         [string]$NewName
     )
 
-    try {
-        $currentLabel = (Get-Volume -DriveLetter $VolumePath[0]).FileSystemLabel
-        if ($currentLabel -eq $NewName) {
-            Log "Volume ${VolumePath} is already named $NewName."
-            return
-        }
+    $currentLabel = (Get-Volume -DriveLetter $VolumePath[0]).FileSystemLabel
+    if ($currentLabel -eq $NewName) {
+        Log-Message "The volume ${VolumePath} is already named $NewName."
+        return
+    }
 
+    try {
         Set-Volume -DriveLetter $VolumePath[0] -NewFileSystemLabel $NewName
-        Log "The name of volume ${VolumePath} was changed to $NewName"
+        Log-Message "The name of volume ${VolumePath} was changed to $NewName."
     } catch {
-        Log "Error renaming volume ${VolumePath}: $($_.Exception.Message)"
+        Log-Message "Error renaming volume ${VolumePath}: $($_.Exception.Message)"
     }
 }
 
-# Check if the new name for C: was provided as a parameter, otherwise use the hostname
-if (-not $NewNameC) {
-    $NewNameC = $env:COMPUTERNAME
-}
+# Checks if the name of volume C: is the same as described in the hostname of the station
+$NewNameC = $env:COMPUTERNAME
+# Sets the new name for disk D: as 'Personal-Files' (adjust as needed)
+$NewNameD = "Personal-Files"
 
-# Rename volumes C: and D:
-Rename-Volume -VolumePath "C:\" -NewName $NewNameC
-Rename-Volume -VolumePath "D:\" -NewName $NewNameD
+# Assumes that the drive letters are C: and D:; adjust as needed
+$VolumeCPath = "C"
+$VolumeDPath = "D"
+
+# Execution of functions to rename volumes C: and D:
+RenameVolume -VolumePath $VolumeCPath -NewName $NewNameC
+RenameVolume -VolumePath $VolumeDPath -NewName $NewNameD
 
 # End of script
