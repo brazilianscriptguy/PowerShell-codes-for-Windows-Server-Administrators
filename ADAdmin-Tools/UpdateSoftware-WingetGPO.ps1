@@ -51,3 +51,5 @@ try {
 } catch {
     Log "An error occurred during the update: $_"
 }
+
+#End of script
