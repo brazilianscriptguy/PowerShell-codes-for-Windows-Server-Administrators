@@ -1,6 +1,6 @@
 # PowerShell Script for Resetting all Domain GPOs from Workstation and Resync - Integration into GPO or Scheduled Task Execution
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: April 7, 2024.
+# Update: April 15, 2024.
 
 # Check if the script is running with Administrator privileges
 if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
