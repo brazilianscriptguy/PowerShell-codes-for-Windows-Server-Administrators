@@ -1,6 +1,6 @@
 # PowerShell script to check servers ports connectivity
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: April 7, 2024
+# Update: April 15, 2024.
 
 # Load necessary .NET assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
