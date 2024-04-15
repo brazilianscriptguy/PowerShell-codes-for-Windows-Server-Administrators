@@ -3,8 +3,8 @@
 # Updated: April 7, 2024
 
 # Import necessary modules
+# Import-Module ActiveDirectory
 Add-Type -AssemblyName System.Windows.Forms
-Import-Module ActiveDirectory
 
 # Initialize logging
 $logPath = "C:\Logs-TEMP\Eventlogs-Create-New-Paths-Servers.log"
