@@ -1,6 +1,6 @@
 # PowerShell script to install Zoom MSI package on workstations
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: April 15, 2024.
+# Update: April 15, 2024. 
 
 param (
     [string]$ZoomMSIPath = "$env:logonserver\netlogon\zoom-msi-folder\AutoDeployment-ZoomFullMeetings.msi",
