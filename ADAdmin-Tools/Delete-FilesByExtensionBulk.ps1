@@ -131,3 +131,5 @@ $form.ShowDialog() | Out-Null
 
 # End of script execution log
 Log-Message "Script execution completed."
+
+# End of script
