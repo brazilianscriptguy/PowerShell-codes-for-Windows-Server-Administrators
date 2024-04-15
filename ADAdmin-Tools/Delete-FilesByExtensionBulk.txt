@@ -1,6 +1,4 @@
 lnk
-bat
-exe
-dll
 tmp
-com
+db
+bak
