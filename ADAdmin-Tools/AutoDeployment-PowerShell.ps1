@@ -1,47 +1,53 @@
-# PowerShell script to depoly PowerShell MSI package via GPO
+# PowerShell script to deploy PowerShell MSI package via GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
 # Update: March 4, 2024
 
 param (
-    [string]$LogPath = "C:\Logs-TEMP\AutoDeployment-PowerShell.log",
     [string]$PowerShellMSIPath = "$env:logonserver\netlogon\powershell-msi-folder\AutoDeployment-PowerShell.msi",
-    [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{B06D1894-3827-4E0C-A092-7DC50BE8B210}" #GUID refers to the PS Version 5.1.19041.4170
+    [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{B06D1894-3827-4E0C-A092-7DC50BE8B210}" # GUID refers to the PS Version 5.1.19041.4170
 )
 
 $ErrorActionPreference = "Stop"
 
-function Log {
+# Determine the script name and set up logging path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
+
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory -ErrorAction Stop | Out-Null
+    Log-Message "Log directory $logDir created."
+}
+
+# Logging function
+function Log-Message {
     param (
-        [Parameter(Mandatory = $true)]
-        [string]$Msg
+        [Parameter(Mandatory=$true)]
+        [string]$Message
     )
-    $message = "$(Get-Date) - $Msg"
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] $Message"
     try {
-        Add-Content -Path $LogPath -Value $message -ErrorAction Stop
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
-        Write-Error "Failed to log to $LogPath. Error: $_"
+        Write-Error "Failed to log to $logPath. Error: $_"
     }
 }
 
 try {
-    # Ensure log directory exists
-    $logDir = Split-Path -Parent $LogPath
-    if (-not (Test-Path $logDir)) {
-        New-Item -Path $logDir -ItemType Directory -ErrorAction Stop | Out-Null
-        Log "Log directory $logDir created."
-    }
-
     # Check if the PowerShell MSI is already installed by checking the registry
     if (-not (Get-ItemProperty -Path $UninstallRegistryKey -ErrorAction SilentlyContinue)) {
         # Install PowerShell
-        $installArgs = "/quiet /i `"$PowerShellMSIPath`" ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL=1 ENABLE_PSREMOTING=1 REGISTER_MANIFEST=1 USE_MU=1 ENABLE_MU=1 ADD_PATH=1 /log `"$LogPath`""
+        $installArgs = "/quiet /i `"$PowerShellMSIPath`" ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL=1 ENABLE_PSREMOTING=1 REGISTER_MANIFEST=1 USE_MU=1 ENABLE_MU=1 ADD_PATH=1 /log `"$logPath`""
         Start-Process -FilePath "msiexec.exe" -ArgumentList $installArgs -Wait -ErrorAction Stop
-        Log "Installed PowerShell."
+        Log-Message "Installed PowerShell."
     } else {
-        Log "PowerShell is already installed."
+        Log-Message "PowerShell is already installed."
     }
 } catch {
-    Log "An error occurred: $_"
+    Log-Message "An error occurred: $_"
 }
 
 # End of script
