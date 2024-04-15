@@ -1,6 +1,6 @@
 # PowerShell Script for Displaying a Warning Message at User Logon on Workstations -  via Group Policy Objects (GPO).
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: April 15, 2024.
+# Update: April 15, 2024. 
 
 # Setting error handling to be less intrusive
 $ErrorActionPreference = "SilentlyContinue"
