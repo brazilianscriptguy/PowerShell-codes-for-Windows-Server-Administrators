@@ -1,6 +1,6 @@
 # PowerShell script to deploy PowerShell MSI package via GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: March 4, 2024
+# Update: April 15, 2024.
 
 param (
     [string]$PowerShellMSIPath = "$env:logonserver\netlogon\powershell-msi-folder\AutoDeployment-PowerShell.msi",
