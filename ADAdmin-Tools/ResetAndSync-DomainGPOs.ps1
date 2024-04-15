@@ -1,6 +1,13 @@
 ﻿# PowerShell Script for Resetting all Domain GPOs from Workstation and Resync - Integration into GPO or Scheduled Task Execution
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: April 7, 2024.
+
+# Check if the script is running with Administrator privileges
+if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
+{
+    Write-Host "This script requires Administrator privileges. Please run it as Administrator."
+    exit
+}
 
 # Function to delete directories where GPOs are stored
 function Delete-GPODirectory {
@@ -26,9 +33,15 @@ function Log-Message {
         [string]$Message
     )
 
-    $LogEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message"
     $LogFilePath = "C:\Logs-TEMP\ResetAndSync-DomainGPOs.log"
-    Add-Content -Path $LogFilePath -Value $LogEntry
+    try {
+        if (-Not (Test-Path $LogFilePath)) {
+            New-Item -Path $LogFilePath -ItemType File -Force | Out-Null
+        }
+        Add-Content -Path $LogFilePath -Value "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message"
+    } catch {
+        Write-Host "Failed to write log entry: $Message - $_"
+    }
 }
 
 try {
@@ -51,8 +64,8 @@ try {
 
     Log-Message "Script execution completed successfully."
 
-    # Scheduling a system restart after 15 minutes
-    Start-Process "shutdown" -ArgumentList "/r /f /t 900 /c ""System will restart in 15 minutes. Please save your work and wait for the reboot.""" -NoNewWindow -Wait
+    # Schedule a system restart automatically after 15 minutes
+    Start-Process "shutdown" -ArgumentList "/r /f /t 900 /c ""System will restart in 15 minutes to complete GPO reset. No user input required.""" -NoNewWindow -Wait
 }
 catch {
     Log-Message "An error occurred during script execution: $_"
