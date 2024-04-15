@@ -1,4 +1,4 @@
-﻿# PowerShell Script for Resetting all Domain GPOs from Workstation and Resync - Integration into GPO or Scheduled Task Execution
+# PowerShell Script for Resetting all Domain GPOs from Workstation and Resync - Integration into GPO or Scheduled Task Execution
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: April 7, 2024.
 
@@ -27,21 +27,26 @@ function Delete-GPODirectory {
     }
 }
 
+# Determines the script name and sets up the log path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
+
+# Ensures the log directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory | Out-Null
+}
+
 # Logging function
 function Log-Message {
     param (
+        [Parameter(Mandatory=$true)]
         [string]$Message
     )
-
-    $LogFilePath = "C:\Logs-TEMP\ResetAndSync-DomainGPOs.log"
-    try {
-        if (-Not (Test-Path $LogFilePath)) {
-            New-Item -Path $LogFilePath -ItemType File -Force | Out-Null
-        }
-        Add-Content -Path $LogFilePath -Value "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message"
-    } catch {
-        Write-Host "Failed to write log entry: $Message - $_"
-    }
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] $Message"
+    Add-Content -Path $logPath -Value $logEntry
 }
 
 try {
