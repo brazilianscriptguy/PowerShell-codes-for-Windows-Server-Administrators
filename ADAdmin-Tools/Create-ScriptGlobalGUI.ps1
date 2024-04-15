@@ -1,6 +1,6 @@
- # PowerShell script to server as model, template and defaul for all GUIs into new scripts
+# PowerShell script to server as model, template and defaul for all GUIs into new scripts - It's call a Windows Credentials test
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: April 15, 2024.
  
  # Function to create the Default GUI for My Scripts
 function Create-GUI {
