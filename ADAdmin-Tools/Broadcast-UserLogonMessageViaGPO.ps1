@@ -1,31 +1,32 @@
-# PowerShell Script to Show Warning at User Logon on the Workstations
+# PowerShell Script for Displaying a Warning Message at User Logon on Workstations -  via Group Policy Objects (GPO).
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: April 15, 2024.
 
-# Set error handling to be more verbose
+# Setting error handling to be less intrusive
 $ErrorActionPreference = "SilentlyContinue"
 
-# Define the path to the post-logon message file
-$messagePath = "\\forest.domain.name\netlogon\broadcast-logonmessage\broadcast-logonmessage.hta"
+# Define the path to the post-logon message file located on the network share
+$messagePath = "$env:LOGONSERVER\netlogon\broadcast-logonmessage\broadcast-logonmessage.hta"
 
 try {
-    # Check if the message file exists before running it
+    # Verify if the message file exists on the server before attempting to execute
     if (Test-Path $messagePath -PathType Leaf) {
-        # Create shell object
+        # Create a shell object to run the Windows Script Host
         $shell = New-Object -ComObject WScript.Shell
 
-        # Run the message file and wait for it to complete
+        # Execute the message file in a hidden window and wait for it to finish
         $exitCode = $shell.Run($messagePath, 0, $true)
 
-        # Check the exit code and display an error message if it is non-zero
+        # Log an error if the script exits with a non-zero status indicating a failure
         if ($exitCode -ne 0) {
-            Write-Error "Error running post-logon message. Exit code: $exitCode"
+            Write-Error "Failed to execute the post-logon message. Exit code: $exitCode"
         }
     } else {
-        Write-Error "Post-logon message file not found: $messagePath"
+        Write-Error "Post-logon message file is missing at: $messagePath"
     }
 } catch {
-    Write-Error "An error occurred: $_"
+    # Log the specific system exception if any error occurs during execution
+    Write-Error "An unexpected error occurred: $_"
 }
 
-# End of script
+# End of the script
