@@ -1,7 +1,6 @@
 ﻿# Enhanced PowerShell Script to Search and Delete Files with Specific Extensions with Integrated Logging
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
-# Enhancement: Integrated logging functionalities
+# Update: April 15, 2024.
 
 # Load necessary assemblies for Windows Forms and Logging Function
 Add-Type -AssemblyName System.Windows.Forms
