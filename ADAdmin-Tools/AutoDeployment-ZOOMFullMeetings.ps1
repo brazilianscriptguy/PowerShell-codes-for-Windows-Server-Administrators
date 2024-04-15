@@ -1,53 +1,53 @@
 # PowerShell script to install Zoom MSI package on workstations
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: March 4, 2024
+# Update: April 15, 2024.
 
 param (
-    [string]$LogPath = "c:\Logs-TEMP\AutoDeployment-ZoomFullMeetings.log",
     [string]$ZoomMSIPath = "$env:logonserver\netlogon\zoom-msi-folder\AutoDeployment-ZoomFullMeetings.msi",
     [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{334503B4-0A36-45A2-8206-A6B37A1F8B5B}" #GUID refers to ZOOM FULL MEETINGS version 5.17.11 (34827)
 )
 
 $ErrorActionPreference = "Stop"
 
-function Log {
+# Determine the script name and set up logging path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
+
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory -ErrorAction Stop | Out-Null
+    Log-Message "Log directory $logDir created."
+}
+
+# Logging function
+function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Msg
+        [string]$Message
     )
-    $message = "$(Get-Date) - $Msg"
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] $Message"
     try {
-        Add-Content -Path $LogPath -Value $message -ErrorAction Stop
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
-        Write-Error "Failed to log to $LogPath. Error: $_"
+        Write-Error "Failed to log to $logPath. Error: $_"
     }
 }
 
 try {
-    # Ensure log directory exists
-    $logDir = Split-Path -Parent $LogPath
-    if (-not (Test-Path $logDir)) {
-        New-Item -Path $logDir -ItemType Directory -ErrorAction Stop | Out-Null
-        
-        # Check and log directory creation status
-        if (-not (Test-Path $logDir)) {
-            Log "WARNING: Failed to create log directory at $logDir. Logging may not work properly."
-        } else {
-            Log "Log directory $logDir created."
-        }
-    }
-
     # Check Zoom Meeting installation
     if (-not (Get-ItemProperty -Path $UninstallRegistryKey -ErrorAction SilentlyContinue)) {
         # Install Zoom
-        $installArgs = "/qn /i `"$ZoomMSIPath`" REBOOT=ReallySuppress /log `"$LogPath`""
+        $installArgs = "/qn /i `"$ZoomMSIPath`" REBOOT=ReallySuppress /log `"$logPath`""
         Start-Process -FilePath "msiexec.exe" -ArgumentList $installArgs -Wait -ErrorAction Stop
-        Log "Installed Zoom."
+        Log-Message "Installed Zoom."
     } else {
-        Log "Zoom Meeting already installed."
+        Log-Message "Zoom Meeting already installed."
     }
 } catch {
-    Log "An error occurred: $_"
+    Log-Message "An error occurred: $_"
 }
 
 # End of script
