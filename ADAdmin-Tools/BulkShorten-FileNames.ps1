@@ -1,6 +1,6 @@
-﻿# PowerShell script to search for files with long names in a specified directory and shortens them
+# PowerShell script to search for files with long names in a specified directory and shortens them
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: March 4, 2024
 
 # Load necessary assemblies for Windows Forms
 Add-Type -AssemblyName System.Windows.Forms
@@ -46,18 +46,35 @@ function Get-UserInput {
 $folderPath = Get-UserInput -message "Please enter the full path to the folder" -defaultText "C:\FolderFilePath"
 $maxLength = Get-UserInput -message "Please enter the maximum length for file names" -defaultText "25"
 
-# Set up log file path
-$logPath = "C:\Logs-TEMP"
-$logFile = Join-Path -Path $logPath -ChildPath "BulkShorten-FileNames_$(Get-Date -Format 'yyyyMMddHHmmss').log"
+# Determine the script name and set up logging path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
 
-# Create log directory if not exists
-if (-not (Test-Path -Path $logPath)) {
-    New-Item -ItemType Directory -Path $logPath -Force | Out-Null
-    Write-Log -message "Log directory created at $logPath" -logFile $logFile
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory -ErrorAction Stop | Out-Null
+    Log-Message "Log directory $logDir created."
+}
+
+# Logging function
+function Log-Message {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] $Message"
+    try {
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to log to $logPath. Error: $_"
+    }
 }
 
 # Write script start to log
-Write-Log -message "Script start: Processing files in $folderPath with max length $maxLength" -logFile $logFile
+Log-Message "Script start: Processing files in $folderPath with max length $maxLength"
 
 # Truncate and rename long file names
 Get-ChildItem -Path $folderPath -File -Recurse | ForEach-Object {
@@ -65,14 +82,16 @@ Get-ChildItem -Path $folderPath -File -Recurse | ForEach-Object {
         $truncatedFolders = $_.Directory.FullName.Substring($folderPath.Length + 1).Split('\') | ForEach-Object { $_.Substring(0, [Math]::Min($_.Length, $maxLength)) }
         $newName = ($truncatedFolders -join '_') + '_' + $_.BaseName.Substring(0, $maxLength) + $_.Extension
         $newPath = Join-Path -Path $_.Directory.FullName -ChildPath $newName
+        Rename-Item -Path $_.FullName -NewName $newPath
+        Log-Message "Renamed `"$($_.FullName)`" to `"$newPath`""
     }
 }
 
 # Write script end to log
-Write-Log "Script completed. Log file at $logFile" -logFile $logFile
+Log-Message "Script completed. Log file at $logPath"
 
-#Display final execution message with log file details
-$finalMessage = "Script execution completed. Please check the log for details:`nLog file: $logFile"
+# Display final execution message with log file details
+$finalMessage = "Script execution completed. Please check the log for details:`nLog file: $logPath"
 [System.Windows.MessageBox]::Show($finalMessage, "Script Execution Completed", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
 
-#End of script
+# End of script
