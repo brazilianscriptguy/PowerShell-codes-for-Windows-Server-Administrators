@@ -1,6 +1,6 @@
 # PowerShell script to search for files with long names in a specified directory and shortens them
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March 4, 2024
+# Update: April 15, 2024.
 
 # Load necessary assemblies for Windows Forms
 Add-Type -AssemblyName System.Windows.Forms
