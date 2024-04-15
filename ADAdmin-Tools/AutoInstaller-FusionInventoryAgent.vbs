@@ -1,7 +1,7 @@
 ' Author: @brazilianscriptguy
-' Updated: March 30, 2024
+' Updated: April 15, 2024.
 ' Script for installing the 2.6.1 Fusioninventory Agent
-'
+
 ' Declare that variables must be defined before use.
 Option Explicit
 
