@@ -1,6 +1,6 @@
 # PowerShell Script to Batch Reset User Passwords in a Specific OU
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: April 17, 2024.
 
 # Import Active Directory module
 Import-Module ActiveDirectory
@@ -69,7 +69,26 @@ $buttonExecute.Text = 'Reset Passwords'
 $buttonExecute.Location = New-Object System.Drawing.Point(10, 120)
 $buttonExecute.Size = New-Object System.Drawing.Size(120, 30)
 $buttonExecute.Add_Click({
-    # Implementation of password reset and logging - Code omitted for brevity
+    Log-Message -Message "Button clicked, starting password reset process."
+    try {
+        $ou = $textBoxOU.Text
+        $defaultPassword = $textBoxPassword.Text
+
+        if ([System.Windows.Forms.MessageBox]::Show("Are you sure you want to reset passwords in '$ou'?", "Confirm", [System.Windows.Forms.MessageBoxButtons]::YesNo) -eq 'Yes') {
+            $users = Get-ADUser -Filter * -SearchBase $ou
+            foreach ($user in $users) {
+                Set-ADAccountPassword $user -Reset -NewPassword (ConvertTo-SecureString -AsPlainText $defaultPassword -Force) -PassThru | Set-ADUser -ChangePasswordAtLogon $true
+                Log-Message -Message "Password reset for $($user.SamAccountName) with 'change at login' enforced"
+            }
+            Log-Message -Message "Password reset process completed successfully."
+            [System.Windows.Forms.MessageBox]::Show("Password reset completed successfully. All users are required to change their password at next login.")
+        } else {
+            Log-Message -Message "Password reset cancelled by user."
+        }
+    } catch {
+        Log-Message -Message "Error encountered: $_"
+        [System.Windows.Forms.MessageBox]::Show("Error encountered: $_")
+    }
 })
 
 $form.Controls.Add($buttonExecute)
