@@ -1,4 +1,4 @@
-﻿# PowerShell Script with GUI for Moving Computers Between OUs, with Logging and Input Validation
+﻿# PowerShell Script with GUI for Moving Computers between OUs, with Logging and Input Validation
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: March, 04, 2024
 
