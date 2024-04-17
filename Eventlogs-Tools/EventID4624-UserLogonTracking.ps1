@@ -1,6 +1,6 @@
-﻿# PowerShell script to search Security.evtx files for specific users' logon events (EventID 4624)
+# PowerShell script to search Security.evtx files for specific users' logon events (EventID 4624)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: April 7, 2024
+# Updated: April 16, 2024
 
 # Add required assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
@@ -100,6 +100,39 @@ Function Show-MessageBox {
     [System.Windows.Forms.MessageBox]::Show($message, $title)
 }
 
+# Function to display a form for selecting the range of days
+Function Select-DateRange {
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Select Date Range"
+    $form.Size = New-Object System.Drawing.Size(250, 150)
+    $form.StartPosition = "CenterScreen"
+
+    $comboBox = New-Object System.Windows.Forms.ComboBox
+    $comboBox.Location = New-Object System.Drawing.Point(10, 20)
+    $comboBox.Size = New-Object System.Drawing.Size(200, 20)
+    $comboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+    $comboBox.Items.AddRange(@("Last 07 days", "Last 20 days", "Last 30 days", "Last 60 days", "Specific date range"))
+    $form.Controls.Add($comboBox)
+
+    $button = New-Object System.Windows.Forms.Button
+    $button.Location = New-Object System.Drawing.Point(10, 60)
+    $button.Size = New-Object System.Drawing.Size(100, 30)
+    $button.Text = "Select"
+    $button.DialogResult = [System.Windows.Forms.DialogResult]::OK
+    $form.AcceptButton = $button
+    $form.Controls.Add($button)
+
+    $form.Topmost = $true
+
+    $result = $form.ShowDialog()
+
+    if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+        return $comboBox.SelectedItem
+    } else {
+        return $null
+    }
+}
+
 # Main script logic with GUI
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Event Log Parser'
@@ -118,6 +151,22 @@ $button.Location = New-Object System.Drawing.Point(10, 100)
 $button.Size = New-Object System.Drawing.Size(100, 20)
 $button.Text = 'Start Analysis'
 $button.Add_Click({
+
+    # Get the selected date range from the dropdown menu
+    $selectedRange = Select-DateRange
+    $endDate = Get-Date
+    switch ($selectedRange) {
+        "Last 07 days" { $startDate = $endDate.AddDays(-7) }
+        "Last 20 days" { $startDate = $endDate.AddDays(-20) }
+        "Last 30 days" { $startDate = $endDate.AddDays(-30) }
+        "Last 60 days" { $startDate = $endDate.AddDays(-60) }
+        "Specific date range" { 
+            # Implement code to get specific start and end dates
+            # For now, we'll set them to default values
+            $startDate = Get-Date "2024-01-01"
+            $endDate = Get-Date "2024-12-31"
+        }
+    }
 
     # Start the process when the button is clicked
     $evtxFiles = Select-EvtxFiles
