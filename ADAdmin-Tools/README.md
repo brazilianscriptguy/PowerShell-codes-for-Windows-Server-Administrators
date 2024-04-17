@@ -39,7 +39,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 16. **Export-ADUserAttributesGUI.ps1**: Simplifies the extraction of AD user attributes for audits or reports, featuring a GUI for enhanced user interaction.
 
-17. **Find-Shorter-WorkstationNames.ps1**:Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
+17. **Find-Shorter-WorkstationNames.ps1**: Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
 
 18. **Generate-DomainComputersReport.ps1**: Creates an exhaustive list of all computers within a given AD domain, aiding in inventory and management practices.
 
