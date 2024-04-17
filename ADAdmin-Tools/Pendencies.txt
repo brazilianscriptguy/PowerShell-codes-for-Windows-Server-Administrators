@@ -1,3 +1,0 @@
-F) Reset-UserPasswordsToDefault.ps1 needs a function to .log; MUST TEST INTO AD 
-
-G) CreateOUs-DefaultADStructures.ps1 needs a function to .log; MUST TEST INTO AD
