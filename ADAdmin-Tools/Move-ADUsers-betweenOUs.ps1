@@ -1,4 +1,4 @@
-﻿# PowerShell Script to Moving AD Users between OUs
+﻿# ﻿# PowerShell Script with GUI for Moving AD Users between OUs, with Logging and Input Validation
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: April 17, 2024.
 
