@@ -4,7 +4,7 @@
 
 param (
     [string]$PowerShellMSIPath = "$env:logonserver\netlogon\powershell-msi-folder\AutoDeployment-PowerShell.msi",
-    [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{B06D1894-3827-4E0C-A092-7DC50BE8B210}" # GUID refers to the PS Version 5.1.19041.4170
+    [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{F895A69B-7C3F-49AD-83FC-A87B31EFF8F3}" # GUID refers to the 7.4.2.0 version
 )
 
 $ErrorActionPreference = "Stop"
