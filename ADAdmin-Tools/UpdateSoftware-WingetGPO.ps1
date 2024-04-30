@@ -44,7 +44,7 @@ try {
     if ($wingetUpdateAvailable -match "No applicable updates found") {
         Log "No updates available for any packages."
     } else {
-        $wingetCommandUpgrade = "& `"$wingetPath`" upgrade --all --silent --accept-package-agreements --accept-source-agreements"
+        $wingetCommandUpgrade = "& `"$wingetPath`" upgrade --all --include-unknown --silent --accept-package-agreements --accept-source-agreements"
         $updateResults = Invoke-Expression $wingetCommandUpgrade
         Log "All package updates completed successfully. Details: `n$updateResults"
     }
