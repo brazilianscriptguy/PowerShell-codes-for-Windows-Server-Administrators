@@ -31,7 +31,7 @@ if ($wingetPath) {
     Log "winget found at: $wingetPath"
 } else {
     Log "winget not found. Please verify the installation and path."
-    exit
+    return  # Use return instead of exit to avoid abrupt termination in a GPO context
 }
 
 Log "Starting software updates with winget..."
@@ -43,15 +43,15 @@ try {
     $wingetUpdateAvailable = Invoke-Expression $wingetCommandQuery | Out-String
 
     if ($wingetUpdateAvailable -match "No applicable updates found") {
-        Log-Message "No updates available for any packages."
+        Log "No updates available for any packages."
     } else {
         # Performing upgrade for all outdated packages
         $wingetCommandUpgrade = "& `"$wingetPath`" upgrade --all --silent --accept-package-agreements --accept-source-agreements"
         Invoke-Expression $wingetCommandUpgrade
-        Log-Message "All package updates completed successfully."
+        Log "All package updates completed successfully."
     }
 } catch {
-    Log-Message "An error occurred during the update: $_"
+    Log "An error occurred during the update: $_"
 }
 
 #End of script
