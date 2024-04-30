@@ -38,18 +38,20 @@ Log "Starting software updates with winget..."
 
 # Update process
 try {
-    $wingetCommandQuery = "& `"$wingetPath`" upgrade --query `"WINGET.EXE`""
+    # Checking for any available updates for all installed packages
+    $wingetCommandQuery = "& `"$wingetPath`" upgrade --query"
     $wingetUpdateAvailable = Invoke-Expression $wingetCommandQuery | Out-String
 
-    if ($wingetUpdateAvailable -match "No applicable update found") {
-        Log "No update available for WINGET.EXE."
+    if ($wingetUpdateAvailable -match "No applicable updates found") {
+        Log-Message "No updates available for any packages."
     } else {
-        $wingetCommandUpgrade = "& `"$wingetPath`" upgrade `"WINGET.EXE`" --silent --accept-package-agreements --accept-source-agreements"
+        # Performing upgrade for all outdated packages
+        $wingetCommandUpgrade = "& `"$wingetPath`" upgrade --all --silent --accept-package-agreements --accept-source-agreements"
         Invoke-Expression $wingetCommandUpgrade
-        Log "WINGET.EXE update completed successfully."
+        Log-Message "All package updates completed successfully."
     }
 } catch {
-    Log "An error occurred during the update: $_"
+    Log-Message "An error occurred during the update: $_"
 }
 
 #End of script
