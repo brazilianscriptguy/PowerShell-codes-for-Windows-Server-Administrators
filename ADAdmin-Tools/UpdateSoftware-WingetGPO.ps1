@@ -38,12 +38,14 @@ Log "Starting software updates with winget..."
 
 # Update process
 try {
+    # Checking for any available updates for all installed packages
     $wingetCommandQuery = "& `"$wingetPath`" upgrade --query"
     $wingetUpdateAvailable = Invoke-Expression $wingetCommandQuery | Out-String
 
     if ($wingetUpdateAvailable -match "No applicable updates found") {
         Log "No updates available for any packages."
     } else {
+        # Performing upgrade for all outdated packages including those not fully recognized
         $wingetCommandUpgrade = "& `"$wingetPath`" upgrade --all --include-unknown --silent --accept-package-agreements --accept-source-agreements"
         $updateResults = Invoke-Expression $wingetCommandUpgrade
         Log "All package updates completed successfully. Details: `n$updateResults"
