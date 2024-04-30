@@ -27,7 +27,7 @@ $wingetPath = Get-ChildItem -Path $wingetSearchBase -Filter 'winget.exe' -Recurs
               Where-Object { $_.FullName -like "*$wingetSearchPattern" } | 
               Select-Object -ExpandProperty FullName -First 1
 
-if ($wingetPath) {
+if ($wingetPath -and (Test-Path -Path $wingetPath -Type Leaf)) {
     Log "winget found at: $wingetPath"
 } else {
     Log "winget not found. Please verify the installation and path."
@@ -38,20 +38,18 @@ Log "Starting software updates with winget..."
 
 # Update process
 try {
-    # Checking for any available updates for all installed packages
     $wingetCommandQuery = "& `"$wingetPath`" upgrade --query"
     $wingetUpdateAvailable = Invoke-Expression $wingetCommandQuery | Out-String
 
     if ($wingetUpdateAvailable -match "No applicable updates found") {
         Log "No updates available for any packages."
     } else {
-        # Performing upgrade for all outdated packages
         $wingetCommandUpgrade = "& `"$wingetPath`" upgrade --all --silent --accept-package-agreements --accept-source-agreements"
-        Invoke-Expression $wingetCommandUpgrade
-        Log "All package updates completed successfully."
+        $updateResults = Invoke-Expression $wingetCommandUpgrade
+        Log "All package updates completed successfully. Details: `n$updateResults"
     }
 } catch {
     Log "An error occurred during the update: $_"
 }
 
-#End of script
+# End of script
