@@ -55,7 +55,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 24. **Purge-ExpiredCAsViaGPO.ps1**: Assists in removing outdated Certification Authority (CA) certificates through GPO, maintaining a secure and current certificate environment.
 
-25. **Remove-EmptyFiles.ps1**: Detects and deletes empty files across the system, optimizing storage and maintaining a clutter-free environment.
+25. **Remove-EmptyFiles-or-DateRange.ps1**: Streamlines file management by detecting and deleting empty files and allowing removal of files within a specified date range, thereby optimizing storage and enhancing system organization.
 
 26. **Remove-ExpiredCAsExplicitly.ps1**: Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
 
