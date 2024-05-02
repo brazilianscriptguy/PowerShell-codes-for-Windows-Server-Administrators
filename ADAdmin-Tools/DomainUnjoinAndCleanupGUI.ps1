@@ -1,6 +1,6 @@
 ﻿# PowerShell Script for Unjoining a Domain and cleaning up Afterward
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: May 02, 2024.
 
 # Import necessary modules
 Add-Type -AssemblyName System.Windows.Forms
