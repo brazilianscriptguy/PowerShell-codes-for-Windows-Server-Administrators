@@ -1,11 +1,11 @@
 ﻿# PowerShell script to display BGInfo (PsTools - Sysinternals) on the Servers Desktop with improvements - using with GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: March, 04, 2024
+# Update: May 03, 2024.
 
 param (
     [string]$LogPath = "c:\Logs-TEMP\Enhance-BGInfoDisplayViaGPO.log",
     [string]$BGInfoPath = "\\forest-logonserver-name\netlogon\bginfo-custom\bginfo64.exe", # Ensure BGInfo64.exe is copied to your domain netlogon folder
-    [string]$BGInfoConfig = "\\forest-logonserver-name\netlogon\Enhance-BGInfoDisplayViaGPO.bgi" # Ensure Enhance-BGInfoDisplayViaGPO.bgi is copied to your domain netlogon folder
+    [string]$BGInfoConfig = "\\forest-logonserver-name\netlogon\bginfo-custom\Enhance-BGInfoDisplayViaGPO.bgi" # Ensure Enhance-BGInfoDisplayViaGPO.bgi is copied to your domain netlogon folder
 )
 
 $ErrorActionPreference = "Continue"
