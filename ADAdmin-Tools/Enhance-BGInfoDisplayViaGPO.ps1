@@ -5,7 +5,7 @@
 param (
     [string]$LogPath = "c:\Logs-TEMP\Enhance-BGInfoDisplayViaGPO.log",
     [string]$BGInfoPath = "\\forest-logonserver-name\netlogon\bginfo-custom\bginfo64.exe", # Ensure BGInfo64.exe is copied to your domain netlogon folder
-    [string]$BGInfoConfig = ".\Enhance-BGInfoDisplayViaGPO.bgi" # Ensure Enhance-BGInfoDisplayViaGPO.bgi is copied to your domain netlogon folder
+    [string]$BGInfoConfig = "\\forest-logonserver-name\netlogon\Enhance-BGInfoDisplayViaGPO.bgi" # Ensure Enhance-BGInfoDisplayViaGPO.bgi is copied to your domain netlogon folder
 )
 
 $ErrorActionPreference = "Continue"
