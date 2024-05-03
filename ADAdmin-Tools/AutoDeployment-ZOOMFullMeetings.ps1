@@ -1,10 +1,10 @@
-# PowerShell script to install Zoom MSI package on workstations
+# PowerShell script to Install Zoom Workplace MSI package on workstations
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
 # Update: May 03, 2024. 
 
 param (
-    [string]$ZoomMSIPath = "\\forest-logonserver-name\netlogon\zoom-msi-folder\AutoDeployment-ZoomFullMeetings.msi",
-    [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{334503B4-0A36-45A2-8206-A6B37A1F8B5B}" # GUID refers to ZOOM FULL MEETINGS version 5.17.11 (34827)
+    [string]$ZoomMSIPath = "\\forest-logonserver-name\netlogon\zoom-msi-folder\AutoDeployment-ZoomWorkplace.msi",
+    [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{E35B1C56-B1C8-4D47-85B7-E4409EEF077F}" # Refere-se à versão do Zoom Workplace 6.0.4 (38135)
 )
 
 $ErrorActionPreference = "Stop"
@@ -37,14 +37,14 @@ function Log-Message {
 }
 
 try {
-    # Check Zoom Meeting installation
+    # Check Zoom Workplace installation
     if (-not (Get-ItemProperty -Path $UninstallRegistryKey -ErrorAction SilentlyContinue)) {
         # Install Zoom
         $installArgs = "/qn /i `"$ZoomMSIPath`" REBOOT=ReallySuppress /log `"$logPath`""
         Start-Process -FilePath "msiexec.exe" -ArgumentList $installArgs -Wait -ErrorAction Stop
-        Log-Message "Installed Zoom."
+        Log-Message "Installed Zoom Workplace."
     } else {
-        Log-Message "Zoom Meeting already installed."
+        Log-Message "Zoom Workplace already installed."
     }
 } catch {
     Log-Message "An error occurred: $_"
