@@ -42,7 +42,7 @@ try {
     $WScriptShell = New-Object -ComObject WScript.Shell
     $shortcut = $WScriptShell.CreateShortcut($shortcutPath)
     $shortcut.TargetPath = $BGInfoPath
-    $shortcut.Arguments = "/accepteula /timer:0 $BGInfoConfig"
+    $shortcut.Arguments = "/timer:0 /silent /nolicprompt $BGInfoConfig"
     $shortcut.Save()
     Log-Message "Shortcut created successfully: $shortcutPath"
 } catch {
