@@ -1,9 +1,9 @@
 # PowerShell script to deploy PowerShell MSI package via GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: April 15, 2024.
+# Update: May 03, 2024.
 
 param (
-    [string]$PowerShellMSIPath = "$env:logonserver\netlogon\powershell-msi-folder\AutoDeployment-PowerShell.msi",
+    [string]$PowerShellMSIPath = "\\forest-logonserver-name\netlogon\powershell-msi-folder\AutoDeployment-PowerShell.msi",
     [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{F895A69B-7C3F-49AD-83FC-A87B31EFF8F3}" # GUID refers to the 7.4.2.0 version
 )
 
