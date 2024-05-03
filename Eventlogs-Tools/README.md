@@ -27,7 +27,7 @@ This directory contains scripts designed for selecting and processing Windows Ev
 
 10. **EventID6008-UnexpectedShutdown.ps1**: Skillfully crafted to monitor and analyze Event ID 6008 in Windows Event Logs, focusing on unexpected system shutdowns, this script aggregates occurrences of these events, providing insights into their frequency and patterns. The data is outputted into a clearly formatted CSV file, making it an invaluable tool for diagnosing system instability and identifying underlying issues for enhanced system reliability.
 
-11. **Eventlogs-Create-New-Paths-Servers.ps1**: This script is specially developed to improve the management of Event Log files on Windows Servers. It aids administrators in effectively reorganizing, moving, and resizing Event Log files and folders. The script plays a crucial role in optimizing the storage and accessibility of Event Log data, essential for maintaining system health and troubleshooting issues on servers.
+11. **EventLogMigratorGUI.ps1**: This script is specially developed to improve the management of Event Log files on Windows Servers. It aids administrators in effectively reorganizing, moving, and resizing Event Log files and folders. The script plays a crucial role in optimizing the storage and accessibility of Event Log data, essential for maintaining system health and troubleshooting issues on servers.
 
 12. **COMING SOON**: Stay tuned for the next series of EventID analyses, providing more innovative and efficient tools to enhance system administration and event log management.
 
