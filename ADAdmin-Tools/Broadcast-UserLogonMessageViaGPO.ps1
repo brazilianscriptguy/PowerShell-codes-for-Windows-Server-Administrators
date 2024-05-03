@@ -1,12 +1,12 @@
 # PowerShell Script for Displaying a Warning Message at User Logon on Workstations -  via Group Policy Objects (GPO).
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: April 15, 2024. 
+# Update: May 03, 2024. 
 
 # Setting error handling to be less intrusive
 $ErrorActionPreference = "SilentlyContinue"
 
 # Define the path to the post-logon message file located on the network share
-$messagePath = "$env:LOGONSERVER\netlogon\broadcast-logonmessage\broadcast-logonmessage.hta"
+$messagePath = "\\forest-logonserver-name\netlogon\broadcast-logonmessage\broadcast-logonmessage.hta"
 
 try {
     # Verify if the message file exists on the server before attempting to execute
