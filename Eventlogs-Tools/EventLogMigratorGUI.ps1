@@ -43,7 +43,7 @@ $form.StartPosition = 'CenterScreen'
 
 # Label and TextBox for Target Root Folder
 $labelTargetRootFolder = New-Object System.Windows.Forms.Label
-$labelTargetRootFolder.Text = 'Enter the target root folder (e.g., "L:\\"):'
+$labelTargetRootFolder.Text = 'Enter the target root folder (e.g., "L:\"):'
 $labelTargetRootFolder.Location = New-Object System.Drawing.Point(10, 20)
 $labelTargetRootFolder.AutoSize = $true
 $form.Controls.Add($labelTargetRootFolder)
