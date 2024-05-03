@@ -1,4 +1,4 @@
-﻿# PowerShell script to Uninstall Softwares non-Compliance by name
+﻿# PowerShell script to Uninstall Softwares non-Compliance by name via GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
 # Update: May 03, 2024.
 
