@@ -1,9 +1,9 @@
 # PowerShell script to install Zoom MSI package on workstations
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: April 15, 2024. 
+# Update: May 03, 2024. 
 
 param (
-    [string]$ZoomMSIPath = "$env:logonserver\netlogon\zoom-msi-folder\AutoDeployment-ZoomFullMeetings.msi",
+    [string]$ZoomMSIPath = "\\forest-logonserver-name\netlogon\zoom-msi-folder\AutoDeployment-ZoomFullMeetings.msi",
     [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{334503B4-0A36-45A2-8206-A6B37A1F8B5B}" # GUID refers to ZOOM FULL MEETINGS version 5.17.11 (34827)
 )
 
