@@ -13,7 +13,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 3. **AutoInstaller-FusionInventoryAgent.vbs**: Facilitates the deployment of FusionInventory Agent on workstations and servers, optimizing inventory management via Group Policy Objects (GPO).
 
-4. **Broadcast-UserLogonMessageViaGPO.ps1 and broadcast-logonmessage.hta**: Displays customizable warning messages on workstations upon user login, leveraging GPO for wide-reaching communication in IT managed environments.
+4. **Broadcast-UserLogonMessageViaGPO.ps1 and Broadcast-UserLogonMessageViaGPO.hta**: Displays customizable warning messages on workstations upon user login, leveraging GPO for wide-reaching communication in IT managed environments.
    
 5. **BulkShorten-FileNames.ps1**: Finds and shortens filenames that exceed a certain length limit, improving system compatibility and reducing errors related to long filenames.
 
