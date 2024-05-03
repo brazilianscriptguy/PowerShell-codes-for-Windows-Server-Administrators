@@ -2,12 +2,15 @@
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: May 03, 2024.
 
+# Import necessary modules to use windows forms
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 # Setup logging
 $logDir = 'C:\Logs-TEMP'
-if (-not (Test-Path $logDir)) { New-Item -Path $logDir -ItemType Directory }
+if (-not (Test-Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory
+}
 $logPath = Join-Path $logDir 'Remove-EmptyFiles.log'
 
 function Log-Message {
@@ -23,7 +26,7 @@ $form.StartPosition = 'CenterScreen'
 
 $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
 
-# Section Labels
+# Section Label for Date Range Deletion
 $labelDateSection = New-Object System.Windows.Forms.Label
 $labelDateSection.Location = New-Object System.Drawing.Point(10,10)
 $labelDateSection.Size = New-Object System.Drawing.Size(280,20)
@@ -70,26 +73,26 @@ $deleteByDateButton.Add_Click({
     $startDate = $startDatePicker.Value
     $endDate = $endDatePicker.Value
     $files = Get-ChildItem -Path $selectedFolderPath -Recurse -File | Where-Object { $_.LastWriteTime -ge $startDate -and $_.LastWriteTime -le $endDate }
-foreach ($file in $files) {
-    # Check if the file path starts with the selected folder path
-    if ($file.FullName.StartsWith($selectedFolderPath)) {
-        # If yes, delete the file
+    foreach ($file in $files) {
         Remove-Item $file.FullName -Force
         Log-Message "Deleted file: $($file.FullName)"
-    } else {
-        # If not, log a message indicating that the file was skipped
-        Log-Message "Skipped file deletion for $($file.FullName) as it is not within the selected folder"
     }
-}
     [System.Windows.Forms.MessageBox]::Show("Files deleted successfully!")
     Log-Message "Deleted files in $selectedFolderPath from $startDate to $endDate"
 })
 $form.Controls.Add($deleteByDateButton)
 
-# Empty Files Section
+# Section Label for Empty File Deletion
+$labelEmptyFilesSection = New-Object System.Windows.Forms.Label
+$labelEmptyFilesSection.Location = New-Object System.Drawing.Point(10,390)
+$labelEmptyFilesSection.Size = New-Object System.Drawing.Size(200,20)
+$labelEmptyFilesSection.Text = 'Delete Files by Zero Size'
+$form.Controls.Add($labelEmptyFilesSection)
+
+# Setup for Empty File Deletion
 $buttonSelectFolder = New-Object System.Windows.Forms.Button
 $buttonSelectFolder.Text = 'Select Folder'
-$buttonSelectFolder.Location = New-Object System.Drawing.Point(10,390)
+$buttonSelectFolder.Location = New-Object System.Drawing.Point(10,430)
 $buttonSelectFolder.Size = New-Object System.Drawing.Size(100,30)
 $buttonSelectFolder.Add_Click({ 
     if ($folderBrowserDialog.ShowDialog() -eq 'OK') { 
@@ -99,20 +102,20 @@ $buttonSelectFolder.Add_Click({
 $form.Controls.Add($buttonSelectFolder)
 
 $listBox = New-Object System.Windows.Forms.ListBox
-$listBox.Location = New-Object System.Drawing.Point(10,430)
+$listBox.Location = New-Object System.Drawing.Point(10,470)
 $listBox.Size = New-Object System.Drawing.Size(560,180)
 $form.Controls.Add($listBox)
 
 $buttonDeleteFiles = New-Object System.Windows.Forms.Button
 $buttonDeleteFiles.Text = 'Delete Files'
-$buttonDeleteFiles.Location = New-Object System.Drawing.Point(120,390)
+$buttonDeleteFiles.Location = New-Object System.Drawing.Point(120,430)
 $buttonDeleteFiles.Size = New-Object System.Drawing.Size(100,30)
 $buttonDeleteFiles.Add_Click({ Delete-EmptyFiles })
 $form.Controls.Add($buttonDeleteFiles)
 
 $buttonOpenFolder = New-Object System.Windows.Forms.Button
 $buttonOpenFolder.Text = 'Open Folder'
-$buttonOpenFolder.Location = New-Object System.Drawing.Point(230,390)
+$buttonOpenFolder.Location = New-Object System.Drawing.Point(230,430)
 $buttonOpenFolder.Size = New-Object System.Drawing.Size(100,30)
 $buttonOpenFolder.Add_Click({ 
     if ($folderBrowserDialog.SelectedPath) { 
@@ -122,7 +125,7 @@ $buttonOpenFolder.Add_Click({
 $form.Controls.Add($buttonOpenFolder)
 
 $progressBar = New-Object System.Windows.Forms.ProgressBar
-$progressBar.Location = New-Object System.Drawing.Point(10,620)
+$progressBar.Location = New-Object System.Drawing.Point(10,660)
 $progressBar.Size = New-Object System.Drawing.Size(560,20)
 $form.Controls.Add($progressBar)
 
@@ -158,3 +161,4 @@ function Delete-EmptyFiles {
 $form.ShowDialog()
 
 # End of script
+
