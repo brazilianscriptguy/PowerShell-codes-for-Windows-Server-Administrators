@@ -6,7 +6,7 @@
 $ErrorActionPreference = "SilentlyContinue"
 
 # Define the path to the post-logon message file located on the network share
-$messagePath = "\\forest-logonserver-name\netlogon\broadcast-logonmessage\broadcast-logonmessage.hta"
+$messagePath = "\\forest-logonserver-name\netlogon\broadcast-logonmessage\Broadcast-UserLogonMessageViaGPO.hta"
 
 try {
     # Verify if the message file exists on the server before attempting to execute
