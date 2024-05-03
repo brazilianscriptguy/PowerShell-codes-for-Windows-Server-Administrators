@@ -59,7 +59,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 26. **Remove-ExpiredCAsExplicitly.ps1**: Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
 
-27. **RemoveSoftwares-NonCompliance.ps1**: Facilitates the automated, silent removal of specified software packages from workstations, enhancing system security and compliance by ensuring only approved applications are installed.
+27. **RemoveSoftwares-NonComplianceGPO.ps1**: Facilitates the automated, silent removal of specified software packages from workstations, enhancing system security and compliance by ensuring only approved applications are installed.
 
 28. **Rename-DiskVolumesViaGPO.ps1**: Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
 
