@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Enforce AD User Passwords to Immediately Expires in a Specified OU
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: May 06, 2024.
 
 # Import the Active Directory module if not already loaded
 Import-Module ActiveDirectory
