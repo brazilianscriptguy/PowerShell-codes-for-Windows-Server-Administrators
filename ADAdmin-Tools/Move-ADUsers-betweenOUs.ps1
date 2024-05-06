@@ -1,6 +1,6 @@
 ﻿# ﻿# PowerShell Script with GUI for Moving AD Users between OUs, with Logging and Input Validation
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: April 17, 2024.
+# Update: May 06, 2024.
 
 # Load Windows Forms and drawing libraries
 Add-Type -AssemblyName System.Windows.Forms
