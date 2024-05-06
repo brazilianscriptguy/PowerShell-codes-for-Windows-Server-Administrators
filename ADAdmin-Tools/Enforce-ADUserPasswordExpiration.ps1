@@ -40,10 +40,11 @@ if (-not (Test-Path $logDir)) {
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Message
+        [string]$Message,
+        [string]$LogLevel = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$timestamp] [$LogLevel] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
@@ -51,29 +52,38 @@ function Log-Message {
     }
 }
 
+# Log a starting message
+Log-Message "Starting the script to force expire passwords in the specified domain."
+
 # Function to force expire passwords
 function Force-ExpirePasswords {
     param ([string]$ouDN, [string]$domainFQDN)
 
     try {
         $users = Get-ADUser -Filter * -SearchBase $ouDN -Server $domainFQDN
-        Log-Message "Starting to process users in OU: $ouDN in domain: $domainFQDN"
+        Log-Message "Starting to process users in OU: $ouDN in domain: $domainFQDN" "INFO"
 
         foreach ($user in $users) {
-            Set-ADUser -Identity $user -ChangePasswordAtLogon $true
-            Log-Message "Set ChangePasswordAtLogon to true for user: $($user.SamAccountName)"
+            try {
+                Set-ADUser -Identity $user -ChangePasswordAtLogon $true
+                Log-Message "Set ChangePasswordAtLogon to true for user: $($user.SamAccountName)" "INFO"
+            } catch {
+                $errorMsg = "Failed to set ChangePasswordAtLogon for user: $($user.SamAccountName) - Error: $_"
+                Log-Message $errorMsg "ERROR"
+                [System.Windows.Forms.MessageBox]::Show("An error occurred for user $($user.SamAccountName): $_", "User Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            }
         }
 
-        Log-Message "Completed processing users in OU: $ouDN in domain: $domainFQDN"
-        [System.Windows.Forms.MessageBox]::Show("All user passwords in '$ouDN' within '$domainFQDN' have been set to expire.", "Operation Completed")
+        Log-Message "Completed processing users in OU: $ouDN in domain: $domainFQDN" "INFO"
+        [System.Windows.Forms.MessageBox]::Show("All user passwords in '$ouDN' within '$domainFQDN' have been set to expire.", "Operation Completed", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
     } catch {
-        Log-Message "An error occurred: $_"
-        [System.Windows.Forms.MessageBox]::Show("An error occurred: $_", "Error")
+        $errorMsg = "An error occurred while processing OU: $ouDN in domain: $domainFQDN - Error: $_"
+        Log-Message $errorMsg "ERROR"
+        [System.Windows.Forms.MessageBox]::Show("An error occurred while processing the OU '$ouDN': $_", "OU Processing Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     }
 }
 
 # Create a Windows Forms form
-Add-Type -AssemblyName System.Windows.Forms
 $form = New-Object Windows.Forms.Form
 $form.Text = "Force Expire Passwords in Domain"
 $form.Size = New-Object Drawing.Size(500, 400)
@@ -127,7 +137,14 @@ $cmbOU.DropDownStyle = 'DropDownList'
 $form.Controls.Add($cmbOU)
 
 # Retrieve and store all OUs initially
-$allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Usuarios*"' | Select-Object -ExpandProperty DistinguishedName
+try {
+    $allOUs = Get-ADOrganizationalUnit -Filter * | Select-Object -ExpandProperty DistinguishedName
+} catch {
+    $errorMsg = "Failed to retrieve organizational units from the Active Directory: $_"
+    Log-Message $errorMsg "ERROR"
+    [System.Windows.Forms.MessageBox]::Show($errorMsg, "Active Directory Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    return
+}
 
 # Function to populate the OU ComboBox
 function Populate-OUComboBox {
@@ -173,14 +190,21 @@ if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
     $domainFQDN = $textBoxDomain.Text
     $ouDN = $cmbOU.Text
     if (![string]::IsNullOrWhiteSpace($domainFQDN) -and ![string]::IsNullOrWhiteSpace($ouDN)) {
-        Force-ExpirePasswords $ouDN $domainFQDN
+        try {
+            Force-ExpirePasswords $ouDN $domainFQDN
+        } catch {
+            $errorMsg = "An error occurred while processing OU: $ouDN in domain: $domainFQDN - Error: $_"
+            Log-Message $errorMsg "ERROR"
+            [System.Windows.Forms.MessageBox]::Show($errorMsg, "Operation Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        }
     } else {
-        [System.Windows.Forms.MessageBox]::Show("Please enter a valid domain FQDN and OU DN.", "Invalid Input")
-        Log-Message "Invalid domain FQDN or OU DN entered"
+        $errorMsg = "Please enter a valid domain FQDN and OU DN."
+        Log-Message $errorMsg "ERROR"
+        [System.Windows.Forms.MessageBox]::Show($errorMsg, "Invalid Input", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
     }
 } else {
-    [System.Windows.Forms.MessageBox]::Show("Operation canceled. No changes were made.", "Operation Canceled")
-    Log-Message "Operation was canceled by the user"
+    [System.Windows.Forms.MessageBox]::Show("Operation canceled. No changes were made.", "Operation Canceled", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message "Operation was canceled by the user" "INFO"
 }
 
 # End of script
