@@ -1,4 +1,4 @@
-﻿# PowerShell Script to CHANGE THE NAMES OF DISK VOLUMES TO THE HOSTNAME OF THE MACHINE AND PERSONAL DATA DISK.
+﻿# PowerShell Script to Change Disks Volumes Names to corresponding the C:\Hostname and D:\Personal-Files
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: May 6, 2024.
 
