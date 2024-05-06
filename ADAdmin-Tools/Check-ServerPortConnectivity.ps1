@@ -1,6 +1,6 @@
-# PowerShell script to check servers ports connectivity
+# PowerShell Script to Check Servers Ports Connectivity
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: April 15, 2024.
+# Update: May 06, 2024.
 
 # Load necessary .NET assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
@@ -11,7 +11,7 @@ $services = @(
     [PSCustomObject]@{ Name = "AD Replication - Ports: 135"; Ports = "135"; Optional = $false },
     [PSCustomObject]@{ Name = "AD Web Services - Ports: 9389"; Ports = "9389"; Optional = $false },
     [PSCustomObject]@{ Name = "DFS Namespace and DFS Replication - Ports: 135, 445, 80, 443"; Ports = "135,445,80,443"; Optional = $false },
-    [PSCustomObject]@{ Name = "DFSR (SYSVOL Replication) - RPC - Ports: 5722"; Ports = "5722"; Optional = $false },    
+    [PSCustomObject]@{ Name = "DFSR (SYSVOL Replication) - RPC - Ports: 5722"; Ports = "5722"; Optional = $false },
     [PSCustomObject]@{ Name = "DHCP - Ports: 67, 68"; Ports = "67,68"; Optional = $false },
     [PSCustomObject]@{ Name = "Direct Printing - Ports: 9100"; Ports = "9100"; Optional = $false },
     [PSCustomObject]@{ Name = "DNS - Ports: 53"; Ports = "53"; Optional = $false },
@@ -44,6 +44,9 @@ $services = @(
     [PSCustomObject]@{ Name = "WinRM - HTTPS - Ports: 5986"; Ports = "5986"; Optional = $true },
     [PSCustomObject]@{ Name = "WSUS - Ports: 8530, 8531"; Ports = "8530,8531"; Optional = $false }
 )
+
+# Determine the script name and set up the path for the CSV export
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 
 # Initialize the main form
 $form = New-Object System.Windows.Forms.Form
@@ -93,12 +96,13 @@ $buttonTest.Add_Click({
     $textboxResults.Clear()
     $server = $textboxServer.Text
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+    $csvPath = [Environment]::GetFolderPath('MyDocuments') + "\${scriptName}-${server}-${timestamp}.csv"
     $textboxResults.AppendText("Starting connectivity test for server: $server`n`n")
     $successfulTests = @()
 
     foreach ($index in $checkedListBox.CheckedIndices) {
         $selectedService = $services[$index]
-        foreach ($port in $selectedService.Ports) {
+        foreach ($port in ($selectedService.Ports -split ',')) {
             $testResult = Test-NetConnection -ComputerName $server -Port $port -ErrorAction SilentlyContinue -InformationLevel Quiet
             if ($testResult) {
                 $resultObj = [PSCustomObject]@{
@@ -109,14 +113,15 @@ $buttonTest.Add_Click({
                 }
                 $successfulTests += $resultObj
                 $textboxResults.AppendText("Success: $($selectedService.Name) on port $port`n")
+            } else {
+                $textboxResults.AppendText("Failed: $($selectedService.Name) on port $port`n")
             }
         }
     }
 
     if ($successfulTests.Count -gt 0) {
-        $csvFilePath = Join-Path -Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::MyDocuments)) -ChildPath "Connectivity-TestResults_${server}-${timestamp}.csv"
-        $successfulTests | Export-Csv -Path $csvFilePath -NoTypeInformation
-        $textboxResults.AppendText("`nResults have been exported to: $csvFilePath")
+        $successfulTests | Export-Csv -Path $csvPath -NoTypeInformation
+        $textboxResults.AppendText("`nResults have been exported to: $csvPath")
     } else {
         $textboxResults.AppendText("`nNo successful connections were made.")
     }
@@ -125,4 +130,4 @@ $buttonTest.Add_Click({
 # Show the form
 $form.ShowDialog()
 
-#End of script
+# End of script
