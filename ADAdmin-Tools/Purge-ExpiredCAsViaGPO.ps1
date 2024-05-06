@@ -1,6 +1,6 @@
 ﻿# PowerShell Script for Removing Old Certification Authority Certificates - implemented by a GPO
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: May 06, 2024.
 
 # Set execution policy to Unrestricted
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
