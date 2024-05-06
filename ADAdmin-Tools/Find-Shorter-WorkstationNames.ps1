@@ -1,6 +1,6 @@
 # PowerShell script to search Active Directory for workstation computers with names shorter than 15 characters
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: April 17, 2024. 
+# Update: May 06, 2024. 
 
 # Add necessary assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
