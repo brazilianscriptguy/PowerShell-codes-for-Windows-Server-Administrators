@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to Export List of AD Users with Non-Expiring Passwords to CSV with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: May 06, 2024.
 
 Add-Type -AssemblyName System.Windows.Forms
 Import-Module ActiveDirectory
