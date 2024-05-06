@@ -1,10 +1,16 @@
-﻿# PowerShell Script for Removing Old Certification Authority Certificates with GUI
+# PowerShell Script for Removing Old Certification Authority Certificates with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: May 06, 2024.
 
 # Import necessary libraries for GUI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+
+# Determine the script name and set up logging path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
 
 # Logging Function
 function Write-Log {
@@ -13,7 +19,7 @@ function Write-Log {
         [string]$Message,
 
         [Parameter(Mandatory = $false)]
-        [string]$Path = "C:\Logs-TEMP\Remove-ExpiredCAsExplicitly.log"
+        [string]$Path = $logPath
     )
 
     # Create the log directory if it does not exist
