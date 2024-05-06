@@ -1,6 +1,6 @@
 ﻿# PowerShell Script for Multiple RDP Access with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Update: May 06, 2024.
 
 # Load Windows Forms and drawing libraries
 Add-Type -AssemblyName System.Windows.Forms
