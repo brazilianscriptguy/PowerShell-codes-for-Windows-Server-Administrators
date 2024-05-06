@@ -1,12 +1,9 @@
-﻿# ﻿# PowerShell Script with GUI for Moving AD Users between OUs, with Logging and Input Validation
+# PowerShell Script with GUI for Moving AD Users between OUs, with Logging and Input Validation
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: May 06, 2024.
 
-# Load Windows Forms and drawing libraries
+# Import Windows Forms and Active Directory module
 Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
-
-# Import Active Directory module
 Import-Module ActiveDirectory
 
 # Determine the script name and set up logging path
@@ -17,10 +14,14 @@ $logPath = Join-Path $logDir $logFileName
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
-    New-Item -Path $logDir -ItemType Directory | Out-Null
+    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+    if (-not (Test-Path $logDir)) {
+        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
+        return
+    }
 }
 
-# Logging function
+# Enhanced logging function with error handling
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
@@ -28,131 +29,219 @@ function Log-Message {
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = "[$timestamp] $Message"
-    Add-Content -Path $logPath -Value $logEntry
+    try {
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to write to log: $_"
+    }
 }
 
-# Create the form
-$form = New-Object System.Windows.Forms.Form
-$form.Text = 'Move AD Users'
-$form.Size = New-Object System.Drawing.Size(520,350)
-$form.StartPosition = 'CenterScreen'
-
-# OpenFileDialog for selecting text file
-$openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-$openFileDialog.InitialDirectory = [Environment]::GetFolderPath("Desktop")
-$openFileDialog.filter = "Text Files (*.txt)|*.txt"
-
-# Add label and text box for the DC Name input
-$labelDCName = New-Object System.Windows.Forms.Label
-$labelDCName.Location = New-Object System.Drawing.Point(10,20)
-$labelDCName.Size = New-Object System.Drawing.Size(180,20)
-$labelDCName.Text = 'DC Name for Search:'
-$form.Controls.Add($labelDCName)
-
-$textBoxDCName = New-Object System.Windows.Forms.TextBox
-$textBoxDCName.Location = New-Object System.Drawing.Point(200,20)
-$textBoxDCName.Size = New-Object System.Drawing.Size(260,20)
-$form.Controls.Add($textBoxDCName)
-
-# Add label and text box for the file path input
-$labelFilePath = New-Object System.Windows.Forms.Label
-$labelFilePath.Location = New-Object System.Drawing.Point(10,50)
-$labelFilePath.Size = New-Object System.Drawing.Size(180,20)
-$labelFilePath.Text = 'Path to Usernames File:'
-$form.Controls.Add($labelFilePath)
-
-$textBoxFilePath = New-Object System.Windows.Forms.TextBox
-$textBoxFilePath.Location = New-Object System.Drawing.Point(200,50)
-$textBoxFilePath.Size = New-Object System.Drawing.Size(260,20)
-$textBoxFilePath.ReadOnly = $true
-$form.Controls.Add($textBoxFilePath)
-
-# Button for OpenFileDialog
-$buttonOpenFileDialog = New-Object System.Windows.Forms.Button
-$buttonOpenFileDialog.Location = New-Object System.Drawing.Point(470,50)
-$buttonOpenFileDialog.Size = New-Object System.Drawing.Size(30,20)
-$buttonOpenFileDialog.Text = "..."
-$form.Controls.Add($buttonOpenFileDialog)
-
-# OpenFileDialog click event
-$buttonOpenFileDialog.Add_Click({
-    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK)
-    {
-        $textBoxFilePath.Text = $openFileDialog.FileName
-        Log-Message "Selected file: $($openFileDialog.FileName)"
+# Function to get the FQDN of the domain name and forest name
+function Get-DomainFQDN {
+    try {
+        $ComputerSystem = Get-WmiObject Win32_ComputerSystem
+        $Domain = $ComputerSystem.Domain
+        return $Domain
+    } catch {
+        Write-Warning "Unable to fetch FQDN automatically."
+        return "YourDomainHere"
     }
-})
+}
 
-# Add label and text box for the new OU DN input
-$labelOUDN = New-Object System.Windows.Forms.Label
-$labelOUDN.Location = New-Object System.Drawing.Point(10,80)
-$labelOUDN.Size = New-Object System.Drawing.Size(180,20)
-$labelOUDN.Text = 'OU Destination DN:'
-$form.Controls.Add($labelOUDN)
+# Retrieve and store all OUs initially
+$allOUs = Get-ADOrganizationalUnit -Filter * | Select-Object -ExpandProperty DistinguishedName
 
-$textBoxOUDN = New-Object System.Windows.Forms.TextBox
-$textBoxOUDN.Location = New-Object System.Drawing.Point(200,80)
-$textBoxOUDN.Size = New-Object System.Drawing.Size(260,20)
-$form.Controls.Add($textBoxOUDN)
-
-# Add output text box for messages
-$outputBox = New-Object System.Windows.Forms.TextBox
-$outputBox.Location = New-Object System.Drawing.Point(10,140)
-$outputBox.Size = New-Object System.Drawing.Size(490,160)
-$outputBox.MultiLine = $true
-$outputBox.ScrollBars = 'Vertical'
-$form.Controls.Add($outputBox)
-
-# Add button to execute operation
-$button = New-Object System.Windows.Forms.Button
-$button.Location = New-Object System.Drawing.Point(200,110)
-$button.Size = New-Object System.Drawing.Size(100,23)
-$button.Text = 'Move Users'
-$form.Controls.Add($button)
-
-# Button click event to move users
-$button.Add_Click({
-    $outputBox.Text = "" # Clear output box
-    $dcName = $textBoxDCName.Text
-    $textFilePath = $textBoxFilePath.Text
-    $newOUDN = $textBoxOUDN.Text
-    
-    if (-not [System.IO.File]::Exists($textFilePath)) {
-        $errorMessage = "Error: File does not exist."
-        $outputBox.AppendText("$errorMessage`r`n")
-        Log-Message $errorMessage
-        return
+# Function to update ComboBox based on search for Target OU
+function UpdateTargetOUComboBox {
+    $cmbTargetOU.Items.Clear()
+    $searchText = $txtTargetOUSearch.Text
+    $filteredOUs = $allOUs | Where-Object { $_ -like "*$searchText*" }
+    foreach ($ou in $filteredOUs) {
+        $cmbTargetOU.Items.Add($ou)
     }
-
-    if ([string]::IsNullOrWhiteSpace($newOUDN) -or [string]::IsNullOrWhiteSpace($dcName)) {
-        $errorMessage = "Error: All fields are required."
-        $outputBox.AppendText("$errorMessage`r`n")
-        Log-Message $errorMessage
-        return
+    if ($cmbTargetOU.Items.Count -gt 0) {
+        $cmbTargetOU.SelectedIndex = 0
     }
+}
 
-    $usernames = Get-Content $textFilePath
+# Function to update ComboBox based on search for Source OU
+function UpdateSourceOUComboBox {
+    $cmbSourceOU.Items.Clear()
+    $searchText = $txtSourceOUSearch.Text
+    $filteredOUs = $allOUs | Where-Object { $_ -like "*$searchText*" }
+    foreach ($ou in $filteredOUs) {
+        $cmbSourceOU.Items.Add($ou)
+    }
+    if ($cmbSourceOU.Items.Count -gt 0) {
+        $cmbSourceOU.SelectedIndex = 0
+    }
+}
 
-    foreach ($username in $usernames) {
-        try {
-            # Include the DC name in the AD query
-            $user = Get-ADUser -Server $dcName -Filter "SamAccountName -eq '$username'"
-            if ($null -eq $user) {
-                throw "User '$username' not found."
-            }
-            Move-ADObject -Identity $user.DistinguishedName -TargetPath $newOUDN
-            $successMessage = "Successfully moved $username to $newOUDN on ${dcName}"
-            $outputBox.AppendText("$successMessage`r`n")
-            Log-Message $successMessage
-        } catch {
-            $errorMessage = "Error moving ${username} on ${dcName}: $_"
-            $outputBox.AppendText("$errorMessage`r`n")
-            Log-Message $errorMessage
+# Function to create and show the form
+function Show-Form {
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Move AD Users Between OUs"
+    $form.Width = 480
+    $form.Height = 450
+    $form.StartPosition = "CenterScreen"
+
+    # Get the default FQDN for the domain controller
+    $defaultDomainFQDN = Get-DomainFQDN
+
+    # Create labels and textboxes
+    $labelsText = @("Search Target OU:", "Search Source OU:", "Domain Controller (FQDN):", "User .TXT list name:")
+    $positions = @(20, 100, 180, 260)
+
+    # Target OU search field
+    $labelSearchTargetOU = New-Object System.Windows.Forms.Label
+    $labelSearchTargetOU.Text = $labelsText[0]
+    $labelSearchTargetOU.Location = New-Object System.Drawing.Point(10, $positions[0])
+    $labelSearchTargetOU.AutoSize = $true
+    $form.Controls.Add($labelSearchTargetOU)
+
+    $txtTargetOUSearch = New-Object System.Windows.Forms.TextBox
+    $txtTargetOUSearch.Location = New-Object System.Drawing.Point(160, $positions[0])
+    $txtTargetOUSearch.Size = New-Object System.Drawing.Size(260, 20)
+    $form.Controls.Add($txtTargetOUSearch)
+
+    # ComboBox for Target OU selection
+    $cmbTargetOU = New-Object System.Windows.Forms.ComboBox
+    $cmbTargetOU.Location = New-Object System.Drawing.Point(160, 60)
+    $cmbTargetOU.Size = New-Object System.Drawing.Size(260, 20)
+    $cmbTargetOU.DropDownStyle = 'DropDownList'
+    $form.Controls.Add($cmbTargetOU)
+
+    # Source OU search field
+    $labelSearchSourceOU = New-Object System.Windows.Forms.Label
+    $labelSearchSourceOU.Text = $labelsText[1]
+    $labelSearchSourceOU.Location = New-Object System.Drawing.Point(10, $positions[1])
+    $labelSearchSourceOU.AutoSize = $true
+    $form.Controls.Add($labelSearchSourceOU)
+
+    $txtSourceOUSearch = New-Object System.Windows.Forms.TextBox
+    $txtSourceOUSearch.Location = New-Object System.Drawing.Point(160, $positions[1])
+    $txtSourceOUSearch.Size = New-Object System.Drawing.Size(260, 20)
+    $form.Controls.Add($txtSourceOUSearch)
+
+    # ComboBox for Source OU selection
+    $cmbSourceOU = New-Object System.Windows.Forms.ComboBox
+    $cmbSourceOU.Location = New-Object System.Drawing.Point(160, 140)
+    $cmbSourceOU.Size = New-Object System.Drawing.Size(260, 20)
+    $cmbSourceOU.DropDownStyle = 'DropDownList'
+    $form.Controls.Add($cmbSourceOU)
+
+    # Domain Controller and .TXT file fields
+    $labelsText2 = @("Domain Controller (FQDN):", "User .TXT list name:")
+    $textBoxes = @()
+
+    foreach ($i in 2..3) {
+        $label = New-Object System.Windows.Forms.Label
+        $label.Text = $labelsText2[$i - 2]
+        $label.Location = New-Object System.Drawing.Point(10, $positions[$i])
+        $label.AutoSize = $true
+        $form.Controls.Add($label)
+
+        $textBox = New-Object System.Windows.Forms.TextBox
+        $textBox.Location = New-Object System.Drawing.Point(160, $positions[$i])
+        $textBox.Size = New-Object System.Drawing.Size(260, 20)
+
+        # Prefill the domain controller textbox with the default domain FQDN
+        if ($i -eq 2) {
+            $textBox.Text = $defaultDomainFQDN
         }
-    }
-})
 
-# Show the form
-$form.ShowDialog()
+        $textBoxes += $textBox
+        $form.Controls.Add($textBox)
+    }
+
+    # Initially populate ComboBoxes
+    UpdateTargetOUComboBox
+    UpdateSourceOUComboBox
+
+    # Search TextBox change events
+    $txtTargetOUSearch.Add_TextChanged({
+        UpdateTargetOUComboBox
+    })
+    $txtSourceOUSearch.Add_TextChanged({
+        UpdateSourceOUComboBox
+    })
+
+    # Create a button
+    $button = New-Object System.Windows.Forms.Button
+    $button.Text = "Move Users"
+    $button.Location = New-Object System.Drawing.Point(160, 300)
+    $button.Size = New-Object System.Drawing.Size(200, 30)
+    $form.Controls.Add($button)
+
+    # Create a progress bar
+    $progressBar = New-Object System.Windows.Forms.ProgressBar
+    $progressBar.Location = New-Object System.Drawing.Point(10, 340)
+    $progressBar.Size = New-Object System.Drawing.Size(410, 30)
+    $form.Controls.Add($progressBar)
+
+    # Button click event with validation
+    $button.Add_Click({
+        $isValidInput = $true
+        foreach ($textBox in $textBoxes) {
+            if ([string]::IsNullOrWhiteSpace($textBox.Text)) {
+                [System.Windows.Forms.MessageBox]::Show("Please fill in all fields.", "Input Required", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+                $isValidInput = $false
+                break
+            }
+        }
+
+        if ($isValidInput) {
+            Log-Message "Starting to move users from $($cmbSourceOU.SelectedItem) to $($cmbTargetOU.SelectedItem)"
+            Process-Users $cmbTargetOU.SelectedItem $cmbSourceOU.SelectedItem $textBoxes[0].Text $textBoxes[1].Text $progressBar
+            $form.Close()
+        } else {
+            Log-Message "Input validation failed: One or more fields were empty."
+        }
+    })
+
+    # Show the form
+    $form.ShowDialog()
+}
+
+# Function to process the users
+function Process-Users {
+    param (
+        [string]$targetOU,
+        [string]$searchBase,
+        [string]$fqdnDomainController,
+        [string]$userListFile,
+        [System.Windows.Forms.ProgressBar]$progressBar
+    )
+
+    if (Test-Path $userListFile) {
+        $users = Get-Content $userListFile
+        $totalUsers = $users.Count
+        $completedUsers = 0
+        Log-Message "Starting to move users. Total count: $totalUsers"
+
+        foreach ($userName in $users) {
+            try {
+                $user = Get-ADUser -Filter {SamAccountName -eq $userName} -SearchBase $searchBase -Server $fqdnDomainController -ErrorAction SilentlyContinue
+                if ($user) {
+                    Move-ADObject -Identity $user.DistinguishedName -TargetPath $targetOU -ErrorAction SilentlyContinue
+                    Log-Message "Moved user ${userName} to ${targetOU}"
+                    $completedUsers++
+                    $progressBar.Value = [math]::Round(($completedUsers / $totalUsers) * 100)
+                } else {
+                    Log-Message "User ${userName} not found in ${searchBase}"
+                }
+            } catch {
+                Log-Message "Error moving user ${userName} to ${targetOU}: $_"
+            }
+        }
+        Log-Message "Completed moving users"
+    } else {
+        Log-Message "User list file not found: ${userListFile}"
+        [System.Windows.Forms.MessageBox]::Show("User list file not found: ${userListFile}", "File Not Found", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    }
+}
+
+# Call the function to show the form
+Show-Form
 
 # End of script
