@@ -1,6 +1,6 @@
 ﻿# PowerShell Script to CHANGE THE NAMES OF DISK VOLUMES TO THE HOSTNAME OF THE MACHINE AND PERSONAL DATA DISK.
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: April 11, 2024.
+# Update: May 6, 2024.
 
 # Determines the script name and sets up the log path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
