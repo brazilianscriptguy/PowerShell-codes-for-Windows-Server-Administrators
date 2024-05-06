@@ -9,6 +9,10 @@ Import-Module ActiveDirectory
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+# Determine the script name for logging and exporting
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+
 # Define the AD user attributes you want to export
 $attributes = @("samAccountName", "Name", "GivenName", "Surname", "DisplayName", "Mail", "Department", "Title")
 
@@ -64,7 +68,7 @@ function Show-ExportForm {
     $submitButton.Add_Click({
         $selectedAttributes = $listBox.CheckedItems -join ','
         $domainName = $textBoxDomain.Text
-        $outputPath = Join-Path ([System.Environment]::GetFolderPath('MyDocuments')) "ExportADUserAttributes_${domainName}_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
+        $csvPath = [System.IO.Path]::Combine([Environment]::GetFolderPath('MyDocuments'), "${scriptName}-${domainName}-${timestamp}.csv")
 
         if (-not $selectedAttributes -or [string]::IsNullOrWhiteSpace($domainName)) {
             [System.Windows.Forms.MessageBox]::Show("No attributes selected or domain name entered.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
@@ -72,27 +76,37 @@ function Show-ExportForm {
         }
 
         $selectedAttributes = $selectedAttributes -split ','
-        $totalUsers = (Get-ADUser -Filter * -Server $domainName).Count
+        $users = Get-ADUser -Filter * -Properties $selectedAttributes -Server $domainName
+
+        if ($users.Count -eq 0) {
+            [System.Windows.Forms.MessageBox]::Show("No users found in the specified domain.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            return
+        }
+
+        $totalUsers = $users.Count
         $progress = 0
 
         # Show progress bar
         $progressBar.Value = 0
         $progressBar.Maximum = $totalUsers
 
+        # Initialize CSV export with headers
+        $headers = $selectedAttributes -join ','
+        $headerLine = "$headers`r`n"
+        [System.IO.File]::WriteAllText($csvPath, $headerLine)
+
         # Export AD user attributes
-        Import-Module ActiveDirectory
-        $users = Get-ADUser -Filter * -Properties $selectedAttributes -Server $domainName
-        foreach ($user in $users) {
+        $users | ForEach-Object {
             $progress++
             $progressBar.Value = $progress
-            $user | Select-Object $selectedAttributes | Export-Csv -Path $outputPath -NoTypeInformation -Append
+            $_ | Select-Object $selectedAttributes | Export-Csv -Path $csvPath -NoTypeInformation -Append
         }
 
         # Hide progress bar
         $progressBar.Value = 0
 
         # Show ending message
-        [System.Windows.Forms.MessageBox]::Show("Export completed. File saved at $outputPath", "Export Complete", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        [System.Windows.Forms.MessageBox]::Show("Export completed. File saved at $csvPath", "Export Complete", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
     })
 
     # Show the form
