@@ -1,4 +1,4 @@
-﻿# PowerShell Script to Force All Active Directory User Passwords to Immediately Expire in a Specified Domain
+﻿# PowerShell Script to Enforce AD User Passwords to Immediately Expires in a Specified OU
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: March, 04, 2024
 
