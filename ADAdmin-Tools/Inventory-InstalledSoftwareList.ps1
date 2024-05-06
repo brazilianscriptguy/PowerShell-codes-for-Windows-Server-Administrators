@@ -1,10 +1,9 @@
-﻿# PowerShell Script to List Installed Software x86 and x64 with GUID with Enhanced GUI
+# PowerShell Script to List Installed Software x86 and x64 with GUID with Enhanced GUI
 # Author: Luiz Hamilton Silva
-# Update: March, 04, 2024
+# Update: May 06, 2024
 
 # Import necessary modules
 Add-Type -AssemblyName System.Windows.Forms
-Import-Module ActiveDirectory
 
 # Function to extract the GUID from the registry path
 function Get-GUIDFromPath {
@@ -29,6 +28,9 @@ function Get-InstalledPrograms {
     }
     return $installedPrograms
 }
+
+# Determine the script name and set up the path for the CSV export
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 
 # Main form
 $form = New-Object System.Windows.Forms.Form
@@ -96,15 +98,14 @@ $result = $form.ShowDialog()
 
 if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
     $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    # Enhanced filename to include COMPUTERNAME
-    $outputFileName = "Installed-Inventory-SoftwaresList_${env:COMPUTERNAME}-$timestamp.csv"
+    $outputFileName = "${scriptName}_${env:COMPUTERNAME}_${timestamp}.csv"
     
     if ($radioButtons.DefaultPath.Checked) {
         $outputPath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) $outputFileName
     } elseif ($radioButtons.CustomPath.Checked -and -not [string]::IsNullOrWhiteSpace($textBox.Text)) {
         $outputPath = Join-Path $textBox.Text $outputFileName
     } else {
-        [System.Windows.Forms.MessageBox]::Show("Please enter a valid custom output path.", "Error")
+        [System.Windows.Forms.MessageBox]::Show("Please enter a valid custom output path.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         return
     }
     
@@ -112,13 +113,13 @@ if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
     if ($allInstalledPrograms -ne $null -and $allInstalledPrograms.Count -gt 0) {
         try {
             $allInstalledPrograms | Export-Csv -Path $outputPath -NoTypeInformation -ErrorAction Stop
-            [System.Windows.Forms.MessageBox]::Show("List of installed software exported successfully to:`n$outputPath", "Export Successful")
+            [System.Windows.Forms.MessageBox]::Show("List of installed software exported successfully to:`n$outputPath", "Export Successful", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
         } catch {
-            [System.Windows.Forms.MessageBox]::Show("Failed to export the list of installed software. Error: $_", "Export Failed")
+            [System.Windows.Forms.MessageBox]::Show("Failed to export the list of installed software. Error: $_", "Export Failed", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         }
     } else {
-        [System.Windows.Forms.MessageBox]::Show("No installed software found to export.", "No Data")
+        [System.Windows.Forms.MessageBox]::Show("No installed software found to export.", "No Data", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
     }
 }
 
-#End of script
+# End of script
