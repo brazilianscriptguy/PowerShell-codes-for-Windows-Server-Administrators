@@ -1,9 +1,15 @@
-﻿# PowerShell Script for Removing Old Certification Authority Certificates - implemented by a GPO
+# PowerShell Script for Removing Old Certification Authority Certificates - implemented by a GPO
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: May 06, 2024.
 
 # Set execution policy to Unrestricted
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
+
+# Determine the script name and set up logging path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
 
 # Logging Function
 function Write-Log {
@@ -12,7 +18,7 @@ function Write-Log {
         [string]$Message,
 
         [Parameter(Mandatory = $false)]
-        [string]$Path = "C:\Logs-TEMP\Purge-ExpiredCAsViaGPO.log"
+        [string]$Path = $logPath
     )
 
     # Create the log directory if it does not exist
