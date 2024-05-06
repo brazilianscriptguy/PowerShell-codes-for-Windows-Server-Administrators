@@ -46,52 +46,40 @@ function Get-ServerList {
         # Create the form
         $form = New-Object System.Windows.Forms.Form
         $form.Text = 'Multiple RDP Access'
-        $form.Size = New-Object System.Drawing.Size(600, 400)
+        $form.Size = New-Object System.Drawing.Size(500, 250)
         $form.StartPosition = 'CenterScreen'
-        $form.FormBorderStyle = 'FixedDialog'
-        $form.MaximizeBox = $false
-
-        # Set font styles
-        $defaultFont = New-Object System.Drawing.Font("Calibri", 10)
-        $boldFont = New-Object System.Drawing.Font("Calibri", 11, [System.Drawing.FontStyle]::Bold)
 
         # Add description label
         $labelDescription = New-Object System.Windows.Forms.Label
         $labelDescription.Location = New-Object System.Drawing.Point(10, 10)
-        $labelDescription.Size = New-Object System.Drawing.Size(570, 40)
-        $labelDescription.Text = "Select a .TXT file containing IP Addresses/FQDNs or manually input the server names."
-        $labelDescription.Font = $boldFont
-        $labelDescription.TextAlign = 'MiddleCenter'
+        $labelDescription.Size = New-Object System.Drawing.Size(480, 20)
+        $labelDescription.Text = "Inform the Machine Address:"
         $form.Controls.Add($labelDescription)
 
         # Radio Buttons for input type selection
         $radioFile = New-Object System.Windows.Forms.RadioButton
-        $radioFile.Location = New-Object System.Drawing.Point(10, 60)
-        $radioFile.Size = New-Object System.Drawing.Size(550, 25)
+        $radioFile.Location = New-Object System.Drawing.Point(10, 35)
+        $radioFile.Size = New-Object System.Drawing.Size(480, 20)
         $radioFile.Text = 'Select a .TXT file containing IP Addresses or FQDNs'
-        $radioFile.Font = $defaultFont
         $radioFile.Checked = $true
         $form.Controls.Add($radioFile)
 
         $radioManual = New-Object System.Windows.Forms.RadioButton
-        $radioManual.Location = New-Object System.Drawing.Point(10, 90)
-        $radioManual.Size = New-Object System.Drawing.Size(550, 25)
+        $radioManual.Location = New-Object System.Drawing.Point(10, 60)
+        $radioManual.Size = New-Object System.Drawing.Size(480, 20)
         $radioManual.Text = 'Enter IP Addresses/FQDNs separated by commas'
-        $radioManual.Font = $defaultFont
         $form.Controls.Add($radioManual)
 
         # Add the file path textbox and browse button
         $textBoxFile = New-Object System.Windows.Forms.TextBox
-        $textBoxFile.Location = New-Object System.Drawing.Point(10, 130)
-        $textBoxFile.Size = New-Object System.Drawing.Size(430, 25)
-        $textBoxFile.Font = $defaultFont
+        $textBoxFile.Location = New-Object System.Drawing.Point(10, 90)
+        $textBoxFile.Size = New-Object System.Drawing.Size(360, 20)
         $form.Controls.Add($textBoxFile)
 
         $browseButton = New-Object System.Windows.Forms.Button
-        $browseButton.Location = New-Object System.Drawing.Point(450, 128)
-        $browseButton.Size = New-Object System.Drawing.Size(120, 27)
+        $browseButton.Location = New-Object System.Drawing.Point(380, 88)
+        $browseButton.Size = New-Object System.Drawing.Size(100, 23)
         $browseButton.Text = 'Browse'
-        $browseButton.Font = $defaultFont
         $browseButton.Add_Click({
             $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
             $openFileDialog.Filter = "Text Files (*.txt)|*.txt"
@@ -103,9 +91,8 @@ function Get-ServerList {
 
         # Add the manual entry textbox
         $textBoxManual = New-Object System.Windows.Forms.TextBox
-        $textBoxManual.Location = New-Object System.Drawing.Point(10, 130)
-        $textBoxManual.Size = New-Object System.Drawing.Size(570, 25)
-        $textBoxManual.Font = $defaultFont
+        $textBoxManual.Location = New-Object System.Drawing.Point(10, 90)
+        $textBoxManual.Size = New-Object System.Drawing.Size(470, 20)
         $form.Controls.Add($textBoxManual)
 
         # Toggle visibility based on the selected radio button
@@ -122,20 +109,18 @@ function Get-ServerList {
 
         # Add the submit button
         $submitButton = New-Object System.Windows.Forms.Button
-        $submitButton.Location = New-Object System.Drawing.Point(150, 200)
-        $submitButton.Size = New-Object System.Drawing.Size(120, 35)
+        $submitButton.Location = New-Object System.Drawing.Point(190, 150)
+        $submitButton.Size = New-Object System.Drawing.Size(75, 23)
         $submitButton.Text = 'Submit'
-        $submitButton.Font = $defaultFont
         $submitButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
         $form.Controls.Add($submitButton)
         $form.AcceptButton = $submitButton
 
         # Add the close button
         $closeButton = New-Object System.Windows.Forms.Button
-        $closeButton.Location = New-Object System.Drawing.Point(330, 200)
-        $closeButton.Size = New-Object System.Drawing.Size(120, 35)
+        $closeButton.Location = New-Object System.Drawing.Point(275, 150)
+        $closeButton.Size = New-Object System.Drawing.Size(75, 23)
         $closeButton.Text = 'Close'
-        $closeButton.Font = $defaultFont
         $closeButton.Add_Click({
             Log-Message "Script execution cancelled by the user." "INFO"
             $form.Close()
@@ -224,5 +209,4 @@ while ($true) {
 }
 
 Log-Message "Multiple RDP Access script finished."
-
 # End of script
