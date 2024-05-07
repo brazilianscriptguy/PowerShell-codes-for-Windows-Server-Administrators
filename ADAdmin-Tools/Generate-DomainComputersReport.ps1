@@ -1,9 +1,41 @@
 # PowerShell Script to Generate Report of Computers in Specified Domain
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 06, 2024
+# Update: May 06, 2024.
 
+# Import necessary assemblies
 Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
 Import-Module ActiveDirectory
+
+# Determine the script name for logging and exporting .csv files
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
+
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+    if (-not (Test-Path $logDir)) {
+        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
+        return
+    }
+}
+
+# Enhanced logging function with error handling
+function Log-Message {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] $Message"
+    try {
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to write to log: $_"
+    }
+}
 
 # Function to get the FQDN of the domain name and forest name
 function Get-DomainFQDN {
@@ -47,7 +79,6 @@ $generateButton.Add_Click({
         try {
             $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
             $sanitizedDomainFQDN = $domainFQDN -replace "\.", "_"
-            $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
             $outputFile = "$([Environment]::GetFolderPath('MyDocuments'))\${scriptName}_${sanitizedDomainFQDN}_$timestamp.csv"
 
             $domainControllers = Get-ADComputer -Filter { (OperatingSystem -Like '*Server*') -and (IsDomainController -eq $true) } -Server $domainFQDN -Properties Name, OperatingSystem, OperatingSystemVersion | Select-Object Name, OperatingSystem, OperatingSystemVersion
