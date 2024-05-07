@@ -1,4 +1,4 @@
-﻿# PowerShell Script to Enforce AD User Passwords to Immediately Expires in a Specified OU
+# PowerShell Script to Enforce AD User Passwords to Immediately Expires in a Specified OU and mark Account Users to change Passwords in the next logon
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: May 06, 2024.
 
@@ -138,7 +138,7 @@ $form.Controls.Add($cmbOU)
 
 # Retrieve and store all OUs initially
 try {
-    $allOUs = Get-ADOrganizationalUnit -Filter * | Select-Object -ExpandProperty DistinguishedName
+    $allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Usuarios*"' | Select-Object -ExpandProperty DistinguishedName
 } catch {
     $errorMsg = "Failed to retrieve organizational units from the Active Directory: $_"
     Log-Message $errorMsg "ERROR"
@@ -151,9 +151,13 @@ function Populate-OUComboBox {
     param ([Windows.Forms.ComboBox]$comboBox, [string]$filter = "")
 
     $filteredOUs = if ($filter -ne "") {
-        $allOUs | Where-Object { $_ -like "*$filter*" }
+        $allOUs | Where-Object { $_ -like "*$filter*" } | ForEach-Object { $_ }  # Ensure it's not null
     } else {
         $allOUs
+    }
+
+    if (-not $filteredOUs) {
+        $filteredOUs = @()
     }
 
     $comboBox.Items.Clear()
