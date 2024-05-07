@@ -17,7 +17,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
    
 5. **BulkShorten-FileNames.ps1**: Finds and shortens filenames that exceed a certain length limit, improving system compatibility and reducing errors related to long filenames.
 
-6. **Check-ServerPortConnectivity.ps1**: Checks server port connectivity through a GUI, displaying real-time results and exporting successful connections to a CSV file for network diagnostics and verification.
+6. **Check-ServicesPort-Connectivity.ps1**: Checks services ports connectivity through a GUI, displaying real-time results and exporting successful connections to a CSV file for network diagnostics and verification.
 
 7. **Cleanup-InactiveADWorkstations.ps1**: Identifies and removes inactive workstation accounts from AD, enhancing network security and organizational efficiency.
 
