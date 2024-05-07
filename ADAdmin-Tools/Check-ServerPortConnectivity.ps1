@@ -1,10 +1,13 @@
-# PowerShell Script to Check Servers Ports Connectivity
+# PowerShell Script to Check Services Ports Connectivity
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: May 06, 2024.
 
 # Load necessary .NET assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+
+# Determine the script name and set up the path for the CSV export
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 
 # Define services and ports to test with port numbers included in the service name text
 $services = @(
@@ -44,9 +47,6 @@ $services = @(
     [PSCustomObject]@{ Name = "WinRM - HTTPS - Ports: 5986"; Ports = "5986"; Optional = $true },
     [PSCustomObject]@{ Name = "WSUS - Ports: 8530, 8531"; Ports = "8530,8531"; Optional = $false }
 )
-
-# Determine the script name and set up the path for the CSV export
-$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 
 # Initialize the main form
 $form = New-Object System.Windows.Forms.Form
