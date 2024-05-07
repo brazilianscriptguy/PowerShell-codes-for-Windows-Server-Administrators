@@ -87,9 +87,9 @@ $generateButton.Add_Click({
         $resultFilePath = [System.IO.Path]::Combine([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::MyDocuments), $resultFileName)
         
         # Logging and exporting .csv
-        Write-Log -Message "Generating report of forest member servers."
+        Log-Message -Message "Generating report of forest member servers."
         $queryResult | Select-Object DnsHostName, IPv4Address, OperatingSystemVersion | Export-Csv -Path $resultFilePath -NoTypeInformation -Encoding UTF8
-        Write-Log -Message "Report of forest member servers generated and exported to $resultFilePath"
+        Log-Message -Message "Report of forest member servers generated and exported to $resultFilePath"
         
         [System.Windows.Forms.MessageBox]::Show("Member servers exported to $resultFilePath", 'Report Generated', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
     } catch {
@@ -104,7 +104,7 @@ $form.ShowDialog()
 # End of script
 
 # Logging Function
-function Write-Log {
+function Log-Message {
     Param(
         [Parameter(Mandatory = $true)]
         [string]$Message,
