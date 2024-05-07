@@ -5,6 +5,9 @@
 # Import necessary modules
 Add-Type -AssemblyName System.Windows.Forms
 
+# Determine the script name and set up the path for the CSV export
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+
 # Function to extract the GUID from the registry path
 function Get-GUIDFromPath {
     param ([string]$path)
@@ -28,9 +31,6 @@ function Get-InstalledPrograms {
     }
     return $installedPrograms
 }
-
-# Determine the script name and set up the path for the CSV export
-$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 
 # Main form
 $form = New-Object System.Windows.Forms.Form
