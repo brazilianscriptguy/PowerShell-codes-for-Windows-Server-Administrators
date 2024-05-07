@@ -2,11 +2,37 @@
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: May 06, 2024.
 
+# Import necessary assemblies
 Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
 Import-Module ActiveDirectory
 
 # Determine the script name for logging and exporting .csv files
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
+
+# Logging Function
+function Write-Log {
+    Param(
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+
+        [Parameter(Mandatory = $false)]
+        [string]$Path = $logPath
+    )
+
+    # Create the log directory if it does not exist
+    $dir = Split-Path $Path
+    if (-not (Test-Path -Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+    }
+
+    # Write the log message with a timestamp
+    $logEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message"
+    Add-Content -Path $Path -Value $logEntry
+}
 
 # Function to get the FQDN of the domain name and forest name
 function Get-DomainFQDN {
