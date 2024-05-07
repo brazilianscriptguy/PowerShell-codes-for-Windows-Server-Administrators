@@ -66,150 +66,147 @@ function Log-Message {
 
 # Create the main form
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "Generates .CSV EventID-307 Print Audit"
-$form.Size = New-Object System.Drawing.Size(450, 300)
+$form.Text = "Generate .CSV EventID-307 Print Audit"
+$form.Size = New-Object System.Drawing.Size @(450, 300)
 $form.StartPosition = "CenterScreen"
 
-# Create a label for the OpenFileDialog button
+# Create a label for the Browse button
 $label = New-Object System.Windows.Forms.Label
-$label.Text = "Microsoft-Windows-PrintService/Operational Log file (must be a cold file):"
+$label.Text = "Microsoft-Windows-PrintService/Operational Log Analysis:"
 $label.AutoSize = $true
-$label.Location = New-Object System.Drawing.Point(20, 20)
+$label.Location = New-Object System.Drawing.Point @(20, 20)
 $form.Controls.Add($label)
 
-# Create the OpenFileDialog button
-$buttonOpenFile = New-Object System.Windows.Forms.Button
-$buttonOpenFile.Text = "Browse"
-$buttonOpenFile.Location = New-Object System.Drawing.Point(20, 50)
-$form.Controls.Add($buttonOpenFile)
+# Create the Browse Folder button
+$buttonBrowseFolder = New-Object System.Windows.Forms.Button
+$buttonBrowseFolder.Text = "Browse"
+$buttonBrowseFolder.Location = New-Object System.Drawing.Point @(20, 50)
+$form.Controls.Add($buttonBrowseFolder)
 
-# Create the OpenFileDialog
-$OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-$OpenFileDialog.Filter = "Event Log files (*.evtx)|*.evtx"
+# Create the Start Analysis button
+$buttonStartAnalysis = New-Object System.Windows.Forms.Button
+$buttonStartAnalysis.Text = "Start Analysis"
+$buttonStartAnalysis.Enabled = $false
+$buttonStartAnalysis.Location = New-Object System.Drawing.Point @(150, 50)
+$form.Controls.Add($buttonStartAnalysis)
 
 # Create a progress bar
 $progressBar = New-Object System.Windows.Forms.ProgressBar
 $progressBar.Minimum = 0
 $progressBar.Maximum = 100
-$progressBar.Location = New-Object System.Drawing.Point(20, 100)
-$progressBar.Size = New-Object System.Drawing.Size(400, 20)
+$progressBar.Location = New-Object System.Drawing.Point @(20, 100)
+$progressBar.Size = New-Object System.Drawing.Size @(400, 20)
 $form.Controls.Add($progressBar)
 
 # Create a label to display messages
 $statusLabel = New-Object System.Windows.Forms.Label
 $statusLabel.Text = ""
 $statusLabel.AutoSize = $true
-$statusLabel.Location = New-Object System.Drawing.Point(20, 130)
+$statusLabel.Location = New-Object System.Drawing.Point @(20, 130)
 $form.Controls.Add($statusLabel)
 
-# Function to copy Event ID 307 logs into a new .evtx file
-function Copy-EventLog {
-    Param (
-        [string]$LogFilePath
+# Function to process the Microsoft-Windows-PrintService/Operational log directly
+function Process-PrintServiceLog {
+    param (
+        [string]$LogFolderPath
     )
 
-    $DefaultFolder = [Environment]::GetFolderPath("MyDocuments")
-    $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $newEvtxPath = "$DefaultFolder\$DomainServerName-PrintAudit-$timestamp.evtx"
-
+    Log-Message "Starting to process Event ID 307 in the Microsoft-Windows-PrintService/Operational log"
     try {
-        # Create an empty .evtx file
-        wevtutil cl $newEvtxPath
         $progressBar.Value = 25
-        $statusLabel.Text = "Creating Event Log copy..."
-        Log-Message "Creating Event Log copy at $newEvtxPath"
-
-        # Use Get-WinEvent to filter and copy Event ID 307 logs
-        Get-WinEvent -Path $LogFilePath -FilterXPath "*[System/EventID=307]" | Out-File -FilePath $newEvtxPath
-
-        $statusLabel.Text = "Event Log copied to: $newEvtxPath"
-        [System.Windows.Forms.MessageBox]::Show("Filtered Event Log saved as: $newEvtxPath", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-
-        $progressBar.Value = 50
-        Log-Message "Event Log copy completed successfully. Path: $newEvtxPath"
-        return $newEvtxPath
-    }
-    catch {
-        $errorMsg = "Error copying the log file: $($_.Exception.Message)"
-        [System.Windows.Forms.MessageBox]::Show($errorMsg, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        Log-Message $errorMsg
-        return $null
-    }
-}
-
-# Function to process the event log file
-function Process-EventLog {
-    Param (
-        [string]$LogFilePath
-    )
-
-    $Error.Clear()
-    $DefaultFolder = [Environment]::GetFolderPath("MyDocuments")
-    $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-    $csvPath = "$DefaultFolder\$DomainServerName-PrintAudit-$timestamp.csv"
-
-    try {
-        $LogQuery = New-Object -ComObject "MSUtil.LogQuery"
-        $InputFormat = New-Object -ComObject "MSUtil.LogQuery.EventLogInputFormat"
-        $OutputFormat = New-Object -ComObject "MSUtil.LogQuery.CSVOutputFormat"
-
-        $SQLQuery = "SELECT timegenerated AS data_horario, Extract_token(strings, 2, '|') AS id_usuario, Extract_token(strings, 3, '|') AS estacao_trabalho, Extract_token(strings, 4, '|') AS impressora_utilizada, Extract_token(strings, 6, '|') AS tamanho_bytes, Extract_token(strings, 7, '|') AS quantidade_paginas_impressas INTO '" + $csvPath + "' FROM '" + $LogFilePath + "' WHERE eventid = 307"
-
-        # Update progress bar
-        $progressBar.Value = 75
-        $statusLabel.Text = "Processing..."
+        $statusLabel.Text = "Processing the Microsoft-Windows-PrintService/Operational log..."
         $form.Refresh()
-        Log-Message "Processing Event Log file: $LogFilePath"
 
-        $rtnVal = $LogQuery.ExecuteBatch($SQLQuery, $InputFormat, $OutputFormat)
+        $DefaultFolder = [Environment]::GetFolderPath("MyDocuments")
+        $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+        $csvPath = "$DefaultFolder\$DomainServerName-PrintAudit-$timestamp.csv"
+        $evtxFilePath = Join-Path $LogFolderPath "Microsoft-Windows-PrintService%4Operational.evtx"
 
-        # Complete the progress bar
-        $progressBar.Value = 100
-        $statusLabel.Text = "Completed. File saved as: $csvPath"
-        [System.Windows.Forms.MessageBox]::Show("Processing complete. Report saved as: $csvPath", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        if (-not (Test-Path $evtxFilePath)) {
+            throw "Log file not found at $evtxFilePath."
+        }
 
-        $OutputFormat = $null
-        $InputFormat = $null
-        $LogQuery = $null
+        $events = Get-WinEvent -Path $evtxFilePath -FilterXPath "*[System/EventID=307]"
+        $progressBar.Value = 50
+
+        # Extract relevant information
+        $eventDetails = $events | Select-Object @{
+            Name = 'Date'
+            Expression = { $_.TimeCreated.ToString("yyyy-MM-dd") }
+        }, @{
+            Name = 'Hour'
+            Expression = { $_.TimeCreated.ToString("HH:mm:ss") }
+        }, @{
+            Name = 'EventRecordID'
+            Expression = { $_.RecordId }
+        }, @{
+            Name = 'EventID'
+            Expression = { $_.Id }
+        }, @{
+            Name = 'User'
+            Expression = { $_.UserId.Value }
+        }, @{
+            Name = 'Printer'
+            Expression = { $_.Properties[0].Value }
+        }, @{
+            Name = 'Workstation'
+            Expression = { $_.Properties[1].Value }
+        }, @{
+            Name = 'PagesPrinted'
+            Expression = { $_.Properties[3].Value }
+        }, @{
+            Name = 'Bytes'
+            Expression = { $_.Properties[2].Value }
+        }
+
+        # Export to CSV
+        $eventDetails | Export-Csv -Path $csvPath -NoTypeInformation -Delimiter ',' -Encoding UTF8 -Force
+
+        $progressBar.Value = 75
+        $statusLabel.Text = "Completed. Report exported to $csvPath"
+        Log-Message "Report exported to $csvPath"
 
         Start-Process $csvPath
-        Log-Message "Processing completed. Report saved as: $csvPath"
-    }
-    catch {
-        $errorMsg = "Error processing the log file: $($_.Exception.Message)"
-        [System.Windows.Forms.MessageBox]::Show($errorMsg, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        $statusLabel.Text = "Error occurred during processing. Check log for details."
+        [System.Windows.Forms.MessageBox]::Show("Report exported to $csvPath", 'Report Generated', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        $progressBar.Value = 100
+    } catch {
+        $errorMsg = "Error processing Event ID 307: $($_.Exception.Message)"
+        [System.Windows.Forms.MessageBox]::Show($errorMsg, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         Log-Message $errorMsg
-    }
-    finally {
+        $progressBar.Value = 0
+        $statusLabel.Text = "Error occurred. Check log for details."
+    } finally {
         $progressBar.Value = 0
     }
 }
 
-# Event handler for the OpenFileDialog button
-$buttonOpenFile.Add_Click({
-    if ($OpenFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $LogFilePath = $OpenFileDialog.FileName
-        $statusLabel.Text = "Selected File: $LogFilePath"
-        $progressBar.Value = 0
-        $form.Refresh()
-
-        Log-Message "Selected Event Log file: $LogFilePath"
-
-        # Copy the selected Event Log file
-        $CopiedLogPath = Copy-EventLog -LogFilePath $LogFilePath
-
-        if ($CopiedLogPath) {
-            # Start processing the copied log file
-            Process-EventLog -LogFilePath $CopiedLogPath
-        }
+# Event handler for the Browse Folder button
+$buttonBrowseFolder.Add_Click({
+    $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
+    $folderBrowser.Description = "Select the folder where the Microsoft-Windows-PrintService/Operational log is stored."
+    if ($folderBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $LogFolderPath = $folderBrowser.SelectedPath
+        $statusLabel.Text = "Selected Folder: $LogFolderPath"
+        Log-Message "Selected Folder for Event Logs: $LogFolderPath"
+        $buttonStartAnalysis.Enabled = $true
+    } else {
+        $statusLabel.Text = "No folder selected."
+        Log-Message "No folder selected."
     }
-    else {
-        $msg = "No file selected."
-        [System.Windows.Forms.MessageBox]::Show($msg, "Information", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-        $statusLabel.Text = $msg
-        Log-Message $msg
-    }
+})
+
+# Event handler for the Start Analysis button
+$buttonStartAnalysis.Add_Click({
+    Log-Message "Starting analysis of Microsoft-Windows-PrintService/Operational log for Event ID 307"
+    $statusLabel.Text = "Processing..."
+    $progressBar.Value = 0
+    $form.Refresh()
+
+    # Process the PrintService log
+    Process-PrintServiceLog -LogFolderPath $LogFolderPath
+
+    # Reset progress bar
+    $progressBar.Value = 0
 })
 
 # Show the main form
