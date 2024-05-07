@@ -42,150 +42,147 @@ Log-Message "Starting Multiple RDP Access script."
 
 # Function to create GUI for file path input or manual server entry
 function Get-ServerList {
-    while ($true) {
-        # Create the form
-        $form = New-Object System.Windows.Forms.Form
-        $form.Text = 'Multiple RDP Access'
-        $form.Size = New-Object System.Drawing.Size(500, 250)
-        $form.StartPosition = 'CenterScreen'
+    # Create the form
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = 'Multiple RDP Access'
+    $form.Size = New-Object System.Drawing.Size(500, 250)
+    $form.StartPosition = 'CenterScreen'
 
-        # Add description label
-        $labelDescription = New-Object System.Windows.Forms.Label
-        $labelDescription.Location = New-Object System.Drawing.Point(10, 10)
-        $labelDescription.Size = New-Object System.Drawing.Size(480, 20)
-        $labelDescription.Text = "Inform the Machine Address:"
-        $form.Controls.Add($labelDescription)
+    # Add description label
+    $labelDescription = New-Object System.Windows.Forms.Label
+    $labelDescription.Location = New-Object System.Drawing.Point(10, 10)
+    $labelDescription.Size = New-Object System.Drawing.Size(480, 20)
+    $labelDescription.Text = "Inform the Machine Address:"
+    $form.Controls.Add($labelDescription)
 
-        # Radio Buttons for input type selection
-        $radioFile = New-Object System.Windows.Forms.RadioButton
-        $radioFile.Location = New-Object System.Drawing.Point(10, 35)
-        $radioFile.Size = New-Object System.Drawing.Size(480, 20)
-        $radioFile.Text = 'Select a .TXT file containing IP Addresses or FQDNs'
-        $radioFile.Checked = $true
-        $form.Controls.Add($radioFile)
+    # Radio Buttons for input type selection
+    $radioFile = New-Object System.Windows.Forms.RadioButton
+    $radioFile.Location = New-Object System.Drawing.Point(10, 35)
+    $radioFile.Size = New-Object System.Drawing.Size(480, 20)
+    $radioFile.Text = 'Select a .TXT file containing IP Addresses or FQDNs'
+    $radioFile.Checked = $true
+    $form.Controls.Add($radioFile)
 
-        $radioManual = New-Object System.Windows.Forms.RadioButton
-        $radioManual.Location = New-Object System.Drawing.Point(10, 60)
-        $radioManual.Size = New-Object System.Drawing.Size(480, 20)
-        $radioManual.Text = 'Enter IP Addresses/FQDNs separated by commas'
-        $form.Controls.Add($radioManual)
+    $radioManual = New-Object System.Windows.Forms.RadioButton
+    $radioManual.Location = New-Object System.Drawing.Point(10, 60)
+    $radioManual.Size = New-Object System.Drawing.Size(480, 20)
+    $radioManual.Text = 'Enter IP Addresses/FQDNs separated by commas'
+    $form.Controls.Add($radioManual)
 
-        # Add the file path textbox and browse button
-        $textBoxFile = New-Object System.Windows.Forms.TextBox
-        $textBoxFile.Location = New-Object System.Drawing.Point(10, 90)
-        $textBoxFile.Size = New-Object System.Drawing.Size(360, 20)
-        $form.Controls.Add($textBoxFile)
+    # Add the file path textbox and browse button
+    $textBoxFile = New-Object System.Windows.Forms.TextBox
+    $textBoxFile.Location = New-Object System.Drawing.Point(10, 90)
+    $textBoxFile.Size = New-Object System.Drawing.Size(360, 20)
+    $form.Controls.Add($textBoxFile)
 
-        $browseButton = New-Object System.Windows.Forms.Button
-        $browseButton.Location = New-Object System.Drawing.Point(380, 88)
-        $browseButton.Size = New-Object System.Drawing.Size(100, 23)
-        $browseButton.Text = 'Browse'
-        $browseButton.Add_Click({
-            $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-            $openFileDialog.Filter = "Text Files (*.txt)|*.txt"
-            if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-                $textBoxFile.Text = $openFileDialog.FileName
-            }
-        })
-        $form.Controls.Add($browseButton)
+    $browseButton = New-Object System.Windows.Forms.Button
+    $browseButton.Location = New-Object System.Drawing.Point(380, 88)
+    $browseButton.Size = New-Object System.Drawing.Size(100, 23)
+    $browseButton.Text = 'Browse'
+    $browseButton.Add_Click({
+        $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+        $openFileDialog.Filter = "Text Files (*.txt)|*.txt"
+        if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            $textBoxFile.Text = $openFileDialog.FileName
+        }
+    })
+    $form.Controls.Add($browseButton)
 
-        # Add the manual entry textbox
-        $textBoxManual = New-Object System.Windows.Forms.TextBox
-        $textBoxManual.Location = New-Object System.Drawing.Point(10, 90)
-        $textBoxManual.Size = New-Object System.Drawing.Size(470, 20)
-        $form.Controls.Add($textBoxManual)
+    # Add the manual entry textbox
+    $textBoxManual = New-Object System.Windows.Forms.TextBox
+    $textBoxManual.Location = New-Object System.Drawing.Point(10, 90)
+    $textBoxManual.Size = New-Object System.Drawing.Size(470, 20)
+    $form.Controls.Add($textBoxManual)
 
-        # Toggle visibility based on the selected radio button
-        $radioFile.Add_CheckedChanged({
-            $textBoxFile.Visible = $true
-            $browseButton.Visible = $true
-            $textBoxManual.Visible = $false
-        })
-        $radioManual.Add_CheckedChanged({
-            $textBoxFile.Visible = $false
-            $browseButton.Visible = $false
-            $textBoxManual.Visible = $true
-        })
-
-        # Add the submit button
-        $submitButton = New-Object System.Windows.Forms.Button
-        $submitButton.Location = New-Object System.Drawing.Point(190, 150)
-        $submitButton.Size = New-Object System.Drawing.Size(75, 23)
-        $submitButton.Text = 'Submit'
-        $submitButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
-        $form.Controls.Add($submitButton)
-        $form.AcceptButton = $submitButton
-
-        # Add the close button
-        $closeButton = New-Object System.Windows.Forms.Button
-        $closeButton.Location = New-Object System.Drawing.Point(275, 150)
-        $closeButton.Size = New-Object System.Drawing.Size(75, 23)
-        $closeButton.Text = 'Close'
-        $closeButton.Add_Click({
-            Log-Message "Script execution cancelled by the user." "INFO"
-            $form.Close()
-            exit
-        })
-        $form.Controls.Add($closeButton)
-
-        # Initialize visibility states
+    # Toggle visibility based on the selected radio button
+    $radioFile.Add_CheckedChanged({
         $textBoxFile.Visible = $true
         $browseButton.Visible = $true
         $textBoxManual.Visible = $false
+    })
+    $radioManual.Add_CheckedChanged({
+        $textBoxFile.Visible = $false
+        $browseButton.Visible = $false
+        $textBoxManual.Visible = $true
+    })
 
-        # Show the form
-        $result = $form.ShowDialog()
+    # Add the submit button
+    $submitButton = New-Object System.Windows.Forms.Button
+    $submitButton.Location = New-Object System.Drawing.Point(190, 150)
+    $submitButton.Size = New-Object System.Drawing.Size(75, 23)
+    $submitButton.Text = 'Submit'
+    $submitButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
+    $form.Controls.Add($submitButton)
+    $form.AcceptButton = $submitButton
 
-        if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
-            if ($radioFile.Checked -and [string]::IsNullOrWhiteSpace($textBoxFile.Text)) {
-                [System.Windows.Forms.MessageBox]::Show("Please select a .TXT file.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-                Log-Message "No file selected." "ERROR"
-                continue
-            } elseif ($radioManual.Checked -and [string]::IsNullOrWhiteSpace($textBoxManual.Text)) {
-                [System.Windows.Forms.MessageBox]::Show("Please provide IP Addresses or FQDNs.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-                Log-Message "No IP Addresses/FQDNs provided." "ERROR"
-                continue
-            } else {
-                if ($radioFile.Checked) {
-                    $filePath = $textBoxFile.Text
-                    if (-not (Test-Path $filePath)) {
-                        [System.Windows.Forms.MessageBox]::Show("The specified file was not found: $filePath", "File Not Found", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-                        Log-Message "File not found: $filePath" "ERROR"
-                        continue
-                    } else {
-                        Log-Message "Server list file selected: $filePath"
-                        return (Get-Content -Path $filePath)
-                    }
-                } elseif ($radioManual.Checked) {
-                    $servers = $textBoxManual.Text -split ',\s*'
-                    if ($servers.Count -eq 0) {
-                        [System.Windows.Forms.MessageBox]::Show("No valid IP Addresses or FQDNs provided.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-                        Log-Message "No valid IP Addresses or FQDNs provided in manual entry." "ERROR"
-                        continue
-                    } else {
-                        Log-Message "Manual entry of IP Addresses/FQDNs: $($textBoxManual.Text)"
-                        return $servers
-                    }
+    # Add the close button
+    $closeButton = New-Object System.Windows.Forms.Button
+    $closeButton.Location = New-Object System.Drawing.Point(275, 150)
+    $closeButton.Size = New-Object System.Drawing.Size(75, 23)
+    $closeButton.Text = 'Close'
+    $closeButton.Add_Click({
+        Log-Message "Script execution cancelled by the user." "INFO"
+        $form.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+        $form.Close()
+    })
+    $form.Controls.Add($closeButton)
+
+    # Initialize visibility states
+    $textBoxFile.Visible = $true
+    $browseButton.Visible = $true
+    $textBoxManual.Visible = $false
+
+    # Show the form
+    $result = $form.ShowDialog()
+
+    if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+        if ($radioFile.Checked -and [string]::IsNullOrWhiteSpace($textBoxFile.Text)) {
+            [System.Windows.Forms.MessageBox]::Show("Please select a .TXT file.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            Log-Message "No file selected." "ERROR"
+            return @()
+        } elseif ($radioManual.Checked -and [string]::IsNullOrWhiteSpace($textBoxManual.Text)) {
+            [System.Windows.Forms.MessageBox]::Show("Please provide IP Addresses or FQDNs.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            Log-Message "No IP Addresses/FQDNs provided." "ERROR"
+            return @()
+        } else {
+            if ($radioFile.Checked) {
+                $filePath = $textBoxFile.Text
+                if (-not (Test-Path $filePath)) {
+                    [System.Windows.Forms.MessageBox]::Show("The specified file was not found: $filePath", "File Not Found", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                    Log-Message "File not found: $filePath" "ERROR"
+                    return @()
+                } else {
+                    Log-Message "Server list file selected: $filePath"
+                    return Get-Content -Path $filePath
+                }
+            } elseif ($radioManual.Checked) {
+                $servers = $textBoxManual.Text -split ',\s*'
+                if ($servers.Count -eq 0) {
+                    [System.Windows.Forms.MessageBox]::Show("No valid IP Addresses or FQDNs provided.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                    Log-Message "No valid IP Addresses or FQDNs provided in manual entry." "ERROR"
+                    return @()
+                } else {
+                    Log-Message "Manual entry of IP Addresses/FQDNs: $($textBoxManual.Text)"
+                    return $servers
                 }
             }
-        } else {
-            Log-Message "Script execution cancelled by the user." "INFO"
-            exit
         }
+    } else {
+        Log-Message "Script execution cancelled by the user." "INFO"
+        return @()
     }
 }
 
 # Main execution loop
-while ($true) {
+$continueScript = $true
+while ($continueScript) {
     # Get the list of servers from either the file or manual entry
     $servers = Get-ServerList
 
-    # Check if the server list is empty
+    # Exit the loop if the form was cancelled
     if ($servers.Count -eq 0) {
-        $errorMessage = "No servers found in the input."
-        Log-Message $errorMessage "WARNING"
-        [System.Windows.Forms.MessageBox]::Show("No servers found.", "Empty Input", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-        continue
+        $continueScript = $false
+        break
     }
 
     # Loop through the list of servers and start Remote Desktop sessions
