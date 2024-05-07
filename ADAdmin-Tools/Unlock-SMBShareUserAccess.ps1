@@ -1,4 +1,4 @@
-# PowerShell Script to Unlock User in a DFS Namespace Access with GUI
+﻿# PowerShell Script to Unlock User in a DFS Namespace Access with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: May 07, 2024.
 

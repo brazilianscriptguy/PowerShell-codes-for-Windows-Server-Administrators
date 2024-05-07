@@ -1,6 +1,29 @@
-# PowerShell script to locate and remove old computer accounts from domain
+﻿# PowerShell script to locate and remove old computer accounts from domain
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: April 15, 2024.
+# Update: May 07, 2024.
+
+# Hide the PowerShell console window
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class Window {
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern IntPtr GetConsoleWindow();
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    public static void Hide() {
+        var handle = GetConsoleWindow();
+        ShowWindow(handle, 0); // 0 = SW_HIDE
+    }
+    public static void Show() {
+        var handle = GetConsoleWindow();
+        ShowWindow(handle, 5); // 5 = SW_SHOW
+    }
+}
+"@
+
+[Window]::Hide()
 
 # Import necessary modules
 Add-Type -AssemblyName System.Windows.Forms
@@ -53,7 +76,7 @@ function Remove-SelectedWorkstationAccounts {
 function Show-GUI {
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "Inactive Workstation Account Cleanup"
-    $form.Size = New-Object System.Drawing.Size(700, 500)
+    $form.Size = New-Object System.Drawing.Size(710, 520)
     $form.StartPosition = "CenterScreen"
 
     # Label for Domain Controller name input

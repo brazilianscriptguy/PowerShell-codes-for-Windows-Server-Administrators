@@ -1,11 +1,6 @@
-# PowerShell Script for Adds workstations to specified Organizational Units (OUs) and grants join permissions
+# PowerShell Script to Add Workstations into specfied OUs and Grant Join Permissions
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 6, 2024.
-
-# Import necessary assemblies
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
-Import-Module ActiveDirectory
+# Update: May 06, 2024.
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -29,6 +24,11 @@ public class Window {
 "@
 
 [Window]::Hide()
+
+# Import necessary assemblies
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+Import-Module ActiveDirectory
 
 # Grant-ComputerJoinPermission Function
 function Grant-ComputerJoinPermission {
@@ -319,7 +319,7 @@ $lblSupportGroup.Text = "Ingress Account:"
 $txtSupportGroup = New-Object System.Windows.Forms.TextBox
 $txtSupportGroup.Location = New-Object System.Drawing.Point(10, 190)
 $txtSupportGroup.Size = New-Object System.Drawing.Size(380, 20)
-$txtSupportGroup.Text = "ingress-domain-account@YOURDOMAIN.LOCAL"  # Default Support Account that have ingress permissions
+$txtSupportGroup.Text = "ingdomain@SEDE.TJAP"  # Default Support Group
 $txtSupportGroup.ForeColor = [System.Drawing.Color]::Black
 $txtSupportGroup.ReadOnly = $true
 
