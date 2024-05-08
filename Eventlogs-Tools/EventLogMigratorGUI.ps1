@@ -1,6 +1,6 @@
 # PowerShell Script to Move Event Log Default Paths with GUI and Improved Error Handling
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 07, 2024.
+# Updated: May 8, 2024.
 
 # Hide the PowerShell console window
 Add-Type @"
