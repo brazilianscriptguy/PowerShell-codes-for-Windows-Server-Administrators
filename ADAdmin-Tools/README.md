@@ -25,7 +25,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 9. **Create-ScriptGlobalGUI.ps1**: Provides a template for creating customizable GUIs for PowerShell scripts, enhancing usability across various administration tasks.
 
-10. **Create-ScriptGlobalHeader.ps1**: Provides a template for creating customizable LOGGINGs functions for PowerShell scripts, enhancing usability across various administration tasks.
+10. **Create-ScriptGlobalHeader.ps1**: Provides a template for creating customizable Header, Import Modules and Logging functions for PowerShell scripts, enhancing usability across various administration tasks.
 
 11. **CreateOUs-DefaultADStructure.ps1**: Assists in creating a standardized AD infrastructure with predefined OUs, streamlining new domain setups or reorganizations.
 
