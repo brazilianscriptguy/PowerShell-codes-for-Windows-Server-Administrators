@@ -4,7 +4,7 @@
 Before you run the scripts in this folder, ensure the `Microsoft Log Parser utility` is installed on your system. Also, to fully utilize these scripts, you must be able to execute `PowerShell scripts (.PS1)`, particularly those that use the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This requires installing the `Remote Server Administration Tools (RSAT)`.
 
 ## Description:
-This directory contains scripts designed for selecting and processing Windows Event Log files (*.evtx). These scripts focus on extracting relevant information from the logs and generating outputs in a CSV file format for easy analysis. 
+This directory contains scripts designed for selecting and processing Windows Event Log files (*.evtx). These scripts focus on extracting relevant information from the logs and generating outputs in a CSV file format for easy analysis.  
 
 ### Script Descriptions (Alphabetically Ordered):
 1. **EventID-Count-AllEvents-EVTX.ps1:** This script is an all-encompassing tool for analyzing EVTX (Event Log) files. It allows users to select a log file, count the occurrences of each EventID within it, and export the findings to a CSV file in the user's Documents folder. This script simplifies the process of understanding event frequency and is a vital resource for troubleshooting or auditing by providing a summary of complex event log data for easier interpretation and analysis.
