@@ -1,7 +1,3 @@
-# PowerShell script template serves as a standardized approach for setting up logging in PowerShell scripts.
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 07, 2024.
-
 # Hide the PowerShell console window
 Add-Type @"
 using System;
@@ -25,10 +21,10 @@ public class Window {
 
 [Window]::Hide()
 
-# Import necessary assemblies and modules
+# Load necessary assemblies for Windows Forms
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-# Import-Module ActiveDirectory - Set it if will be necessary 
+[System.Windows.Forms.Application]::EnableVisualStyles()
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
@@ -38,17 +34,26 @@ $logPath = Join-Path $logDir $logFileName
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
-    New-Item -Path $logDir -ItemType Directory | Out-Null
+    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+    if (-not (Test-Path $logDir)) {
+        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
+        return
+    }
 }
 
-# Logging function
+# Enhanced logging function with error handling
 function Log-Message {
     param (
-        [Parameter(Mandatory = $true)]
-        [string]$Message
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+        [Parameter(Mandatory=$false)]
+        [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
-    Add-Content -Path $logPath -Value $logEntry
+    $logEntry = "[$timestamp] [$MessageType] $Message"
+    try {
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to write to log: $_"
+    }
 }
-
