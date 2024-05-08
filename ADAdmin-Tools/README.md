@@ -37,7 +37,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 15. **Enhance-BGInfoDisplayViaGPO.ps1 and Enhance-BGInfoDisplayViaGPO.bgi**: Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
 
-17. **Export-ADUserAttributesGUI.ps1**: Simplifies the extraction of AD user attributes for audits or reports, featuring a GUI for enhanced user interaction.
+17. **Export-ADUserAttributes.ps1**: Simplifies the extraction of AD user attributes for audits or reports, featuring a GUI for enhanced user interaction.
 
 18. **Find-Shorter-WorkstationNames.ps1**: Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
 
@@ -77,7 +77,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 36. **Shorten-LongFileNamesBulk.ps1**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
-37. **Synchronize-WorkstationTimeGUI.ps1**: Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
+37. **Synchronize-WorkstationTime.ps1**: Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
 
 38. **Uninstall-SelectedApp.ps1**: Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
 
@@ -85,7 +85,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 40. **Unlock-SMBShareUserAccess.ps1**: Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
 
-41. **Update-WorkstationDescriptionsGUI.ps1**: Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
+41. **Update-WorkstationDescriptions.ps1**: Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
 
 42. **UpdateSoftware-WingetExplicit.ps1**: Leverages the winget tool for direct, script-driven software updates, enhancing system security and performance.
 
