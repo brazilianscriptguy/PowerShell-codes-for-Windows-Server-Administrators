@@ -1,4 +1,4 @@
-# PowerShell script to Update Workstation Descriptions with Enhanced GUI
+# PowerShell Script to Update Workstation Descriptions with Enhanced GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Updated: May 8, 2024
 
@@ -49,19 +49,38 @@ if (-not (Test-Path $logDir)) {
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Message
+        [string]$Message,
+        [Parameter(Mandatory=$false)]
+        [string]$MessageType = "INFO"
     )
-    if (![string]::IsNullOrWhiteSpace($Message)) {
-        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        $logEntry = "[$timestamp] $Message"
-        try {
-            Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
-        } catch {
-            Write-Error "Failed to write to log: $_"
-        }
-    } else {
-        Write-Warning "Attempted to log an empty message."
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
+    try {
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to write to log: $_"
     }
+}
+
+# Function to display error messages
+function Show-ErrorMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message "Error: $message" -MessageType "ERROR"
+}
+
+# Function to display warning messages
+function Show-WarningMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Warning', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    Log-Message "Warning: $message" -MessageType "WARNING"
+}
+
+# Function to display information messages
+function Show-InfoMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message "Info: $message" -MessageType "INFO"
 }
 
 # Function to get the current Active Directory Domain Controller
@@ -71,7 +90,7 @@ function Get-CurrentDC {
         $dc = $domain.FindOne().Name
         return $dc
     } catch {
-        Write-Warning "Unable to fetch the current Domain Controller automatically."
+        Show-WarningMessage "Unable to fetch the current Domain Controller automatically."
         return "YourDCHere"
     }
 }
@@ -116,12 +135,11 @@ function Update-WorkstationDescriptions {
 
         $ProgressBar.Value = 100
         Start-Sleep -Seconds 2
-        [System.Windows.Forms.MessageBox]::Show("Update operation completed successfully.")
+        Show-InfoMessage "Update operation completed successfully."
         Log-Message "Update operation completed successfully."
     } catch {
         $ErrorMsg = "Error encountered: $($_.Exception.Message)"
-        [System.Windows.Forms.MessageBox]::Show($ErrorMsg)
-        Log-Message $ErrorMsg
+        Show-ErrorMessage $ErrorMsg
         $ProgressBar.Value = 0
     } finally {
         $ExecuteButton.Enabled = $true
@@ -132,7 +150,7 @@ function Update-WorkstationDescriptions {
 # Initialize form components
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Update Workstation Descriptions'
-$form.Size = New-Object System.Drawing.Size(400, 350)
+$form.Size = New-Object System.Drawing.Size(420, 350)
 $form.StartPosition = 'CenterScreen'
 
 # Domain Controller label and textbox
@@ -162,7 +180,7 @@ $form.Controls.Add($textBoxDesc)
 
 # Target OU label
 $labelOU = New-Object System.Windows.Forms.Label
-$labelOU.Text = 'Target OU (Distinguished Name):'
+$labelOU.Text = 'Target OU DN:'
 $labelOU.Location = New-Object System.Drawing.Point(10, 80)
 $labelOU.Size = New-Object System.Drawing.Size(160, 20)
 $form.Controls.Add($labelOU)
@@ -252,8 +270,8 @@ $executeButton.Add_Click({
         $CancelRequested = $false
         Update-WorkstationDescriptions -DC $dc -DefaultDesc $defaultDesc -OU $ou -ProgressBar $progressBar -StatusLabel $statusLabel -ExecuteButton $executeButton -CancelButton $cancelButton -CancelRequested ([ref]$CancelRequested)
     } else {
-        [System.Windows.Forms.MessageBox]::Show("Please provide all required inputs.", "Input Error")
-        Log-Message "Input Error: Missing required inputs."
+        Show-ErrorMessage "Please provide all required inputs."
+        Log-Message "Input Error: Missing required inputs." -MessageType "ERROR"
     }
 })
 $form.Controls.Add($executeButton)
