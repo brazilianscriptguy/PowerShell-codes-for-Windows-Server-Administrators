@@ -1,6 +1,6 @@
 # PowerShell Script to List Installed Software x86 and x64 with GUID with Enhanced GUI
 # Author: Luiz Hamilton Silva
-# Update: May 06, 2024
+# Updated: May 8, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -48,10 +48,11 @@ if (-not (Test-Path $logDir)) {
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Message
+        [string]$Message,
+        [string]$LogLevel = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$timestamp] [$LogLevel] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
@@ -63,14 +64,14 @@ function Log-Message {
 function Show-ErrorMessage {
     param ([string]$message)
     [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    Log-Message "Error: $message" -MessageType "ERROR"
+    Log-Message "Error: $message" -LogLevel "ERROR"
 }
 
 # Function to display information messages
 function Show-InfoMessage {
     param ([string]$message)
     [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    Log-Message "Info: $message" -MessageType "INFO"
+    Log-Message "Info: $message" -LogLevel "INFO"
 }
 
 # Function to extract the GUID from the registry path
@@ -97,10 +98,13 @@ function Get-InstalledPrograms {
     return $installedPrograms
 }
 
+# Log the start of the script
+Log-Message "Starting List Installed Software script."
+
 # Main form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "List Installed Software"
-$form.Size = New-Object System.Drawing.Size(400, 250)
+$form.Size = New-Object System.Drawing.Size(420, 220)
 $form.StartPosition = 'CenterScreen'
 
 # Radio buttons for output option
@@ -170,7 +174,7 @@ if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
     } elseif ($radioButtons.CustomPath.Checked -and -not [string]::IsNullOrWhiteSpace($textBox.Text)) {
         $outputPath = Join-Path $textBox.Text $outputFileName
     } else {
-        [System.Windows.Forms.MessageBox]::Show("Please enter a valid custom output path.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        Show-ErrorMessage "Please enter a valid custom output path."
         return
     }
     
@@ -178,13 +182,17 @@ if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
     if ($allInstalledPrograms -ne $null -and $allInstalledPrograms.Count -gt 0) {
         try {
             $allInstalledPrograms | Export-Csv -Path $outputPath -NoTypeInformation -ErrorAction Stop
-            [System.Windows.Forms.MessageBox]::Show("List of installed software exported successfully to:`n$outputPath", "Export Successful", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+            Show-InfoMessage "List of installed software exported successfully to:`n$outputPath"
         } catch {
-            [System.Windows.Forms.MessageBox]::Show("Failed to export the list of installed software. Error: $_", "Export Failed", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            Show-ErrorMessage "Failed to export the list of installed software. Error: $_"
         }
     } else {
-        [System.Windows.Forms.MessageBox]::Show("No installed software found to export.", "No Data", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        Show-InfoMessage "No installed software found to export."
     }
+} else {
+    Log-Message "User canceled the operation." "INFO"
 }
+
+Log-Message "List Installed Software script finished."
 
 # End of script
