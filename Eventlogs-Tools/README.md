@@ -32,5 +32,7 @@ This directory contains scripts designed for selecting and processing Windows Ev
 
 12. **EventLogMigratorGUI.ps1:** Manages Windows Server Event Log files by reorganizing, moving, and resizing them for optimized accessibility.
 
+13. **COMING SOON**: Stay tuned for the next series of EventID analyses, providing more innovative and efficient tools to enhance system administration and event log management.
+
 ## Additional Assistance
 All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please refer to the README.md file in the main root folder.
