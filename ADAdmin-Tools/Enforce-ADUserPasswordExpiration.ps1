@@ -1,13 +1,36 @@
-# PowerShell Script to Enforce AD User Passwords to Immediately Expires in a Specified OU and mark Account Users to change Passwords in the next logon
+# PowerShell Script to Enforce AD User Passwords to Immediately Expire in a Specified OU and Mark Account Users to Change Passwords at Next Logon
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 06, 2024.
+# Updated: May 8, 2024
+
+# Hide the PowerShell console window
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class Window {
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern IntPtr GetConsoleWindow();
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    public static void Hide() {
+        var handle = GetConsoleWindow();
+        ShowWindow(handle, 0); // 0 = SW_HIDE
+    }
+    public static void Show() {
+        var handle = GetConsoleWindow();
+        ShowWindow(handle, 5); // 5 = SW_SHOW
+    }
+}
+"@
+
+[Window]::Hide()
 
 # Import necessary assemblies
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 Import-Module ActiveDirectory
 
-# Function to get the FQDN of the domain name and forest name
+# Function to get the FQDN of the domain name
 function Get-DomainFQDN {
     try {
         $ComputerSystem = Get-WmiObject Win32_ComputerSystem
@@ -68,50 +91,49 @@ function Force-ExpirePasswords {
                 Set-ADUser -Identity $user -ChangePasswordAtLogon $true
                 Log-Message "Set ChangePasswordAtLogon to true for user: $($user.SamAccountName)" "INFO"
             } catch {
-                $errorMsg = "Failed to set ChangePasswordAtLogon for user: $($user.SamAccountName) - Error: $_"
+                $errorMsg = "Failed to set ChangePasswordAtLogon for user: $($user.SamAccountName) - Error: $($_.Exception.Message)"
                 Log-Message $errorMsg "ERROR"
-                [System.Windows.Forms.MessageBox]::Show("An error occurred for user $($user.SamAccountName): $_", "User Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                [System.Windows.Forms.MessageBox]::Show("An error occurred for user $($user.SamAccountName): $($_.Exception.Message)", "User Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
             }
         }
 
         Log-Message "Completed processing users in OU: $ouDN in domain: $domainFQDN" "INFO"
         [System.Windows.Forms.MessageBox]::Show("All user passwords in '$ouDN' within '$domainFQDN' have been set to expire.", "Operation Completed", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
     } catch {
-        $errorMsg = "An error occurred while processing OU: $ouDN in domain: $domainFQDN - Error: $_"
+        $errorMsg = "An error occurred while processing OU: $ouDN in domain: $domainFQDN - Error: $($_.Exception.Message)"
         Log-Message $errorMsg "ERROR"
-        [System.Windows.Forms.MessageBox]::Show("An error occurred while processing the OU '$ouDN': $_", "OU Processing Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        [System.Windows.Forms.MessageBox]::Show("An error occurred while processing the OU '$ouDN': $($_.Exception.Message)", "OU Processing Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     }
 }
 
-# Create a Windows Forms form
-$form = New-Object Windows.Forms.Form
+# GUI setup
+$form = New-Object System.Windows.Forms.Form
 $form.Text = "Force Expire Passwords in Domain"
-$form.Size = New-Object Drawing.Size(500, 400)
+$form.Size = New-Object Drawing.Size(500, 320)
 $form.StartPosition = 'CenterScreen'
 
-# Create a label and TextBox for Domain FQDN
-$labelDomain = New-Object Windows.Forms.Label
+# Domain FQDN label and textbox
+$labelDomain = New-Object System.Windows.Forms.Label
 $labelDomain.Text = "FQDN of the target domain:"
 $labelDomain.Location = New-Object Drawing.Point(20, 20)
 $labelDomain.AutoSize = $true
 $form.Controls.Add($labelDomain)
 
-$textBoxDomain = New-Object Windows.Forms.TextBox
+$textBoxDomain = New-Object System.Windows.Forms.TextBox
 $textBoxDomain.Location = New-Object Drawing.Point(20, 50)
 $textBoxDomain.Size = New-Object Drawing.Size(450, 20)
 $textBoxDomain.Text = $domainFQDN
 $form.Controls.Add($textBoxDomain)
 
-# Create a label for OU Search and ComboBox for OU DN
-$labelOU = New-Object Windows.Forms.Label
+# OU Label and TextBox for Search
+$labelOU = New-Object System.Windows.Forms.Label
 $labelOU.Text = "Parent OU DN where passwords should expire:"
 $labelOU.Location = New-Object Drawing.Point(20, 80)
 $labelOU.AutoSize = $true
 $form.Controls.Add($labelOU)
 
-# TextBox for OU search
 $txtOUSearch = New-Object System.Windows.Forms.TextBox
-$txtOUSearch.Location = New-Object System.Drawing.Point(20, 110)
+$txtOUSearch.Location = New-Object Drawing.Point(20, 110)
 $txtOUSearch.Size = New-Object System.Drawing.Size(450, 20)
 $txtOUSearch.Text = "Search OU..."
 $txtOUSearch.ForeColor = [System.Drawing.Color]::Gray
@@ -140,7 +162,7 @@ $form.Controls.Add($cmbOU)
 try {
     $allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Usuarios*"' | Select-Object -ExpandProperty DistinguishedName
 } catch {
-    $errorMsg = "Failed to retrieve organizational units from the Active Directory: $_"
+    $errorMsg = "Failed to retrieve organizational units from the Active Directory: $($_.Exception.Message)"
     Log-Message $errorMsg "ERROR"
     [System.Windows.Forms.MessageBox]::Show($errorMsg, "Active Directory Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     return
@@ -172,16 +194,16 @@ $txtOUSearch.Add_TextChanged({
     Populate-OUComboBox -comboBox $cmbOU -filter $txtOUSearch.Text
 })
 
-# Create an OK button
-$okButton = New-Object Windows.Forms.Button
+# Create OK button
+$okButton = New-Object System.Windows.Forms.Button
 $okButton.Text = "OK"
 $okButton.Location = New-Object Drawing.Point(20, 180)
 $okButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
 $form.Controls.Add($okButton)
-$form.AcceptButton = $okButton  # Allow Enter key to submit
+$form.AcceptButton = $okButton
 
-# Create a Cancel button
-$cancelButton = New-Object Windows.Forms.Button
+# Create Cancel button
+$cancelButton = New-Object System.Windows.Forms.Button
 $cancelButton.Text = "Cancel"
 $cancelButton.Location = New-Object Drawing.Point(120, 180)
 $cancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
@@ -197,7 +219,7 @@ if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
         try {
             Force-ExpirePasswords $ouDN $domainFQDN
         } catch {
-            $errorMsg = "An error occurred while processing OU: $ouDN in domain: $domainFQDN - Error: $_"
+            $errorMsg = "An error occurred while processing OU: $ouDN in domain: $domainFQDN - Error: $($_.Exception.Message)"
             Log-Message $errorMsg "ERROR"
             [System.Windows.Forms.MessageBox]::Show($errorMsg, "Operation Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         }
