@@ -1,11 +1,50 @@
-﻿# PowerShell Script for facilitating the uninstallation of software applications on Windows systems
+# PowerShell Script for facilitating the uninstallation of software applications on Windows systems
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+# Updated: May 8, 2024
 
+# Hide the PowerShell console window
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class Window {
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern IntPtr GetConsoleWindow();
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    public static void Hide() {
+        var handle = GetConsoleWindow();
+        ShowWindow(handle, 0); // 0 = SW_HIDE
+    }
+    public static void Show() {
+        var handle = GetConsoleWindow();
+        ShowWindow(handle, 5); // 5 = SW_SHOW
+    }
+}
+"@
+
+[Window]::Hide()
+
+# Import necessary libraries for GUI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Logging function to log script actions into 'C:\Logs-TEMP\'
+# Determine the script name and set up logging path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
+
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+    if (-not (Test-Path $logDir)) {
+        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
+        return
+    }
+}
+
+# Enhanced logging function with error handling
 function Write-Log {
     param (
         [Parameter(Mandatory=$true)]
@@ -13,24 +52,16 @@ function Write-Log {
         [Parameter(Mandatory=$false)]
         [string]$MessageType = "INFO"
     )
-
-    # Define the log file path
-    $logFilePath = "C:\Logs-TEMP\GUI-UninstallSelectedApp.log"
-
-    # Check if the Logs-TEMP directory exists, if not, create it
-    $logDirectory = Split-Path -Path $logFilePath
-    if (-not (Test-Path -Path $logDirectory)) {
-        New-Item -ItemType Directory -Path $logDirectory -Force
-    }
-
-    # Prepare log message
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logMessage = "$timestamp [$MessageType] $Message"
-
-    # Write to log file
-    Add-Content -Path $logFilePath -Value $logMessage
+    $logEntry = "[$timestamp] [$MessageType] $Message"
+    try {
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to write to log: $_"
+    }
 }
 
+# Function to extract GUID from registry path
 function Get-GUIDFromPath {
     param ([string]$Path)
     $regex = [regex]'Uninstall\\(.*)'
@@ -41,6 +72,7 @@ function Get-GUIDFromPath {
     return $null
 }
 
+# Function to retrieve installed programs from both 32-bit and 64-bit registries
 function Get-InstalledPrograms {
     Write-Log -Message "Retrieving list of installed programs"
     $installedPrograms64Bit = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' |
@@ -60,6 +92,7 @@ function Get-InstalledPrograms {
     return $installedPrograms64Bit + $installedPrograms32Bit
 }
 
+# Function to uninstall a selected application
 function Uninstall-Application {
     param (
         [Parameter(Mandatory=$true)]
@@ -156,7 +189,8 @@ function Create-GUI {
     $form.Controls.Add($closeButton)
 
     # Show the form
-    $form.ShowDialog()
+    $form.Add_Shown({ $form.Activate() })
+    [void]$form.ShowDialog()
 }
 
 # Start of the script
