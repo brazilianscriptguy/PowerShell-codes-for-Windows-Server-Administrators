@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Security.evtx file for Event ID 4624 (Report Logons via RDP)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 7, 2024.
+# Updated: May 8, 2024.
 
 Param(
     [Bool]$AutoOpen = $false
@@ -67,6 +67,9 @@ function Log-Message {
         Write-Error "Failed to write to log: $_"
     }
 }
+
+# Declare global variable to store selected log folder path
+$global:LogFolderPath = ""
 
 # Create the main form
 $form = New-Object System.Windows.Forms.Form
@@ -178,9 +181,9 @@ $buttonBrowseFolder.Add_Click({
     $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
     $folderBrowser.Description = "Select the folder where the Security Event Log is stored."
     if ($folderBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $LogFolderPath = $folderBrowser.SelectedPath
-        $statusLabel.Text = "Selected Folder: $LogFolderPath"
-        Log-Message "Selected Folder for Security Event Logs: $LogFolderPath"
+        $global:LogFolderPath = $folderBrowser.SelectedPath
+        $statusLabel.Text = "Selected Folder: $global:LogFolderPath"
+        Log-Message "Selected Folder for Security Event Logs: $global:LogFolderPath"
         $buttonStartAnalysis.Enabled = $true
     } else {
         $statusLabel.Text = "No folder selected."
@@ -196,7 +199,7 @@ $buttonStartAnalysis.Add_Click({
     $form.Refresh()
 
     # Process the Security Event log
-    Process-EventID4624LogonViaRDP -LogFolderPath $LogFolderPath
+    Process-EventID4624LogonViaRDP -LogFolderPath $global:LogFolderPath
 
     # Reset progress bar
     $progressBar.Value = 0
