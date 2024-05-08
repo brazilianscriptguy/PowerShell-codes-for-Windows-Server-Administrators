@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Event ID 4625 (Failed AD Logon Attempts)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 7, 2024
+# Updated: May 8, 2024
 
 Param(
     [Bool]$AutoOpen = $false
@@ -125,7 +125,7 @@ function Search-EventID4625 {
             $eventProperties = $event.Properties
             $eventTime = $event.TimeCreated
             $userAccount = $eventProperties[5].Value
-            $subStatusCode = $eventProperties[8].Value
+            $subStatusCode = $eventProperties[9].Value
             $logonType = $eventProperties[10].Value
             $stationUser = $eventProperties[12].Value
             $sourceIP = $eventProperties[18].Value
@@ -190,15 +190,6 @@ function Consolidate-SearchResults {
         Log-Message $errorMsg
         Show-MessageBox -Message $errorMsg -Title "Consolidation Error"
     }
-}
-
-# Function to update the progress bar in the GUI
-function Update-ProgressBar {
-    param (
-        [int]$Value
-    )
-    $progressBar.Value = $Value
-    $form.Refresh()
 }
 
 # Main script logic with GUI
