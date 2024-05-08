@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Event Microsoft-Windows-PrintService/Operational
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 7, 2024
+# Updated: May 8, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -64,6 +64,9 @@ function Log-Message {
     }
 }
 
+# Declare global variable to store selected log folder path
+$global:LogFolderPath = ""
+
 # Create the main form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Generate .CSV EventID-307 Print Audit"
@@ -120,43 +123,30 @@ function Process-PrintServiceLog {
         $DefaultFolder = [Environment]::GetFolderPath("MyDocuments")
         $timestamp = Get-Date -Format "yyyyMMddHHmmss"
         $csvPath = "$DefaultFolder\$DomainServerName-PrintAudit-$timestamp.csv"
-        $evtxFilePath = Join-Path $LogFolderPath "Microsoft-Windows-PrintService%4Operational.evtx"
 
-        if (-not (Test-Path $evtxFilePath)) {
-            throw "Log file not found at $evtxFilePath."
-        }
-
-        $events = Get-WinEvent -Path $evtxFilePath -FilterXPath "*[System/EventID=307]"
+        # Get events directly from the PrintService log
+        $events = Get-WinEvent -LogName "Microsoft-Windows-PrintService/Operational" -FilterXPath "*[System/EventID=307]"
         $progressBar.Value = 50
 
-        # Extract relevant information
+        # Extract relevant information based on the SQL query's parsing
         $eventDetails = $events | Select-Object @{
-            Name = 'Date'
-            Expression = { $_.TimeCreated.ToString("yyyy-MM-dd") }
+            Name = 'EventTime'
+            Expression = { $_.TimeCreated.ToString("yyyy-MM-dd HH:mm:ss") }
         }, @{
-            Name = 'Hour'
-            Expression = { $_.TimeCreated.ToString("HH:mm:ss") }
-        }, @{
-            Name = 'EventRecordID'
-            Expression = { $_.RecordId }
-        }, @{
-            Name = 'EventID'
-            Expression = { $_.Id }
-        }, @{
-            Name = 'User'
-            Expression = { $_.UserId.Value }
-        }, @{
-            Name = 'Printer'
-            Expression = { $_.Properties[0].Value }
+            Name = 'UserId'
+            Expression = { $_.Properties[2].Value }
         }, @{
             Name = 'Workstation'
-            Expression = { $_.Properties[1].Value }
-        }, @{
-            Name = 'PagesPrinted'
             Expression = { $_.Properties[3].Value }
         }, @{
-            Name = 'Bytes'
-            Expression = { $_.Properties[2].Value }
+            Name = 'PrinterUsed'
+            Expression = { $_.Properties[4].Value }
+        }, @{
+            Name = 'ByteSize'
+            Expression = { $_.Properties[6].Value }
+        }, @{
+            Name = 'PagesPrinted'
+            Expression = { $_.Properties[7].Value }
         }
 
         # Export to CSV
@@ -185,9 +175,9 @@ $buttonBrowseFolder.Add_Click({
     $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
     $folderBrowser.Description = "Select the folder where the Microsoft-Windows-PrintService/Operational log is stored."
     if ($folderBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $LogFolderPath = $folderBrowser.SelectedPath
-        $statusLabel.Text = "Selected Folder: $LogFolderPath"
-        Log-Message "Selected Folder for Event Logs: $LogFolderPath"
+        $global:LogFolderPath = $folderBrowser.SelectedPath
+        $statusLabel.Text = "Selected Folder: $global:LogFolderPath"
+        Log-Message "Selected Folder for Event Logs: $global:LogFolderPath"
         $buttonStartAnalysis.Enabled = $true
     } else {
         $statusLabel.Text = "No folder selected."
@@ -203,7 +193,7 @@ $buttonStartAnalysis.Add_Click({
     $form.Refresh()
 
     # Process the PrintService log
-    Process-PrintServiceLog -LogFolderPath $LogFolderPath
+    Process-PrintServiceLog -LogFolderPath $global:LogFolderPath
 
     # Reset progress bar
     $progressBar.Value = 0
