@@ -64,15 +64,15 @@ function Log-Message {
     }
 }
 
-# Function to get the FQDN of the domain name and forest name
-function Get-DomainFQDN {
+# Function to get the current Active Directory Domain Controller
+function Get-CurrentDC {
     try {
-        $ComputerSystem = Get-WmiObject Win32_ComputerSystem
-        $Domain = $ComputerSystem.Domain
-        return $Domain
+        $domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+        $dc = $domain.FindOne().Name
+        return $dc
     } catch {
-        Write-Warning "Unable to fetch FQDN automatically."
-        return "YourDomainHere"
+        Write-Warning "Unable to fetch the current Domain Controller automatically."
+        return "YourDCHere"
     }
 }
 
@@ -132,7 +132,7 @@ function Update-WorkstationDescriptions {
 # Initialize form components
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Update Workstation Descriptions'
-$form.Size = New-Object System.Drawing.Size(400, 300)
+$form.Size = New-Object System.Drawing.Size(400, 350)
 $form.StartPosition = 'CenterScreen'
 
 # Domain Controller label and textbox
@@ -145,7 +145,7 @@ $form.Controls.Add($labelDC)
 $textBoxDC = New-Object System.Windows.Forms.TextBox
 $textBoxDC.Location = New-Object System.Drawing.Point(180, 20)
 $textBoxDC.Size = New-Object System.Drawing.Size(200, 20)
-$textBoxDC.Text = (Get-DomainFQDN)
+$textBoxDC.Text = (Get-CurrentDC)
 $form.Controls.Add($textBoxDC)
 
 # Default Description label and textbox
@@ -160,61 +160,109 @@ $textBoxDesc.Location = New-Object System.Drawing.Point(180, 50)
 $textBoxDesc.Size = New-Object System.Drawing.Size(200, 20)
 $form.Controls.Add($textBoxDesc)
 
-# Target OU label and textbox
+# Target OU label
 $labelOU = New-Object System.Windows.Forms.Label
 $labelOU.Text = 'Target OU (Distinguished Name):'
 $labelOU.Location = New-Object System.Drawing.Point(10, 80)
 $labelOU.Size = New-Object System.Drawing.Size(160, 20)
 $form.Controls.Add($labelOU)
 
-$textBoxOU = New-Object System.Windows.Forms.TextBox
-$textBoxOU.Location = New-Object System.Drawing.Point(180, 80)
-$textBoxOU.Size = New-Object System.Drawing.Size(200, 20)
-$form.Controls.Add($textBoxOU)
+# TextBox for OU search
+$txtOUSearch = New-Object System.Windows.Forms.TextBox
+$txtOUSearch.Location = New-Object System.Drawing.Point(10, 110)
+$txtOUSearch.Size = New-Object System.Drawing.Size(380, 20)
+$txtOUSearch.Text = "Search OU..."
+$txtOUSearch.ForeColor = [System.Drawing.Color]::Gray
+$txtOUSearch.Add_Enter({
+    if ($txtOUSearch.Text -eq "Search OU...") {
+        $txtOUSearch.Text = ''
+        $txtOUSearch.ForeColor = [System.Drawing.Color]::Black
+    }
+})
+$txtOUSearch.Add_Leave({
+    if ($txtOUSearch.Text -eq '') {
+        $txtOUSearch.Text = "Search OU..."
+        $txtOUSearch.ForeColor = [System.Drawing.Color]::Gray
+    }
+})
+
+# ComboBox for OU selection
+$cmbOU = New-Object System.Windows.Forms.ComboBox
+$cmbOU.Location = New-Object System.Drawing.Point(10, 140)
+$cmbOU.Size = New-Object System.Drawing.Size(380, 20)
+$cmbOU.DropDownStyle = 'DropDownList'
+$form.Controls.Add($cmbOU)
+
+# Retrieve and store all OUs initially
+$allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Computadores*"' | Select-Object -ExpandProperty DistinguishedName
+
+# Function to update ComboBox based on search
+function UpdateOUComboBox {
+    $cmbOU.Items.Clear()
+    $searchText = $txtOUSearch.Text
+    if ($searchText -eq "Search OU...") {
+        $filteredOUs = $allOUs
+    } else {
+        $filteredOUs = $allOUs | Where-Object { $_ -like "*$searchText*" }
+    }
+    foreach ($ou in $filteredOUs) {
+        $cmbOU.Items.Add($ou)
+    }
+    if ($cmbOU.Items.Count -gt 0) {
+        $cmbOU.SelectedIndex = 0
+    }
+}
+
+# Initially populate ComboBox
+UpdateOUComboBox
+
+# Search TextBox change event
+$txtOUSearch.Add_TextChanged({
+    UpdateOUComboBox
+})
+$form.Controls.Add($txtOUSearch)
 
 # Progress bar
 $progressBar = New-Object System.Windows.Forms.ProgressBar
-$progressBar.Location = New-Object System.Drawing.Point(10, 200)
+$progressBar.Location = New-Object System.Drawing.Point(10, 240)
 $progressBar.Size = New-Object System.Drawing.Size(370, 20)
 $form.Controls.Add($progressBar)
 
 # Status label
 $statusLabel = New-Object System.Windows.Forms.Label
-$statusLabel.Location = New-Object System.Drawing.Point(10, 170)
+$statusLabel.Location = New-Object System.Drawing.Point(10, 210)
 $statusLabel.Size = New-Object System.Drawing.Size(370, 20)
-$statusLabel.Text = ''
 $form.Controls.Add($statusLabel)
-
-# Variable to track cancellation status
-$CancelRequested = $false
 
 # Execute button
 $executeButton = New-Object System.Windows.Forms.Button
-$executeButton.Location = New-Object System.Drawing.Point(10, 230)
+$executeButton.Location = New-Object System.Drawing.Point(10, 270)
 $executeButton.Size = New-Object System.Drawing.Size(75, 23)
 $executeButton.Text = 'Execute'
+
+$CancelRequested = $false
 $executeButton.Add_Click({
-    $CancelRequested = $false
+    $dc = $textBoxDC.Text
+    $defaultDesc = $textBoxDesc.Text
+    $ou = $cmbOU.SelectedItem
 
-    $DC = $textBoxDC.Text
-    $DefaultDesc = $textBoxDesc.Text
-    $OU = $textBoxOU.Text
-
-    if (![string]::IsNullOrWhiteSpace($DC) -and ![string]::IsNullOrWhiteSpace($DefaultDesc) -and ![string]::IsNullOrWhiteSpace($OU)) {
-        Log-Message "Starting update operation with DC: $DC, OU: $OU, and Description: '$DefaultDesc'"
-        Update-WorkstationDescriptions -DC $DC -DefaultDesc $DefaultDesc -OU $OU -ProgressBar $progressBar -StatusLabel $statusLabel -ExecuteButton $executeButton -CancelButton $cancelButton -CancelRequested ([ref]$CancelRequested)
+    if ($dc -and $defaultDesc -and $ou) {
+        $executeButton.Enabled = $false
+        $cancelButton.Enabled = $true
+        $CancelRequested = $false
+        Update-WorkstationDescriptions -DC $dc -DefaultDesc $defaultDesc -OU $ou -ProgressBar $progressBar -StatusLabel $statusLabel -ExecuteButton $executeButton -CancelButton $cancelButton -CancelRequested ([ref]$CancelRequested)
     } else {
-        [System.Windows.Forms.MessageBox]::Show("Please provide all required fields: Domain Controller, Description, and Target OU.", "Input Error")
-        Log-Message "Input Error: Missing required fields."
+        [System.Windows.Forms.MessageBox]::Show("Please provide all required inputs.", "Input Error")
+        Log-Message "Input Error: Missing required inputs."
     }
 })
 $form.Controls.Add($executeButton)
 
 # Cancel button
 $cancelButton = New-Object System.Windows.Forms.Button
-$cancelButton.Location = New-Object System.Drawing.Point(110, 230)
-$cancelButton.Size = New-Object System.Drawing.Size(100, 23)
-$cancelButton.Text = 'Cancel Update'
+$cancelButton.Location = New-Object System.Drawing.Point(100, 270)
+$cancelButton.Size = New-Object System.Drawing.Size(75, 23)
+$cancelButton.Text = 'Cancel'
 $cancelButton.Enabled = $false
 $cancelButton.Add_Click({
     $confirm = [System.Windows.Forms.MessageBox]::Show("Are you sure you want to cancel the update?", "Cancel Confirmation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
@@ -228,7 +276,7 @@ $form.Controls.Add($cancelButton)
 
 # Close button
 $closeButton = New-Object System.Windows.Forms.Button
-$closeButton.Location = New-Object System.Drawing.Point(305, 230)
+$closeButton.Location = New-Object System.Drawing.Point(305, 270)
 $closeButton.Size = New-Object System.Drawing.Size(75, 23)
 $closeButton.Text = 'Close'
 $closeButton.Add_Click({ $form.Close() })
