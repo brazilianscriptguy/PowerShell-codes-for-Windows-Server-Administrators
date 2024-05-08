@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Event ID 4648 (Logon Using Explicit Credentials)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 7, 2024
+# Updated: May 8, 2024
 
 Param(
     [Bool]$AutoOpen = $false
@@ -125,10 +125,10 @@ function Search-EventID4648 {
             $eventProperties = $event.Properties
             $eventTime = $event.TimeCreated
             $userAccount = $eventProperties[5].Value
-            $subStatusCode = $eventProperties[8].Value
+            $subStatusCode = $eventProperties[9].Value
             $logonType = $eventProperties[10].Value
-            $stationUser = $eventProperties[12].Value
-            $sourceIP = $eventProperties[18].Value
+            $stationUser = $eventProperties[13].Value
+            $sourceIP = $eventProperties[19].Value
 
             $result = [PSCustomObject]@{
                 EventTime = $eventTime
