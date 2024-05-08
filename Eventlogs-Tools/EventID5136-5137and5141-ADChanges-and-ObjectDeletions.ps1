@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Events ID 5136, 5137, and 5141 (AD Changes and Object Deletions)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 7, 2024
+# Updated: May 8, 2024
 
 Param(
     [Bool]$AutoOpen = $false
