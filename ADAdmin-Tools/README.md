@@ -33,11 +33,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 13. **Disable-Expired-UserAccounts.ps1**: Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
 
-14. **DomainUnjoinAndCleanupGUI.ps1**: Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
+14. **Enforce-ADUserPasswordExpiration.ps1**: Forces password expiration for users within a specified OU, bolstering security by ensuring regular password updates.
 
-15. **Enforce-ADUserPasswordExpiration.ps1**: Forces password expiration for users within a specified OU, bolstering security by ensuring regular password updates.
-
-16. **Enhance-BGInfoDisplayViaGPO.ps1 and Enhance-BGInfoDisplayViaGPO.bgi**: Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
+15. **Enhance-BGInfoDisplayViaGPO.ps1 and Enhance-BGInfoDisplayViaGPO.bgi**: Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
 
 17. **Export-ADUserAttributesGUI.ps1**: Simplifies the extraction of AD user attributes for audits or reports, featuring a GUI for enhanced user interaction.
 
@@ -83,15 +81,17 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 38. **Uninstall-SelectedApp.ps1**: Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
 
-39. **Unlock-SMBShareUserAccess.ps1**: Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
+39. **Unjoin-DomainAndCleanup.ps1**: Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
 
-40. **Update-WorkstationDescriptionsGUI.ps1**: Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
+40. **Unlock-SMBShareUserAccess.ps1**: Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
 
-41. **UpdateSoftware-WingetExplicit.ps1**: Leverages the winget tool for direct, script-driven software updates, enhancing system security and performance.
+41. **Update-WorkstationDescriptionsGUI.ps1**: Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
 
-42. **UpdateSoftware-WingetGPO.ps1**: Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
+42. **UpdateSoftware-WingetExplicit.ps1**: Leverages the winget tool for direct, script-driven software updates, enhancing system security and performance.
 
-43. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
+43. **UpdateSoftware-WingetGPO.ps1**: Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
+
+44. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
 ## Additional Assistance
 All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the README.md file in the main root folder.
