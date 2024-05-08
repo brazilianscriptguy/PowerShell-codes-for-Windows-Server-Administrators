@@ -132,9 +132,6 @@ function Process-SystemLog {
             Name = 'EventID'
             Expression = { $_.Id }
         }, @{
-            Name = 'User'
-            Expression = { $_.UserId.Value }
-        }, @{
             Name = 'ComputerName'
             Expression = { $_.MachineName }
         }, @{
@@ -164,6 +161,8 @@ function Process-SystemLog {
         Log-Message $errorMsg
         $progressBar.Value = 0
         $statusLabel.Text = "Error occurred. Check log for details."
+    } finally {
+        $progressBar.Value = 0
     }
 }
 
