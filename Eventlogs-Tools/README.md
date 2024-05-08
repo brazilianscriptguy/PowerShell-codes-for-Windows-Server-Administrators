@@ -30,7 +30,7 @@ This directory contains scripts designed for selecting and processing Windows Ev
 
 11. **EventID6008-UnexpectedShutdown.ps1:** Aggregates unexpected shutdowns (Event ID 6008) into a CSV file for diagnosing system instability.
 
-12. **EventLogMigratorGUI.ps1:** Manages Windows Server Event Log files by reorganizing, moving, and resizing them for optimized accessibility.
+12. **EventLogFiles-MigratorTool.ps1:** Manages Windows Server Event Log files by reorganizing, moving, and resizing them for optimized accessibility.
 
 13. **COMING SOON**: Stay tuned for the next series of EventID analyses, providing more innovative and efficient tools to enhance system administration and event log management.
 
