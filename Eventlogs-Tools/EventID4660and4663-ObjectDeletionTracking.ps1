@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Events ID 4660 and 4663 (Track Object Deletion Actions)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 7, 2024
+# Updated: May 8, 2024
 
 Param(
     [Bool]$AutoOpen = $true
