@@ -1,6 +1,6 @@
 # PowerShell Script to Search Security.evtx Files for Specific Users' Logon Events (EventID 4624)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 7, 2024
+# Updated: May 8, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
