@@ -1,4 +1,4 @@
-# PowerShell Script to Automate Software Updates on Windows OS with Progress Display and Enhanced Logging
+# PowerShell Script to Automate Software Updates on Windows OS with GUI, Progress Display, and Enhanced Logging
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Updated: May 8, 2024
 
@@ -49,12 +49,16 @@ function Log-Message {
         [Parameter(Mandatory=$true)]
         [string]$Message
     )
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
-    try {
-        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
-    } catch {
-        Write-Error "Failed to write to log: $_"
+    if (![string]::IsNullOrWhiteSpace($Message)) {
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        $logEntry = "[$timestamp] $Message"
+        try {
+            Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+        } catch {
+            Write-Error "Failed to write to log: $_"
+        }
+    } else {
+        Write-Warning "Attempted to log an empty message."
     }
 }
 
@@ -96,51 +100,143 @@ function Find-WingetPath {
 # Function to update software using winget
 function Update-Software {
     param (
-        [string]$WingetPath
+        [string]$WingetPath,
+        [System.Windows.Forms.ProgressBar]$ProgressBar,
+        [System.Windows.Forms.Label]$StatusLabel,
+        [ref]$CancelRequested,
+        [System.Windows.Forms.Button]$StartButton,
+        [System.Windows.Forms.Button]$CancelButton
     )
 
     try {
         Log-Message "Starting software updates with winget..."
-        Show-Progress -Activity "Starting Software Update" -Status "Preparing to update all packages..." -PercentComplete 0
+        $StatusLabel.Text = "Preparing to update all packages..."
+        $ProgressBar.Value = 10
 
         $wingetCommandQuery = "& `"$WingetPath`" upgrade --query"
         $wingetUpdateAvailable = Invoke-Expression $wingetCommandQuery | Out-String
 
         if ($wingetUpdateAvailable -match "No applicable updates found") {
             Log-Message "No updates available for any packages."
+            $StatusLabel.Text = "No updates available for any packages."
         } else {
-            Show-Progress -Activity "Updating Software" -Status "Performing package updates..." -PercentComplete 50
+            $StatusLabel.Text = "Performing package updates..."
+            $ProgressBar.Value = 50
             $wingetCommandUpgrade = "& `"$WingetPath`" upgrade --all --include-unknown --silent --accept-package-agreements --accept-source-agreements"
-            $updateResults = Invoke-Expression $wingetCommandUpgrade | ForEach-Object {
-                Log-Message $_
+            $process = Start-Process -FilePath $WingetPath -ArgumentList "upgrade --all --include-unknown --silent --accept-package-agreements --accept-source-agreements" -PassThru -NoNewWindow -Wait
+            while (!$process.HasExited) {
+                if ($CancelRequested.Value) {
+                    $process.Kill()
+                    Log-Message "Update process canceled by user."
+                    $StatusLabel.Text = "Update process canceled."
+                    $ProgressBar.Value = 0
+                    return
+                }
+                Start-Sleep -Milliseconds 500
             }
-            Log-Message "All package updates completed successfully. Details: `n$updateResults"
+
+            Log-Message "All package updates completed successfully."
+            $StatusLabel.Text = "All package updates completed successfully."
         }
 
-        Show-Progress -Activity "Updating Software" -Status "Update completed successfully." -PercentComplete 100
+        $ProgressBar.Value = 100
         Start-Sleep -Seconds 2
     } catch {
-        Show-Progress -Activity "Updating Software" -Status "An error occurred during the update." -PercentComplete 100
+        $ProgressBar.Value = 100
         $errorMsg = "An error occurred during the software update process: $($_.Exception.Message)"
         Log-Message $errorMsg
+        $StatusLabel.Text = $errorMsg
+    } finally {
+        $StartButton.Enabled = $true
+        $CancelButton.Enabled = $false
     }
 }
 
-# Main script logic
-$wingetPath = Get-Command "winget" -ErrorAction SilentlyContinue
+# Main script logic with GUI
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'Automate Software Updates'
+$form.Size = New-Object System.Drawing.Size(400, 250)
+$form.StartPosition = 'CenterScreen'
 
-if ($wingetPath) {
-    Log-Message "winget found. Proceeding with the update."
-    Update-Software -WingetPath $wingetPath
-} else {
-    Log-Message "Winget is not installed or not found in the PATH. Attempting to find it..."
-    $wingetPath = Find-WingetPath
+# Progress bar setup
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+$progressBar.Location = New-Object System.Drawing.Point(10, 70)
+$progressBar.Size = New-Object System.Drawing.Size(360, 20)
+$form.Controls.Add($progressBar)
+
+# Status label
+$statusLabel = New-Object System.Windows.Forms.Label
+$statusLabel.Location = New-Object System.Drawing.Point(10, 100)
+$statusLabel.Size = New-Object System.Drawing.Size(360, 20)
+$statusLabel.Text = ''
+$form.Controls.Add($statusLabel)
+
+# Variable to track cancellation status
+$CancelRequested = $false
+
+# Start button setup
+$startButton = New-Object System.Windows.Forms.Button
+$startButton.Location = New-Object System.Drawing.Point(10, 20)
+$startButton.Size = New-Object System.Drawing.Size(170, 30)
+$startButton.Text = 'Start Update'
+$startButton.Add_Click({
+    Log-Message "winget update process started by user."
+
+    $CancelRequested = $false
+
+    $wingetPath = Get-Command "winget" -ErrorAction SilentlyContinue
 
     if ($wingetPath) {
-        Update-Software -WingetPath $wingetPath
+        Log-Message "winget found. Proceeding with the update."
+        Update-Software -WingetPath $wingetPath -ProgressBar $progressBar -StatusLabel $statusLabel -CancelRequested ([ref]$CancelRequested) -StartButton $startButton -CancelButton $cancelButton
     } else {
-        Log-Message "winget not found. Please verify the installation and path."
+        Log-Message "Winget is not installed or not found in the PATH. Attempting to find it..."
+        $wingetPath = Find-WingetPath
+
+        if ($wingetPath) {
+            Update-Software -WingetPath $wingetPath -ProgressBar $progressBar -StatusLabel $statusLabel -CancelRequested ([ref]$CancelRequested) -StartButton $startButton -CancelButton $cancelButton
+        } else {
+            $statusLabel.Text = "winget not found. Please verify the installation and path."
+            Log-Message "winget not found. Please verify the installation and path."
+        }
     }
+})
+$form.Controls.Add($startButton)
+
+# Cancel button setup
+$cancelButton = New-Object System.Windows.Forms.Button
+$cancelButton.Location = New-Object System.Drawing.Point(200, 20)
+$cancelButton.Size = New-Object System.Drawing.Size(170, 30)
+$cancelButton.Text = 'Cancel Update'
+$cancelButton.Enabled = $false
+$cancelButton.Add_Click({
+    $confirm = [System.Windows.Forms.MessageBox]::Show("Are you sure you want to cancel the update?", "Confirm Cancellation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    if ($confirm -eq [System.Windows.Forms.DialogResult]::Yes) {
+        $CancelRequested = $true
+        Log-Message "User requested cancellation of update."
+        $statusLabel.Text = "Update cancellation requested..."
+    }
+})
+$form.Controls.Add($cancelButton)
+
+# Enable/disable buttons based on update status
+function Update-ButtonStates {
+    param (
+        [System.Windows.Forms.Button]$StartButton,
+        [System.Windows.Forms.Button]$CancelButton,
+        [bool]$StartEnabled,
+        [bool]$CancelEnabled
+    )
+
+    $StartButton.Enabled = $StartEnabled
+    $CancelButton.Enabled = $CancelEnabled
 }
+
+$form.Add_Shown({
+    $form.Activate()
+    Update-ButtonStates -StartButton $startButton -CancelButton $cancelButton -StartEnabled $true -CancelEnabled $false
+})
+
+[void]$form.ShowDialog()
 
 # End of script
