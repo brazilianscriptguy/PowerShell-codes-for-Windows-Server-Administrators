@@ -27,6 +27,7 @@ public class Window {
 
 # Import necessary modules
 Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
@@ -116,14 +117,16 @@ $executeButton.Add_Click({
 
                 if (-not (Test-Path $targetFolder)) {
                     New-Item -Path $targetFolder -ItemType Directory -ErrorAction SilentlyContinue
-                    $originalAcl = Get-Acl -Path "$env:SystemRoot\system32\winevt\Logs"
-                    Set-Acl -Path $targetFolder -AclObject $originalAcl -ErrorAction SilentlyContinue
-
-                    $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\$logName"
-                    Set-ItemProperty -Path $regPath -Name "File" -Value "$targetFolder\$escapedLogName.evtx" -ErrorAction SilentlyContinue
-                    Log-Message "Moved $logName log to $targetFolder."
                 }
+
+                $originalAcl = Get-Acl -Path "$env:SystemRoot\system32\winevt\Logs"
+                Set-Acl -Path $targetFolder -AclObject $originalAcl -ErrorAction SilentlyContinue
+
+                $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\$logName"
+                Set-ItemProperty -Path $regPath -Name "File" -Value "$targetFolder\$escapedLogName.evtx" -ErrorAction SilentlyContinue
+                Log-Message "Moved $logName log to $targetFolder."
             }
+
             Log-Message "Script completed successfully."
             [System.Windows.Forms.MessageBox]::Show("Event logs have been moved to '$targetRootFolder'.", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
         }
