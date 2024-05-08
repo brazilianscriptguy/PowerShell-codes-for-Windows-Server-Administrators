@@ -1,6 +1,6 @@
 # PowerShell Script for Processing Windows Event Log Files - Event ID 4800 and 4801 (Locked and Unlocked Workstation)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 7, 2024
+# Updated: May 8, 2024
 
 Param(
     [Bool]$AutoOpen = $true
@@ -156,7 +156,9 @@ WHERE eventid = 4800 OR eventid = 4801
         $statusLabel.Text = "Completed. Report exported to $csvPath"
         Log-Message "Report exported to $csvPath"
 
-        Start-Process $csvPath
+        if ($AutoOpen) {
+            Start-Process $csvPath
+        }
         [System.Windows.Forms.MessageBox]::Show("Report exported to $csvPath", 'Report Generated', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
         $progressBar.Value = 100
     } catch {
