@@ -1,6 +1,6 @@
 # PowerShell Script to Unlock User in a DFS Namespace Access with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+# Updated: May 9, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -36,7 +36,7 @@ $ErrorActionPreference = "SilentlyContinue"
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
-$logFileName = "${scriptName}.log"
+$logFileName = "${scriptName}_$(Get-Date -Format 'yyyyMMddHHmmss').log"
 $logPath = Join-Path $logDir $logFileName
 
 # Ensure the log directory exists
@@ -109,6 +109,21 @@ function Create-Button {
     return $button
 }
 
+# Function to create ComboBox
+function Create-ComboBox {
+    param (
+        [int[]]$Location,
+        [int[]]$Size,
+        [string[]]$Items
+    )
+    $comboBox = New-Object System.Windows.Forms.ComboBox
+    $comboBox.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
+    $comboBox.Size = New-Object System.Drawing.Size($Size[0], $Size[1])
+    $comboBox.Items.AddRange($Items)
+    $comboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+    return $comboBox
+}
+
 # Function to display error messages
 function Show-ErrorMessage {
     param ([string]$message)
@@ -142,20 +157,40 @@ function Get-DomainFQDN {
     }
 }
 
+# Function to gather current DFS namespaces
+function Get-DFSNamespaces {
+    try {
+        $namespaces = (Get-DfsnRoot).Path -replace '^\\\\', ''
+        if ($namespaces) {
+            Log-Message "Retrieved DFS Namespaces: $($namespaces -join ', ')"
+            return $namespaces
+        } else {
+            Show-WarningMessage "No DFS Namespaces found."
+            return @()
+        }
+    } catch {
+        Show-WarningMessage "Failed to retrieve DFS Namespaces: $_"
+        return @()
+    }
+}
+
 # Retrieve the FQDN of the current domain
 $currentDomainFQDN = Get-DomainFQDN
+
+# Retrieve DFS Namespaces
+$dfsNamespaces = Get-DFSNamespaces
 
 # Main form setup
 $main_form = New-Object System.Windows.Forms.Form
 $main_form.Text = 'Unlock User in DFS Namespace'
-$main_form.Size = New-Object System.Drawing.Size(500, 370)
+$main_form.Size = New-Object System.Drawing.Size(500, 400)
 $main_form.StartPosition = 'CenterScreen'
 $main_form.Topmost = $true
 
 # Labels and TextBoxes setup
-$main_form.Controls.Add((Create-Label 'Enter the DFS Share name:' @(10,20) @(480,20)))
-$textbox_share = Create-TextBox @(10,50) @(460,20)
-$main_form.Controls.Add($textbox_share)
+$main_form.Controls.Add((Create-Label 'Select the DFS Namespace:' @(10,20) @(480,20)))
+$comboBox_namespace = Create-ComboBox @(10,50) @(460,20) -Items $dfsNamespaces
+$main_form.Controls.Add($comboBox_namespace)
 
 $main_form.Controls.Add((Create-Label 'Enter the Domain name:' @(10,90) @(480,20)))
 $textbox_domain = Create-TextBox @(10,120) @(460,20) -Text $currentDomainFQDN
@@ -168,16 +203,17 @@ $main_form.Controls.Add($textbox_user)
 # Check Blocked Users Button with Validation and Error Handling
 $check_button = Create-Button 'Check Blocked Users' @(10,230) @(230,40) {
     try {
-        if ([string]::IsNullOrWhiteSpace($textbox_share.Text) -or [string]::IsNullOrWhiteSpace($textbox_domain.Text) -or [string]::IsNullOrWhiteSpace($textbox_user.Text)) {
-            Show-WarningMessage 'Please enter all required fields (share name, domain name, and username).'
+        if ([string]::IsNullOrWhiteSpace($comboBox_namespace.SelectedItem) -or [string]::IsNullOrWhiteSpace($textbox_domain.Text) -or [string]::IsNullOrWhiteSpace($textbox_user.Text)) {
+            Show-WarningMessage 'Please enter all required fields (namespace, domain name, and username).'
         } else {
-            $result = Get-SmbShareAccess -Name $textbox_share.Text
+            $namespace = "\\$($comboBox_namespace.SelectedItem)"
+            $result = Get-SmbShareAccess -Name $namespace
             if ($result) {
                 $result | Out-GridView -Title 'SMB Share Access'
                 Log-Message "SMB Share Access retrieved successfully."
             } else {
-                Show-InfoMessage 'No blocked users found for the specified DFS Share.'
-                Log-Message "No blocked users found for DFS Share: $($textbox_share.Text)"
+                Show-InfoMessage 'No blocked users found for the specified DFS Namespace.'
+                Log-Message "No blocked users found for DFS Namespace: $namespace"
             }
         }
     } catch {
@@ -189,13 +225,14 @@ $main_form.Controls.Add($check_button)
 # Unlock User Button with Validation, Error Handling, and Feedback
 $unblock_button = Create-Button 'Unlock User' @(250,230) @(230,40) {
     try {
-        if ([string]::IsNullOrWhiteSpace($textbox_share.Text) -or [string]::IsNullOrWhiteSpace($textbox_domain.Text) -or [string]::IsNullOrWhiteSpace($textbox_user.Text)) {
-            Show-WarningMessage 'Please enter all required fields (share name, domain name, and username).'
+        if ([string]::IsNullOrWhiteSpace($comboBox_namespace.SelectedItem) -or [string]::IsNullOrWhiteSpace($textbox_domain.Text) -or [string]::IsNullOrWhiteSpace($textbox_user.Text)) {
+            Show-WarningMessage 'Please enter all required fields (namespace, domain name, and username).'
         } else {
+            $namespace = "\\$($comboBox_namespace.SelectedItem)"
             $username = "$($textbox_domain.Text)\$($textbox_user.Text)"
-            Get-SmbShare -Special $false | ForEach-Object { Unblock-SmbShareAccess -Name $_.Name -AccountName $username -Force }
+            Unblock-SmbShareAccess -Name $namespace -AccountName $username -Force
             Show-InfoMessage 'User successfully unlocked!'
-            Log-Message "User $username successfully unlocked in DFS Namespace."
+            Log-Message "User $username successfully unlocked in DFS Namespace: $namespace"
         }
     } catch {
         Show-ErrorMessage "Failed to unlock user: $_"
