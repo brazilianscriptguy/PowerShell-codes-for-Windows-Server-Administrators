@@ -7,13 +7,13 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 ### Script Descriptions (Alphabetically Ordered):
 
-1. **Add-Workstations-and-GrantPermissions.ps1:** Automates adding workstations to the domain and granting appropriate permissions.
+1. **Add-ADComputers-and-GrantJoinPermissions.ps1:** Automates adding workstations to the domain and granting appropriate permissions.
 
-2. **Broadcast-UserLogonMessage-viaGPO.ps1** and **Broadcast-UserLogonMessageViaGPO.hta:** Displays customizable warning messages on workstations upon user login, leveraging GPO for wide-reaching communication in IT managed environments.
+2. **Broadcast-ADUserLogonMessage-viaGPO.ps1** and **Broadcast-ADUserLogonMessage-viaGPO.hta:** Displays customizable warning messages on workstations upon user login, leveraging GPO for wide-reaching communication in IT managed environments.
 
 3. **Check-ServicesPort-Connectivity.ps1:** Checks services ports connectivity through a GUI, displaying real-time results and exporting successful connections to a CSV file for network diagnostics and verification.
 
-4. **Cleanup-InactiveADWorkstations.ps1:** Identifies and removes inactive workstation accounts from Active Directory (AD), enhancing network security and organizational efficiency.
+4. **Cleanup-InactiveADComputers.ps1:** Identifies and removes inactive workstation accounts from Active Directory (AD), enhancing network security and organizational efficiency.
 
 5. **Clear-and-Initiate-DomainGPOSync.ps1:** Performs a complete reset of Domain GPOs with confirmation via a user-friendly GUI, followed by re-synchronization to ensure current policies are accurately applied.
 
@@ -29,17 +29,17 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 11. **Deploy-ZoomWorkplace-viaGPO.ps1:** Automates the deployment of Zoom Full Meetings on workstations through Group Policy Objects (GPO) in enterprise environments.
 
-12. **Delete-FilesByExtension-Bulk.ps1** and **Delete-FilesByExtensionBulk.txt:** Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
+12. **Delete-FilesByExtension-Bulk.ps1** and **Delete-FilesByExtension-Bulk.txt:** Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
 
 13. **Disable-Expired-ADUserAccounts.ps1:** Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
 
 14. **Enforce-ADUserPasswordExpiration.ps1:** Forces password expiration for users within a specified OU, bolstering security by ensuring regular password updates.
 
-15. **Enhance-BGInfoDisplayViaGPO.ps1** and **Enhance-BGInfoDisplayViaGPO.bgi:** Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
+15. **Enhance-BGInfoDisplay-viaGPO.ps1** and **Enhance-BGInfoDisplay-viaGPO.bgi:** Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
 
 16. **Export-ADUserAttributes.ps1:** Simplifies the extraction of AD user attributes for audits or reports, featuring a GUI for enhanced user interaction.
 
-17. **Find-Shorter-ADWorkstationNames.ps1:** Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
+17. **Find-Shorter-ADComputersNames.ps1:** Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
 
 18. **Inventory-ADDomainComputers.ps1:** Creates an exhaustive list of all computers within a given AD domain, aiding in inventory and management practices.
 
@@ -53,13 +53,13 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 23. **Move-ADComputers-betweenOUs.ps1:** Facilitates the relocation of computer accounts between OUs within AD, simplifying organizational structure adjustments.
 
-24. **Move-ADUsers-between-OUs.ps1:** Simplifies the process of moving user accounts between OUs within AD, aiding in organizational structure adjustments.
+24. **Move-ADUsers-betweenOUs.ps1:** Simplifies the process of moving user accounts between OUs within AD, aiding in organizational structure adjustments.
 
-25. **Purge-ExpiredCAsExplicitly.ps1:** Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
+25. **Purge-ExpiredCAs-Explicitly.ps1:** Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
 
-26. **Purge-ExpiredCAsViaGPO.ps1:** Assists in removing outdated Certification Authority (CA) certificates through GPO, maintaining a secure and current certificate environment.
+26. **Purge-ExpiredCAs-viaGPO.ps1:** Assists in removing outdated Certification Authority (CA) certificates through GPO, maintaining a secure and current certificate environment.
 
-27. **Purge-ExpiredCERTsFiles.ps1**: Searchs and removes expired Certificates files stored as a files repository. 
+27. **Purge-ExpiredCERTs-Repository.ps1**: Searchs and removes expired Certificates files stored as a files repository. 
 
 28. **Remove-EmptyFiles-or-DateRange.ps1:** Streamlines file management by detecting and deleting empty files and allowing removal of files within a specified date range, thereby optimizing storage and enhancing system organization.
 
@@ -71,9 +71,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 32. **Report-ADUserLastLogon.ps1:** Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
 
-33. **Report-InactiveComputerAccounts.ps1:** Targets and reports inactive computer accounts, aiding in the clean-up and optimization of AD resources.
+33. **Report-InactiveADComputerAccounts.ps1:** Targets and reports inactive computer accounts, aiding in the clean-up and optimization of AD resources.
 
-34. **Reset-UserPasswordsToDefault.ps1:** Allows for the bulk resetting of user passwords to a default value within a specified OU, enhancing security management efficiency.
+34. **Reset-ADUserPasswordsToDefault.ps1:** Allows for the bulk resetting of user passwords to a default value within a specified OU, enhancing security management efficiency.
 
 35. **Reset-and-Sync-DomainGPOs.ps1:** Resets and synchronizes all Domain GPOs. This script is intended to be called by a GPO and scheduled as a task, ensuring that all Group Policies are up-to-date and effectively applied across workstations.
 
@@ -85,9 +85,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 39. **Uninstall-SelectedApp.ps1:** Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
 
-40. **Unjoin-DomainAndCleanup.ps1:** Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
+40. **Unjoin-ADComputers-and-Cleanup.ps1:** Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
 
-41. **Unlock-SMBShareUserAccess.ps1:** Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
+41. **Unlock-SMBShareADUserAccess.ps1:** Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
 
 42. **Update-ADComputersDescriptions.ps1:** Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
 
