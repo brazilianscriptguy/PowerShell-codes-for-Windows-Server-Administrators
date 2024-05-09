@@ -59,43 +59,45 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 26. **Purge-ExpiredCAsViaGPO.ps1:** Assists in removing outdated Certification Authority (CA) certificates through GPO, maintaining a secure and current certificate environment.
 
-27. **Remove-EmptyFiles-or-DateRange.ps1:** Streamlines file management by detecting and deleting empty files and allowing removal of files within a specified date range, thereby optimizing storage and enhancing system organization.
+27. **Purge-ExpiredCERTsFiles.ps1**:
 
 28. **Purge-ExpiredCAsExplicitly.ps1:** Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
 
-29. **RemoveSoftwares-NonComplianceGPO.ps1:** Facilitates the automated, silent removal of specified software packages from workstations, enhancing system security and compliance by ensuring only approved applications are installed.
+30. **Remove-EmptyFiles-or-DateRange.ps1:** Streamlines file management by detecting and deleting empty files and allowing removal of files within a specified date range, thereby optimizing storage and enhancing system organization.
 
-30. **Rename-DiskVolumesViaGPO.ps1:** Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
+31. **Remove-Softwares-NonComplianceGPO.ps1:** Facilitates the automated, silent removal of specified software packages from workstations, enhancing system security and compliance by ensuring only approved applications are installed.
 
-31. **Report-ADMemberServers.ps1:** Produces detailed reports on member servers within an AD domain, facilitating oversight and management of server resources.
+32. **Rename-DiskVolumesViaGPO.ps1:** Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
 
-32. **Report-ADUserLastLogon.ps1:** Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
+33. **Report-ADMemberServers.ps1:** Produces detailed reports on member servers within an AD domain, facilitating oversight and management of server resources.
 
-33. **Report-InactiveComputerAccounts.ps1:** Targets and reports inactive computer accounts, aiding in the clean-up and optimization of AD resources.
+34. **Report-ADUserLastLogon.ps1:** Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
 
-34. **Reset-UserPasswordsToDefault.ps1:** Allows for the bulk resetting of user passwords to a default value within a specified OU, enhancing security management efficiency.
+35. **Report-InactiveComputerAccounts.ps1:** Targets and reports inactive computer accounts, aiding in the clean-up and optimization of AD resources.
 
-35. **Reset-and-Sync-DomainGPOs.ps1:** Resets and synchronizes all Domain GPOs. This script is intended to be called by a GPO and scheduled as a task, ensuring that all Group Policies are up-to-date and effectively applied across workstations.
+36. **Reset-UserPasswordsToDefault.ps1:** Allows for the bulk resetting of user passwords to a default value within a specified OU, enhancing security management efficiency.
 
-36. **Retrieve-ADGroupsAndMembers.ps1:** Streamlines the retrieval and documentation of AD group and member information, aiding in audit and compliance efforts.
+37. **Reset-and-Sync-DomainGPOs.ps1:** Resets and synchronizes all Domain GPOs. This script is intended to be called by a GPO and scheduled as a task, ensuring that all Group Policies are up-to-date and effectively applied across workstations.
 
-37. **Shorten-LongFileNamesBulk.ps1:** Efficiently shortens files with long names to prevent system errors and improve file system organization.
+38. **Retrieve-ADGroupsAndMembers.ps1:** Streamlines the retrieval and documentation of AD group and member information, aiding in audit and compliance efforts.
 
-38. **Synchronize-WorkstationTime.ps1:** Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
+39. **Shorten-LongFileNamesBulk.ps1:** Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
-39. **Uninstall-SelectedApp.ps1:** Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
+40. **Synchronize-WorkstationTime.ps1:** Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
 
-40. **Unjoin-DomainAndCleanup.ps1:** Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
+41. **Uninstall-SelectedApp.ps1:** Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
 
-41. **Unlock-SMBShareUserAccess.ps1:** Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
+42. **Unjoin-DomainAndCleanup.ps1:** Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
 
-42. **Update-WorkstationDescriptions.ps1:** Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
+43. **Unlock-SMBShareUserAccess.ps1:** Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
 
-43. **UpdateSoftware-WingetExplicit.ps1:** Leverages the winget tool for direct, script-driven software updates, enhancing system security and performance.
+44. **Update-WorkstationDescriptions.ps1:** Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
 
-44. **UpdateSoftware-WingetGPO.ps1:** Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
+45. **UpdateSoftware-WingetExplicit.ps1:** Leverages the winget tool for direct, script-driven software updates, enhancing system security and performance.
 
-45. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
+46. **UpdateSoftware-WingetGPO.ps1:** Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
+
+47. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
 ## Additional Assistance
 All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the README.md file in the main root folder.
