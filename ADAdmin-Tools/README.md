@@ -33,7 +33,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 13. **Disable-Expired-ADUserAccounts.ps1:** Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
 
-14. **Enforce-ADUserPasswordExpiration.ps1:** Forces password expiration for users within a specified OU, bolstering security by ensuring regular password updates.
+14. **Enforce-Expiration-ADUserPasswords.ps1:** Forces password expiration for users within a specified OU, bolstering security by ensuring regular password updates.
 
 15. **Enhance-BGInfoDisplay-viaGPO.ps1** and **Enhance-BGInfoDisplay-viaGPO.bgi:** Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
 
