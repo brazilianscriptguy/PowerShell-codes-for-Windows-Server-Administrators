@@ -51,7 +51,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 22. **Inventory-InstalledSoftwareList.ps1:** Compiles a detailed inventory of installed software, presenting the data in an easy-to-analyze format, ideal for auditing and tracking purposes.
 
-23. **List-ADUserWithNonExpiringPasswords.ps1:** Generates a list of users with non-expiring passwords, helping enforce policy compliance and improve security posture.
+23. **Inventory-ADUserWithNonExpiringPasswords.ps1:** Generates a list of users with non-expiring passwords, helping enforce policy compliance and improve security posture.
 
 24. **Move-ADComputer-betweenOUs.ps1:** Facilitates the relocation of computer accounts between OUs within AD, simplifying organizational structure adjustments.
 
