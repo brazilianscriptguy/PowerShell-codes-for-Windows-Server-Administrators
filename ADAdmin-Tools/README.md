@@ -37,7 +37,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 15. **Enhance-BGInfoDisplay-viaGPO.ps1** and **Enhance-BGInfoDisplay-viaGPO.bgi:** Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
 
-16. **Export-ADUserAttributes.ps1:** Simplifies the extraction of AD user attributes for audits or reports, featuring a GUI for enhanced user interaction.
+16. **Inventory-ADUserAttributes.ps1:** Simplifies the extraction of AD user attributes for audits or reports, featuring a GUI for enhanced user interaction.
 
 17. **Find-Shorter-ADComputerNames.ps1:** Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
 
