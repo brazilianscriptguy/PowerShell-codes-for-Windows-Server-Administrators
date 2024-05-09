@@ -1,4 +1,4 @@
-# PowerShell Script to Reset User Passwords in Active Directory
+# PowerShell Script to Reset AD User Passwords in Active Directory
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Updated: May 9, 2024
 
