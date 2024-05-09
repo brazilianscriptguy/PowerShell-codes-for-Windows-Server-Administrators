@@ -25,9 +25,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 9. **Create-ScriptGlobalGUI.ps1:** Provides a template for creating customizable GUIs for PowerShell scripts, enhancing usability across various administration tasks.
 
-10. **Deployment-PowerShell.ps1:** Streamlines PowerShell installation on workstations and servers using Group Policy Objects (GPO) for enhanced system administration tasks.
+10. **Deploy-PowerShell-viaGPO.ps1:** Streamlines PowerShell installation on workstations and servers using Group Policy Objects (GPO) for enhanced system administration tasks.
 
-11. **Deployment-ZOOMFullMeetings.ps1:** Automates the deployment of Zoom Full Meetings on workstations through Group Policy Objects (GPO) in enterprise environments.
+11. **Deploy-ZoomWorkplace-viaGPO.ps1:** Automates the deployment of Zoom Full Meetings on workstations through Group Policy Objects (GPO) in enterprise environments.
 
 12. **Delete-FilesByExtensionBulk.ps1** and **Delete-FilesByExtensionBulk.txt:** Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
 
@@ -41,11 +41,11 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 17. **Find-Shorter-WorkstationNames.ps1:** Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
 
-18. **Generate-DomainComputersReport.ps1:** Creates an exhaustive list of all computers within a given AD domain, aiding in inventory and management practices.
+18. **Inventory-AllDomainComputers.ps1:** Creates an exhaustive list of all computers within a given AD domain, aiding in inventory and management practices.
 
 19. **Initiate-MultipleRDPSessions.ps1:** Enables the initiation of RDP sessions to multiple servers simultaneously, significantly enhancing remote management capabilities.
 
-20. **Install-FusionInventoryAgent.vbs:** Facilitates the deployment of FusionInventory Agent on workstations and servers, optimizing inventory management via Group Policy Objects (GPO).
+20. **Install-FusionInventoryAgent-viaGPO.vbs:** Facilitates the deployment of FusionInventory Agent on workstations and servers, optimizing inventory management via Group Policy Objects (GPO).
 
 21. **Inventory-InstalledSoftwareList.ps1:** Compiles a detailed inventory of installed software, presenting the data in an easy-to-analyze format, ideal for auditing and tracking purposes.
 
@@ -65,9 +65,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 29. **Remove-Softwares-NonComplianceGPO.ps1:** Facilitates the automated, silent removal of specified software packages from workstations, enhancing system security and compliance by ensuring only approved applications are installed.
 
-30. **Rename-DiskVolumesViaGPO.ps1:** Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
+30. **Rename-DiskVolumes-viaGPO.ps1:** Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
 
-31. **Report-ADMemberServers.ps1:** Produces detailed reports on member servers within an AD domain, facilitating oversight and management of server resources.
+31. **Inventory-ADMemberServers.ps1:** Produces detailed reports on member servers within an AD domain, facilitating oversight and management of server resources.
 
 32. **Report-ADUserLastLogon.ps1:** Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
 
@@ -79,7 +79,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 36. **Retrieve-ADGroupsAndMembers.ps1:** Streamlines the retrieval and documentation of AD group and member information, aiding in audit and compliance efforts.
 
-37. **Shorten-LongFileNamesBulk.ps1:** Efficiently shortens files with long names to prevent system errors and improve file system organization.
+37. **Shorten-LongFileNames.ps1:** Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
 38. **Synchronize-WorkstationTime.ps1:** Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
 
@@ -91,9 +91,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 42. **Update-WorkstationDescriptions.ps1:** Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
 
-43. **Update-Software-WingetExplicit.ps1:** Leverages the winget tool for direct, script-driven software updates, enhancing system security and performance.
+43. **Update-Workstation-Winget-Explicit.ps1:** Leverages the winget tool for direct, script-driven software updates, enhancing system security and performance.
 
-44. **Update-Software-WingetGPO.ps1:** Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
+44. **Update-Workstation-Winget-viaGPO.ps1:** Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
 
 45. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
