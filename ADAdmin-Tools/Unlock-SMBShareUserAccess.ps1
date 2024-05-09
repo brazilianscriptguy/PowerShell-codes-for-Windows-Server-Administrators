@@ -148,7 +148,7 @@ $currentDomainFQDN = Get-DomainFQDN
 # Main form setup
 $main_form = New-Object System.Windows.Forms.Form
 $main_form.Text = 'Unlock User in DFS Namespace'
-$main_form.Size = New-Object System.Drawing.Size(500, 350)
+$main_form.Size = New-Object System.Drawing.Size(500, 370)
 $main_form.StartPosition = 'CenterScreen'
 $main_form.Topmost = $true
 
