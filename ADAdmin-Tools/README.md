@@ -77,7 +77,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 35. **Reset-and-Sync-DomainGPOs.ps1:** Resets and synchronizes all Domain GPOs. This script is intended to be called by a GPO and scheduled as a task, ensuring that all Group Policies are up-to-date and effectively applied across workstations.
 
-36. **Retrieve-ADGroupsAndMembers.ps1:** Streamlines the retrieval and documentation of AD group and member information, aiding in audit and compliance efforts.
+36. **Inventory-ADGroups-their-Members.ps1:** Streamlines the retrieval and documentation of AD group and their member information, aiding in audit and compliance efforts.
 
 37. **Shorten-LongFileNames.ps1:** Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
