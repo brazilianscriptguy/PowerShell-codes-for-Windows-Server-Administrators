@@ -259,7 +259,7 @@ function Get-DomainFQDN {
 # Create the main form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'AD Computers Management'
-$form.Size = New-Object System.Drawing.Size(420, 600)
+$form.Size = New-Object System.Drawing.Size(420, 620)
 $form.StartPosition = 'CenterScreen'
 
 # Text box for computer names with simulated placeholder
