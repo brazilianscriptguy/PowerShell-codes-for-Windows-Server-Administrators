@@ -160,7 +160,7 @@ $form.Controls.Add($cmbOU)
 
 # Retrieve and store all OUs initially
 try {
-    $allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Usuarios*"' | Select-Object -ExpandProperty DistinguishedName
+    $allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Users*"' | Select-Object -ExpandProperty DistinguishedName
 } catch {
     $errorMsg = "Failed to retrieve organizational units from the Active Directory: $($_.Exception.Message)"
     Log-Message $errorMsg "ERROR"
