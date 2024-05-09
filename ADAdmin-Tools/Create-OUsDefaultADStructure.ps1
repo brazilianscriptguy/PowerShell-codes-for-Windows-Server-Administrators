@@ -1,4 +1,4 @@
-# PowerShell Script to Create Organizational Units (OUs) in Active Directory
+# PowerShell Script to Create Organizational Units (OUs) in Active Directory Structure
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Updated: May 9, 2024
 
