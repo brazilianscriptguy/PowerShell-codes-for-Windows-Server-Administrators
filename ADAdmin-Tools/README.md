@@ -61,7 +61,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 27. **Remove-EmptyFiles-or-DateRange.ps1:** Streamlines file management by detecting and deleting empty files and allowing removal of files within a specified date range, thereby optimizing storage and enhancing system organization.
 
-28. **Remove-ExpiredCAsExplicitly.ps1:** Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
+28. **Purge-ExpiredCAsExplicitly.ps1:** Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
 
 29. **RemoveSoftwares-NonComplianceGPO.ps1:** Facilitates the automated, silent removal of specified software packages from workstations, enhancing system security and compliance by ensuring only approved applications are installed.
 
