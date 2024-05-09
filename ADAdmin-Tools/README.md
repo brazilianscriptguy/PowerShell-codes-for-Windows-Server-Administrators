@@ -63,7 +63,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 28. **Remove-EmptyFiles-or-DateRange.ps1:** Streamlines file management by detecting and deleting empty files and allowing removal of files within a specified date range, thereby optimizing storage and enhancing system organization.
 
-29. **Remove-Softwares-NonComplianceGPO.ps1:** Facilitates the automated, silent removal of specified software packages from workstations, enhancing system security and compliance by ensuring only approved applications are installed.
+29. **Remove-Softwares-NonCompliance-viaGPO.ps1:** Facilitates the automated, silent removal of specified software packages from workstations, enhancing system security and compliance by ensuring only approved applications are installed.
 
 30. **Rename-DiskVolumes-viaGPO.ps1:** Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
 
@@ -81,7 +81,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 37. **Shorten-LongFileNames.ps1:** Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
-38. **Synchronize-WorkstationTime.ps1:** Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
+38. **Synchronize-ADComputersTime.ps1:** Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
 
 39. **Uninstall-SelectedApp.ps1:** Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
 
@@ -89,11 +89,11 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 41. **Unlock-SMBShareUserAccess.ps1:** Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
 
-42. **Update-WorkstationDescriptions.ps1:** Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
+42. **Update-ADComputersDescriptions.ps1:** Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
 
-43. **Update-Workstation-Winget-Explicit.ps1:** Leverages the winget tool for direct, script-driven software updates, enhancing system security and performance.
+43. **Update-ADComputers-Winget-Explicit.ps1:** Leverages the winget tool for direct, script-driven software updates, enhancing system security and performance.
 
-44. **Update-Workstation-Winget-viaGPO.ps1:** Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
+44. **Update-ADComputers-Winget-viaGPO.ps1:** Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
 
 45. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
