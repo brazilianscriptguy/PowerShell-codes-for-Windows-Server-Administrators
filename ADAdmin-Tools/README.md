@@ -9,7 +9,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 1. **Add-Workstations-and-GrantPermissions.ps1:** Automates adding workstations to the domain and granting appropriate permissions.
 
-2. **Broadcast-UserLogonMessageViaGPO.ps1** and **Broadcast-UserLogonMessageViaGPO.hta:** Displays customizable warning messages on workstations upon user login, leveraging GPO for wide-reaching communication in IT managed environments.
+2. **Broadcast-UserLogonMessage-viaGPO.ps1** and **Broadcast-UserLogonMessageViaGPO.hta:** Displays customizable warning messages on workstations upon user login, leveraging GPO for wide-reaching communication in IT managed environments.
 
 3. **Check-ServicesPort-Connectivity.ps1:** Checks services ports connectivity through a GUI, displaying real-time results and exporting successful connections to a CSV file for network diagnostics and verification.
 
@@ -29,9 +29,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 11. **Deploy-ZoomWorkplace-viaGPO.ps1:** Automates the deployment of Zoom Full Meetings on workstations through Group Policy Objects (GPO) in enterprise environments.
 
-12. **Delete-FilesByExtensionBulk.ps1** and **Delete-FilesByExtensionBulk.txt:** Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
+12. **Delete-FilesByExtension-Bulk.ps1** and **Delete-FilesByExtensionBulk.txt:** Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
 
-13. **Disable-Expired-UserAccounts.ps1:** Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
+13. **Disable-Expired-ADUserAccounts.ps1:** Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
 
 14. **Enforce-ADUserPasswordExpiration.ps1:** Forces password expiration for users within a specified OU, bolstering security by ensuring regular password updates.
 
@@ -39,9 +39,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 16. **Export-ADUserAttributes.ps1:** Simplifies the extraction of AD user attributes for audits or reports, featuring a GUI for enhanced user interaction.
 
-17. **Find-Shorter-WorkstationNames.ps1:** Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
+17. **Find-Shorter-ADWorkstationNames.ps1:** Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
 
-18. **Inventory-AllDomainComputers.ps1:** Creates an exhaustive list of all computers within a given AD domain, aiding in inventory and management practices.
+18. **Inventory-ADDomainComputers.ps1:** Creates an exhaustive list of all computers within a given AD domain, aiding in inventory and management practices.
 
 19. **Initiate-MultipleRDPSessions.ps1:** Enables the initiation of RDP sessions to multiple servers simultaneously, significantly enhancing remote management capabilities.
 
@@ -49,7 +49,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 21. **Inventory-InstalledSoftwareList.ps1:** Compiles a detailed inventory of installed software, presenting the data in an easy-to-analyze format, ideal for auditing and tracking purposes.
 
-22. **List-UsersWithNonExpiringPasswords.ps1:** Generates a list of users with non-expiring passwords, helping enforce policy compliance and improve security posture.
+22. **List-ADUsersWithNonExpiringPasswords.ps1:** Generates a list of users with non-expiring passwords, helping enforce policy compliance and improve security posture.
 
 23. **Move-ADComputers-betweenOUs.ps1:** Facilitates the relocation of computer accounts between OUs within AD, simplifying organizational structure adjustments.
 
