@@ -21,9 +21,10 @@ public class Window {
 
 [Window]::Hide()
 
-# Load necessary assemblies for GUI
+# Load necessary assemblies for Windows Forms
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+[System.Windows.Forms.Application]::EnableVisualStyles()
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
