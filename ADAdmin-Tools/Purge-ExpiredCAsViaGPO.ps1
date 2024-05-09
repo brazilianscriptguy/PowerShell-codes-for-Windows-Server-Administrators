@@ -1,69 +1,89 @@
 # PowerShell Script for Removing Old Certification Authority Certificates - implemented by a GPO
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 06, 2024.
-
-# Set execution policy to Unrestricted
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
+# Update: May 9, 2024
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
-$logFileName = "${scriptName}.log"
+$logFileName = "${scriptName}_$(Get-Date -Format 'yyyyMMddHHmmss').log"
 $logPath = Join-Path $logDir $logFileName
 
-# Logging Function
-function Write-Log {
-    Param(
-        [Parameter(Mandatory = $true)]
-        [string]$Message,
-
-        [Parameter(Mandatory = $false)]
-        [string]$Path = $logPath
-    )
-
-    # Create the log directory if it does not exist
-    $dir = Split-Path $Path
-    if (-not (Test-Path -Path $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+    if (-not (Test-Path $logDir)) {
+        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
+        return
     }
-
-    # Write the log message with a timestamp
-    $logEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message"
-    Add-Content -Path $Path -Value $logEntry
 }
 
-function Remove-OldCACertificates {
+# Enhanced logging function with error handling
+function Write-Log {
     param (
-        [string[]]$Thumbprints
+        [Parameter(Mandatory = $true)]
+        [string]$Message
     )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] $Message"
+    try {
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to write to log: $_"
+    }
+}
 
-    Write-Log -Message "Starting the removal of old CA certificates."
+# Function to display error messages in the log
+function Log-ErrorMessage {
+    param ([string]$message)
+    Write-Log "Error: $message"
+}
 
-    # Remove certificates with specific thumbprints
-    foreach ($thumbprint in $Thumbprints) {
-        $certificates = Get-ChildItem -Path Cert:\ -Recurse | Where-Object {$_.Thumbprint -eq $thumbprint}
-        
-        foreach ($certificate in $certificates) {
-            $msg = "Removing certificate with thumbprint: $($certificate.Thumbprint) - $($certificate.FriendlyName)"
-            Write-Log -Message $msg
-            $certificate | Remove-Item -Force -Verbose 4>&1 | ForEach-Object {Write-Log -Message $_.ToString()}
+# Function to display information messages in the log
+function Log-InfoMessage {
+    param ([string]$message)
+    Write-Log "Info: $message"
+}
+
+# Function to gather expired certificates from a given store location
+function Get-ExpiredCertificates {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$StoreLocation
+    )
+    try {
+        $certificates = Get-ChildItem -Path "Cert:\$StoreLocation" -Recurse |
+                        Where-Object { $_.NotAfter -lt (Get-Date) }
+        Log-InfoMessage "Retrieved expired certificates from '$StoreLocation' store."
+        return $certificates
+    } catch {
+        Log-ErrorMessage "Failed to retrieve expired certificates from '$StoreLocation' store: $_"
+        return @()
+    }
+}
+
+# Function to remove expired certificates
+function Remove-ExpiredCertificates {
+    param ([System.Security.Cryptography.X509Certificates.X509Certificate2[]]$certificates)
+
+    Log-InfoMessage "Starting removal of expired CA certificates."
+    foreach ($cert in $certificates) {
+        try {
+            Write-Log "Processing certificate with thumbprint: $($cert.Thumbprint)"
+            Remove-Item -Path $cert.PSPath -Force -Verbose
+            Write-Log "Successfully removed certificate with thumbprint: $($cert.Thumbprint)"
+        } catch {
+            Write-Log "Error removing certificate with thumbprint: $($cert.Thumbprint) - Error: $_"
         }
     }
-
-    Write-Log -Message "Completed the removal of old CA certificates."
+    Log-InfoMessage "Certificate removal process completed."
 }
 
-# Specify the thumbprints to remove
-$thumbprints = @(
-    '4273cda4d1d85d01b30d891f025cce4c86a6ec77',
-    'bd4d3eddb3550a685435f6d34d6af338214327d4',
-    '72994629de124ad6443d3176cae10110a0cc458d',
-    'c11a5ae13b4197dd13efdb86ec88ed1a2a8d17d2',
-    '89103b2d4509513054737f98c31d610130ec297c',
-    '1b5721e85621be6e61b6c884d3a4b241fe938bff'
-)
+# Gather expired certificates from both the local machine and current user stores
+$certificatesMachine = Get-ExpiredCertificates -StoreLocation 'LocalMachine'
+$certificatesUser = Get-ExpiredCertificates -StoreLocation 'CurrentUser'
+$allCertificates = $certificatesMachine + $certificatesUser
 
-# Call the function to remove old CA certificates
-Remove-OldCACertificates -Thumbprints $thumbprints
+# Remove all expired certificates
+Remove-ExpiredCertificates -certificates $allCertificates
 
 # End of script
