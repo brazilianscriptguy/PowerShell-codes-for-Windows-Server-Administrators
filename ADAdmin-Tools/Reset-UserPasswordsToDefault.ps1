@@ -1,6 +1,6 @@
-# PowerShell Script to Batch Reset User Passwords in a Specific OU
+# PowerShell Script to Reset User Passwords in Active Directory
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+# Updated: May 9, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -22,16 +22,20 @@ public class Window {
     }
 }
 "@
-
 [Window]::Hide()
 
-# Import necessary modules and assemblies
-Import-Module ActiveDirectory
+# Import necessary assemblies and modules
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-[System.Windows.Forms.Application]::EnableVisualStyles()
+Import-Module ActiveDirectory
 
-# Determine the script name and set up logging path
+# Setup form and components
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'Reset User Passwords in Active Directory'
+$form.Size = New-Object System.Drawing.Size(500, 300)
+$form.StartPosition = 'CenterScreen'
+
+# Logging setup
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
@@ -39,19 +43,19 @@ $logPath = Join-Path $logDir $logFileName
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
-    New-Item -Path $logDir -ItemType Directory -ErrorAction Stop | Out-Null
-    Log-Message "Log directory created: $logDir"
+    New-Item -Path $logDir -ItemType Directory | Out-Null
 }
 
-# Enhanced logging function
+# Enhanced logging function with error handling
 function Log-Message {
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory=$true)]
         [string]$Message,
-        [string]$LogLevel = "INFO"
+        [Parameter(Mandatory=$false)]
+        [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] [$LogLevel] $Message"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
@@ -63,15 +67,81 @@ function Log-Message {
 function Show-ErrorMessage {
     param ([string]$message)
     [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    Log-Message "Error: $message" -LogLevel "ERROR"
+    Log-Message "Error: $message" -MessageType "ERROR"
 }
 
 # Function to display information messages
 function Show-InfoMessage {
     param ([string]$message)
     [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    Log-Message "Info: $message" -LogLevel "INFO"
+    Log-Message "Info: $message" -MessageType "INFO"
 }
+
+# Load and refresh the OUs list, filtered by "Usuarios*"
+function Load-OUs {
+    $global:allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Usuarios*"' | Select-Object -ExpandProperty DistinguishedName
+    $cmbOUs.Items.Clear()
+    $global:allOUs | ForEach-Object { $cmbOUs.Items.Add($_) }
+    if ($cmbOUs.Items.Count -gt 0) {
+        $cmbOUs.SelectedIndex = 0
+    } else {
+        $cmbOUs.Text = 'No matching OU found'
+    }
+}
+
+# Label for OU search
+$labelOUSearch = New-Object System.Windows.Forms.Label
+$labelOUSearch.Text = 'Search for an OU:'
+$labelOUSearch.Location = New-Object System.Drawing.Point(10, 20)
+$labelOUSearch.AutoSize = $true
+$form.Controls.Add($labelOUSearch)
+
+# TextBox for OU search
+$txtOUSearch = New-Object System.Windows.Forms.TextBox
+$txtOUSearch.Location = New-Object System.Drawing.Point(10, 50)
+$txtOUSearch.Size = New-Object System.Drawing.Size(450, 20)
+$form.Controls.Add($txtOUSearch)
+
+# ComboBox for displaying OUs
+$cmbOUs = New-Object System.Windows.Forms.ComboBox
+$cmbOUs.Location = New-Object System.Drawing.Point(10, 80)
+$cmbOUs.Size = New-Object System.Drawing.Size(450, 20)
+$cmbOUs.DropDownStyle = 'DropDownList'
+$form.Controls.Add($cmbOUs)
+
+# Button to load OUs
+$btnLoadOUs = New-Object System.Windows.Forms.Button
+$btnLoadOUs.Text = 'Refresh OUs List'
+$btnLoadOUs.Location = New-Object System.Drawing.Point(10, 110)
+$btnLoadOUs.Size = New-Object System.Drawing.Size(150, 23)
+$btnLoadOUs.Add_Click({ Load-OUs })
+$form.Controls.Add($btnLoadOUs)
+
+# Search functionality
+$txtOUSearch.Add_TextChanged({
+    $searchText = $txtOUSearch.Text
+    $filteredOUs = $global:allOUs | Where-Object { $_ -like "*$searchText*" }
+    $cmbOUs.Items.Clear()
+    $filteredOUs | ForEach-Object { $cmbOUs.Items.Add($_) }
+    if ($cmbOUs.Items.Count -gt 0) {
+        $cmbOUs.SelectedIndex = 0
+    } else {
+        $cmbOUs.Text = 'No matching OU found'
+    }
+})
+
+# Label for Default Password
+$labelPassword = New-Object System.Windows.Forms.Label
+$labelPassword.Text = 'Enter the default password:'
+$labelPassword.Location = New-Object System.Drawing.Point(10, 150)
+$labelPassword.AutoSize = $true
+$form.Controls.Add($labelPassword)
+
+# TextBox for Default Password input
+$textBoxPassword = New-Object System.Windows.Forms.TextBox
+$textBoxPassword.Location = New-Object System.Drawing.Point(10, 170)
+$textBoxPassword.Size = New-Object System.Drawing.Size(450, 20)
+$form.Controls.Add($textBoxPassword)
 
 # Function to reset user passwords in a specific OU
 function Reset-UserPasswords {
@@ -79,60 +149,30 @@ function Reset-UserPasswords {
         [string]$ou,
         [string]$defaultPassword
     )
+
+    Log-Message "Starting password reset process in '$ou' with default password."
+
     try {
-        $users = Get-ADUser -Filter * -SearchBase $ou -ErrorAction Stop
+        $users = Get-ADUser -Filter * -SearchBase $ou -Properties SamAccountName
         foreach ($user in $users) {
-            Set-ADAccountPassword -Identity $user -Reset -NewPassword (ConvertTo-SecureString -AsPlainText $defaultPassword -Force) -PassThru |
-            Set-ADUser -ChangePasswordAtLogon $true -ErrorAction Stop
-            Log-Message "Password reset for $($user.SamAccountName) with 'change at login' enforced"
+            Set-ADAccountPassword $user -Reset -NewPassword (ConvertTo-SecureString -AsPlainText $defaultPassword -Force) -PassThru | Set-ADUser -ChangePasswordAtLogon $true
+            Log-Message "Password reset for $($user.SamAccountName) with 'change at login' enforced."
         }
-        Show-InfoMessage "Password reset completed successfully. All users in '$ou' are required to change their password at next login."
+        Show-InfoMessage "Password reset process completed successfully. All users are required to change their password at next login."
     } catch {
-        Show-ErrorMessage "Error resetting passwords: $($_.Exception.Message)"
+        Log-Message "Error encountered during password reset process: $_" -MessageType "ERROR"
+        Show-ErrorMessage "Error encountered during password reset process: $_"
     }
 }
-
-# Initialize form components
-$form = New-Object System.Windows.Forms.Form
-$form.Text = 'Reset AD User Passwords in Specific OU'
-$form.Size = New-Object System.Drawing.Size(450, 250)
-$form.StartPosition = 'CenterScreen'
-
-# Label for OU
-$labelOU = New-Object System.Windows.Forms.Label
-$labelOU.Text = 'Enter the Distinguished Name (DN) of the target OU:'
-$labelOU.Location = New-Object System.Drawing.Point(10, 20)
-$labelOU.AutoSize = $true
-$form.Controls.Add($labelOU)
-
-# Textbox for OU input
-$textBoxOU = New-Object System.Windows.Forms.TextBox
-$textBoxOU.Location = New-Object System.Drawing.Point(10, 40)
-$textBoxOU.Size = New-Object System.Drawing.Size(420, 20)
-$form.Controls.Add($textBoxOU)
-
-# Label for Default Password
-$labelPassword = New-Object System.Windows.Forms.Label
-$labelPassword.Text = 'Enter the default password:'
-$labelPassword.Location = New-Object System.Drawing.Point(10, 70)
-$labelPassword.AutoSize = $true
-$form.Controls.Add($labelPassword)
-
-# Textbox for Password input
-$textBoxPassword = New-Object System.Windows.Forms.TextBox
-$textBoxPassword.Location = New-Object System.Drawing.Point(10, 90)
-$textBoxPassword.Size = New-Object System.Drawing.Size(420, 20)
-$textBoxPassword.PasswordChar = '*'
-$form.Controls.Add($textBoxPassword)
 
 # Button to execute password reset
 $buttonExecute = New-Object System.Windows.Forms.Button
 $buttonExecute.Text = 'Reset Passwords'
-$buttonExecute.Location = New-Object System.Drawing.Point(10, 130)
-$buttonExecute.Size = New-Object System.Drawing.Size(140, 30)
+$buttonExecute.Location = New-Object System.Drawing.Point(10, 200)
+$buttonExecute.Size = New-Object System.Drawing.Size(150, 30)
 $buttonExecute.Add_Click({
     Log-Message "Reset Passwords button clicked, starting password reset process."
-    $ou = $textBoxOU.Text
+    $ou = $cmbOUs.SelectedItem.ToString()
     $defaultPassword = $textBoxPassword.Text
 
     if (![string]::IsNullOrWhiteSpace($ou) -and ![string]::IsNullOrWhiteSpace($defaultPassword)) {
@@ -147,18 +187,7 @@ $buttonExecute.Add_Click({
 })
 $form.Controls.Add($buttonExecute)
 
-# Button to close the form
-$buttonClose = New-Object System.Windows.Forms.Button
-$buttonClose.Text = 'Close'
-$buttonClose.Location = New-Object System.Drawing.Point(290, 130)
-$buttonClose.Size = New-Object System.Drawing.Size(140, 30)
-$buttonClose.Add_Click({ $form.Close() })
-$form.Controls.Add($buttonClose)
-
 # Show the form
 $form.ShowDialog() | Out-Null
-
-# Log the end of the script
-Log-Message "AD User Password Reset script finished."
 
 # End of script
