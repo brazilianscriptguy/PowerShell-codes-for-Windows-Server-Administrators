@@ -1,6 +1,6 @@
-# PowerShell Script to Add Workstations into specfied OUs and Grant Join Permissions
+# PowerShell Script to Add Workstations into specified OUs and Grant Join Permissions
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 06, 2024.
+# Update: May 9, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -29,6 +29,52 @@ public class Window {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 Import-Module ActiveDirectory
+
+# Determine the script name and set up logging path
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
+
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+    if (-not (Test-Path $logDir)) {
+        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
+        return
+    }
+}
+
+# Enhanced logging function with error handling
+function Log-Message {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+        [Parameter(Mandatory=$false)]
+        [string]$MessageType = "INFO"
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
+    try {
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to write to log: $_"
+    }
+}
+
+# Function to display error messages
+function Show-ErrorMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message "Error: $message" -MessageType "ERROR"
+}
+
+# Function to display information messages
+function Show-InfoMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message "Info: $message" -MessageType "INFO"
+}
 
 # Grant-ComputerJoinPermission Function
 function Grant-ComputerJoinPermission {
@@ -319,7 +365,7 @@ $lblSupportGroup.Text = "Ingress Account:"
 $txtSupportGroup = New-Object System.Windows.Forms.TextBox
 $txtSupportGroup.Location = New-Object System.Drawing.Point(10, 190)
 $txtSupportGroup.Size = New-Object System.Drawing.Size(380, 20)
-$txtSupportGroup.Text = "ingress-Account-Domain@YOURDOMAIN.COM"  # Default N1 Support Account that can Join new Workstations
+$txtSupportGroup.Text = "ingdomain@SEDE.TJAP"  # Default Support Group
 $txtSupportGroup.ForeColor = [System.Drawing.Color]::Black
 $txtSupportGroup.ReadOnly = $true
 
