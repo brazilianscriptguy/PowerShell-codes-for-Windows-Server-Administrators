@@ -1,6 +1,6 @@
-﻿# PowerShell Script to Find and Delete Empty Files or Delete Files by Date Range with Enhanced GUI
+# PowerShell Script to Find and Delete Empty Files or Delete Files by Date Range with Enhanced GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 8, 2024
+# Update: May 9, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -25,11 +25,11 @@ public class Window {
 
 [Window]::Hide()
 
-# Load required assemblies
+# Load necessary assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Determine the script name and set up the logging path
+# Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
@@ -47,16 +47,32 @@ if (-not (Test-Path $logDir)) {
 # Enhanced logging function with error handling
 function Log-Message {
     param (
-        [Parameter(Mandatory = $true)]
-        [string]$Message
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+        [Parameter(Mandatory=$false)]
+        [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
         Write-Error "Failed to write to log: $_"
     }
+}
+
+# Function to display error messages
+function Show-ErrorMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message "Error: $message" -MessageType "ERROR"
+}
+
+# Function to display information messages
+function Show-InfoMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message "Info: $message" -MessageType "INFO"
 }
 
 # Reusable function for selecting folders
@@ -78,7 +94,7 @@ function Select-Folder {
 # Initialize form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'File Operation Tool'
-$form.Size = New-Object System.Drawing.Size(600, 700)
+$form.Size = New-Object System.Drawing.Size(600, 550)
 $form.StartPosition = 'CenterScreen'
 
 # Initialize reusable UI controls
@@ -109,7 +125,7 @@ $startDateLabel.Location = New-Object System.Drawing.Point(120, 70)
 $form.Controls.Add($startDateLabel)
 
 $startDatePicker = New-Object System.Windows.Forms.DateTimePicker
-$startDatePicker.Location = New-Object System.Drawing.Point(190, 70)
+$startDatePicker.Location = New-Object System.Drawing.Point(220, 70)
 $form.Controls.Add($startDatePicker)
 
 $endDateLabel = New-Object System.Windows.Forms.Label
@@ -118,7 +134,7 @@ $endDateLabel.Location = New-Object System.Drawing.Point(120, 100)
 $form.Controls.Add($endDateLabel)
 
 $endDatePicker = New-Object System.Windows.Forms.DateTimePicker
-$endDatePicker.Location = New-Object System.Drawing.Point(190, 100)
+$endDatePicker.Location = New-Object System.Drawing.Point(220, 100)
 $form.Controls.Add($endDatePicker)
 
 $deleteByDateButton = New-Object System.Windows.Forms.Button
@@ -127,14 +143,14 @@ $deleteByDateButton.Location = New-Object System.Drawing.Point(10, 130)
 $deleteByDateButton.Size = New-Object System.Drawing.Size(320, 30)
 $deleteByDateButton.Add_Click({
     if (-not $selectedFolderPath) {
-        [System.Windows.Forms.MessageBox]::Show("Please select a folder first!", "Error")
+        Show-ErrorMessage "Please select a folder first!"
         return
     }
     $startDate = $startDatePicker.Value
     $endDate = $endDatePicker.Value
     $files = Get-ChildItem -Path $selectedFolderPath -Recurse -File | Where-Object { $_.LastWriteTime -ge $startDate -and $_.LastWriteTime -le $endDate }
     if ($files.Count -eq 0) {
-        [System.Windows.Forms.MessageBox]::Show("No files found in the selected date range.", "Info")
+        Show-InfoMessage "No files found in the selected date range."
         Log-Message "No files found for deletion in date range $startDate to $endDate in folder $selectedFolderPath"
         return
     }
@@ -142,7 +158,7 @@ $deleteByDateButton.Add_Click({
         Remove-Item $file.FullName -Force -ErrorAction SilentlyContinue
         Log-Message "Deleted file: $($file.FullName)"
     }
-    [System.Windows.Forms.MessageBox]::Show("Files deleted successfully!", "Success")
+    Show-InfoMessage "Files deleted successfully!"
     Log-Message "Deleted files in $selectedFolderPath from $startDate to $endDate"
 })
 $form.Controls.Add($deleteByDateButton)
@@ -186,7 +202,7 @@ $buttonOpenFolder.Add_Click({
     if ($selectedFolderPath) {
         Start-Process explorer.exe -ArgumentList $selectedFolderPath
     } else {
-        [System.Windows.Forms.MessageBox]::Show("Please select a folder first!", "Error")
+        Show-ErrorMessage "Please select a folder first!"
     }
 })
 $form.Controls.Add($buttonOpenFolder)
@@ -199,7 +215,7 @@ $form.Controls.Add($progressBar)
 
 function Find-EmptyFiles {
     if (-not $selectedFolderPath) {
-        [System.Windows.Forms.MessageBox]::Show("Please select a folder first!", "Error")
+        Show-ErrorMessage "Please select a folder first!"
         return
     }
     $listBox.Items.Clear()
@@ -217,25 +233,25 @@ function Find-EmptyFiles {
         $listBox.Items.AddRange($foundFiles)
         Log-Message "Found $($listBox.Items.Count) empty file(s)"
     } else {
-        [System.Windows.Forms.MessageBox]::Show('No empty files found', 'Info')
+        Show-InfoMessage 'No empty files found'
         Log-Message 'No empty files found'
     }
 }
 
 function Delete-EmptyFiles {
     if (-not $selectedFolderPath) {
-        [System.Windows.Forms.MessageBox]::Show("Please select a folder first!", "Error")
+        Show-ErrorMessage "Please select a folder first!"
         return
     }
     if ($listBox.Items.Count -eq 0) {
-        [System.Windows.Forms.MessageBox]::Show('No files to delete', 'Info')
+        Show-InfoMessage 'No files to delete'
         return
     }
     foreach ($item in $listBox.Items) {
         Remove-Item -Path $item -Force -ErrorAction SilentlyContinue
         Log-Message "Deleted file: $item"
     }
-    [System.Windows.Forms.MessageBox]::Show("$($listBox.Items.Count) file(s) deleted", 'Info')
+    Show-InfoMessage "$($listBox.Items.Count) file(s) deleted"
     Log-Message "$($listBox.Items.Count) file(s) deleted"
     $listBox.Items.Clear()
 }
