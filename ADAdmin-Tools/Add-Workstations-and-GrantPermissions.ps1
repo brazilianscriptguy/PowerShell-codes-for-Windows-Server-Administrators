@@ -332,7 +332,7 @@ $cmbOU.Size = New-Object System.Drawing.Size(380, 20)
 $cmbOU.DropDownStyle = 'DropDownList'
 
 # Retrieve and store all OUs initially
-$allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Computadores*"' | Select-Object -ExpandProperty DistinguishedName
+$allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Computers*"' | Select-Object -ExpandProperty DistinguishedName
 
 # Function to update ComboBox based on search
 function UpdateOUComboBox {
