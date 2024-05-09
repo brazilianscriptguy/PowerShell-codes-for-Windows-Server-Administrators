@@ -1,6 +1,6 @@
 # PowerShell Script to Find, List, and Disable AD Users Expired Accounts 
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 07, 2024.
+# Updated: May 9, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -25,9 +25,9 @@ public class Window {
 
 [Window]::Hide()
 
-# Import the necessary .NET assemblies for Windows Forms and System.DirectoryServices.AccountManagement
+# Load necessary assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.DirectoryServices.AccountManagement
+Add-Type -AssemblyName System.Drawing
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
@@ -48,15 +48,31 @@ if (-not (Test-Path $logDir)) {
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Message
+        [string]$Message,
+        [Parameter(Mandatory=$false)]
+        [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
         Write-Error "Failed to write to log: $_"
     }
+}
+
+# Function to display error messages
+function Show-ErrorMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message "Error: $message" -MessageType "ERROR"
+}
+
+# Function to display information messages
+function Show-InfoMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message "Info: $message" -MessageType "INFO"
 }
 
 # Function to get the FQDN of the domain name and forest name
@@ -66,7 +82,7 @@ function Get-DomainFQDN {
         $Domain = $ComputerSystem.Domain
         return $Domain
     } catch {
-        Write-Warning "Unable to fetch FQDN automatically."
+        Show-ErrorMessage "Unable to fetch FQDN automatically."
         return "YourDomainHere"
     }
 }
@@ -89,7 +105,7 @@ function List-ExpiredAccounts {
 
     # Check if there are expired user accounts
     if ($expiredUsers.Count -eq 0) {
-        [System.Windows.Forms.MessageBox]::Show("There are no expired user accounts to list.", "No Accounts", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        Show-InfoMessage "There are no expired user accounts to list."
         return
     }
 
@@ -113,9 +129,6 @@ function Disable-ExpiredAccounts {
     # Get current date
     $currentDate = Get-Date
 
-    # Connect to the domain
-    $context = New-Object System.DirectoryServices.AccountManagement.PrincipalContext([System.DirectoryServices.AccountManagement.ContextType]::Domain, $domainFQDN)
-
     # Iterate through the selected accounts to disable them
     $disabledCount = 0
     foreach ($item in $listView.CheckedItems) {
@@ -134,7 +147,7 @@ function Disable-ExpiredAccounts {
     List-ExpiredAccounts -domainFQDN $domainFQDN -listView $listView
 
     # Show message box with information
-    [System.Windows.Forms.MessageBox]::Show("$disabledCount expired accounts have been disabled. Log file generated at: $logPath", "Action Completed", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Show-InfoMessage "$disabledCount expired accounts have been disabled. Log file generated at: $logPath"
 }
 
 # Create a new Windows Form object
@@ -186,7 +199,7 @@ $buttonList.Text = "List Expired Accounts"
 $buttonList.Add_Click({
     $domainFQDN = $textboxDomain.Text.Trim()
     if ([string]::IsNullOrWhiteSpace($domainFQDN)) {
-        [System.Windows.Forms.MessageBox]::Show("Please enter the domain FQDN.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        Show-ErrorMessage "Please enter the domain FQDN."
     } else {
         List-ExpiredAccounts -domainFQDN $domainFQDN -listView $listViewAccounts
     }
@@ -201,7 +214,7 @@ $buttonDisable.Text = "Disable Selected Accounts"
 $buttonDisable.Add_Click({
     $domainFQDN = $textboxDomain.Text.Trim()
     if ([string]::IsNullOrWhiteSpace($domainFQDN)) {
-        [System.Windows.Forms.MessageBox]::Show("Please enter the domain FQDN.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        Show-ErrorMessage "Please enter the domain FQDN."
     } else {
         Disable-ExpiredAccounts -domainFQDN $domainFQDN -listView $listViewAccounts
     }
