@@ -6,7 +6,7 @@ Before you run the scripts in this folder, ensure the `Microsoft Log Parser util
 ## Description:
 This directory contains scripts designed for selecting and processing Windows Event Log files (*.evtx). These scripts focus on extracting relevant information from the logs and generating outputs in a CSV file format for easy analysis.  
 
-### Script Descriptions (Shortened)
+### Script Descriptions (Alphabetically Ordered)
 
 1. **EventID-Count-AllEvents-EVTX.ps1:** Analyzes EVTX files, counting each EventID occurrence, and exports the results to a CSV file for easier event log analysis.
 
