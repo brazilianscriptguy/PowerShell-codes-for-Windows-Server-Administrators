@@ -69,7 +69,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 31. **Rename-DiskVolumes-viaGPO.ps1:** Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
 
-32. **Report-ADUserLastLogon.ps1:** Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
+32. **Inventory-ADUserLastLogon.ps1:** Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
 
 33. **Report-InactiveADComputerAccounts.ps1:** Targets and reports inactive computer accounts, aiding in the clean-up and optimization of AD resources.
 
