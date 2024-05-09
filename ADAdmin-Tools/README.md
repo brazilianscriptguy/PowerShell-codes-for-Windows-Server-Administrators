@@ -13,7 +13,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 3. **Check-ServicesPort-Connectivity.ps1:** Checks services ports connectivity through a GUI, displaying real-time results and exporting successful connections to a CSV file for network diagnostics and verification.
 
-4. **Cleanup-Inactive-ADComputer.ps1:** Identifies and removes inactive workstation accounts from Active Directory (AD), enhancing network security and organizational efficiency.
+4. **Cleanup-Inactive-ADComputerAccounts.ps1:** Identifies and removes inactive workstation accounts from Active Directory (AD), enhancing network security and organizational efficiency.
 
 5. **Clear-and-Initiate-DomainGPOSync.ps1:** Performs a complete reset of Domain GPOs with confirmation via a user-friendly GUI, followed by re-synchronization to ensure current policies are accurately applied.
 
