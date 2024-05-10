@@ -1,6 +1,6 @@
 # PowerShell Script to Search and Remove Expired Certificate Files Stored as a repository 
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 9, 2024
+# Update: May 10, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -110,7 +110,7 @@ function Is-CertificateExpired {
 # Function to remove expired certificate files
 function Remove-ExpiredCertificateFiles {
     param ([string[]]$Files)
-    Show-InfoMessage "Starting removal of expired certificate files."
+    Show-InfoMessage "Starting removal of expired certificate files only."
     foreach ($file in $Files) {
         try {
             Remove-Item -Path $file -Force -Verbose
@@ -122,51 +122,89 @@ function Remove-ExpiredCertificateFiles {
     Show-InfoMessage "Certificate file removal process completed."
 }
 
-# Function to trigger certificate cleanup and display GUI
+# Function to prompt for UNC path and trigger certificate cleanup
 function Cleanup-CertificateFiles {
-    # Prompt user to select directories containing the certificate files
+    param ([string]$uncPath)
+    
+    if (-not [string]::IsNullOrEmpty($uncPath) -and (Test-Path -Path $uncPath) -and ($uncPath -like "\\*")) {
+        $directories = @($uncPath)
+    } else {
+        Show-ErrorMessage "Invalid or empty UNC path."
+        return
+    }
+
+    # Retrieve the certificate files
+    $certificateFiles = Get-CertificateFiles -Directories $directories
+
+    # Filter out the expired certificate files
+    $expiredFiles = @()
+    foreach ($file in $certificateFiles) {
+        if (Is-CertificateExpired -filePath $file.FullName) {
+            $expiredFiles += $file.FullName
+        }
+    }
+
+    # Remove the expired certificate files
+    if ($expiredFiles.Count -gt 0) {
+        Remove-ExpiredCertificateFiles -Files $expiredFiles
+    } else {
+        Show-InfoMessage "No expired certificate files found."
+    }
+}
+
+# Function to open a folder browser dialog and return the selected path
+function Browse-ForFolder {
     $dialog = New-Object System.Windows.Forms.FolderBrowserDialog
     $dialog.Description = "Select the Folder Containing Certificate Files"
-    $dialog.SelectedPath = [Environment]::GetFolderPath('MyDocuments')
-    
-    $result = $dialog.ShowDialog()
-
-    if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
-        $directories = @($dialog.SelectedPath)
-        
-        # Retrieve the certificate files
-        $certificateFiles = Get-CertificateFiles -Directories $directories
-        
-        # Filter out the expired certificate files
-        $expiredFiles = @()
-        foreach ($file in $certificateFiles) {
-            if (Is-CertificateExpired -filePath $file.FullName) {
-                $expiredFiles += $file.FullName
-            }
-        }
-
-        # Remove the expired certificate files
-        if ($expiredFiles.Count -gt 0) {
-            Remove-ExpiredCertificateFiles -Files $expiredFiles
-        } else {
-            Show-InfoMessage "No expired certificate files found."
-        }
+    $dialog.ShowNewFolderButton = $false
+    $dialog.RootFolder = [System.Environment+SpecialFolder]::MyComputer
+    if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        return $dialog.SelectedPath
+    } else {
+        return $null
     }
 }
 
 # Initialize form components
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Remove Expired Certificate Files'
-$form.Size = New-Object System.Drawing.Size(500, 150)
+$form.Size = New-Object System.Drawing.Size(600, 250)
 $form.StartPosition = 'CenterScreen'
+
+# UNC Path Label
+$uncLabel = New-Object System.Windows.Forms.Label
+$uncLabel.Text = "Enter UNC Path or Browse for Folder:"
+$uncLabel.Location = New-Object System.Drawing.Point(30, 20)
+$uncLabel.Size = New-Object System.Drawing.Size(200, 20)
+$form.Controls.Add($uncLabel)
+
+# UNC Path TextBox
+$uncTextBox = New-Object System.Windows.Forms.TextBox
+$uncTextBox.Location = New-Object System.Drawing.Point(30, 50)
+$uncTextBox.Size = New-Object System.Drawing.Size(400, 20)
+$uncTextBox.Text = "\\\\server\\share"
+$form.Controls.Add($uncTextBox)
+
+# Browse button
+$browseButton = New-Object System.Windows.Forms.Button
+$browseButton.Location = New-Object System.Drawing.Point(450, 45)
+$browseButton.Size = New-Object System.Drawing.Size(100, 30)
+$browseButton.Text = "Browse..."
+$browseButton.Add_Click({
+    $folderPath = Browse-ForFolder
+    if ($folderPath -ne $null) {
+        $uncTextBox.Text = $folderPath
+    }
+})
+$form.Controls.Add($browseButton)
 
 # Cleanup button
 $cleanupButton = New-Object System.Windows.Forms.Button
-$cleanupButton.Location = New-Object System.Drawing.Point(150, 70)
+$cleanupButton.Location = New-Object System.Drawing.Point(200, 100)
 $cleanupButton.Size = New-Object System.Drawing.Size(200, 30)
 $cleanupButton.Text = "Execute Cleanup"
 $cleanupButton.Add_Click({
-    Cleanup-CertificateFiles
+    Cleanup-CertificateFiles -uncPath $uncTextBox.Text
     $form.Close()
 })
 $form.Controls.Add($cleanupButton)
