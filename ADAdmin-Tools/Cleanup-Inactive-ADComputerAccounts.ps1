@@ -1,6 +1,6 @@
 # PowerShell script to locate and remove old computer accounts from the domain
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 9, 2024
+# Updated: May 10, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -120,7 +120,7 @@ function Remove-SelectedWorkstationAccounts {
     if ($RemovedComputers.Count -gt 0) {
         $MyDocuments = [Environment]::GetFolderPath("MyDocuments")
         $TimeStamp = Get-Date -Format "yyyyMMdd_HHmmss"
-        $FileName = "${scriptName}_${DCName}-${TimeStamp}.csv"
+        $FileName = "${ScriptName}_${DCName}-${TimeStamp}.csv"
         $FilePath = Join-Path -Path $MyDocuments -ChildPath $FileName
         $RemovedComputers | Select-Object @{Name='Name';Expression={$_.Name}}, @{Name='DistinguishedName';Expression={$_.DistinguishedName}} | Export-Csv -Path $FilePath -NoTypeInformation -Force
         Show-InfoMessage "$($RemovedComputers.Count) workstation(s) removed. Details exported to '$FilePath'."
@@ -130,7 +130,7 @@ function Remove-SelectedWorkstationAccounts {
 # Main function to run the GUI
 function Show-GUI {
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "Inactive Workstation Account Cleanup"
+    $form.Text = "Inactive Workstation Account Cleaner"
     $form.Size = New-Object System.Drawing.Size(710, 520)
     $form.StartPosition = "CenterScreen"
 
@@ -141,7 +141,7 @@ function Show-GUI {
     $labelDC = New-Object System.Windows.Forms.Label
     $labelDC.Location = New-Object System.Drawing.Point(10, 10)
     $labelDC.Size = New-Object System.Drawing.Size(180, 20)
-    $labelDC.Text = "FQDN DC Name:"
+    $labelDC.Text = "Domain Controller Name:"
     $form.Controls.Add($labelDC)
 
     # TextBox for Domain Controller name input
