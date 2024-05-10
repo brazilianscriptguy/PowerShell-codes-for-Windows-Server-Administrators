@@ -1,6 +1,6 @@
 # PowerShell Script to Find, List, and Disable AD Users Expired Accounts 
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 9, 2024
+# Updated: May 10, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -152,7 +152,7 @@ function Disable-ExpiredAccounts {
 
 # Create a new Windows Form object
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "List and Disable Expired Accounts"   # Set the title of the form
+$form.Text = "Expired AD User Accounts Manager"   # Set the title of the form
 $form.Size = New-Object System.Drawing.Size(700, 550)  # Adjusted window size
 $form.StartPosition = "CenterScreen"  # Set the form to open in the center of the screen
 
