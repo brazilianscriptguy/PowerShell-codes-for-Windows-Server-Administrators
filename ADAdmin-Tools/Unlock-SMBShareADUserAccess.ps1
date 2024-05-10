@@ -1,6 +1,6 @@
 # PowerShell Script to Unlock User in a DFS Namespace Access with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 9, 2024
+# Updated: May 10, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -148,7 +148,7 @@ function Show-InfoMessage {
 # Function to get the FQDN of the domain name
 function Get-DomainFQDN {
     try {
-        $ComputerSystem = Get-WmiObject Win32_ComputerSystem
+        $ComputerSystem = Get-CimInstance -ClassName Win32_ComputerSystem
         $Domain = $ComputerSystem.Domain
         return $Domain
     } catch {
@@ -157,10 +157,17 @@ function Get-DomainFQDN {
     }
 }
 
-# Function to gather current DFS namespaces
+# Function to gather current DFS namespaces using Win32_Share
 function Get-DFSNamespaces {
+    param (
+        [string]$ComputerName
+    )
+
     try {
-        $namespaces = (Get-DfsnRoot).Path -replace '^\\\\', ''
+        $shares = Get-CimInstance -ClassName Win32_Share -ComputerName $ComputerName | Where-Object {
+            $_.Type -eq 0 # 0 is the type for Disk Drive
+        }
+        $namespaces = $shares.Name
         if ($namespaces) {
             Log-Message "Retrieved DFS Namespaces: $($namespaces -join ', ')"
             return $namespaces
@@ -176,9 +183,10 @@ function Get-DFSNamespaces {
 
 # Retrieve the FQDN of the current domain
 $currentDomainFQDN = Get-DomainFQDN
+$localComputerName = $env:COMPUTERNAME
 
 # Retrieve DFS Namespaces
-$dfsNamespaces = Get-DFSNamespaces
+$dfsNamespaces = Get-DFSNamespaces -ComputerName $localComputerName
 
 # Main form setup
 $main_form = New-Object System.Windows.Forms.Form
