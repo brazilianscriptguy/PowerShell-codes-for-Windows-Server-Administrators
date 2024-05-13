@@ -19,7 +19,7 @@ public class Window {
 "@
 [Window]::Hide()
 
-# Library Imports and Function Definitions
+# Library Imports
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
@@ -38,7 +38,14 @@ function Write-Log {
     }
 }
 
-# Function to remove empty directories
+function Log-Message {
+    param ([string]$Message)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] $Message"
+    # $logBox.Items.Add($logEntry) # Commented out to prevent log messages showing in the GUI
+    Add-Content -Path $logPath -Value $logEntry
+}
+
 function Remove-EmptyDirectories {
     param (
         [string]$DirectoryPath
@@ -51,13 +58,30 @@ function Remove-EmptyDirectories {
     }
 }
 
+function Select-Directory {
+    Log-Message "Prompting user to select a directory."
+    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+    $openFileDialog.Filter = "Folders|*.none"
+    $openFileDialog.CheckFileExists = $false
+    $openFileDialog.CheckPathExists = $true
+    $openFileDialog.Title = "Select the directory"
+    $openFileDialog.FileName = "Select Folder Here"
+    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $directoryPath = [System.IO.Path]::GetDirectoryName($openFileDialog.FileName)
+        Log-Message "Directory selected: $directoryPath"
+        return $directoryPath
+    } else {
+        Log-Message "Directory selection cancelled by user."
+        return $null
+    }
+}
+
 # Variable Definitions and Configuration
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}_$(Get-Date -Format 'yyyyMMddHHmmss').log"
 $logPath = Join-Path $logDir $logFileName
 
-# Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
     $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
     if (-not (Test-Path $logDir)) {
@@ -69,56 +93,54 @@ if (-not (Test-Path $logDir)) {
 # GUI Creation
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Certificate Organizer'
-$form.Size = New-Object System.Drawing.Size(600,400)
+$form.Size = New-Object System.Drawing.Size(700, 400)
 $form.StartPosition = 'CenterScreen'
 
 $sourceLabel = New-Object System.Windows.Forms.Label
 $sourceLabel.Location = New-Object System.Drawing.Point(10, 20)
-$sourceLabel.Size = New-Object System.Drawing.Size(280, 20)
-$sourceLabel.Text = 'Enter the Source Directory (UNC Path or Browse):'
+$sourceLabel.Size = New-Object System.Drawing.Size(180, 20)
+$sourceLabel.Text = 'Source Directory:'
 $form.Controls.Add($sourceLabel)
 
 $sourceTextBox = New-Object System.Windows.Forms.TextBox
-$sourceTextBox.Location = New-Object System.Drawing.Point(300, 20)
-$sourceTextBox.Size = New-Object System.Drawing.Size(200, 20)
+$sourceTextBox.Location = New-Object System.Drawing.Point(200, 20)
+$sourceTextBox.Size = New-Object System.Drawing.Size(380, 20)
 $form.Controls.Add($sourceTextBox)
 
 $sourceBrowseButton = New-Object System.Windows.Forms.Button
-$sourceBrowseButton.Location = New-Object System.Drawing.Point(510, 20)
-$sourceBrowseButton.Size = New-Object System.Drawing.Size(70, 20)
+$sourceBrowseButton.Location = New-Object System.Drawing.Point(590, 20)
+$sourceBrowseButton.Size = New-Object System.Drawing.Size(80, 20)
 $sourceBrowseButton.Text = 'Browse'
 $form.Controls.Add($sourceBrowseButton)
 
 $sourceBrowseButton.Add_Click({
-    $sourceFolderDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-    $sourceResult = $sourceFolderDialog.ShowDialog()
-    if ($sourceResult -eq [System.Windows.Forms.DialogResult]::OK) {
-        $sourceTextBox.Text = $sourceFolderDialog.SelectedPath
+    $selectedPath = Select-Directory
+    if ($selectedPath -ne $null) {
+        $sourceTextBox.Text = $selectedPath
     }
 })
 
 $targetLabel = New-Object System.Windows.Forms.Label
 $targetLabel.Location = New-Object System.Drawing.Point(10, 50)
-$targetLabel.Size = New-Object System.Drawing.Size(280, 20)
-$targetLabel.Text = 'Enter the Target Directory (UNC Path or Browse):'
+$targetLabel.Size = New-Object System.Drawing.Size(180, 20)
+$targetLabel.Text = 'Target Directory:'
 $form.Controls.Add($targetLabel)
 
 $targetTextBox = New-Object System.Windows.Forms.TextBox
-$targetTextBox.Location = New-Object System.Drawing.Point(300, 50)
-$targetTextBox.Size = New-Object System.Drawing.Size(200, 20)
+$targetTextBox.Location = New-Object System.Drawing.Point(200, 50)
+$targetTextBox.Size = New-Object System.Drawing.Size(380, 20)
 $form.Controls.Add($targetTextBox)
 
 $targetBrowseButton = New-Object System.Windows.Forms.Button
-$targetBrowseButton.Location = New-Object System.Drawing.Point(510, 50)
-$targetBrowseButton.Size = New-Object System.Drawing.Size(70, 20)
+$targetBrowseButton.Location = New-Object System.Drawing.Point(590, 50)
+$targetBrowseButton.Size = New-Object System.Drawing.Size(80, 20)
 $targetBrowseButton.Text = 'Browse'
 $form.Controls.Add($targetBrowseButton)
 
 $targetBrowseButton.Add_Click({
-    $targetFolderDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-    $targetResult = $targetFolderDialog.ShowDialog()
-    if ($targetResult -eq [System.Windows.Forms.DialogResult]::OK) {
-        $targetTextBox.Text = $targetFolderDialog.SelectedPath
+    $selectedPath = Select-Directory
+    if ($selectedPath -ne $null) {
+        $targetTextBox.Text = $selectedPath
     }
 })
 
@@ -128,7 +150,12 @@ $button.Size = New-Object System.Drawing.Size(100, 23)
 $button.Text = 'Start'
 $form.Controls.Add($button)
 
-# Event Handlers
+$logBox = New-Object System.Windows.Forms.ListBox
+$logBox.Location = New-Object System.Drawing.Point(10, 110)
+$logBox.Size = New-Object System.Drawing.Size(660, 230)
+$logBox.ScrollAlwaysVisible = $true
+$form.Controls.Add($logBox)
+
 $button.Add_Click({
     $logPath = Join-Path $targetTextBox.Text "log_$(Get-Date -Format 'yyyyMMddHHmmss').txt"
     Write-Log "Process started."
