@@ -67,6 +67,19 @@ if (-not (Test-Path $logDir)) {
     }
 }
 
+# Function to remove empty directories
+function Remove-EmptyDirectories {
+    param (
+        [string]$DirectoryPath
+    )
+    $directories = Get-ChildItem -Path $DirectoryPath -Directory -Recurse | Where-Object { $_.GetFileSystemInfos().Count -eq 0 }
+
+    foreach ($dir in $directories) {
+        Remove-Item -Path $dir.FullName -Force
+        Write-Log "Removed empty folder: $($dir.FullName)"
+    }
+}
+
 # GUI Creation
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Certificate Organizer'
@@ -138,73 +151,46 @@ $form.Controls.Add($logBox)
 # Event Handlers
 $button.Add_Click({
     $logPath = Join-Path $targetTextBox.Text "log_$(Get-Date -Format 'yyyyMMddHHmmss').txt"
-    Log-Message "Process started."
+    Write-Log "Process started."
     
-    # Check if all necessary fields are filled
     if ($sourceTextBox.Text -eq "" -or $targetTextBox.Text -eq "") {
         [System.Windows.Forms.MessageBox]::Show("Please fill in all required fields.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         return
     }
-    
+
     if (-not (Test-Path $sourceTextBox.Text)) {
         [System.Windows.Forms.MessageBox]::Show("Source directory does not exist", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         return
     }
-    
+
     if (-not (Test-Path $targetTextBox.Text)) {
         New-Item -Path $targetTextBox.Text -ItemType Directory | Out-Null
-        Log-Message "Created target directory."
+        Write-Log "Created target directory."
     }
 
     $extensions = '*.cer', '*.crl', '*.crt', '*.der', '*.pem', '*.pfx', '*.p12', '*.p7b'
     $certFiles = $extensions | ForEach-Object { Get-ChildItem -Path $sourceTextBox.Text -Filter $_ -Recurse -ErrorAction SilentlyContinue }
-    
-    $processedFiles = 0
-    $removedFolders = @()
+
     foreach ($file in $certFiles) {
         $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 $file.FullName
-        $issuerName = $cert.Issuer -replace "CN=|,|\""", ""  # Simplify the issuer name
-        $issuerFolder = $issuerName -replace '[\\\/:*?"<>|]', '' # Remove illegal characters
+        $issuerName = ($cert.Issuer -replace "CN=|,|\""", "").Trim()
+        $issuerFolder = $issuerName -replace '[\\\/:*?"<>|]', ''
         $issuerFolderPath = Join-Path $targetTextBox.Text $issuerFolder
-        
+
         if (-not (Test-Path $issuerFolderPath)) {
             New-Item -Path $issuerFolderPath -ItemType Directory | Out-Null
-            Log-Message "Created folder for issuer: $issuerName"
+            Write-Log "Created folder for issuer: $issuerName"
         }
-        
+
         $targetFilePath = Join-Path $issuerFolderPath $file.Name
         Move-Item -Path $file.FullName -Destination $targetFilePath -Force
-        Log-Message "Moved $file to $issuerFolderPath"
-        
-        $processedFiles++
-        
-        # Remove older empty folders
-        $parentFolder = $file.Directory.FullName
-        while ($parentFolder -ne $sourceTextBox.Text) {
-            if ((Get-ChildItem -Path $parentFolder | Measure-Object).Count -eq 0) {
-                $removedFolders += $parentFolder
-                Remove-Item -Path $parentFolder
-                Log-Message "Removed empty folder: $parentFolder"
-            }
-            $parentFolder = Split-Path -Path $parentFolder -Parent
-        }
-    }
-    
-    if ($processedFiles -gt 0) {
-        Log-Message "Processed $processedFiles files."
-    }
-    
-    if ($removedFolders.Count -gt 0) {
-        Log-Message "Removed $($removedFolders.Count) empty folders."
+        Write-Log "Moved $file to $issuerFolderPath"
     }
 
-    # Remove the source directory if it's empty
-    if ((Get-ChildItem -Path $sourceTextBox.Text | Measure-Object).Count -eq 0) {
-        Remove-Item -Path $sourceTextBox.Text
-        Log-Message "Removed empty source directory: $($sourceTextBox.Text)"
-    }
-    
+    Remove-EmptyDirectories -DirectoryPath $sourceTextBox.Text
+
     [System.Windows.Forms.MessageBox]::Show("Certificates have been organized by issuer.", "Process Completed", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Write-Log "All operations completed."
 })
 
 # Main Execution
