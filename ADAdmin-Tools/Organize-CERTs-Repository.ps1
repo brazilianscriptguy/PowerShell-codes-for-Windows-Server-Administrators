@@ -65,7 +65,7 @@ function Select-Directory {
     $openFileDialog.CheckFileExists = $false
     $openFileDialog.CheckPathExists = $true
     $openFileDialog.Title = "Select the directory"
-    $openFileDialog.FileName = "Select Folder Here"
+    $openFileDialog.FileName = "Select or Paste a Path"
     if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
         $directoryPath = [System.IO.Path]::GetDirectoryName($openFileDialog.FileName)
         Log-Message "Directory selected: $directoryPath"
