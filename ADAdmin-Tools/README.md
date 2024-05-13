@@ -3,7 +3,7 @@
 To effectively utilize the scripts in this folder, it's essential to have the ability to run `PowerShell scripts (.PS1)` that incorporate the `Import-Module ActiveDirectory` command, especially on Windows 10 workstations. Installation of the `Remote Server Administration Tools (RSAT)` is required for this purpose.
 
 ## Description:
-This section showcases a comprehensive suite of PowerShell and Visual Basic scripts, expertly designed to streamline the management of Active Directory (AD) and Windows Server environments. These tools are specifically developed to automate and simplify a broad spectrum of administrative tasks involving AD objects like users, groups, and organizational units (OUs), along with server management and software deployment processes. Each script is designed to generate .LOG files and .CSV output results, facilitating easy analysis and documentation of administrative actions and outcomes.
+This section showcases a comprehensive suite of PowerShell and Visual Basic scripts, expertly designed to streamline the management of `Active Directory (AD) and Windows Server environments`. These tools are specifically developed to automate and simplify a broad spectrum of administrative tasks involving AD objects like users, groups, and organizational units (OUs), along with server management and software deployment processes. Each script is designed to generate `.LOG` files and `.CSV` output results, facilitating easy analysis and documentation of administrative actions and outcomes.
 
 ### Script Descriptions (Alphabetically Ordered)
 
@@ -91,7 +91,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 42. **Update-ADComputer-Descriptions.ps1:** Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
 
-43. **Update-ADComputer-Winget-Explicit.ps1:** Leverages the winget tool for direct, script-driven software updates, enhancing system security and performance.
+43. **Update-ADComputer-Winget-Explicit.ps1:** Leverages the `winget` tool for direct, script-driven software updates, enhancing system security and performance.
 
 44. **Update-ADComputer-Winget-viaGPO.ps1:** Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
 
