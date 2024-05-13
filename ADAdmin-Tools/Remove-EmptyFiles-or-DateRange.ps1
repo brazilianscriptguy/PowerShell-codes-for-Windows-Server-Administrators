@@ -1,6 +1,6 @@
 # PowerShell Script to Find and Delete Empty Files or Delete Files by Date Range with Enhanced GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 9, 2024
+# Update: May 13, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -75,18 +75,33 @@ function Show-InfoMessage {
     Log-Message "Info: $message" -MessageType "INFO"
 }
 
-# Reusable function for selecting folders
-function Select-Folder {
-    param ([string]$dialogTitle = "Select Folder")
-    $folderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-    $folderBrowserDialog.Description = $dialogTitle
-    if ($folderBrowserDialog.ShowDialog() -eq 'OK') {
-        $selectedPath = $folderBrowserDialog.SelectedPath
-        $global:selectedFolderPath = $selectedPath
-        $labelSelectedFolder.Text = "Selected folder: $selectedFolderPath"
-        Log-Message "Selected folder: $selectedFolderPath"
-        return $selectedPath
+# Function to display messages
+function Show-Message {
+    param (
+        [string]$message,
+        [string]$title,
+        [string]$icon
+    )
+    [System.Windows.Forms.MessageBox]::Show($message, $title, [System.Windows.Forms.MessageBoxButtons]::OK, $icon)
+    Log-Message "${title}: ${message}" -MessageType ($title.ToUpper())
+}
+
+# Function to select a directory
+function Select-Directory {
+    Log-Message "Prompting user to select a directory."
+    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+    $openFileDialog.Filter = "Folders|*.none"
+    $openFileDialog.CheckFileExists = $false
+    $openFileDialog.CheckPathExists = $true
+    $openFileDialog.Title = "Select the directory"
+    $openFileDialog.FileName = "Select or Paste a Path"
+    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $directoryPath = [System.IO.Path]::GetDirectoryName($openFileDialog.FileName)
+        $directoryPath = [System.Text.Encoding]::UTF8.GetString([System.Text.Encoding]::Default.GetBytes($directoryPath))
+        Log-Message "Directory selected: $directoryPath"
+        return $directoryPath
     } else {
+        Log-Message "Directory selection cancelled by user."
         return $null
     }
 }
@@ -103,10 +118,19 @@ $labelSelectedFolder.Location = New-Object System.Drawing.Point(10, 10)
 $labelSelectedFolder.Size = New-Object System.Drawing.Size(560, 20)
 $form.Controls.Add($labelSelectedFolder)
 
+$listBox = New-Object System.Windows.Forms.ListBox
+$listBox.Location = New-Object System.Drawing.Point(10, 370)
+$listBox.Size = New-Object System.Drawing.Size(560, 120)
+$form.Controls.Add($listBox)
+
+# ======================================
 # Section: Date Range File Deletion
+# ======================================
+
 $labelDateSection = New-Object System.Windows.Forms.Label
 $labelDateSection.Location = New-Object System.Drawing.Point(10, 40)
-$labelDateSection.Size = New-Object System.Drawing.Size(280, 20)
+$labelDateSection.Size = New-Object System.Drawing.Size(400, 20)
+$labelDateSection.Font = New-Object System.Drawing.Font('Microsoft Sans Serif', 10, [System.Drawing.FontStyle]::Bold)
 $labelDateSection.Text = 'Delete Files by Date Range in Selected Folder'
 $form.Controls.Add($labelDateSection)
 
@@ -115,58 +139,93 @@ $buttonSelectDateRangeFolder.Text = 'Select Folder'
 $buttonSelectDateRangeFolder.Location = New-Object System.Drawing.Point(10, 70)
 $buttonSelectDateRangeFolder.Size = New-Object System.Drawing.Size(100, 30)
 $buttonSelectDateRangeFolder.Add_Click({
-    $selectedFolderPath = Select-Folder "Select Folder for Date Range Deletion"
+    $global:selectedFolderPath = Select-Directory
+    if ($global:selectedFolderPath) {
+        $labelSelectedFolder.Text = "Selected folder: $global:selectedFolderPath"
+        Find-DateRangeFiles $global:selectedFolderPath
+    }
 })
 $form.Controls.Add($buttonSelectDateRangeFolder)
 
 $startDateLabel = New-Object System.Windows.Forms.Label
 $startDateLabel.Text = 'Start Date:'
-$startDateLabel.Location = New-Object System.Drawing.Point(120, 70)
+$startDateLabel.Location = New-Object System.Drawing.Point(120, 75)
 $form.Controls.Add($startDateLabel)
 
 $startDatePicker = New-Object System.Windows.Forms.DateTimePicker
-$startDatePicker.Location = New-Object System.Drawing.Point(220, 70)
+$startDatePicker.Format = [System.Windows.Forms.DateTimePickerFormat]::Long
+$startDatePicker.Location = New-Object System.Drawing.Point(240, 70)
+$startDatePicker.Width = 240
 $form.Controls.Add($startDatePicker)
 
 $endDateLabel = New-Object System.Windows.Forms.Label
 $endDateLabel.Text = 'End Date:'
-$endDateLabel.Location = New-Object System.Drawing.Point(120, 100)
+$endDateLabel.Location = New-Object System.Drawing.Point(120, 105)
 $form.Controls.Add($endDateLabel)
 
 $endDatePicker = New-Object System.Windows.Forms.DateTimePicker
-$endDatePicker.Location = New-Object System.Drawing.Point(220, 100)
+$endDatePicker.Format = [System.Windows.Forms.DateTimePickerFormat]::Long
+$endDatePicker.Location = New-Object System.Drawing.Point(240, 100)
+$endDatePicker.Width = 240
 $form.Controls.Add($endDatePicker)
 
 $deleteByDateButton = New-Object System.Windows.Forms.Button
 $deleteByDateButton.Text = 'Delete Files'
 $deleteByDateButton.Location = New-Object System.Drawing.Point(10, 130)
-$deleteByDateButton.Size = New-Object System.Drawing.Size(320, 30)
+$deleteByDateButton.Size = New-Object System.Drawing.Size(100, 30)
 $deleteByDateButton.Add_Click({
-    if (-not $selectedFolderPath) {
+    if (-not $global:selectedFolderPath) {
         Show-ErrorMessage "Please select a folder first!"
         return
     }
     $startDate = $startDatePicker.Value
     $endDate = $endDatePicker.Value
-    $files = Get-ChildItem -Path $selectedFolderPath -Recurse -File | Where-Object { $_.LastWriteTime -ge $startDate -and $_.LastWriteTime -le $endDate }
+    $files = Get-ChildItem -Path $global:selectedFolderPath -Recurse -File | Where-Object { $_.LastWriteTime -ge $startDate -and $_.LastWriteTime -le $endDate }
     if ($files.Count -eq 0) {
         Show-InfoMessage "No files found in the selected date range."
-        Log-Message "No files found for deletion in date range $startDate to $endDate in folder $selectedFolderPath"
+        Log-Message "No files found for deletion in date range $startDate to $endDate in folder $global:selectedFolderPath"
         return
     }
     foreach ($file in $files) {
-        Remove-Item $file.FullName -Force -ErrorAction SilentlyContinue
-        Log-Message "Deleted file: $($file.FullName)"
+        try {
+            Remove-Item $file.FullName -Force -ErrorAction Stop
+            Log-Message "Deleted file: $($file.FullName)"
+        } catch {
+            Log-Message "Failed to delete file: $($file.FullName)" -MessageType "ERROR"
+        }
     }
-    Show-InfoMessage "Files deleted successfully!"
-    Log-Message "Deleted files in $selectedFolderPath from $startDate to $endDate"
+    Show-InfoMessage "$($files.Count) file(s) deleted successfully!"
+    Log-Message "Deleted $($files.Count) files in $global:selectedFolderPath from $startDate to $endDate"
+    Find-DateRangeFiles $global:selectedFolderPath # Refresh the list after deletion
 })
 $form.Controls.Add($deleteByDateButton)
 
+function Find-DateRangeFiles {
+    param ($folderPath)
+    $listBox.Items.Clear()
+    $startDate = $startDatePicker.Value
+    $endDate = $endDatePicker.Value
+    $files = Get-ChildItem -Path $folderPath -Recurse -File | Where-Object { $_.LastWriteTime -ge $startDate -and $_.LastWriteTime -le $endDate }
+    $listBox.Items.AddRange($files.FullName)
+    Show-InfoMessage "$($files.Count) file(s) found in the selected date range."
+    Log-Message "Found $($files.Count) files in date range $startDate to $endDate in folder $folderPath"
+}
+
+# Graphical Separator
+$separatorPanel = New-Object System.Windows.Forms.Panel
+$separatorPanel.Location = New-Object System.Drawing.Point(10, 180)
+$separatorPanel.Size = New-Object System.Drawing.Size(560, 2)
+$separatorPanel.BackColor = [System.Drawing.Color]::Gray
+$form.Controls.Add($separatorPanel)
+
+# ======================================
 # Section: Empty Files Deletion
+# ======================================
+
 $labelEmptyFilesSection = New-Object System.Windows.Forms.Label
 $labelEmptyFilesSection.Location = New-Object System.Drawing.Point(10, 200)
-$labelEmptyFilesSection.Size = New-Object System.Drawing.Size(280, 20)
+$labelEmptyFilesSection.Size = New-Object System.Drawing.Size(400, 20)
+$labelEmptyFilesSection.Font = New-Object System.Drawing.Font('Microsoft Sans Serif', 10, [System.Drawing.FontStyle]::Bold)
 $labelEmptyFilesSection.Text = 'Find and Delete Empty Files'
 $form.Controls.Add($labelEmptyFilesSection)
 
@@ -175,23 +234,41 @@ $buttonSelectEmptyFilesFolder.Text = 'Select Folder'
 $buttonSelectEmptyFilesFolder.Location = New-Object System.Drawing.Point(10, 230)
 $buttonSelectEmptyFilesFolder.Size = New-Object System.Drawing.Size(100, 30)
 $buttonSelectEmptyFilesFolder.Add_Click({
-    $selectedFolderPath = Select-Folder "Select Folder for Empty Files Detection"
-    if ($selectedFolderPath) {
-        Find-EmptyFiles
+    $global:selectedFolderPath = Select-Directory
+    if ($global:selectedFolderPath) {
+        $labelSelectedFolder.Text = "Selected folder: $global:selectedFolderPath"
+        Find-EmptyFiles $global:selectedFolderPath
     }
 })
 $form.Controls.Add($buttonSelectEmptyFilesFolder)
-
-$listBox = New-Object System.Windows.Forms.ListBox
-$listBox.Location = New-Object System.Drawing.Point(10, 270)
-$listBox.Size = New-Object System.Drawing.Size(560, 180)
-$form.Controls.Add($listBox)
 
 $buttonDeleteFiles = New-Object System.Windows.Forms.Button
 $buttonDeleteFiles.Text = 'Delete Files'
 $buttonDeleteFiles.Location = New-Object System.Drawing.Point(120, 230)
 $buttonDeleteFiles.Size = New-Object System.Drawing.Size(100, 30)
-$buttonDeleteFiles.Add_Click({ Delete-EmptyFiles })
+$buttonDeleteFiles.Add_Click({
+    if (-not $global:selectedFolderPath) {
+        Show-ErrorMessage "Please select a folder first!"
+        return
+    }
+    $foundFiles = Get-ChildItem -Path $global:selectedFolderPath -Recurse -File | Where-Object { $_.Length -eq 0 }
+    if ($foundFiles.Count -eq 0) {
+        Show-InfoMessage "No empty files found to delete."
+        Log-Message "No empty files found for deletion in folder $global:selectedFolderPath"
+        return
+    }
+    foreach ($file in $foundFiles) {
+        try {
+            Remove-Item $file.FullName -Force -ErrorAction Stop
+            Log-Message "Deleted empty file: $($file.FullName)"
+        } catch {
+            Log-Message "Failed to delete empty file: $($file.FullName)" -MessageType "ERROR"
+        }
+    }
+    Show-InfoMessage "$($foundFiles.Count) empty file(s) deleted successfully!"
+    Log-Message "Deleted $($foundFiles.Count) empty files in $global:selectedFolderPath"
+    Find-EmptyFiles $global:selectedFolderPath # Refresh the list after deletion
+})
 $form.Controls.Add($buttonDeleteFiles)
 
 $buttonOpenFolder = New-Object System.Windows.Forms.Button
@@ -199,8 +276,8 @@ $buttonOpenFolder.Text = 'Open Folder'
 $buttonOpenFolder.Location = New-Object System.Drawing.Point(230, 230)
 $buttonOpenFolder.Size = New-Object System.Drawing.Size(100, 30)
 $buttonOpenFolder.Add_Click({
-    if ($selectedFolderPath) {
-        Start-Process explorer.exe -ArgumentList $selectedFolderPath
+    if ($global:selectedFolderPath) {
+        Start-Process explorer.exe -ArgumentList $global:selectedFolderPath
     } else {
         Show-ErrorMessage "Please select a folder first!"
     }
@@ -209,51 +286,28 @@ $form.Controls.Add($buttonOpenFolder)
 
 # Progress Bar for Empty File Detection
 $progressBar = New-Object System.Windows.Forms.ProgressBar
-$progressBar.Location = New-Object System.Drawing.Point(10, 460)
+$progressBar.Location = New-Object System.Drawing.Point(10, 320)
 $progressBar.Size = New-Object System.Drawing.Size(560, 20)
 $form.Controls.Add($progressBar)
 
 function Find-EmptyFiles {
-    if (-not $selectedFolderPath) {
+    param ($folderPath)
+    if (-not $folderPath) {
         Show-ErrorMessage "Please select a folder first!"
         return
     }
     $listBox.Items.Clear()
-    $files = Get-ChildItem -Path $selectedFolderPath -File -Recurse -ErrorAction SilentlyContinue
+    $files = Get-ChildItem -Path $folderPath -Recurse -File | Where-Object { $_.Length -eq 0 }
     $progressBar.Maximum = $files.Count
     $progressBar.Value = 0
     $foundFiles = @()
     foreach ($file in $files) {
-        if ($file.Length -eq 0) {
-            $foundFiles += $file.FullName
-        }
+        $foundFiles += $file.FullName
         $progressBar.PerformStep()
     }
-    if ($foundFiles.Count -gt 0) {
-        $listBox.Items.AddRange($foundFiles)
-        Log-Message "Found $($listBox.Items.Count) empty file(s)"
-    } else {
-        Show-InfoMessage 'No empty files found'
-        Log-Message 'No empty files found'
-    }
-}
-
-function Delete-EmptyFiles {
-    if (-not $selectedFolderPath) {
-        Show-ErrorMessage "Please select a folder first!"
-        return
-    }
-    if ($listBox.Items.Count -eq 0) {
-        Show-InfoMessage 'No files to delete'
-        return
-    }
-    foreach ($item in $listBox.Items) {
-        Remove-Item -Path $item -Force -ErrorAction SilentlyContinue
-        Log-Message "Deleted file: $item"
-    }
-    Show-InfoMessage "$($listBox.Items.Count) file(s) deleted"
-    Log-Message "$($listBox.Items.Count) file(s) deleted"
-    $listBox.Items.Clear()
+    $listBox.Items.AddRange($foundFiles)
+    Show-InfoMessage "$($foundFiles.Count) empty file(s) found."
+    Log-Message "Found $($foundFiles.Count) empty files in folder $folderPath"
 }
 
 $form.ShowDialog()
