@@ -10,19 +10,13 @@ public class Window {
     [DllImport("kernel32.dll", SetLastError = true)]
     static extern IntPtr GetConsoleWindow();
     [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     public static void Hide() {
         var handle = GetConsoleWindow();
         ShowWindow(handle, 0); // 0 = SW_HIDE
     }
-    public static void Show() {
-        var handle = GetConsoleWindow();
-        ShowWindow(handle, 5); // 5 = SW_SHOW
-    }
 }
 "@
-
 [Window]::Hide()
 
 # Library Imports and Function Definitions
@@ -44,12 +38,17 @@ function Write-Log {
     }
 }
 
-function Log-Message {
-    param ([string]$Message)
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
-    $logBox.Items.Add($logEntry)
-    Add-Content -Path $logPath -Value $logEntry
+# Function to remove empty directories
+function Remove-EmptyDirectories {
+    param (
+        [string]$DirectoryPath
+    )
+    $directories = Get-ChildItem -Path $DirectoryPath -Directory -Recurse | Where-Object { $_.GetFileSystemInfos().Count -eq 0 }
+
+    foreach ($dir in $directories) {
+        Remove-Item -Path $dir.FullName -Force
+        Write-Log "Removed empty folder: $($dir.FullName)"
+    }
 }
 
 # Variable Definitions and Configuration
@@ -64,19 +63,6 @@ if (-not (Test-Path $logDir)) {
     if (-not (Test-Path $logDir)) {
         Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
         return
-    }
-}
-
-# Function to remove empty directories
-function Remove-EmptyDirectories {
-    param (
-        [string]$DirectoryPath
-    )
-    $directories = Get-ChildItem -Path $DirectoryPath -Directory -Recurse | Where-Object { $_.GetFileSystemInfos().Count -eq 0 }
-
-    foreach ($dir in $directories) {
-        Remove-Item -Path $dir.FullName -Force
-        Write-Log "Removed empty folder: $($dir.FullName)"
     }
 }
 
@@ -142,12 +128,6 @@ $button.Size = New-Object System.Drawing.Size(100, 23)
 $button.Text = 'Start'
 $form.Controls.Add($button)
 
-$logBox = New-Object System.Windows.Forms.ListBox
-$logBox.Location = New-Object System.Drawing.Point(10, 110)
-$logBox.Size = New-Object System.Drawing.Size(570, 230)
-$logBox.ScrollAlwaysVisible = $true
-$form.Controls.Add($logBox)
-
 # Event Handlers
 $button.Add_Click({
     $logPath = Join-Path $targetTextBox.Text "log_$(Get-Date -Format 'yyyyMMddHHmmss').txt"
@@ -193,7 +173,6 @@ $button.Add_Click({
     Write-Log "All operations completed."
 })
 
-# Main Execution
 $form.ShowDialog()
 
 # End of script
