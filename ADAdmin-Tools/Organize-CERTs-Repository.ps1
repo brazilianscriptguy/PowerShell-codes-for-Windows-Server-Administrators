@@ -1,6 +1,6 @@
 # PowerShell Script to Organize Certificate Files by Issuer with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 13, 2024
+# Update: May 14, 2024
 
 # Hide PowerShell console window
 Add-Type @"
@@ -25,33 +25,21 @@ Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
 function Write-Log {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$Message
-    )
+    param ([string]$Message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = "[$timestamp] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+        $logBox.Items.Add($logEntry)
+        $logBox.TopIndex = $logBox.Items.Count - 1
     } catch {
         Write-Error "Failed to write to log: $_"
     }
 }
 
-function Log-Message {
-    param ([string]$Message)
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
-    # $logBox.Items.Add($logEntry) # Commented out to prevent log messages showing in the GUI
-    Add-Content -Path $logPath -Value $logEntry
-}
-
 function Remove-EmptyDirectories {
-    param (
-        [string]$DirectoryPath
-    )
+    param ([string]$DirectoryPath)
     $directories = Get-ChildItem -Path $DirectoryPath -Directory -Recurse | Where-Object { $_.GetFileSystemInfos().Count -eq 0 }
-
     foreach ($dir in $directories) {
         Remove-Item -Path $dir.FullName -Force
         Write-Log "Removed empty folder: $($dir.FullName)"
@@ -59,20 +47,26 @@ function Remove-EmptyDirectories {
 }
 
 function Select-Directory {
-    Log-Message "Prompting user to select a directory."
-    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-    $openFileDialog.Filter = "Folders|*.none"
-    $openFileDialog.CheckFileExists = $false
-    $openFileDialog.CheckPathExists = $true
-    $openFileDialog.Title = "Select the directory"
-    $openFileDialog.FileName = "Select or Paste a Path"
-    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $directoryPath = [System.IO.Path]::GetDirectoryName($openFileDialog.FileName)
-        Log-Message "Directory selected: $directoryPath"
+    $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
+    $folderBrowser.Description = "Select a Folder"
+    if ($folderBrowser.ShowDialog() -eq "OK") {
+        $directoryPath = $folderBrowser.SelectedPath
+        Write-Log "Directory selected: $directoryPath"
         return $directoryPath
     } else {
-        Log-Message "Directory selection cancelled by user."
+        Write-Log "Directory selection cancelled by user."
         return $null
+    }
+}
+
+function ExtractCommonName {
+    param ([string]$issuerName)
+    $pattern = 'CN\s*=\s*([^,]+)'
+    $match = [regex]::Match($issuerName, $pattern)
+    if ($match.Success) {
+        return $match.Groups[1].Value
+    } else {
+        return "Unknown"  # Fallback if no common name is found
     }
 }
 
@@ -83,9 +77,9 @@ $logFileName = "${scriptName}_$(Get-Date -Format 'yyyyMMddHHmmss').log"
 $logPath = Join-Path $logDir $logFileName
 
 if (-not (Test-Path $logDir)) {
-    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+    New-Item -Path $logDir -ItemType Directory -Force | Out-Null
     if (-not (Test-Path $logDir)) {
-        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
+        Write-Error "Failed to create log directory at $logDir."
         return
     }
 }
@@ -96,6 +90,7 @@ $form.Text = 'Certificate Organizer'
 $form.Size = New-Object System.Drawing.Size(700, 400)
 $form.StartPosition = 'CenterScreen'
 
+# Source Directory UI Components
 $sourceLabel = New-Object System.Windows.Forms.Label
 $sourceLabel.Location = New-Object System.Drawing.Point(10, 20)
 $sourceLabel.Size = New-Object System.Drawing.Size(180, 20)
@@ -112,7 +107,6 @@ $sourceBrowseButton.Location = New-Object System.Drawing.Point(590, 20)
 $sourceBrowseButton.Size = New-Object System.Drawing.Size(80, 20)
 $sourceBrowseButton.Text = 'Browse'
 $form.Controls.Add($sourceBrowseButton)
-
 $sourceBrowseButton.Add_Click({
     $selectedPath = Select-Directory
     if ($selectedPath -ne $null) {
@@ -120,6 +114,7 @@ $sourceBrowseButton.Add_Click({
     }
 })
 
+# Target Directory UI Components
 $targetLabel = New-Object System.Windows.Forms.Label
 $targetLabel.Location = New-Object System.Drawing.Point(10, 50)
 $targetLabel.Size = New-Object System.Drawing.Size(180, 20)
@@ -136,7 +131,6 @@ $targetBrowseButton.Location = New-Object System.Drawing.Point(590, 50)
 $targetBrowseButton.Size = New-Object System.Drawing.Size(80, 20)
 $targetBrowseButton.Text = 'Browse'
 $form.Controls.Add($targetBrowseButton)
-
 $targetBrowseButton.Add_Click({
     $selectedPath = Select-Directory
     if ($selectedPath -ne $null) {
@@ -144,6 +138,7 @@ $targetBrowseButton.Add_Click({
     }
 })
 
+# Start Button and Log Box
 $button = New-Object System.Windows.Forms.Button
 $button.Location = New-Object System.Drawing.Point(10, 80)
 $button.Size = New-Object System.Drawing.Size(100, 23)
@@ -156,17 +151,20 @@ $logBox.Size = New-Object System.Drawing.Size(660, 230)
 $logBox.ScrollAlwaysVisible = $true
 $form.Controls.Add($logBox)
 
+# Start button click event
 $button.Add_Click({
-    $logPath = Join-Path $targetTextBox.Text "log_$(Get-Date -Format 'yyyyMMddHHmmss').txt"
+    $logPath = Join-Path $targetTextBox.Text "process-events_$(Get-Date -Format 'yyyyMMddHHmmss').log"
     Write-Log "Process started."
     
-    if ($sourceTextBox.Text -eq "" -or $targetTextBox.Text -eq "") {
+    if ([string]::IsNullOrWhiteSpace($sourceTextBox.Text) -or [string]::IsNullOrWhiteSpace($targetTextBox.Text)) {
         [System.Windows.Forms.MessageBox]::Show("Please fill in all required fields.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        Write-Log "Missing required fields."
         return
     }
 
     if (-not (Test-Path $sourceTextBox.Text)) {
         [System.Windows.Forms.MessageBox]::Show("Source directory does not exist", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        Write-Log "Source directory does not exist."
         return
     }
 
@@ -176,27 +174,34 @@ $button.Add_Click({
     }
 
     $extensions = '*.cer', '*.crl', '*.crt', '*.der', '*.pem', '*.pfx', '*.p12', '*.p7b'
-    $certFiles = $extensions | ForEach-Object { Get-ChildItem -Path $sourceTextBox.Text -Filter $_ -Recurse -ErrorAction SilentlyContinue }
+    $certFiles = Get-ChildItem -Path $sourceTextBox.Text -Include $extensions -Recurse -ErrorAction SilentlyContinue
+    $processedFiles = 0
 
     foreach ($file in $certFiles) {
-        $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 $file.FullName
-        $issuerName = ($cert.Issuer -replace "CN=|,|\""", "").Trim()
-        $issuerFolder = $issuerName -replace '[\\\/:*?"<>|]', ''
-        $issuerFolderPath = Join-Path $targetTextBox.Text $issuerFolder
+        try {
+            $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 $file.FullName
+            $commonName = ExtractCommonName -issuerName $cert.Issuer
+            $commonNameFolder = $commonName -replace '[\\\/:*?"<>|]', ''  # Clean folder name of invalid characters
+            $commonNameFolderPath = Join-Path $targetTextBox.Text $commonNameFolder
 
-        if (-not (Test-Path $issuerFolderPath)) {
-            New-Item -Path $issuerFolderPath -ItemType Directory | Out-Null
-            Write-Log "Created folder for issuer: $issuerName"
+            if (-not (Test-Path $commonNameFolderPath)) {
+                New-Item -Path $commonNameFolderPath -ItemType Directory | Out-Null
+                Write-Log "Created folder for common name: $commonName"
+            }
+
+            $targetFilePath = Join-Path $commonNameFolderPath $file.Name
+            Move-Item -Path $file.FullName -Destination $targetFilePath -Force
+            Write-Log "Moved $file to $commonNameFolderPath"
+            $processedFiles++
+        } catch {
+            Write-Log "Error processing file $($file.FullName): $_"
         }
-
-        $targetFilePath = Join-Path $issuerFolderPath $file.Name
-        Move-Item -Path $file.FullName -Destination $targetFilePath -Force
-        Write-Log "Moved $file to $issuerFolderPath"
     }
 
     Remove-EmptyDirectories -DirectoryPath $sourceTextBox.Text
 
-    [System.Windows.Forms.MessageBox]::Show("Certificates have been organized by issuer.", "Process Completed", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Write-Log "Processed $processedFiles files."
+    [System.Windows.Forms.MessageBox]::Show("Certificates have been organized by common name. Processed $processedFiles files.", "Process Completed", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
     Write-Log "All operations completed."
 })
 
