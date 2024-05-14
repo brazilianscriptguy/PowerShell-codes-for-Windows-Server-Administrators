@@ -1,6 +1,6 @@
 # PowerShell Script to Search and Remove Expired Certificate Files Stored as a repository 
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 10, 2024
+# Update: May 14, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -55,6 +55,8 @@ function Write-Log {
     $logEntry = "[$timestamp] [$Level] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+        $logBox.Items.Add($logEntry)
+        $logBox.TopIndex = $logBox.Items.Count - 1
     } catch {
         Write-Error "Failed to write to log: $_"
     }
@@ -79,7 +81,7 @@ function Get-CertificateFiles {
     param (
         [Parameter(Mandatory = $true)]
         [string[]]$Directories,
-        [string[]]$Extensions = @('*.cer', '*.crt', '*.pem', '*.pfx', '*.p12', '*.p7b')
+        [string[]]$Extensions = @('*.cer', '*.crl', '*.crt', '*.der', '*.pem', '*.pfx', '*.p12', '*.p7b')
     )
     $certificateFiles = @()
     foreach ($directory in $Directories) {
@@ -168,7 +170,7 @@ function Browse-ForFolder {
 # Initialize form components
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Remove Expired Certificate Files'
-$form.Size = New-Object System.Drawing.Size(600, 250)
+$form.Size = New-Object System.Drawing.Size(600, 380)  # Increased form height
 $form.StartPosition = 'CenterScreen'
 
 # UNC Path Label
@@ -182,7 +184,6 @@ $form.Controls.Add($uncLabel)
 $uncTextBox = New-Object System.Windows.Forms.TextBox
 $uncTextBox.Location = New-Object System.Drawing.Point(30, 50)
 $uncTextBox.Size = New-Object System.Drawing.Size(400, 20)
-$uncTextBox.Text = "\\\\server\\share"
 $form.Controls.Add($uncTextBox)
 
 # Browse button
@@ -205,9 +206,14 @@ $cleanupButton.Size = New-Object System.Drawing.Size(200, 30)
 $cleanupButton.Text = "Execute Cleanup"
 $cleanupButton.Add_Click({
     Cleanup-CertificateFiles -uncPath $uncTextBox.Text
-    $form.Close()
 })
 $form.Controls.Add($cleanupButton)
+
+# Log Box
+$logBox = New-Object System.Windows.Forms.ListBox
+$logBox.Location = New-Object System.Drawing.Point(30, 150)
+$logBox.Size = New-Object System.Drawing.Size(520, 150)  # Increased log box height
+$form.Controls.Add($logBox)
 
 # Show the form
 [void]$form.ShowDialog()
