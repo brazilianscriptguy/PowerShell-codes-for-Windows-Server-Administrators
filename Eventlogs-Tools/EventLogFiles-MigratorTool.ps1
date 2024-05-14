@@ -1,6 +1,6 @@
 # PowerShell Script to Move Event Log Default Paths with GUI and Improved Error Handling
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024.
+# Updated: May 14, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -54,6 +54,8 @@ function Log-Message {
     $logEntry = "[$timestamp] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+        $logBox.Items.Add($logEntry)
+        $logBox.TopIndex = $logBox.Items.Count - 1
     } catch {
         Write-Error "Failed to write to log: $_"
     }
@@ -62,7 +64,7 @@ function Log-Message {
 # Create and configure the main form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Move Event Log Default Paths'
-$form.Size = New-Object System.Drawing.Size(500, 300)
+$form.Size = New-Object System.Drawing.Size(500, 500)  # Increased form height
 $form.StartPosition = 'CenterScreen'
 
 # Label and TextBox for Target Root Folder
@@ -83,10 +85,16 @@ $progressBar.Location = New-Object System.Drawing.Point(10, 70)
 $progressBar.Size = New-Object System.Drawing.Size(460, 20)
 $form.Controls.Add($progressBar)
 
+# Log Box
+$logBox = New-Object System.Windows.Forms.ListBox
+$logBox.Location = New-Object System.Drawing.Point(10, 100)
+$logBox.Size = New-Object System.Drawing.Size(460, 300)  # Increased log box height
+$form.Controls.Add($logBox)
+
 # Button for executing the script
 $executeButton = New-Object System.Windows.Forms.Button
 $executeButton.Text = 'Move Logs'
-$executeButton.Location = New-Object System.Drawing.Point(10, 100)
+$executeButton.Location = New-Object System.Drawing.Point(10, 420)
 $executeButton.Size = New-Object System.Drawing.Size(100, 23)
 
 $executeButton.Add_Click({
