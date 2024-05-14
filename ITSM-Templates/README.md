@@ -12,7 +12,7 @@
 
 - **Clone ITSM-Templates Folder to DML**: Prior to utilizing the ITSM-Templates scripts for configuring workstations, it's essential to clone the entire `ITSM-Templates` folder directly to your Definitive Media Library (DML) network path. This path should serve as your repository for scripts. 
 
-- **Follow the Checklist PDF**: Refer to the .PDF document titled `April-11-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf`. This document, found at the root of the `ITSM-Templates` folder, contains detailed instructions on how to apply the ITSM-Templates scripts effectively.
+- **Follow the Checklist PDF**: Refer to the .PDF document titled `APRIL-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf`. This document, found at the root of the `ITSM-Templates` folder, contains detailed instructions on how to apply the ITSM-Templates scripts effectively.
 
 - **Review Each .VBS and .REG File Individually**: It's essential to go through each .VBS script and .REG file individually to customize them according to your preferences and requirements. This ensures that all code is tailored specifically for your needs.
 
