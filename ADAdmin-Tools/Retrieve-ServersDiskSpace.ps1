@@ -141,8 +141,12 @@ function Update-DiskUsage {
                     $dataGridView.Rows[$row].Cells[3].Value = 'N/A'
                 }
 
-                # Adicionar linha separadora
-                $dataGridView.Rows.Add() | Out-Null
+                # Add a separating line
+                $separatorRow = $dataGridView.Rows.Add()
+                $dataGridView.Rows[$separatorRow].Cells[0].Value = '---'
+                $dataGridView.Rows[$separatorRow].Cells[1].Value = '---'
+                $dataGridView.Rows[$separatorRow].Cells[2].Value = '---'
+                $dataGridView.Rows[$separatorRow].Cells[3].Value = '---'
 
                 Log-Message "Successfully retrieved disk usage for server: $serverName"
             } catch {
