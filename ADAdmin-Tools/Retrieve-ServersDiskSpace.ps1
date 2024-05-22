@@ -1,6 +1,6 @@
 # PowerShell Script to Monitor Disk Space with GUI and Improved Error Handling
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 14, 2024.
+# Updated: May 22, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
