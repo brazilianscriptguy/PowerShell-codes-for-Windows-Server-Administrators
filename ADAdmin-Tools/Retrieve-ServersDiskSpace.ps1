@@ -69,13 +69,13 @@ $form.StartPosition = 'CenterScreen'
 # Label for server input
 $serverLabel = New-Object System.Windows.Forms.Label
 $serverLabel.Location = New-Object System.Drawing.Point(10, 10)
-$serverLabel.Size = New-Object System.Drawing.Size(200, 20)
-$serverLabel.Text = 'Enter FQDN Server Name:'
+$serverLabel.Size = New-Object System.Drawing.Size(240, 20)
+$serverLabel.Text = 'FQDN Server Names (comma-separated):'
 $form.Controls.Add($serverLabel)
 
 # TextBox for server input
 $serverInput = New-Object System.Windows.Forms.TextBox
-$serverInput.Location = New-Object System.Drawing.Point(220, 10)
+$serverInput.Location = New-Object System.Drawing.Point(260, 10)
 $serverInput.Size = New-Object System.Drawing.Size(400, 20)
 $form.Controls.Add($serverInput)
 
@@ -101,53 +101,60 @@ $form.Controls.Add($progressBar)
 # Function to fetch and display disk usage
 function Update-DiskUsage {
     $dataGridView.Rows.Clear()
-    $serverName = $serverInput.Text.Trim()
+    $serverNames = $serverInput.Text.Trim() -split ','
 
-    if (-not [string]::IsNullOrEmpty($serverName)) {
-        $progressBar.Value = 0
-        $progressBar.Maximum = 1
+    $totalServers = $serverNames.Count
+    $progressBar.Maximum = $totalServers
+    $currentServer = 0
 
-        try {
-            $diskData = Invoke-Command -ComputerName $serverName -ScriptBlock {
-                Get-PSDrive -PSProvider FileSystem | ForEach-Object {
-                    [PSCustomObject]@{
-                        Server = $env:COMPUTERNAME
-                        Drive = $_.Name
-                        FreeSpace = [math]::Round($_.Free / 1GB, 2)
-                        TotalSpace = [math]::Round(($_.Used + $_.Free) / 1GB, 2)
+    foreach ($serverName in $serverNames) {
+        $currentServer++
+        $progressBar.Value = $currentServer
+        $serverName = $serverName.Trim()
+
+        if (-not [string]::IsNullOrEmpty($serverName)) {
+            try {
+                $diskData = Invoke-Command -ComputerName $serverName -ScriptBlock {
+                    Get-PSDrive -PSProvider FileSystem | ForEach-Object {
+                        [PSCustomObject]@{
+                            Server = $env:COMPUTERNAME
+                            Drive = $_.Name
+                            FreeSpace = [math]::Round($_.Free / 1GB, 2)
+                            TotalSpace = [math]::Round(($_.Used + $_.Free) / 1GB, 2)
+                        }
                     }
                 }
-            }
 
-            if ($diskData.Count -gt 0) {
-                foreach ($disk in $diskData) {
+                if ($diskData.Count -gt 0) {
+                    foreach ($disk in $diskData) {
+                        $row = $dataGridView.Rows.Add()
+                        $dataGridView.Rows[$row].Cells[0].Value = $disk.Server
+                        $dataGridView.Rows[$row].Cells[1].Value = $disk.Drive
+                        $dataGridView.Rows[$row].Cells[2].Value = [decimal]$disk.FreeSpace
+                        $dataGridView.Rows[$row].Cells[3].Value = [decimal]$disk.TotalSpace
+                    }
+                } else {
                     $row = $dataGridView.Rows.Add()
-                    $dataGridView.Rows[$row].Cells[0].Value = $disk.Server
-                    $dataGridView.Rows[$row].Cells[1].Value = $disk.Drive
-                    $dataGridView.Rows[$row].Cells[2].Value = [decimal]$disk.FreeSpace
-                    $dataGridView.Rows[$row].Cells[3].Value = [decimal]$disk.TotalSpace
+                    $dataGridView.Rows[$row].Cells[0].Value = $serverName
+                    $dataGridView.Rows[$row].Cells[1].Value = 'No Drives'
+                    $dataGridView.Rows[$row].Cells[2].Value = 'N/A'
+                    $dataGridView.Rows[$row].Cells[3].Value = 'N/A'
                 }
-            } else {
-                $row = $dataGridView.Rows.Add()
-                $dataGridView.Rows[$row].Cells[0].Value = $serverName
-                $dataGridView.Rows[$row].Cells[1].Value = 'No Drives'
-                $dataGridView.Rows[$row].Cells[2].Value = 'N/A'
-                $dataGridView.Rows[$row].Cells[3].Value = 'N/A'
+
+                # Adicionar linha separadora
+                $dataGridView.Rows.Add() | Out-Null
+
+                Log-Message "Successfully retrieved disk usage for server: $serverName"
+            } catch {
+                $errorMsg = "Error retrieving disk usage for server: $serverName. $_"
+                Log-Message $errorMsg
+                Write-Error $errorMsg
             }
-
-            Log-Message "Successfully retrieved disk usage for server: $serverName"
-        } catch {
-            $errorMsg = "Error retrieving disk usage for server: $serverName. $_"
-            Log-Message $errorMsg
-            Write-Error $errorMsg
+        } else {
+            Write-Output "Please enter a valid FQDN server name."
         }
-
-        $progressBar.Value = $progressBar.Maximum
-    } else {
-        Write-Output "Please enter a valid FQDN server name."
     }
 
-    Start-Sleep -Seconds 2
     $progressBar.Value = 0
 }
 
