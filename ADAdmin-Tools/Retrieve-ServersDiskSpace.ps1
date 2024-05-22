@@ -45,7 +45,7 @@ if (-not (Test-Path $logDir)) {
     }
 }
 
-# Enhanced logging function with error handling and real-time logBox updates
+# Enhanced logging function with error handling
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
@@ -55,8 +55,6 @@ function Log-Message {
     $logEntry = "[$timestamp] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
-        $textBox.AppendText("$logEntry`n")
-        $textBox.ScrollToCaret()
     } catch {
         Write-Error "Failed to write to log: $_"
     }
@@ -65,16 +63,34 @@ function Log-Message {
 # Create the main form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Disk Space Monitor'
-$form.Size = New-Object System.Drawing.Size(800,600)
+$form.Size = New-Object System.Drawing.Size(800,630)
 $form.StartPosition = 'CenterScreen'
 
-# Text box for displaying results
-$textBox = New-Object System.Windows.Forms.TextBox
-$textBox.Location = New-Object System.Drawing.Point(10, 10)
-$textBox.Size = New-Object System.Drawing.Size(760, 500)
-$textBox.Multiline = $true
-$textBox.ScrollBars = 'Vertical'
-$form.Controls.Add($textBox)
+# Label for server input
+$serverLabel = New-Object System.Windows.Forms.Label
+$serverLabel.Location = New-Object System.Drawing.Point(10, 10)
+$serverLabel.Size = New-Object System.Drawing.Size(200, 20)
+$serverLabel.Text = 'Enter FQDN Server Name:'
+$form.Controls.Add($serverLabel)
+
+# TextBox for server input
+$serverInput = New-Object System.Windows.Forms.TextBox
+$serverInput.Location = New-Object System.Drawing.Point(220, 10)
+$serverInput.Size = New-Object System.Drawing.Size(400, 20)
+$form.Controls.Add($serverInput)
+
+# DataGridView for displaying results
+$dataGridView = New-Object System.Windows.Forms.DataGridView
+$dataGridView.Location = New-Object System.Drawing.Point(10, 40)
+$dataGridView.Size = New-Object System.Drawing.Size(760, 470)
+$dataGridView.AutoSizeColumnsMode = 'Fill'
+$dataGridView.Columns.AddRange(
+    (New-Object System.Windows.Forms.DataGridViewTextBoxColumn -Property @{ Name = 'Server'; HeaderText = 'Server' }),
+    (New-Object System.Windows.Forms.DataGridViewTextBoxColumn -Property @{ Name = 'Drive'; HeaderText = 'Drive' }),
+    (New-Object System.Windows.Forms.DataGridViewTextBoxColumn -Property @{ Name = 'FreeSpace'; HeaderText = 'Free Space (GB)' }),
+    (New-Object System.Windows.Forms.DataGridViewTextBoxColumn -Property @{ Name = 'TotalSpace'; HeaderText = 'Total Space (GB)' })
+)
+$form.Controls.Add($dataGridView)
 
 # Progress bar to indicate the status of the disk usage check
 $progressBar = New-Object System.Windows.Forms.ProgressBar
@@ -84,42 +100,54 @@ $form.Controls.Add($progressBar)
 
 # Function to fetch and display disk usage
 function Update-DiskUsage {
-    $textBox.Clear()
-    $servers = Get-ADComputer -Filter {OperatingSystem -Like '*Server*'} -Property Name
+    $dataGridView.Rows.Clear()
+    $serverName = $serverInput.Text.Trim()
 
-    $totalServers = $servers.Count
-    $progressBar.Maximum = $totalServers
-    $currentServer = 0
-
-    foreach ($server in $servers) {
-        $currentServer++
-        $progressBar.Value = $currentServer
+    if (-not [string]::IsNullOrEmpty($serverName)) {
+        $progressBar.Value = 0
+        $progressBar.Maximum = 1
 
         try {
-            $diskData = Invoke-Command -ComputerName $server.Name -ScriptBlock {
+            $diskData = Invoke-Command -ComputerName $serverName -ScriptBlock {
                 Get-PSDrive -PSProvider FileSystem | ForEach-Object {
                     [PSCustomObject]@{
                         Server = $env:COMPUTERNAME
                         Drive = $_.Name
                         FreeSpace = [math]::Round($_.Free / 1GB, 2)
-                        UsedSpace = [math]::Round($_.Used / 1GB, 2)
-                        TotalSpace = [math]::Round($_.Total / 1GB, 2)
+                        TotalSpace = [math]::Round(($_.Used + $_.Free) / 1GB, 2)
                     }
                 }
             }
 
-            foreach ($disk in $diskData) {
-                $textBox.AppendText("Server: $($disk.Server)`tDrive: $($disk.Drive)`tFree: $($disk.FreeSpace) GB`tUsed: $($disk.UsedSpace) GB`tTotal: $($disk.TotalSpace) GB`n")
+            if ($diskData.Count -gt 0) {
+                foreach ($disk in $diskData) {
+                    $row = $dataGridView.Rows.Add()
+                    $dataGridView.Rows[$row].Cells[0].Value = $disk.Server
+                    $dataGridView.Rows[$row].Cells[1].Value = $disk.Drive
+                    $dataGridView.Rows[$row].Cells[2].Value = [decimal]$disk.FreeSpace
+                    $dataGridView.Rows[$row].Cells[3].Value = [decimal]$disk.TotalSpace
+                }
+            } else {
+                $row = $dataGridView.Rows.Add()
+                $dataGridView.Rows[$row].Cells[0].Value = $serverName
+                $dataGridView.Rows[$row].Cells[1].Value = 'No Drives'
+                $dataGridView.Rows[$row].Cells[2].Value = 'N/A'
+                $dataGridView.Rows[$row].Cells[3].Value = 'N/A'
             }
 
-            Log-Message "Successfully retrieved disk usage for server: $($server.Name)"
+            Log-Message "Successfully retrieved disk usage for server: $serverName"
         } catch {
-            $errorMsg = "Error retrieving disk usage for server: $($server.Name). $_"
+            $errorMsg = "Error retrieving disk usage for server: $serverName. $_"
             Log-Message $errorMsg
             Write-Error $errorMsg
         }
+
+        $progressBar.Value = $progressBar.Maximum
+    } else {
+        Write-Output "Please enter a valid FQDN server name."
     }
 
+    Start-Sleep -Seconds 2
     $progressBar.Value = 0
 }
 
