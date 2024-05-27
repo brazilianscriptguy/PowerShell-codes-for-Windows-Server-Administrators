@@ -80,6 +80,8 @@ try {
     $CommonStartUpDir = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"
     $BGInfoPath = "\\forest-logonserver-name\netlogon\bginfo-custom\bginfo64.exe"
     $BGInfoConfig = "\\forest-logonserver-name\netlogon\bginfo-custom\Enhance-BGInfoDisplayViaGPO.bgi"
+#  [string]$bginfoPath = "%systemroot%\Resources\GSTI-Templates-Servers\Themes\BGInfo\bginfo64.exe",
+#    [string]$bginfoConfig = "%systemroot%\Resources\GSTI-Templates-Servers\Themes\BGInfo\bginfo-servers.bgi"
 
     if ((Test-Path $BGInfoPath) -and (Test-Path $BGInfoConfig)) {
         Create-BGInfoShortcut -CommonStartUpDir $CommonStartUpDir -BGInfoPath $BGInfoPath -BGInfoConfig $BGInfoConfig
