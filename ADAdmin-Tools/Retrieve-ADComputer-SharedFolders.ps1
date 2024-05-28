@@ -1,6 +1,6 @@
 # PowerShell script to gather all workstations from an AD Domain to find out any local folder sharing
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: May 24, 2024
+# Updated: May 28, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -204,4 +204,5 @@ $mainForm.Controls.Add($btnClose)
 [void]$mainForm.ShowDialog()
 
 Log-Message "AD Workstation Search script finished."
+
 # End of script
