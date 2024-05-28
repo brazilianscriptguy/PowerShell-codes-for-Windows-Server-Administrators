@@ -1,7 +1,7 @@
 # PowerShell Script for Removing Old Certification Authority Certificates
 # Implemented via GPO (Group Policy Object)
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 13, 2024
+# Update: May 28, 2024
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
@@ -45,7 +45,7 @@ function Log-InfoMessage {
     Write-Log "INFO: $Message"
 }
 
-# Retrieves expired certificates from specified store location
+# Retrieve expired certificates from specified store location
 function Get-ExpiredCertificates {
     param (
         [Parameter(Mandatory = $true)]
@@ -62,7 +62,7 @@ function Get-ExpiredCertificates {
     }
 }
 
-# Removes expired certificates
+# Remove expired certificates
 function Remove-ExpiredCertificates {
     param ([System.Security.Cryptography.X509Certificates.X509Certificate2[]]$Certificates)
 
