@@ -1,6 +1,6 @@
 # PowerShell script to display BGInfo (PsTools - Sysinternals) on the Servers Desktop with improvements - using with GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: May 8, 2024
+# Updated: May 28, 2024
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
@@ -78,10 +78,8 @@ try {
     Log-Message "Starting BGInfo script execution."
 
     $CommonStartUpDir = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"
-    $BGInfoPath = "\\forest-logonserver-name\netlogon\bginfo-custom\bginfo64.exe"
-    $BGInfoConfig = "\\forest-logonserver-name\netlogon\bginfo-custom\Enhance-BGInfoDisplayViaGPO.bgi"
-#  [string]$bginfoPath = "%systemroot%\Resources\GSTI-Templates-Servers\Themes\BGInfo\bginfo64.exe",
-#    [string]$bginfoConfig = "%systemroot%\Resources\GSTI-Templates-Servers\Themes\BGInfo\bginfo-servers.bgi"
+    $BGInfoPath = "%systemroot%\Resources\ITSM-Templates-Servers\Themes\BGInfo\bginfo64.exe"
+    $BGInfoConfig = "%systemroot%\Resources\ITSM-Templates-Servers\Themes\BGInfo\bginfo-servers.bgi"
 
     if ((Test-Path $BGInfoPath) -and (Test-Path $BGInfoConfig)) {
         Create-BGInfoShortcut -CommonStartUpDir $CommonStartUpDir -BGInfoPath $BGInfoPath -BGInfoConfig $BGInfoConfig
