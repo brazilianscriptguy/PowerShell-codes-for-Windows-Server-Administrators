@@ -79,7 +79,7 @@ try {
 
     $CommonStartUpDir = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"
     $BGInfoPath = "%systemroot%\Resources\ITSM-Templates-Servers\Themes\BGInfo\bginfo64.exe"
-    $BGInfoConfig = "%systemroot%\Resources\ITSM-Templates-Servers\Themes\BGInfo\bginfo-servers.bgi"
+    $BGInfoConfig = "%systemroot%\Resources\ITSM-Templates-Servers\Themes\BGInfo\Enhance-BGInfoDisplay-viaGPO.bgi"
 
     if ((Test-Path $BGInfoPath) -and (Test-Path $BGInfoConfig)) {
         Create-BGInfoShortcut -CommonStartUpDir $CommonStartUpDir -BGInfoPath $BGInfoPath -BGInfoConfig $BGInfoConfig
