@@ -2,13 +2,13 @@
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
 # Updated: May 28, 2024
 
-# Determine the script name and set up logging path
+# Determine the script name and configure the log path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 
-# Logging Function
+# Log Function
 function Write-Log {
     param (
         [Parameter(Mandatory = $true)]
@@ -38,7 +38,7 @@ function Enable-LanmanServerService {
         Set-ItemProperty -Path $regPath -Name 'Start' -Value 2 -ErrorAction Stop  # 2 = Automatic
         Write-Log "LanmanServer service set to start automatically."
     } catch {
-        Write-Log "Failed to set LanmanServer service start mode: $_" -LogLevel "ERROR"
+        Write-Log "Failed to set the LanmanServer service startup mode: $_" -LogLevel "ERROR"
     }
 }
 
@@ -52,52 +52,29 @@ function Ensure-ServerService {
             Start-Service -Name 'LanmanServer' -ErrorAction Stop
             Write-Log "LanmanServer service started successfully."
         } catch {
-            Write-Log "Failed to start LanmanServer service: $_" -LogLevel "ERROR"
+            Write-Log "Failed to start the LanmanServer service: $_" -LogLevel "ERROR"
         }
     } else {
         Write-Log "LanmanServer service is already running."
     }
 }
 
-# Disable administrative shares in the registry
-function Disable-AdministrativeShares {
-    Write-Log "Disabling administrative shares in the registry."
+# Enable administrative shares via registry (includes IPC$ and ADMIN$)
+function Enable-AdministrativeShares {
+    Write-Log "Enabling IPC$ and ADMIN$ administrative shares via registry."
 
-    $regPath = 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters'
     try {
-        Set-ItemProperty -Path $regPath -Name 'AutoShareWks' -Value 0 -ErrorAction Stop
-        Write-Log "Registry key for administrative shares set to 0."
+        Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters' -Name 'AutoShareWks' -Value 1 -ErrorAction Stop
+        Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters' -Name 'AutoShareServer' -Value 1 -ErrorAction Stop
+        Write-Log "IPC$ and ADMIN$ administrative shares enabled in registry."
     } catch {
-        Write-Log "Failed to set registry key for administrative shares: $_" -LogLevel "ERROR"
+        Write-Log "Failed to enable administrative shares in registry: $_" -LogLevel "ERROR"
     }
 }
 
-# Ensure IPC$ and ADMIN$ shares are created
-function Ensure-DefaultShares {
-    Write-Log "Ensuring IPC$ and ADMIN$ shares are created."
-
-    $shares = Get-SmbShare
-    $defaultShares = @(
-        @{Name='IPC$'; Path='C:\Windows'; Description='Remote IPC'; FullAccess='Everyone'},
-        @{Name='ADMIN$'; Path='C:\Windows'; Description='Remote Admin'; FullAccess='Administrators'}
-    )
-    foreach ($share in $defaultShares) {
-        if ($shares.Name -notcontains $share.Name) {
-            try {
-                New-SmbShare -Name $share.Name -Path $share.Path -Description $share.Description -FullAccess $share.FullAccess -ErrorAction Stop
-                Write-Log "$($share.Name) share created successfully."
-            } catch {
-                Write-Log "Failed to create $($share.Name) share: $_" -LogLevel "ERROR"
-            }
-        } else {
-            Write-Log "$($share.Name) share already exists."
-        }
-    }
-}
-
-# Remove all shared folders under C:\ and D:\
+# Remove all shared folders on C:\ and D:\
 function Remove-SharedFolders {
-    Write-Log "Removing shared folders under C:\ and D:\."
+    Write-Log "Removing shared folders on C:\ and D:\."
 
     $drives = @('C:', 'D:')
     foreach ($drive in $drives) {
@@ -105,7 +82,7 @@ function Remove-SharedFolders {
             $shares = Get-SmbShare | Where-Object { $_.Path -like "$drive\*" -and $_.Name -notin 'IPC$', 'ADMIN$' }
             foreach ($share in $shares) {
                 & net share $share.Name /delete /y
-                Write-Log "Removed shared folder: $($share.Name) at $($share.Path)."
+                Write-Log "Shared folder $($share.Name) on $($share.Path) removed."
             }
         } catch {
             Write-Log "Failed to remove shared folders on $($drive): $_" -LogLevel "ERROR"
@@ -113,7 +90,7 @@ function Remove-SharedFolders {
     }
 }
 
-# Remove administrative shares such as C$ and D$
+# Remove administrative shares like C$ and D$
 function Remove-AdministrativeShares {
     Write-Log "Removing administrative shares C$ and D$."
 
@@ -123,7 +100,7 @@ function Remove-AdministrativeShares {
             $existingShare = Get-SmbShare -Name $share -ErrorAction SilentlyContinue
             if ($existingShare) {
                 & net share $share /delete /y
-                Write-Log "Removed administrative share: $share."
+                Write-Log "Administrative share $share removed."
             }
         } catch {
             Write-Log "Failed to remove administrative share: $share - $_" -LogLevel "ERROR"
@@ -138,21 +115,15 @@ Write-Log "Starting share management script."
 Enable-LanmanServerService
 Ensure-ServerService
 
-# Disable administrative shares in the registry
-Disable-AdministrativeShares
+# Enable administrative shares
+Enable-AdministrativeShares
 
-# Ensure default shares are created
-Ensure-DefaultShares
-
-# Remove all shared folders under C:\ and D:\
+# Remove all shared folders on C:\ and D:\
 Remove-SharedFolders
 
-# Remove administrative shares
+# Remove administrative shares C$ and D$
 Remove-AdministrativeShares
 
-# Recreate the default shares
-Ensure-DefaultShares
-
-Write-Log "Share management script finished."
+Write-Log "Share management script completed."
 
 # End of script
