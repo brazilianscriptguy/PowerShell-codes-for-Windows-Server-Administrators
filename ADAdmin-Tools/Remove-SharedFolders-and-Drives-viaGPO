@@ -1,6 +1,6 @@
 # PowerShell Script to Manage Shares on Workstations
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: May 28, 2024
+# Updated: May 29, 2024
 
 # Determine the script name and configure the log path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
