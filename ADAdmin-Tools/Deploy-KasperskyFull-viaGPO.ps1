@@ -1,6 +1,6 @@
 # PowerShell script to Install Kaspersky AV and Network Agent, configure Server Address, and verify service
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: June 14, 2024
+# Update: June 14, 2024.
 
 param (
     [string]$KESInstallerPath = "\\forest-domain\netlogon\kes-antivirus-install\pkg_2\exec\kes_win.msi",
@@ -15,7 +15,7 @@ $ErrorActionPreference = "SilentlyContinue"
 
 # Configure the log file name based on the script name
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$logDirectory = 'C:\Scripts-LOGS'
+$logDirectory = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
 $logFilePath = Join-Path $logDirectory $logFileName
 
