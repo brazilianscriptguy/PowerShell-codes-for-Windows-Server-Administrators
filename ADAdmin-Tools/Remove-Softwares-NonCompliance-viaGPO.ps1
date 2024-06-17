@@ -1,6 +1,6 @@
-﻿# PowerShell script to Uninstall Softwares non-Compliance by name via GPO
+﻿# PowerShell script to Uninstall Non-Compliance Software by Name via GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: June 17, 2024.
+# Updated: June 17, 2024
 
 param (
     [string[]]$SoftwareNames = @("ccleaner", "glary util", "broffice"),
@@ -17,7 +17,7 @@ $logPath = Join-Path $LogDir $logFileName
 # Function for logging messages with error handling
 function Log-Message {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$Message
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
