@@ -7,7 +7,7 @@ param (
     [string]$LogDir = 'C:\Logs-TEMP'
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 # Setup the log file name based on the script's name
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
