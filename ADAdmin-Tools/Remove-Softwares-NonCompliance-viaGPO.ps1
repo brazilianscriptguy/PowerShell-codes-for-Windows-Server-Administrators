@@ -1,15 +1,22 @@
 ﻿# PowerShell script to Uninstall Non-Compliance Software by Name via GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: June 17, 2024
+# Updated: June 17, 2024.
 
 param (
-    [string[]]$SoftwareNames = @("ccleaner", "glary util", "broffice"),
+    [string[]]$SoftwareNames = @(
+        "avast", "Bubble Witch", "Candy Crush", "Crunchyroll", "Damas Pro", "Deezer", "Disney",
+        "Dota", "Groove Music", "Hotspot", "Spotify", "xbox", "GGPoker", "Brave", "Amazon Music",
+        "WireGuard", "Netflix", "OpenVPN", "SupremaPoker", "Fill-In Crosswords", "Checkers Deluxe",
+        "Simple Spider Solitaire", "Simple Solitaire", "StarCraft", "Battle.net", "Circle Empires",
+        "Northgard", "Souldiers", "The Wandering Village", "ZeroTier One Virtual Network Port",
+        "Riot Vanguard", "Gardenscapes", "TikTok", "Infatica P2B Network", "WebDiscover Browser", "ShockwaveFlash"
+    ),
     [string]$LogDir = 'C:\Logs-TEMP'
 )
 
 $ErrorActionPreference = "Continue"
 
-# Setup the log file name based on the script's name
+# Configure the log file name based on the script's name
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $LogDir $logFileName
@@ -29,6 +36,9 @@ function Log-Message {
     }
 }
 
+# Verify if the script is being executed
+Log-Message "Script execution started."
+
 try {
     # Ensure the log directory exists
     if (-not (Test-Path $LogDir)) {
@@ -47,6 +57,7 @@ try {
             $software = Get-ItemProperty $_.PsPath
             foreach ($name in $SoftwareNames) {
                 if ($software.DisplayName -like "*$name*") {
+                    Log-Message "Software found to uninstall: $($software.DisplayName)"
                     $uninstallCommand = $software.UninstallString
                     if ($uninstallCommand -like "*msiexec*") {
                         $uninstallCommand = $uninstallCommand -replace "msiexec.exe", "msiexec.exe /quiet /norestart"
@@ -69,5 +80,7 @@ try {
 } catch {
     Log-Message "An error occurred: $_"
 }
+
+Log-Message "Script execution completed."
 
 # End of script
