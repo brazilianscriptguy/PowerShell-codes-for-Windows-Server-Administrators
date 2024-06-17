@@ -4,8 +4,8 @@
 
 param (
     [string[]]$SoftwareNames = @(
-        "avast", "Bubble Witch", "Candy Crush", "Crunchyroll", "Damas Pro", "Deezer", "Disney",
-        "Dota", "Groove Music", "Hotspot", "Spotify", "xbox", "GGPoker", "Brave", "Amazon Music",
+        "Avast", "Bubble Witch", "Candy Crush", "Crunchyroll", "Damas Pro", "Deezer", "Disney",
+        "Dota", "Groove Music", "Hotspot", "Spotify", "Xbox", "GGPoker", "Brave", "Amazon Music",
         "WireGuard", "Netflix", "OpenVPN", "SupremaPoker", "Fill-In Crosswords", "Checkers Deluxe",
         "Simple Spider Solitaire", "Simple Solitaire", "StarCraft", "Battle.net", "Circle Empires",
         "Northgard", "Souldiers", "The Wandering Village", "ZeroTier One Virtual Network Port",
