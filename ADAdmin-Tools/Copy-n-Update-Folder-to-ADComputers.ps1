@@ -1,3 +1,6 @@
+# PowerShell Script to Copy and Update Folder onto AD Computers
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Update: July 5 , 2024.
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
