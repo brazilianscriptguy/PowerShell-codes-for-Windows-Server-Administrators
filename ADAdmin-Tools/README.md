@@ -17,7 +17,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 5. **Clear-and-ReSyncGPOs-ADComputer.ps1:** Performs a complete reset of Domain GPOs with confirmation via a user-friendly GUI, followed by re-synchronization to ensure current policies are accurately applied.
 
-6. **Copy-and-Sync-Folder-to-ADComputers.ps1:** Synchronizes a folder from a network location to the desktops of AD computers, ensuring only new or updated files are copied and outdated files are removed. Logs operations for easy tracking and error handling.
+6. **Copy-and-Sync-Folder-to-ADComputers-viaGPO.ps1:** Synchronizes a folder from a network location to the desktops of AD computers, ensuring only new or updated files are copied and outdated files are removed. Logs operations for easy tracking and error handling.
 
 7. **Create-OUsDefaultADStructure.ps1:** Assists in creating a standardized AD infrastructure with predefined OUs, streamlining new domain setups or reorganizations.
 
