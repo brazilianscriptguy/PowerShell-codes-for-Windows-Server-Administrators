@@ -34,7 +34,7 @@ function Log-Message {
 }
 
 # Define the source folder path
-$sourceFolderPath = "\\forest.domain.dc\NETLOGON\Source-Folder-Name"
+$sourceFolderPath = "\\forest-logonserver-name\NETLOGON\Source-Folder-Name"
 
 # Get the specific desktop path
 $userDesktopPath = 'C:\Users\Administrator\Desktop' # Destination path
