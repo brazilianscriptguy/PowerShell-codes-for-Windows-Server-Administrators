@@ -1,6 +1,6 @@
-# PowerShell Script to Copy and Update Folder onto AD Computers
+# PowerShell Script to Copy and Sync Folder onto AD Computers
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: July 5 , 2024.
+# Update: July 5, 2024
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
@@ -10,8 +10,9 @@ $logPath = Join-Path $logDir $logFileName
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
-    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
-    if (-not (Test-Path $logDir)) {
+    try {
+        New-Item -Path $logDir -ItemType Directory -ErrorAction Stop | Out-Null
+    } catch {
         Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
         return
     }
@@ -36,7 +37,7 @@ function Log-Message {
 $sourceFolderPath = "\\forest.domain.dc\NETLOGON\Source-Folder-Name"
 
 # Get the specific desktop path
-$userDesktopPath = 'c:\users\administrator\desktop' # Destination path
+$userDesktopPath = 'C:\Users\Administrator\Desktop' # Destination path
 
 # Define the destination folder path on the desktop
 $destinationFolderPath = Join-Path -Path $userDesktopPath -ChildPath "Destination-Folder-Name"
