@@ -1,6 +1,6 @@
 # PowerShell script to search Active Directory for workstation computers with names shorter than 15 characters
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: May 8, 2024
+# Updated: July 8, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -81,7 +81,7 @@ function Get-DomainFQDN {
         $Domain = $ComputerSystem.Domain
         return $Domain
     } catch {
-        Show-WarningMessage "Unable to fetch FQDN automatically."
+        Show-ErrorMessage "Unable to fetch FQDN automatically."
         return "YourDomainHere"
     }
 }
@@ -92,7 +92,7 @@ Log-Message "Starting AD Workstation Search script."
 # Function to search Active Directory for workstation computers with names shorter than 15 characters
 function Search-ADComputers {
     param (
-        [System.Windows.Forms.ListBox]$listBox,
+        [System.Windows.Forms.ListView]$listView,
         [string]$domainFQDN
     )
     Import-Module ActiveDirectory
@@ -101,16 +101,19 @@ function Search-ADComputers {
     $computers = Get-ADComputer -Filter "($osFilter) -and (Name -like '*')" -Property Name, DNSHostName -Server $domainFQDN |
                  Where-Object { $_.Name.Length -lt 15 }
 
-    $listBox.Items.Clear()
+    $listView.Items.Clear()
     $results = @()
 
     foreach ($comp in $computers) {
+        $item = New-Object System.Windows.Forms.ListViewItem($comp.DNSHostName)
+        $item.SubItems.Add($comp.Name.Length.ToString())
+        $listView.Items.Add($item)
+
         $obj = [PSCustomObject]@{
             CharactersLength = $comp.Name.Length
             WorkstationFQDN  = $comp.DNSHostName
         }
         $results += $obj
-        $listBox.Items.Add($comp.DNSHostName)
     }
 
     $global:exportData = $results
@@ -123,7 +126,7 @@ function Search-ADComputers {
 # Main Form
 $mainForm = New-Object System.Windows.Forms.Form
 $mainForm.Text = 'Search ADDS Workstations'
-$mainForm.Size = New-Object System.Drawing.Size(420, 400)
+$mainForm.Size = New-Object System.Drawing.Size(550, 500)
 $mainForm.StartPosition = 'CenterScreen'
 
 # Domain FQDN Label
@@ -136,36 +139,45 @@ $mainForm.Controls.Add($lblDomain)
 # Domain FQDN Text Box
 $txtDomain = New-Object System.Windows.Forms.TextBox
 $txtDomain.Location = New-Object System.Drawing.Point(150, 30)
-$txtDomain.Size = New-Object System.Drawing.Size(220, 20)
+$txtDomain.Size = New-Object System.Drawing.Size(250, 20)
 $txtDomain.Text = Get-DomainFQDN
 $mainForm.Controls.Add($txtDomain)
 
 # Search Button
 $btnSearch = New-Object System.Windows.Forms.Button
-$btnSearch.Location = New-Object System.Drawing.Point(30, 60)
-$btnSearch.Size = New-Object System.Drawing.Size(120, 23)
+$btnSearch.Location = New-Object System.Drawing.Point(410, 28)
+$btnSearch.Size = New-Object System.Drawing.Size(100, 25)
 $btnSearch.Text = 'Search'
 $btnSearch.Add_Click({
-    $domainFQDN = if ($txtDomain.Text) { $txtDomain.Text } else { "YourDomainHere" }
-    Search-ADComputers -listBox $listBox -domainFQDN $domainFQDN
+    $domainFQDN = $txtDomain.Text.Trim()
+    if ([string]::IsNullOrWhiteSpace($domainFQDN)) {
+        Show-ErrorMessage "Please enter the domain FQDN."
+        return
+    }
+    Search-ADComputers -listView $listView -domainFQDN $domainFQDN
 })
 $mainForm.Controls.Add($btnSearch)
 
-# List Box to display results
-$listBox = New-Object System.Windows.Forms.ListBox
-$listBox.Location = New-Object System.Drawing.Point(30, 100)
-$listBox.Size = New-Object System.Drawing.Size(340, 180)
-$mainForm.Controls.Add($listBox)
+# List View to display results
+$listView = New-Object System.Windows.Forms.ListView
+$listView.Location = New-Object System.Drawing.Point(30, 70)
+$listView.Size = New-Object System.Drawing.Size(480, 250)
+$listView.View = [System.Windows.Forms.View]::Details
+$listView.FullRowSelect = $true
+$listView.GridLines = $true
+$listView.Columns.Add("Workstation FQDN", 300)
+$listView.Columns.Add("Characters Length", 150)
+$mainForm.Controls.Add($listView)
 
 # Export Button
 $btnExport = New-Object System.Windows.Forms.Button
-$btnExport.Location = New-Object System.Drawing.Point(30, 300)
-$btnExport.Size = New-Object System.Drawing.Size(140, 23)
+$btnExport.Location = New-Object System.Drawing.Point(30, 340)
+$btnExport.Size = New-Object System.Drawing.Size(120, 30)
 $btnExport.Text = 'Export to CSV'
 $btnExport.Add_Click({
     if ($global:exportData -and $global:exportData.Count -gt 0) {
         $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-        $csvPath = [Environment]::GetFolderPath('MyDocuments') + "\${scriptName}_${txtDomain.Text}_$timestamp.csv"
+        $csvPath = [System.IO.Path]::Combine([Environment]::GetFolderPath('MyDocuments'), "${scriptName}_${txtDomain.Text}_$timestamp.csv")
         $global:exportData | Select-Object CharactersLength, WorkstationFQDN | Export-Csv -Path $csvPath -NoTypeInformation -Delimiter ';' -Encoding UTF8
         Show-InfoMessage "Data exported to $csvPath"
     } else {
@@ -176,14 +188,22 @@ $mainForm.Controls.Add($btnExport)
 
 # Close Button
 $btnClose = New-Object System.Windows.Forms.Button
-$btnClose.Location = New-Object System.Drawing.Point(190, 300)
-$btnClose.Size = New-Object System.Drawing.Size(120, 23)
+$btnClose.Location = New-Object System.Drawing.Point(160, 340)
+$btnClose.Size = New-Object System.Drawing.Size(100, 30)
 $btnClose.Text = 'Close'
 $btnClose.Add_Click({ $mainForm.Close() })
 $mainForm.Controls.Add($btnClose)
+
+# Explanation Label
+$lblExplanation = New-Object System.Windows.Forms.Label
+$lblExplanation.Location = New-Object System.Drawing.Point(30, 380)
+$lblExplanation.Size = New-Object System.Drawing.Size(480, 60)
+$lblExplanation.Text = "Note: This script searches for workstation computers with names shorter than 15 characters, which is the default maximum length for NetBIOS names."
+$mainForm.Controls.Add($lblExplanation)
 
 # Show GUI
 [void]$mainForm.ShowDialog()
 
 Log-Message "AD Workstation Search script finished."
+
 # End of script
