@@ -1,6 +1,6 @@
 # PowerShell Script to List Installed Software x86 and x64 with GUID with Enhanced GUI
 # Author: Luiz Hamilton Silva
-# Updated: May 8, 2024
+# Updated: July 8, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -25,7 +25,7 @@ public class Window {
 
 [Window]::Hide()
 
-# Load necessary assemblies for GUI
+# Add necessary assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
@@ -93,7 +93,7 @@ function Get-InstalledPrograms {
         Where-Object { $_.DisplayName } |
         Select-Object DisplayName, DisplayVersion,
                       @{Name="IdentifyingNumber"; Expression={Get-GUIDFromPath $_.PSPath}},
-                      @{Name="Architecture"; Expression={if ($_ -match 'WOW6432Node') {'32-bit'} else {'64-bit'}}}
+                      @{Name="Architecture"; Expression={if ($_.PSPath -match 'WOW6432Node') {'32-bit'} else {'64-bit'}}}
     }
     return $installedPrograms
 }
@@ -104,7 +104,7 @@ Log-Message "Starting List Installed Software script."
 # Main form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "List Installed Software"
-$form.Size = New-Object System.Drawing.Size(420, 220)
+$form.Size = New-Object System.Drawing.Size(460, 260)
 $form.StartPosition = 'CenterScreen'
 
 # Radio buttons for output option
@@ -120,19 +120,19 @@ foreach ($key in $radioButtons.Keys) {
     $radio.AutoSize = $true
     $radio.Checked = $key -eq 'DefaultPath'
     $form.Controls.Add($radio)
-    $y += 20
+    $y += 30
 }
 
 # Label and TextBox for custom output path
 $label = New-Object System.Windows.Forms.Label
 $label.Text = "Custom Output Path:"
-$label.Location = New-Object System.Drawing.Point(10, 50)
+$label.Location = New-Object System.Drawing.Point(10, 70)
 $label.AutoSize = $true
 $form.Controls.Add($label)
 
 $textBox = New-Object System.Windows.Forms.TextBox
-$textBox.Location = New-Object System.Drawing.Point(10, 70)
-$textBox.Size = New-Object System.Drawing.Size(370, 20)
+$textBox.Location = New-Object System.Drawing.Point(10, 90)
+$textBox.Size = New-Object System.Drawing.Size(420, 20)
 $textBox.Enabled = $false
 $form.Controls.Add($textBox)
 
@@ -140,27 +140,26 @@ $form.Controls.Add($textBox)
 $radioButtons.CustomPath.Add_Click({ $textBox.Enabled = $true })
 $radioButtons.DefaultPath.Add_Click({ $textBox.Enabled = $false })
 
-# OK and Cancel buttons
+# Export and Cancel buttons
 $buttons = @{
-    OK     = New-Object System.Windows.Forms.Button
+    Export     = New-Object System.Windows.Forms.Button
     Cancel = New-Object System.Windows.Forms.Button
 }
-$y = 100
-foreach ($key in $buttons.Keys) {
-    $button = $buttons[$key]
-    $button.Text = $key
-    $button.Location = New-Object System.Drawing.Point(10, $y)
-    $button.Size = New-Object System.Drawing.Size(75, 23)
-    $form.Controls.Add($button)
-    $y += 30
-    if ($key -eq 'OK') {
-        $button.DialogResult = [System.Windows.Forms.DialogResult]::OK
-        $form.AcceptButton = $button
-    } else {
-        $button.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
-        $form.CancelButton = $button
-    }
-}
+$buttons.Export.Text = 'Export'
+$buttons.Export.Location = New-Object System.Drawing.Point(250, 130)
+$buttons.Export.Size = New-Object System.Drawing.Size(75, 23)
+$form.Controls.Add($buttons.Export)
+
+$buttons.Cancel.Text = 'Cancel'
+$buttons.Cancel.Location = New-Object System.Drawing.Point(350, 130)
+$buttons.Cancel.Size = New-Object System.Drawing.Size(75, 23)
+$form.Controls.Add($buttons.Cancel)
+
+$buttons.Export.DialogResult = [System.Windows.Forms.DialogResult]::OK
+$form.AcceptButton = $buttons.OK
+
+$buttons.Cancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+$form.CancelButton = $buttons.Cancel
 
 # Show the form and get the result
 $result = $form.ShowDialog()
