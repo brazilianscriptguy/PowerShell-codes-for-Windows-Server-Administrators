@@ -1,6 +1,6 @@
 # PowerShell Script to Manage Shares on Workstations
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: May 29, 2024
+# Updated: July 12, 2024
 
 # Determine the script name and configure the log path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
@@ -23,7 +23,7 @@ function Write-Log {
     }
 
     try {
-        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+        Add-Content -Path $logPath -Value "$logEntry`r`n" -ErrorAction Stop
     } catch {
         Write-Error "Failed to write to log: $_"
     }
@@ -72,39 +72,33 @@ function Enable-AdministrativeShares {
     }
 }
 
-# Remove all shared folders on C:\ and D:\
+# Remove all shared folders on all drives
 function Remove-SharedFolders {
-    Write-Log "Removing shared folders on C:\ and D:\."
+    Write-Log "Removing all shared folders on all drives."
 
-    $drives = @('C:', 'D:')
-    foreach ($drive in $drives) {
-        try {
-            $shares = Get-SmbShare | Where-Object { $_.Path -like "$drive\*" -and $_.Name -notin 'IPC$', 'ADMIN$' }
-            foreach ($share in $shares) {
-                & net share $share.Name /delete /y
-                Write-Log "Shared folder $($share.Name) on $($share.Path) removed."
-            }
-        } catch {
-            Write-Log "Failed to remove shared folders on $($drive): $_" -LogLevel "ERROR"
+    try {
+        $shares = Get-SmbShare | Where-Object { $_.Name -notin 'IPC$', 'ADMIN$' }
+        foreach ($share in $shares) {
+            & net share $share.Name /delete /y
+            Write-Log "Shared folder $($share.Name) on $($share.Path) removed."
         }
+    } catch {
+        Write-Log "Failed to remove shared folders: $_" -LogLevel "ERROR"
     }
 }
 
-# Remove administrative shares like C$ and D$
+# Remove all administrative shares
 function Remove-AdministrativeShares {
-    Write-Log "Removing administrative shares C$ and D$."
+    Write-Log "Removing all administrative shares."
 
-    $adminShares = @('C$', 'D$')
-    foreach ($share in $adminShares) {
-        try {
-            $existingShare = Get-SmbShare -Name $share -ErrorAction SilentlyContinue
-            if ($existingShare) {
-                & net share $share /delete /y
-                Write-Log "Administrative share $share removed."
-            }
-        } catch {
-            Write-Log "Failed to remove administrative share: $share - $_" -LogLevel "ERROR"
+    try {
+        $adminShares = Get-SmbShare | Where-Object { $_.Name -match '^\w\$' }
+        foreach ($share in $adminShares) {
+            & net share $share.Name /delete /y
+            Write-Log "Administrative share $($share.Name) removed."
         }
+    } catch {
+        Write-Log "Failed to remove administrative shares: $_" -LogLevel "ERROR"
     }
 }
 
@@ -118,10 +112,10 @@ Ensure-ServerService
 # Enable administrative shares
 Enable-AdministrativeShares
 
-# Remove all shared folders on C:\ and D:\
+# Remove all shared folders on all drives
 Remove-SharedFolders
 
-# Remove administrative shares C$ and D$
+# Remove all administrative shares
 Remove-AdministrativeShares
 
 Write-Log "Share management script completed."
