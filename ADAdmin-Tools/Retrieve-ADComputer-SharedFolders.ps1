@@ -1,4 +1,4 @@
-# PowerShell script to gather all workstations from an AD Domain to find out any local Workstations Drive, Folder and Printer Sharing
+# PowerShell script to gather all workstations from an AD Domain to find any local drive, folder, and printer sharing
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
 # Updated: July 12, 2024
 
