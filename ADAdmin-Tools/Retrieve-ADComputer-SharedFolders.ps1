@@ -1,6 +1,6 @@
-# PowerShell script to gather all workstations from an AD Domain to find out any local folder sharing
+# PowerShell script to gather all workstations from an AD Domain to find out any local Workstations Drive, Folder and Printer Sharing
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: May 28, 2024
+# Updated: July 12, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -22,14 +22,13 @@ public class Window {
     }
 }
 "@
-
 [Window]::Hide()
 
-# Add necessary assemblies for GUI
+# Import necessary assemblies for GUI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Determine the script name and set up logging path
+# Determine the script name and set up the logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
@@ -54,7 +53,7 @@ function Log-Message {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = "[$timestamp] [$LogLevel] $Message"
     try {
-        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+        Add-Content -Path $logPath -Value "$logEntry`r`n" -ErrorAction Stop
     } catch {
         Write-Error "Failed to write to log: $_"
     }
@@ -89,25 +88,40 @@ function Get-DomainFQDN {
 # Log the start of the script
 Log-Message "Starting AD Workstation Search script."
 
-# Function to get shared folders on a remote computer
-function Get-SharedFolders {
+# Function to get shared folders and printers on a remote computer
+function Get-SharedResources {
     param (
         [string]$ComputerName
     )
     
     try {
         # Check shared folders on the remote computer
-        $shares = Get-WmiObject -Class Win32_Share -ComputerName $ComputerName -ErrorAction Stop
-        $shares | Select-Object @{Name='ComputerName';Expression={$ComputerName}}, Name, Path, Description, Status
-    }
-    catch {
+        $shares = Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+            Get-WmiObject -Class Win32_Share
+        } -ErrorAction Stop
+
+        # Check shared printers on the remote computer
+        $printers = Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+            Get-WmiObject -Query "SELECT * FROM Win32_Printer WHERE Shared = True"
+        } -ErrorAction Stop
+
+        $resources = @()
+        if ($shares) {
+            $resources += $shares | Select-Object @{Name='ComputerName';Expression={$ComputerName}}, Name, Path, Description, Status
+        }
+        if ($printers) {
+            $resources += $printers | Select-Object @{Name='ComputerName';Expression={$ComputerName}}, Name, @{Name='Path';Expression={"Printer"}}, Description, @{Name='Status';Expression={"Shared Printer"}}
+        }
+
+        return $resources
+    } catch {
         Log-Message "Could not connect to $ComputerName. Error: $_" -LogLevel "ERROR"
         return $null
     }
 }
 
-# Function to search for shared folders on workstations in the AD domain
-function Search-SharedFolders {
+# Function to search for shared resources on workstations in the AD domain
+function Search-SharedResources {
     param (
         [System.Windows.Forms.ListBox]$listBox,
         [string]$domainFQDN
@@ -121,63 +135,75 @@ function Search-SharedFolders {
 
     foreach ($computer in $computers) {
         $computerName = $computer.Name
-        Log-Message "Checking shared folders on $computerName..."
-        $sharedFolders = Get-SharedFolders -ComputerName $computerName
-        if ($sharedFolders) {
-            $results += $sharedFolders
-            foreach ($share in $sharedFolders) {
-                $listBox.Items.Add("$($share.ComputerName): $($share.Name)")
+        Log-Message "Checking shared resources on $computerName..."
+        $sharedResources = Get-SharedResources -ComputerName $computerName
+        if ($sharedResources) {
+            $results += $sharedResources
+            foreach ($resource in $sharedResources) {
+                $listBox.Items.Add("$($resource.ComputerName): $($resource.Name) - $($resource.Status)")
             }
         }
     }
 
     $global:exportData = $results
-    Log-Message "Found $($results.Count) shared folders."
+    Log-Message "Found $($results.Count) shared resources."
     if ($results.Count -eq 0) {
-        Show-InfoMessage "No shared folders found on the workstations."
+        Show-InfoMessage "No shared resources found on the workstations."
     }
 }
 
 # Main Form
 $mainForm = New-Object System.Windows.Forms.Form
-$mainForm.Text = 'Search ADDS Shared Folders'
-$mainForm.Size = New-Object System.Drawing.Size(420, 400)
+$mainForm.Text = 'Search ADDS Shared Resources'
+$mainForm.Size = New-Object System.Drawing.Size(500, 500)
 $mainForm.StartPosition = 'CenterScreen'
+
+# Panel for Domain Input and Buttons
+$panelTop = New-Object System.Windows.Forms.Panel
+$panelTop.Size = New-Object System.Drawing.Size(480, 100)
+$panelTop.Location = New-Object System.Drawing.Point(10, 10)
+$mainForm.Controls.Add($panelTop)
 
 # Domain FQDN Label
 $lblDomain = New-Object System.Windows.Forms.Label
-$lblDomain.Location = New-Object System.Drawing.Point(30, 30)
+$lblDomain.Location = New-Object System.Drawing.Point(10, 10)
 $lblDomain.Size = New-Object System.Drawing.Size(120, 20)
 $lblDomain.Text = 'Domain FQDN:'
-$mainForm.Controls.Add($lblDomain)
+$panelTop.Controls.Add($lblDomain)
 
 # Domain FQDN Text Box
 $txtDomain = New-Object System.Windows.Forms.TextBox
-$txtDomain.Location = New-Object System.Drawing.Point(150, 30)
+$txtDomain.Location = New-Object System.Drawing.Point(140, 10)
 $txtDomain.Size = New-Object System.Drawing.Size(220, 20)
 $txtDomain.Text = Get-DomainFQDN
-$mainForm.Controls.Add($txtDomain)
+$panelTop.Controls.Add($txtDomain)
 
 # Search Button
 $btnSearch = New-Object System.Windows.Forms.Button
-$btnSearch.Location = New-Object System.Drawing.Point(30, 60)
-$btnSearch.Size = New-Object System.Drawing.Size(120, 23)
+$btnSearch.Location = New-Object System.Drawing.Point(370, 10)
+$btnSearch.Size = New-Object System.Drawing.Size(90, 23)
 $btnSearch.Text = 'Search'
 $btnSearch.Add_Click({
     $domainFQDN = if ($txtDomain.Text) { $txtDomain.Text } else { "YourDomainHere" }
-    Search-SharedFolders -listBox $listBox -domainFQDN $domainFQDN
+    Search-SharedResources -listBox $listBox -domainFQDN $domainFQDN
 })
-$mainForm.Controls.Add($btnSearch)
+$panelTop.Controls.Add($btnSearch)
 
 # List Box to display results
 $listBox = New-Object System.Windows.Forms.ListBox
-$listBox.Location = New-Object System.Drawing.Point(30, 100)
-$listBox.Size = New-Object System.Drawing.Size(340, 180)
+$listBox.Location = New-Object System.Drawing.Point(10, 120)
+$listBox.Size = New-Object System.Drawing.Size(460, 300)
 $mainForm.Controls.Add($listBox)
+
+# Panel for Export and Close Buttons
+$panelBottom = New-Object System.Windows.Forms.Panel
+$panelBottom.Size = New-Object System.Drawing.Size(480, 40)
+$panelBottom.Location = New-Object System.Drawing.Point(10, 430)
+$mainForm.Controls.Add($panelBottom)
 
 # Export Button
 $btnExport = New-Object System.Windows.Forms.Button
-$btnExport.Location = New-Object System.Drawing.Point(30, 300)
+$btnExport.Location = New-Object System.Drawing.Point(10, 10)
 $btnExport.Size = New-Object System.Drawing.Size(140, 23)
 $btnExport.Text = 'Export to CSV'
 $btnExport.Add_Click({
@@ -190,15 +216,15 @@ $btnExport.Add_Click({
         Show-InfoMessage "No data available to export."
     }
 })
-$mainForm.Controls.Add($btnExport)
+$panelBottom.Controls.Add($btnExport)
 
 # Close Button
 $btnClose = New-Object System.Windows.Forms.Button
-$btnClose.Location = New-Object System.Drawing.Point(190, 300)
-$btnClose.Size = New-Object System.Drawing.Size(120, 23)
+$btnClose.Location = New-Object System.Drawing.Point(160, 10)
+$btnClose.Size = New-Object System.Drawing.Size(90, 23)
 $btnClose.Text = 'Close'
 $btnClose.Add_Click({ $mainForm.Close() })
-$mainForm.Controls.Add($btnClose)
+$panelBottom.Controls.Add($btnClose)
 
 # Show GUI
 [void]$mainForm.ShowDialog()
