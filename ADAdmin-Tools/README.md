@@ -8,7 +8,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 ### Script Descriptions (Alphabetically Ordered)
 
-1. **Add-Computer-and-GrantJoinPermissions.ps1**: Automates adding workstations to the domain and granting appropriate permissions.
+1. **Add-ADComputer-n-GrantJoinPermissions.ps1**: Automates adding workstations to the domain and granting appropriate permissions.
 
 2. **Adjust-ExpirationDate-ADUserAccount.ps1**: Provides a GUI to search for Active Directory users by account description, list matching users, and update their account expiration dates, streamlining user management in IT environments.
 
