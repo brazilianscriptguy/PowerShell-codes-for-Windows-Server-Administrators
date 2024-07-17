@@ -10,7 +10,7 @@ param (
         "Northgard", "OpenVPN", "Riot Vanguard", "ShockwaveFlash", "Solitaire", "Souldiers", "Spotify", "StarCraft", "SupremaPoker",
         "Wandering", "TikTok", "WebDiscover Browser", "WireGuard", "xbox", "ZeroTier"
     ),
-    [string]$LogDir = 'C:\Scripts-LOGS'
+    [string]$LogDir = 'C:\Logs-TEMP'
 )
 
 $ErrorActionPreference = "Continue"
