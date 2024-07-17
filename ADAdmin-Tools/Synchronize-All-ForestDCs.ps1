@@ -1,6 +1,6 @@
 # PowerShell script to Synchronize all DCs in the Forest across All Sites
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: July 12, 2024
+# Updated: July 17, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -68,7 +68,6 @@ function Sync-AllDCs {
     Import-Module ActiveDirectory
 
     Log-Message "Starting Active Directory synchronization process: $(Get-Date)"
-    Log-Message ""  # Add blank line for better readability
 
     # Get a list of all domains in the forest
     try {
@@ -76,7 +75,6 @@ function Sync-AllDCs {
         $allDomains = $forest.Domains
     } catch {
         Log-Message "Error retrieving forest domains: $_" -MessageType "ERROR"
-        Log-Message ""  # Add blank line for better readability
         [System.Windows.Forms.MessageBox]::Show("Error retrieving forest domains. See log for details.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         return
     }
@@ -89,7 +87,6 @@ function Sync-AllDCs {
             $allDCs += $domainDCs
         } catch {
             Log-Message "Error retrieving domain controllers from ${domain}: $_" -MessageType "ERROR"
-            Log-Message ""  # Add blank line for better readability
         }
     }
 
@@ -100,19 +97,16 @@ function Sync-AllDCs {
         Log-Message "Forcing synchronization on ${dcName}: $(Get-Date)"
         try {
             # Perform the synchronization
-            $syncResult = & repadmin /syncall /e /d /P /q $dcName
+            $syncResult = & repadmin /syncall /e /A /P /d /q $dcName
             # Log the result of the synchronization
             Log-Message "Synchronization result for ${dcName}: $syncResult"
         } catch {
             # Log any errors that occur
             Log-Message "Error synchronizing ${dcName}: $_" -MessageType "ERROR"
         }
-        # Add blank line to separate DCs
-        Log-Message ""  # Add blank line for better readability
     }
 
     Log-Message "Active Directory synchronization process completed: $(Get-Date)"
-    Log-Message ""  # Add blank line after completion message
     [System.Windows.Forms.MessageBox]::Show("Synchronization process completed.", "Info", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
 }
 
