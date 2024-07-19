@@ -1,3 +1,6 @@
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Updated: July 19, 2024
+
 # Hide the PowerShell console window
 Add-Type @"
 using System;
@@ -21,10 +24,10 @@ public class Window {
 
 [Window]::Hide()
 
-# Load necessary assemblies for Windows Forms
+# Import necessary libraries for GUI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-[System.Windows.Forms.Application]::EnableVisualStyles()
+Import-Module ActiveDirectory
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
@@ -45,10 +48,12 @@ if (-not (Test-Path $logDir)) {
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Message
+        [string]$Message,
+        [Parameter(Mandatory=$false)]
+        [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
@@ -63,6 +68,13 @@ function Show-ErrorMessage {
     Log-Message "Error: $message" -MessageType "ERROR"
 }
 
+# Function to display warning messages
+function Show-WarningMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Warning', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    Log-Message "Warning: $message" -MessageType "WARNING"
+}
+
 # Function to display information messages
 function Show-InfoMessage {
     param ([string]$message)
@@ -70,4 +82,4 @@ function Show-InfoMessage {
     Log-Message "Info: $message" -MessageType "INFO"
 }
 
-# New insertion of a new .ps1 code
+# New code funtions...
