@@ -114,7 +114,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 53. **Update-ADComputer-Winget-viaGPO.ps1**: Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
 
-54. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
+54. **Update-ADUserDisplayName.ps1**: Retrieves users whose email addresses match a specified filter, extracts the first and last names from the email, converts them to uppercase, and updates the display name accordingly.
+
+55. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
 ## Additional Assistance
 All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the README.md file in the main root folder.
