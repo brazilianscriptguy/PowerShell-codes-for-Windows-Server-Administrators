@@ -1,6 +1,6 @@
 # PowerShell Script to Update Workstation Descriptions with Enhanced GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+# Updated: July 19, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -87,7 +87,7 @@ function Show-InfoMessage {
 function Get-CurrentDC {
     try {
         $domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
-        $dc = $domain.FindOne().Name
+        $dc = $domain.FindDomainController().Name
         return $dc
     } catch {
         Show-WarningMessage "Unable to fetch the current Domain Controller automatically."
@@ -212,7 +212,7 @@ $cmbOU.DropDownStyle = 'DropDownList'
 $form.Controls.Add($cmbOU)
 
 # Retrieve and store all OUs initially
-$allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Computadores*"' | Select-Object -ExpandProperty DistinguishedName
+$allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Computers*"' | Select-Object -ExpandProperty DistinguishedName
 
 # Function to update ComboBox based on search
 function UpdateOUComboBox {
