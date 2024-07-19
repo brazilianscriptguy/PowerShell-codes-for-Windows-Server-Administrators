@@ -126,7 +126,7 @@ function Show-ExportForm {
     $submitButton.Add_Click({
         $selectedAttributes = $listBox.CheckedItems -join ','
         $domainName = $textBoxDomain.Text
-        $csvPath = [System.IO.Path]::Combine([Environment]::GetFolderPath('MyDocuments'), "${scriptName}-${domainName}-${timestamp}.csv")
+        $csvPath = [System.IO.Path]::Combine([Environment]::GetFolderPath('MyDocuments'), "${domainName}-${scriptName}-${timestamp}.csv")
 
         if (-not $selectedAttributes -or [string]::IsNullOrWhiteSpace($domainName)) {
             [System.Windows.Forms.MessageBox]::Show("No attributes selected or domain name entered.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
