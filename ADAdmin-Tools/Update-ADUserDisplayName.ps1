@@ -156,7 +156,7 @@ function Update-WorkstationDescriptions {
 # Initialize form components
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Update Workstation Descriptions'
-$form.Size = New-Object System.Drawing.Size(500, 450)
+$form.Size = New-Object System.Drawing.Size(500, 410)
 $form.StartPosition = 'CenterScreen'
 
 # Domain Controller label and textbox
