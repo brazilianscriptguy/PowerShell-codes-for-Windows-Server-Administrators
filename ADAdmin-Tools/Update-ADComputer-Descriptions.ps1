@@ -83,15 +83,14 @@ function Show-InfoMessage {
     Log-Message "Info: $message" -MessageType "INFO"
 }
 
-# Function to get the current Active Directory Domain Controller
-function Get-CurrentDC {
+# Function to get the FQDN of the current Domain Controller
+function Get-DomainControllerFQDN {
     try {
-        $domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
-        $dc = $domain.FindDomainController().Name
-        return $dc
+        $domainController = (Get-ADDomainController -Discover -Service "PrimaryDC").HostName
+        return $domainController
     } catch {
-        Show-WarningMessage "Unable to fetch the current Domain Controller automatically."
-        return "YourDCHere"
+        Log-Message -Message "Error retrieving the FQDN of the Domain Controller: $_" -MessageType "ERROR"
+        return ""
     }
 }
 
@@ -100,7 +99,7 @@ function Update-WorkstationDescriptions {
     param (
         [string]$DC,
         [string]$DefaultDesc,
-        [string]$OU,
+        [string[]]$OUs,
         [System.Windows.Forms.ProgressBar]$ProgressBar,
         [System.Windows.Forms.Label]$StatusLabel,
         [System.Windows.Forms.Button]$ExecuteButton,
@@ -114,7 +113,14 @@ function Update-WorkstationDescriptions {
         $ProgressBar.Value = 10
 
         $Credential = Get-Credential -Message "Enter admin credentials"
-        $Computers = Get-ADComputer -Server $DC -Filter * -SearchBase $OU -Credential $Credential -ErrorAction Stop
+        $TotalComputers = 0
+        $Computers = @()
+
+        foreach ($OU in $OUs) {
+            $OUComputers = Get-ADComputer -Server $DC -Filter * -SearchBase $OU -Credential $Credential -ErrorAction Stop
+            $Computers += $OUComputers
+        }
+
         $TotalComputers = $Computers.Count
         $CurrentCount = 0
 
@@ -150,111 +156,94 @@ function Update-WorkstationDescriptions {
 # Initialize form components
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Update Workstation Descriptions'
-$form.Size = New-Object System.Drawing.Size(420, 350)
+$form.Size = New-Object System.Drawing.Size(500, 450)
 $form.StartPosition = 'CenterScreen'
 
 # Domain Controller label and textbox
 $labelDC = New-Object System.Windows.Forms.Label
-$labelDC.Text = 'Server Domain Controller:'
+$labelDC.Text = 'Enter FQDN of the Domain Controller:'
 $labelDC.Location = New-Object System.Drawing.Point(10, 20)
-$labelDC.Size = New-Object System.Drawing.Size(160, 20)
+$labelDC.Size = New-Object System.Drawing.Size(220, 20)
 $form.Controls.Add($labelDC)
 
 $textBoxDC = New-Object System.Windows.Forms.TextBox
-$textBoxDC.Location = New-Object System.Drawing.Point(180, 20)
-$textBoxDC.Size = New-Object System.Drawing.Size(200, 20)
-$textBoxDC.Text = (Get-CurrentDC)
+$textBoxDC.Location = New-Object System.Drawing.Point(240, 20)
+$textBoxDC.Size = New-Object System.Drawing.Size(240, 20)
+$textBoxDC.Text = (Get-DomainControllerFQDN)
 $form.Controls.Add($textBoxDC)
 
 # Default Description label and textbox
 $labelDesc = New-Object System.Windows.Forms.Label
-$labelDesc.Text = 'Default Description:'
+$labelDesc.Text = 'Default Workstation Description:'
 $labelDesc.Location = New-Object System.Drawing.Point(10, 50)
-$labelDesc.Size = New-Object System.Drawing.Size(160, 20)
+$labelDesc.Size = New-Object System.Drawing.Size(220, 20)
 $form.Controls.Add($labelDesc)
 
 $textBoxDesc = New-Object System.Windows.Forms.TextBox
-$textBoxDesc.Location = New-Object System.Drawing.Point(180, 50)
-$textBoxDesc.Size = New-Object System.Drawing.Size(200, 20)
+$textBoxDesc.Location = New-Object System.Drawing.Point(240, 50)
+$textBoxDesc.Size = New-Object System.Drawing.Size(240, 20)
 $form.Controls.Add($textBoxDesc)
 
 # Target OU label
 $labelOU = New-Object System.Windows.Forms.Label
-$labelOU.Text = 'Target OU DN:'
+$labelOU.Text = 'Target OUs (select multiple or all):'
 $labelOU.Location = New-Object System.Drawing.Point(10, 80)
-$labelOU.Size = New-Object System.Drawing.Size(160, 20)
+$labelOU.Size = New-Object System.Drawing.Size(220, 20)
 $form.Controls.Add($labelOU)
 
-# TextBox for OU search
-$txtOUSearch = New-Object System.Windows.Forms.TextBox
-$txtOUSearch.Location = New-Object System.Drawing.Point(10, 110)
-$txtOUSearch.Size = New-Object System.Drawing.Size(380, 20)
-$txtOUSearch.Text = "Search OU..."
-$txtOUSearch.ForeColor = [System.Drawing.Color]::Gray
-$txtOUSearch.Add_Enter({
-    if ($txtOUSearch.Text -eq "Search OU...") {
-        $txtOUSearch.Text = ''
-        $txtOUSearch.ForeColor = [System.Drawing.Color]::Black
-    }
-})
-$txtOUSearch.Add_Leave({
-    if ($txtOUSearch.Text -eq '') {
-        $txtOUSearch.Text = "Search OU..."
-        $txtOUSearch.ForeColor = [System.Drawing.Color]::Gray
-    }
-})
+# ListBox for OU selection
+$listBoxOUs = New-Object System.Windows.Forms.CheckedListBox
+$listBoxOUs.Location = New-Object System.Drawing.Point(10, 110)
+$listBoxOUs.Size = New-Object System.Drawing.Size(470, 100)
+$form.Controls.Add($listBoxOUs)
 
-# ComboBox for OU selection
-$cmbOU = New-Object System.Windows.Forms.ComboBox
-$cmbOU.Location = New-Object System.Drawing.Point(10, 140)
-$cmbOU.Size = New-Object System.Drawing.Size(380, 20)
-$cmbOU.DropDownStyle = 'DropDownList'
-$form.Controls.Add($cmbOU)
+# Select All checkbox
+$chkSelectAll = New-Object System.Windows.Forms.CheckBox
+$chkSelectAll.Text = "Select All"
+$chkSelectAll.Location = New-Object System.Drawing.Point(10, 220)
+$chkSelectAll.Size = New-Object System.Drawing.Size(80, 20)
+$form.Controls.Add($chkSelectAll)
 
-# Retrieve and store all OUs initially
-$allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Computers*"' | Select-Object -ExpandProperty DistinguishedName
-
-# Function to update ComboBox based on search
-function UpdateOUComboBox {
-    $cmbOU.Items.Clear()
-    $searchText = $txtOUSearch.Text
-    if ($searchText -eq "Search OU...") {
-        $filteredOUs = $allOUs
-    } else {
-        $filteredOUs = $allOUs | Where-Object { $_ -like "*$searchText*" }
-    }
-    foreach ($ou in $filteredOUs) {
-        $cmbOU.Items.Add($ou)
-    }
-    if ($cmbOU.Items.Count -gt 0) {
-        $cmbOU.SelectedIndex = 0
+# Function to update the ListBox with OUs
+function PopulateOUs {
+    $listBoxOUs.Items.Clear()
+    $allOUs = Get-ADOrganizationalUnit -Filter {Name -like "Computers*"} | Select-Object -ExpandProperty DistinguishedName
+    foreach ($ou in $allOUs) {
+        $listBoxOUs.Items.Add($ou, $false)
     }
 }
 
-# Initially populate ComboBox
-UpdateOUComboBox
+# Populate ListBox with OUs initially
+PopulateOUs
 
-# Search TextBox change event
-$txtOUSearch.Add_TextChanged({
-    UpdateOUComboBox
+# Function to handle Select All checkbox
+$chkSelectAll.Add_CheckedChanged({
+    if ($chkSelectAll.Checked) {
+        for ($i = 0; $i -lt $listBoxOUs.Items.Count; $i++) {
+            $listBoxOUs.SetItemChecked($i, $true)
+        }
+    } else {
+        for ($i = 0; $i -lt $listBoxOUs.Items.Count; $i++) {
+            $listBoxOUs.SetItemChecked($i, $false)
+        }
+    }
 })
-$form.Controls.Add($txtOUSearch)
 
 # Progress bar
 $progressBar = New-Object System.Windows.Forms.ProgressBar
-$progressBar.Location = New-Object System.Drawing.Point(10, 240)
-$progressBar.Size = New-Object System.Drawing.Size(370, 20)
+$progressBar.Location = New-Object System.Drawing.Point(10, 260)
+$progressBar.Size = New-Object System.Drawing.Size(470, 20)
 $form.Controls.Add($progressBar)
 
 # Status label
 $statusLabel = New-Object System.Windows.Forms.Label
-$statusLabel.Location = New-Object System.Drawing.Point(10, 210)
-$statusLabel.Size = New-Object System.Drawing.Size(370, 20)
+$statusLabel.Location = New-Object System.Drawing.Point(10, 290)
+$statusLabel.Size = New-Object System.Drawing.Size(470, 20)
 $form.Controls.Add($statusLabel)
 
 # Execute button
 $executeButton = New-Object System.Windows.Forms.Button
-$executeButton.Location = New-Object System.Drawing.Point(10, 270)
+$executeButton.Location = New-Object System.Drawing.Point(10, 320)
 $executeButton.Size = New-Object System.Drawing.Size(75, 23)
 $executeButton.Text = 'Execute'
 
@@ -262,13 +251,13 @@ $CancelRequested = $false
 $executeButton.Add_Click({
     $dc = $textBoxDC.Text
     $defaultDesc = $textBoxDesc.Text
-    $ou = $cmbOU.SelectedItem
+    $ous = $listBoxOUs.CheckedItems
 
-    if ($dc -and $defaultDesc -and $ou) {
+    if ($dc -and $defaultDesc -and $ous.Count -gt 0) {
         $executeButton.Enabled = $false
         $cancelButton.Enabled = $true
         $CancelRequested = $false
-        Update-WorkstationDescriptions -DC $dc -DefaultDesc $defaultDesc -OU $ou -ProgressBar $progressBar -StatusLabel $statusLabel -ExecuteButton $executeButton -CancelButton $cancelButton -CancelRequested ([ref]$CancelRequested)
+        Update-WorkstationDescriptions -DC $dc -DefaultDesc $defaultDesc -OUs $ous -ProgressBar $progressBar -StatusLabel $statusLabel -ExecuteButton $executeButton -CancelButton $cancelButton -CancelRequested ([ref]$CancelRequested)
     } else {
         Show-ErrorMessage "Please provide all required inputs."
         Log-Message "Input Error: Missing required inputs." -MessageType "ERROR"
@@ -278,7 +267,7 @@ $form.Controls.Add($executeButton)
 
 # Cancel button
 $cancelButton = New-Object System.Windows.Forms.Button
-$cancelButton.Location = New-Object System.Drawing.Point(100, 270)
+$cancelButton.Location = New-Object System.Drawing.Point(100, 320)
 $cancelButton.Size = New-Object System.Drawing.Size(75, 23)
 $cancelButton.Text = 'Cancel'
 $cancelButton.Enabled = $false
@@ -294,7 +283,7 @@ $form.Controls.Add($cancelButton)
 
 # Close button
 $closeButton = New-Object System.Windows.Forms.Button
-$closeButton.Location = New-Object System.Drawing.Point(305, 270)
+$closeButton.Location = New-Object System.Drawing.Point(405, 320)
 $closeButton.Size = New-Object System.Drawing.Size(75, 23)
 $closeButton.Text = 'Close'
 $closeButton.Add_Click({ $form.Close() })
