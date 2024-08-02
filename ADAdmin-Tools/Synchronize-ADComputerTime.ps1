@@ -2,6 +2,23 @@
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: March, 04, 2024
 
+# Hide PowerShell console window
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class Window {
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern IntPtr GetConsoleWindow();
+    [DllImport("user32.dll", SetLastError = true)]
+    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    public static void Hide() {
+        var handle = GetConsoleWindow();
+        ShowWindow(handle, 0); // 0 = SW_HIDE
+    }
+}
+"@
+[Window]::Hide()
+
 # Suppress unwanted messages for a cleaner execution environment
 $WarningPreference = 'SilentlyContinue'
 $VerbosePreference = 'SilentlyContinue'
