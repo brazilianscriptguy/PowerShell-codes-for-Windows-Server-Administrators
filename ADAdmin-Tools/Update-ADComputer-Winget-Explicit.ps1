@@ -2,9 +2,6 @@
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Updated: May 8, 2024
 
-# Import necessary assemblies
-Add-Type -AssemblyName System.Windows.Forms
-
 # Hide the PowerShell console window
 Add-Type @"
 using System;
@@ -27,6 +24,9 @@ public class Window {
 "@
 
 [Window]::Hide()
+
+# Import necessary assemblies
+Add-Type -AssemblyName System.Windows.Forms
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
