@@ -88,7 +88,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 40. **Reset-ADUserPasswordsToDefault.ps1**: Allows for the bulk resetting of user passwords to a default value within a specified OU, enhancing security management efficiency.
 
-41. **Reset-and-Sync-DomainGPOs.ps1**: Resets and synchronizes all Domain GPOs. This script is intended to be called by a GPO and scheduled as a task, ensuring that all Group Policies are up-to-date and effectively applied across workstations.
+41. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**: Resets and synchronizes all Domain GPOs. This script is intended to be called by a GPO and scheduled as a task, ensuring that all Group Policies are up-to-date and effectively applied across workstations.
 
 42. **Restart-NetworkAdapter.ps1**: Restarts the chosen Ethernet adapter. Users can select an adapter from a list, disable it, wait 5 seconds, and re-enable it with a single click. Useful for maintaining connections during RDP sessions.
 
