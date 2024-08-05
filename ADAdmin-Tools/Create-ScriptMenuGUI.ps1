@@ -30,21 +30,21 @@ Add-Type -AssemblyName System.Drawing
 
 # Define the list of scripts with descriptive names and paths
 $adAdminTools = @{
-    "Add Computer and Grant Join Permissions" = ".\ADAdmin Tools\Add-Computer-and-GrantJoinPermissions.ps1"
-    "Adjust Expiration Date for AD User Account" = ".\ADAdmin Tools\Adjust-ExpirationDate-ADUserAccount.ps1"
-    "Cleanup Inactive AD Computer Accounts" = ".\ADAdmin Tools\Cleanup-Inactive-ADComputerAccounts.ps1"
-    "Create Default AD OU Structure" = ".\ADAdmin Tools\Create-OUsDefaultADStructure.ps1"
-    "Disable Expired AD User Accounts" = ".\ADAdmin Tools\Disable-Expired-ADUserAccounts.ps1"
-    "Find Shorter AD Computer Names" = ".\ADAdmin Tools\Find-Shorter-ADComputerNames.ps1"
-    "Inventory AD User Attributes" = ".\ADAdmin Tools\Inventory-ADUserAttributes.ps1"
-    "Remove Empty Files or By Date Range" = ".\ADAdmin Tools\Remove-EmptyFiles-or-DateRange.ps1"
-    "Reset AD User Passwords to Default" = ".\ADAdmin Tools\Reset-ADUserPasswordsToDefault.ps1"
-    "Restart Network Adapter" = ".\ADAdmin Tools\Restart-NetworkAdapter.ps1"
-    "Retrieve Servers' Disk Space" = ".\ADAdmin Tools\Retrieve-ServersDiskSpace.ps1"
-    "Synchronize All Forest DCs" = ".\ADAdmin Tools\Synchronize-All-ForestDCs.ps1"
-    "Unlock SMB Share AD User Access" = ".\ADAdmin Tools\Unlock-SMBShareADUserAccess.ps1"
-    "Update AD Computer Descriptions" = ".\ADAdmin Tools\Update-ADComputer-Descriptions.ps1"
-    "Update AD User Display Name" = ".\ADAdmin Tools\Update-ADUserDisplayName.ps1"
+    "Add Computer and Grant Join Permissions" = ".\ADAdmin-Tools\Add-Computer-and-GrantJoinPermissions.ps1"
+    "Adjust Expiration Date for AD User Account" = ".\ADAdmin-Tools\Adjust-ExpirationDate-ADUserAccount.ps1"
+    "Cleanup Inactive AD Computer Accounts" = ".\ADAdmin-Tools\Cleanup-Inactive-ADComputerAccounts.ps1"
+    "Create Default AD OU Structure" = ".\ADAdmin-Tools\Create-OUsDefaultADStructure.ps1"
+    "Disable Expired AD User Accounts" = ".\ADAdmin-Tools\Disable-Expired-ADUserAccounts.ps1"
+    "Find Shorter AD Computer Names" = ".\ADAdmin-Tools\Find-Shorter-ADComputerNames.ps1"
+    "Inventory AD User Attributes" = ".\ADAdmin-Tools\Inventory-ADUserAttributes.ps1"
+    "Remove Empty Files or By Date Range" = ".\ADAdmin-Tools\Remove-EmptyFiles-or-DateRange.ps1"
+    "Reset AD User Passwords to Default" = ".\ADAdmin-Tools\Reset-ADUserPasswordsToDefault.ps1"
+    "Restart Network Adapter" = ".\ADAdmin-Tools\Restart-NetworkAdapter.ps1"
+    "Retrieve Servers' Disk Space" = ".\ADAdmin-Tools\Retrieve-ServersDiskSpace.ps1"
+    "Synchronize All Forest DCs" = ".\ADAdmin-Tools\Synchronize-All-ForestDCs.ps1"
+    "Unlock SMB Share AD User Access" = ".\ADAdmin-Tools\Unlock-SMBShareADUserAccess.ps1"
+    "Update AD Computer Descriptions" = ".\ADAdmin-Tools\Update-ADComputer-Descriptions.ps1"
+    "Update AD User Display Name" = ".\ADAdmin-Tools\Update-ADUserDisplayName.ps1"
 }
 
 $eventLogsTools = @{
