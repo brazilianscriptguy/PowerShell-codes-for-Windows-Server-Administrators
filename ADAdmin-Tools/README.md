@@ -104,7 +104,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 48. **Synchronize-ADComputerTime.ps1**: Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
 
-49. **Synchronize-All-ForestDCs.ps1**: Automates the synchronization of all Domain Controllers (DCs) within an Active Directory forest across multiple sites, ensuring consistency and up-to-date replication.
+49. **Synchronize-All-ForestDCs.ps1**: Automates the synchronization of all Domain Controllers (DCs) within an Active Directory forest across multiple sites, ensuring consistency and up-to-date replication, and retrieves the replication summary.
 
 50. **Uninstall-SelectedApp.ps1**: Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
 
