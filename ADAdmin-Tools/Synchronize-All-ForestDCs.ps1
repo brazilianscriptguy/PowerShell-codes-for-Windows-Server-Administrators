@@ -1,6 +1,6 @@
 # PowerShell script to Synchronize all DCs in the Forest across All Sites
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: July 17, 2024
+# Updated: August 5, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -115,6 +115,26 @@ function Show-Log {
     notepad $logPath
 }
 
+# Function to run Repadmin.exe /replsummary and display output in the list box
+function Show-ReplSummary {
+    Log-Message "Starting Repadmin.exe /replsummary: $(Get-Date)"
+    try {
+        $replSummaryResult = & repadmin /replsummary
+
+        # Split the output into individual lines and add them to the list box
+        $replSummaryResultLines = $replSummaryResult -split "`r`n"
+        foreach ($line in $replSummaryResultLines) {
+            $global:logBox.Items.Add($line)
+        }
+        
+        $global:logBox.TopIndex = $global:logBox.Items.Count - 1
+        Log-Message "Repadmin.exe /replsummary completed"
+    } catch {
+        Log-Message "Error executing Repadmin.exe /replsummary: $_" -MessageType "ERROR"
+        [System.Windows.Forms.MessageBox]::Show("Error executing Repadmin.exe /replsummary. See log for details.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    }
+}
+
 # Create the form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "AD Forest Sync Tool"
@@ -146,6 +166,16 @@ $logButton.Add_Click({
     Show-Log
 })
 $form.Controls.Add($logButton)
+
+# Create a button to show Repadmin.exe /replsummary
+$replSummaryButton = New-Object System.Windows.Forms.Button
+$replSummaryButton.Location = New-Object System.Drawing.Point(450, 520)
+$replSummaryButton.Size = New-Object System.Drawing.Size(250, 50)
+$replSummaryButton.Text = "Show Repadmin ReplSummary"
+$replSummaryButton.Add_Click({
+    Show-ReplSummary
+})
+$form.Controls.Add($replSummaryButton)
 
 # Show the form
 $form.Add_Shown({$form.Activate()})
