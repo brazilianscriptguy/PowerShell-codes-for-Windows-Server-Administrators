@@ -1,6 +1,6 @@
-# PowerShell Script to create a Menu to Call all the Script lists
+# PowerShell script to create an automated GUI menu for executing PowerShell scripts found within specified folder directories.
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 02, 2024
+# Updated: August 05, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -28,29 +28,32 @@ public class Window {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Define the list of scripts with descriptive names and paths
-$adAdminTools = @{
-    "Add Computer and Grant Join Permissions" = ".\ADAdmin-Tools\Add-Computer-and-GrantJoinPermissions.ps1"
-    "Adjust Expiration Date for AD User Account" = ".\ADAdmin-Tools\Adjust-ExpirationDate-ADUserAccount.ps1"
-    "Cleanup Inactive AD Computer Accounts" = ".\ADAdmin-Tools\Cleanup-Inactive-ADComputerAccounts.ps1"
-    "Create Default AD OU Structure" = ".\ADAdmin-Tools\Create-OUsDefaultADStructure.ps1"
-    "Disable Expired AD User Accounts" = ".\ADAdmin-Tools\Disable-Expired-ADUserAccounts.ps1"
-    "Find Shorter AD Computer Names" = ".\ADAdmin-Tools\Find-Shorter-ADComputerNames.ps1"
-    "Inventory AD User Attributes" = ".\ADAdmin-Tools\Inventory-ADUserAttributes.ps1"
-    "Remove Empty Files or By Date Range" = ".\ADAdmin-Tools\Remove-EmptyFiles-or-DateRange.ps1"
-    "Reset AD User Passwords to Default" = ".\ADAdmin-Tools\Reset-ADUserPasswordsToDefault.ps1"
-    "Restart Network Adapter" = ".\ADAdmin-Tools\Restart-NetworkAdapter.ps1"
-    "Retrieve Servers' Disk Space" = ".\ADAdmin-Tools\Retrieve-ServersDiskSpace.ps1"
-    "Synchronize All Forest DCs" = ".\ADAdmin-Tools\Synchronize-All-ForestDCs.ps1"
-    "Unlock SMB Share AD User Access" = ".\ADAdmin-Tools\Unlock-SMBShareADUserAccess.ps1"
-    "Update AD Computer Descriptions" = ".\ADAdmin-Tools\Update-ADComputer-Descriptions.ps1"
-    "Update AD User Display Name" = ".\ADAdmin-Tools\Update-ADUserDisplayName.ps1"
+# Function to generate a dictionary of script names and paths
+function Get-ScriptDictionary($directoryPath) {
+    $scriptDictionary = @{}
+    
+    # Get all .ps1 files in the directory
+    $files = Get-ChildItem -Path $directoryPath -Filter "*.ps1"
+
+    foreach ($file in $files) {
+        # Generate a friendly name by removing the file extension and replacing dashes with spaces
+        $friendlyName = [System.IO.Path]::GetFileNameWithoutExtension($file.Name) -replace '-', ' '
+        
+        # Add the script to the dictionary
+        $scriptDictionary[$friendlyName] = $file.FullName
+    }
+
+    # Sort the dictionary keys alphabetically
+    return $scriptDictionary.GetEnumerator() | Sort-Object Name
 }
 
-$eventLogsTools = @{
-    "Event ID 307 - Print Audit" = ".\EventLogs-Tools\EventID307-PrintAudit.ps1"
-    "Event Log Files - Migrator Tool" = ".\EventLogs-Tools\EventLogFiles-MigratorTool.ps1"
-}
+# Define the directories to search
+$adAdminDirectory = ".\ADAdmin-Tools"
+$eventLogsDirectory = ".\EventLogs-Tools"
+
+# Generate dictionaries for each section
+$adAdminTools = Get-ScriptDictionary $adAdminDirectory
+$eventLogsTools = Get-ScriptDictionary $eventLogsDirectory
 
 # Create a form
 $form = New-Object System.Windows.Forms.Form
@@ -82,8 +85,8 @@ $adAdminListBox.Location = New-Object System.Drawing.Point(10, 20)
 $adAdminListBox.Font = New-Object System.Drawing.Font("Arial", 10)
 
 # Populate the checked list box with ADAdmin Tools in alphabetical order
-foreach ($option in ($adAdminTools.Keys | Sort-Object)) {
-    $adAdminListBox.Items.Add($option)
+foreach ($entry in $adAdminTools) {
+    $adAdminListBox.Items.Add($entry.Key)
 }
 
 $adAdminGroup.Controls.Add($adAdminListBox)
@@ -102,8 +105,8 @@ $eventLogsListBox.Location = New-Object System.Drawing.Point(10, 20)
 $eventLogsListBox.Font = New-Object System.Drawing.Font("Arial", 10)
 
 # Populate the checked list box with EventLogs Tools in alphabetical order
-foreach ($option in ($eventLogsTools.Keys | Sort-Object)) {
-    $eventLogsListBox.Items.Add($option)
+foreach ($entry in $eventLogsTools) {
+    $eventLogsListBox.Items.Add($entry.Key)
 }
 
 $eventLogsGroup.Controls.Add($eventLogsListBox)
@@ -128,11 +131,9 @@ $executeButton.Add_Click({
         # Execute ADAdmin Tools scripts
         foreach ($option in $selectedADAdminTools) {
             try {
-                $scriptFile = $adAdminTools[$option]
-                # Construct the full path to the script file
-                $scriptPath = Join-Path -Path (Get-Location) -ChildPath $scriptFile
+                $scriptFile = $adAdminTools[$option].Value
                 # Execute the selected script
-                & $scriptPath
+                & $scriptFile
             } catch {
                 [System.Windows.Forms.MessageBox]::Show("An error occurred while executing $($scriptFile): $($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
             }
@@ -141,11 +142,9 @@ $executeButton.Add_Click({
         # Execute EventLogs Tools scripts
         foreach ($option in $selectedEventLogsTools) {
             try {
-                $scriptFile = $eventLogsTools[$option]
-                # Construct the full path to the script file
-                $scriptPath = Join-Path -Path (Get-Location) -ChildPath $scriptFile
+                $scriptFile = $eventLogsTools[$option].Value
                 # Execute the selected script
-                & $scriptPath
+                & $scriptFile
             } catch {
                 [System.Windows.Forms.MessageBox]::Show("An error occurred while executing $($scriptFile): $($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
             }
