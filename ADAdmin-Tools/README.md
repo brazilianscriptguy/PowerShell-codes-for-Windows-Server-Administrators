@@ -32,7 +32,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 12. **Create-ScriptGlobalGUI.ps1**: Provides a template for creating customizable GUIs for PowerShell scripts, enhancing usability across various administration tasks.
 
-13. **Create-ScriptMenuGUI.ps1**: Provides a streamlined, automated GUI menu for categorizing and executing PowerShell scripts. Scripts are organized into sections for `ADAdmin Tools` and `EventLogs Tools`, with each section sorted alphabetically.
+13. **Create-ScriptMenuGUI.ps1**: Automates the discovery and execution of PowerShell scripts with a dynamic GUI-based interface. It automatically scans all subdirectories of the current directory to find `.ps1` files, organizes them into categorized sections based on directory names, and displays them in a user-friendly interface.
 
 14. **Deploy-KasperskyAV-viaGPO.ps1**: Automates the installation and configuration of Kaspersky Antivirus and Network Agent on workstations through Group Policy Objects (GPO) for enhanced security management in diverse enterprise environments.
 
