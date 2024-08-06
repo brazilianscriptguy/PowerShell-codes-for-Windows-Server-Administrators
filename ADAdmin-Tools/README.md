@@ -122,7 +122,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 57. **Update-ADUserDisplayName.ps1**: Retrieves users whose email addresses match a specified filter, extracts the first and last names from the email, converts them to uppercase, and updates the display name accordingly.
 
-58. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
+58. **Update-DNS-n-Sites-Services.ps1**: Automates the process of updating reverse DNS zones and Active Directory Sites and Services subnets based on DHCP scope data.
+
+59. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
 ## Additional Assistance
 All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the README.md file in the main root folder.
