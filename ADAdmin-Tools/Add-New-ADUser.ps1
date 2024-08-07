@@ -99,15 +99,28 @@ function Get-ForestDomains {
     }
 }
 
-# Function to retrieve all Organizational Units (OUs) containing "Users"
+# Function to retrieve the UPN suffix for the forest
+function Get-UPNSuffix {
+    try {
+        $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
+        # Extract UPN suffix in the form "forestname.forestsuffix"
+        $upnSuffix = $forest.RootDomain.Name
+        return $upnSuffix
+    } catch {
+        Write-Error "Failed to retrieve UPN suffix: $_"
+        return ""
+    }
+}
+
+# Function to retrieve all Organizational Units (OUs) containing "Usuarios"
 function Get-AllOUs {
     param (
         [string]$Domain
     )
 
     try {
-        # Retrieve all OUs from Active Directory and filter for those containing "Users"
-        $allOUs = Get-ADOrganizationalUnit -Server $Domain -Filter {Name -like "*Users*"} | Select-Object -ExpandProperty DistinguishedName
+        # Retrieve all OUs from Active Directory and filter for those containing "Usuarios"
+        $allOUs = Get-ADOrganizationalUnit -Server $Domain -Filter {Name -like "*Usuarios*"} | Select-Object -ExpandProperty DistinguishedName
         return $allOUs
     } catch {
         Write-Error "Failed to retrieve Organizational Units: $_"
@@ -160,6 +173,9 @@ function Create-ADUser {
         # Set the expiration date to "Never" if no expiration is checked
         $expiration = if ($NoExpiration) { $null } else { $AccountExpirationDate }
 
+        # Retrieve UPN suffix for the forest
+        $upnSuffix = Get-UPNSuffix
+
         # Create a new user in the specified OU with the provided details
         New-ADUser -Server $Domain `
                    -Name "$GivenName $Surname" `
@@ -170,7 +186,7 @@ function Create-ADUser {
                    -OfficePhone $PhoneNumber `
                    -EmailAddress $EmailAddress `
                    -SamAccountName $SamAccountName `
-                   -UserPrincipalName "$SamAccountName@$((Get-ADDomain -Server $Domain).DnsRoot)" `
+                   -UserPrincipalName "$SamAccountName@$upnSuffix" `
                    -Path $OU `
                    -AccountPassword (ConvertTo-SecureString $Password -AsPlainText -Force) `
                    -ChangePasswordAtLogon $true `
@@ -181,7 +197,7 @@ function Create-ADUser {
         Add-ADGroupMember -Server $Domain -Identity $UserGroup -Members $SamAccountName
 
         # Log and export user creation details
-        Log-Message "User $GivenName $Surname created successfully in OU: $OU on domain $Domain and added to group: $UserGroup"
+        Log-Message "User: $SamAccountName - $DisplayName, created successfully in OU: $OU on domain $Domain and added to group: $UserGroup at Forest: $upnSuffix"
         Export-ToCSV -Domain $Domain `
                      -OU $OU `
                      -GivenName $GivenName `
@@ -192,7 +208,7 @@ function Create-ADUser {
                      -UserGroup $UserGroup `
                      -Timestamp (Get-Date)
 
-        [System.Windows.Forms.MessageBox]::Show("User $GivenName $Surname created successfully and added to group $UserGroup.", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        [System.Windows.Forms.MessageBox]::Show("User: $SamAccountName - $DisplayName, created successfully in OU: $OU on domain $Domain and added to group: $UserGroup at Forest: $upnSuffix", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
         return $true
     } catch {
         Log-Message "Failed to create user ${GivenName} ${Surname}: $_"
@@ -210,7 +226,7 @@ function Show-Form {
     $form.StartPosition = "CenterScreen"
 
     # Create labels and textboxes for user information input
-    $labelsText = @("Domain:", "OU Search:", "OU:", "First Name:", "Last Name:", "Display Name:", "Description:", "Phone Number:", "Email Address:", "Password:", "Logon Account Name:", "Account Expiration Date:", "User Group Search:", "User Group:")
+    $labelsText = @("Domain:", "OU Search:", "OU:", "Given Names:", "Surnames:", "Display Name:", "Description:", "Phone Number:", "Email Address:", "Password:", "Logon Account Name:", "Account Expiration Date:", "User Group Search:", "User Group:")
     $positions = @(10, 50, 90, 130, 170, 210, 250, 290, 330, 370, 410, 450, 490, 530)
     $textBoxes = @()
 
@@ -261,7 +277,7 @@ function Show-Form {
     $cmbOU.DropDownStyle = 'DropDownList'
     $form.Controls.Add($cmbOU)
 
-    # Populate OU ComboBox with OUs containing "Users"
+    # Populate OU ComboBox with OUs containing "Usuarios"
     function UpdateOUComboBox {
         $cmbOU.Items.Clear()
         $searchText = $txtOUSearch.Text
@@ -399,6 +415,17 @@ function Show-Form {
     $txtGroupSearch.Add_TextChanged({
         UpdateGroupComboBox
     })
+
+    # Function to automatically fill the Display Name
+    function UpdateDisplayName {
+        $firstName = $textBoxes[0].Text -split ' ' | Select-Object -First 1
+        $lastName = $textBoxes[1].Text -split ' ' | Select-Object -Last 1
+        $textBoxes[2].Text = "$firstName $lastName"
+    }
+
+    # Text change events to update Display Name
+    $textBoxes[0].Add_TextChanged({ UpdateDisplayName })
+    $textBoxes[1].Add_TextChanged({ UpdateDisplayName })
 
     # Create a button for user creation
     $button = New-Object System.Windows.Forms.Button
