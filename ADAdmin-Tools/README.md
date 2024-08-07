@@ -10,7 +10,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 1. **Add-ADComputer-n-GrantJoinPermissions.ps1**: Automates adding workstations to the domain and granting appropriate permissions.
 
-2. **Add-ADUserWithCSVExport.ps1**: Creates new Active Directory (AD) users within specified Organizational Units (OUs), and Operators can select the target domain, search for and choose an OU, and specify user details.
+2. **Add-ADUserWithCSVExport.ps1**: Creates new Active Directory (AD) users within specified Organizational Units (OUs), and operators can select the target domain, search for and choose an OU, and specify user details.
 
 3. **Adjust-ExpirationDate-ADUserAccount.ps1**: Provides a GUI to search for Active Directory users by account description, list matching users, and update their account expiration dates, streamlining user management in IT environments.
 
@@ -34,47 +34,47 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 13. **Create-ScriptMenuGUI.ps1**: Automates the discovery and execution of PowerShell scripts with a dynamic GUI-based interface. It automatically scans all subdirectories of the current directory to find `.ps1` files, organizes them into categorized sections based on directory names, and displays them in a user-friendly interface.
 
-14. **Deploy-KasperskyAV-viaGPO.ps1**: Automates the installation and configuration of Kaspersky Antivirus and Network Agent on workstations through Group Policy Objects (GPO) for enhanced security management in diverse enterprise environments.
+14. **Delete-FilesByExtension-Bulk.ps1** and **Delete-FilesByExtension-Bulk.txt**: Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
 
-15. **Deploy-PowerShell-viaGPO.ps1**: Streamlines PowerShell installation on workstations and servers using Group Policy Objects (GPO) for enhanced system administration tasks.
+15. **Deploy-KasperskyAV-viaGPO.ps1**: Automates the installation and configuration of Kaspersky Antivirus and Network Agent on workstations through Group Policy Objects (GPO) for enhanced security management in diverse enterprise environments.
 
-16. **Deploy-ZoomWorkplace-viaGPO.ps1**: Automates the deployment of Zoom Full Meetings on workstations through Group Policy Objects (GPO) in enterprise environments.
+16. **Deploy-PowerShell-viaGPO.ps1**: Streamlines PowerShell installation on workstations and servers using Group Policy Objects (GPO) for enhanced system administration tasks.
 
-17. **Delete-FilesByExtension-Bulk.ps1** and **Delete-FilesByExtension-Bulk.txt**: Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
+17. **Deploy-ZoomWorkplace-viaGPO.ps1**: Automates the deployment of Zoom Full Meetings on workstations through Group Policy Objects (GPO) in enterprise environments.
 
-18. **Manages-Disabled-Expired-ADUserAccounts.ps1**: Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
+18. **Enforce-Expiration-ADUserPasswords.ps1**: Forces password expiration for users within a specified OU, bolstering security by ensuring regular password updates.
 
-19. **Enforce-Expiration-ADUserPasswords.ps1**: Forces password expiration for users within a specified OU, bolstering security by ensuring regular password updates.
+19. **Enhance-BGInfoDisplay-viaGPO.ps1** and **Enhance-BGInfoDisplay-viaGPO.bgi**: Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
 
-20. **Enhance-BGInfoDisplay-viaGPO.ps1** and **Enhance-BGInfoDisplay-viaGPO.bgi**: Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
+20. **Find-Shorter-ADComputerNames.ps1**: Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
 
-21. **Find-Shorter-ADComputerNames.ps1**: Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
+21. **Initiate-MultipleRDPSessions.ps1**: Enables the initiation of RDP sessions to multiple servers simultaneously, significantly enhancing remote management capabilities.
 
-22. **Initiate-MultipleRDPSessions.ps1**: Enables the initiation of RDP sessions to multiple servers simultaneously, significantly enhancing remote management capabilities.
+22. **Install-FusionInventoryAgent-viaGPO.vbs**: Facilitates the deployment of FusionInventory Agent on workstations and servers, optimizing inventory management via Group Policy Objects (GPO).
 
-23. **Install-FusionInventoryAgent-viaGPO.vbs**: Facilitates the deployment of FusionInventory Agent on workstations and servers, optimizing inventory management via Group Policy Objects (GPO).
+23. **Inventory-ADDomainComputers.ps1**: Creates an exhaustive list of all computers within a given AD domain, aiding in inventory and management practices.
 
-24. **Inventory-ADDomainComputers.ps1**: Creates an exhaustive list of all computers within a given AD domain, aiding in inventory and management practices.
+24. **Inventory-ADGroups-their-Members.ps1**: Streamlines the retrieval and documentation of AD group and their member information, aiding in audit and compliance efforts.
 
 25. **Inventory-ADMemberServers.ps1**: Produces detailed reports on member servers within an AD domain, facilitating oversight and management of server resources.
 
-26. **Inventory-InstalledSoftwareList.ps1**: Compiles a detailed inventory of installed software, presenting the data in an easy-to-analyze format, ideal for auditing and tracking purposes.
+26. **Inventory-ADUserWithNonExpiringPasswords.ps1**: Generates a list of users with non-expiring passwords, helping enforce policy compliance and improve security posture.
 
-27. **Inventory-ADUserWithNonExpiringPasswords.ps1**: Generates a list of users with non-expiring passwords, helping enforce policy compliance and improve security posture.
+27. **Inventory-InactiveADComputerAccounts.ps1**: Targets and reports inactive computer accounts, aiding in the clean-up and optimization of AD resources.
 
-28. **Inventory-LastLogonADUser.ps1**: Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
+28. **Inventory-InstalledSoftwareList.ps1**: Compiles a detailed inventory of installed software, presenting the data in an easy-to-analyze format, ideal for auditing and tracking purposes.
 
-29. **Inventory-InactiveADComputerAccounts.ps1**: Targets and reports inactive computer accounts, aiding in the clean-up and optimization of AD resources.
+29. **Inventory-LastLogonADUser.ps1**: Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
 
-30. **Inventory-ADGroups-their-Members.ps1**: Streamlines the retrieval and documentation of AD group and their member information, aiding in audit and compliance efforts.
+30. **Manages-Disabled-Expired-ADUserAccounts.ps1**: Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
 
-31. **Manages-Disabled-Expired-ADUserAccounts.ps1**: Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
+31. **Manages-FSMO-Roles.ps1**: Facilitates the management of Flexible Single Master Operations (FSMO) roles within an Active Directory forest. This script allows administrators to retrieve the current FSMO role holders and transfer these roles to specified domain controllers.
 
-32. **Manages-FSMO-Roles.ps1**: Facilitates the management of Flexible Single Master Operations (FSMO) roles within an Active Directory forest. This script allows administrators to retrieve the current FSMO role holders and transfer these roles to specified domain controllers.
+32. **Move-ADComputer-betweenOUs.ps1**: Facilitates the relocation of computer accounts between OUs within AD, simplifying organizational structure adjustments.
 
-33. **Move-ADComputer-betweenOUs.ps1**: Facilitates the relocation of computer accounts between OUs within AD, simplifying organizational structure adjustments.
+33. **Move-ADUser-betweenOUs.ps1**: Simplifies the process of moving user accounts between OUs within AD, aiding in organizational structure adjustments.
 
-34. **Move-ADUser-betweenOUs.ps1**: Simplifies the process of moving user accounts between OUs within AD, aiding in organizational structure adjustments.
+34. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
 35. **Organize-CERTs-Repository.ps1**: Organizes all SSL/TLS certificates by issuer names. The script provides a user-friendly folder browser for selecting source and target directories, efficiently categorizing certificates into issuer-named directories.
 
@@ -104,7 +104,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 48. **Retrieve-Windows-ProductKey.ps1**: Retrieves the current Windows Product Key from the registry and displays it in a simple graphical user interface (GUI), while also logging the process and any errors encountered.
 
-49. **Shorten-LongFileNames.ps1**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
+49. **Shorten-LongFileNames.ps1
+
+**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
 50. **Synchronize-ADComputerTime.ps1**: Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
 
@@ -129,4 +131,4 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 60. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
 ## Additional Assistance
-All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the README.md file in the main root folder.
+All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the README.md file in the main root folder. 
