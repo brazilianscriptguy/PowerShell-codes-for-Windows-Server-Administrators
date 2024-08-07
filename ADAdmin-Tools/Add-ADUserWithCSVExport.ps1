@@ -1,6 +1,6 @@
 # PowerShell Script to Add Users into specified OUs and Groups
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 05, 2024
+# Updated: August 07, 2024
 
 # Hide PowerShell console window
 Add-Type @"
