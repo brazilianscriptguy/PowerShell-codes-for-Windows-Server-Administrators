@@ -2,5 +2,6 @@
 *.PS1 text eol=lf
 *.VBS text eol=lf
 *.HTA text eol=lf
+
 # Handle text files carefully, especially if they're meant to be cross-platform
 *.TXT text auto
