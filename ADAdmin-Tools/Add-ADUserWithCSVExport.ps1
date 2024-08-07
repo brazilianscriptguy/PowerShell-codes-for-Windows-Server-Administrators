@@ -99,15 +99,15 @@ function Get-ForestDomains {
     }
 }
 
-# Function to retrieve all Organizational Units (OUs) containing "Usuarios"
+# Function to retrieve all Organizational Units (OUs) containing "Users"
 function Get-AllOUs {
     param (
         [string]$Domain
     )
 
     try {
-        # Retrieve all OUs from Active Directory and filter for those containing "Usuarios"
-        $allOUs = Get-ADOrganizationalUnit -Server $Domain -Filter {Name -like "*Usuarios*"} | Select-Object -ExpandProperty DistinguishedName
+        # Retrieve all OUs from Active Directory and filter for those containing "Users"
+        $allOUs = Get-ADOrganizationalUnit -Server $Domain -Filter {Name -like "*Users*"} | Select-Object -ExpandProperty DistinguishedName
         return $allOUs
     } catch {
         Write-Error "Failed to retrieve Organizational Units: $_"
@@ -261,7 +261,7 @@ function Show-Form {
     $cmbOU.DropDownStyle = 'DropDownList'
     $form.Controls.Add($cmbOU)
 
-    # Populate OU ComboBox with OUs containing "Usuarios"
+    # Populate OU ComboBox with OUs containing "Users"
     function UpdateOUComboBox {
         $cmbOU.Items.Clear()
         $searchText = $txtOUSearch.Text
