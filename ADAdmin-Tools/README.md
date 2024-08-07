@@ -10,7 +10,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 1. **Add-ADComputer-n-GrantJoinPermissions.ps1**: Automates adding workstations to the domain and granting appropriate permissions.
 
-2. **Add-ADUserWithCSVExport.ps1**: Creates new Active Directory (AD) users within specified Organizational Units (OUs), allowing operators to select the target domain, search for and choose an OU, and specify user details.
+2. **Add-New-ADUser.ps1**: Creates new Active Directory (AD) users within specified Organizational Units (OUs), allowing operators to select the target domain, search for and choose an OU, and specify user details.
 
 3. **Adjust-ExpirationDate-ADUserAccount.ps1**: Provides a GUI to search for Active Directory users by account description, list matching users, and update their account expiration dates, streamlining user management in IT environments.
 
