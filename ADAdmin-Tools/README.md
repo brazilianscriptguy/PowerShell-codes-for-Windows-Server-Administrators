@@ -42,7 +42,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 17. **Delete-FilesByExtension-Bulk.ps1** and **Delete-FilesByExtension-Bulk.txt**: Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
 
-18. **Manage-Disabled-Expired-ADUserAccounts.ps1**: Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
+18. **Manages-Disabled-Expired-ADUserAccounts.ps1**: Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
 
 19. **Enforce-Expiration-ADUserPasswords.ps1**: Forces password expiration for users within a specified OU, bolstering security by ensuring regular password updates.
 
