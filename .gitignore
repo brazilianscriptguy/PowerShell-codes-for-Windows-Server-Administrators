@@ -15,7 +15,7 @@ tmp/
 *.pfx
 *.cert
 
-# Ignore Visual Studio code workspace files
+# Ignore Visual Studio Code workspace files
 .vscode/
 
 # Ignore all .env files, which might contain sensitive environment variables
