@@ -1,6 +1,6 @@
 # PowerShell script to locate and remove old computer accounts from the domain
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 10, 2024
+# Updated: August 7, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -37,8 +37,10 @@ $logPath = Join-Path $logDir $logFileName
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
-    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
-    if (-not (Test-Path $logDir)) {
+    try {
+        $null = New-Item -Path $logDir -ItemType Directory -ErrorAction Stop
+        Log-Message "Log directory created at $logDir."
+    } catch {
         Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
         return
     }
@@ -79,6 +81,7 @@ function Show-InfoMessage {
 function Get-DomainControllerHostName {
     try {
         $dc = Get-ADDomainController -Discover
+        Log-Message "Domain Controller HostName fetched: $($dc.HostName)"
         return $dc.HostName
     } catch {
         Show-ErrorMessage "Unable to fetch Domain Controller HostName."
@@ -94,8 +97,10 @@ function Find-OldWorkstationAccounts {
     )
     $InactiveTimeSpan = [TimeSpan]::FromDays($InactiveDays)
     $CutOffDate = (Get-Date).Add(-$InactiveTimeSpan)
+    Log-Message "Searching for workstations inactive since $($CutOffDate.ToShortDateString())"
     $oldComputers = Get-ADComputer -Server $DCName -Filter {LastLogonDate -lt $CutOffDate -and Enabled -eq $true} -Properties LastLogonDate, DistinguishedName, OperatingSystem | Where-Object { $_.OperatingSystem -notlike "*Server*" }
 
+    Log-Message "Found $($oldComputers.Count) old workstations."
     return $oldComputers
 }
 
@@ -124,6 +129,7 @@ function Remove-SelectedWorkstationAccounts {
         $FilePath = Join-Path -Path $MyDocuments -ChildPath $FileName
         $RemovedComputers | Select-Object @{Name='Name';Expression={$_.Name}}, @{Name='DistinguishedName';Expression={$_.DistinguishedName}} | Export-Csv -Path $FilePath -NoTypeInformation -Force
         Show-InfoMessage "$($RemovedComputers.Count) workstation(s) removed. Details exported to '$FilePath'."
+        Log-Message "Removed $($RemovedComputers.Count) workstations. Details exported to '$FilePath'."
     }
 }
 
@@ -196,6 +202,7 @@ function Show-GUI {
             $item.Tag = $computer
             $listView.Items.Add($item)
         }
+        Show-InfoMessage "Found $($oldComputers.Count) old workstation(s) with an inactive threshold of $InactiveDays day(s)."
     })
     $form.Controls.Add($buttonFind)
 
