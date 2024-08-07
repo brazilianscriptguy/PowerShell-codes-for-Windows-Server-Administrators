@@ -1,4 +1,4 @@
-# PowerShell Script to Manage AD User Accounts
+# PowerShell Script to Manage Expired and Disabled AD User Accounts
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Updated: August 7, 2024
 
@@ -126,6 +126,12 @@ function Disable-ExpiredAccounts {
         [System.Windows.Forms.ListView]$listView
     )
 
+    # Check if any accounts are selected
+    if ($listView.CheckedItems.Count -eq 0) {
+        Show-ErrorMessage "No accounts selected. Please select at least one account to disable."
+        return
+    }
+
     # Get current date
     $currentDate = Get-Date
 
@@ -192,8 +198,14 @@ function Clear-SecurityGroupsFromDisabledUsers {
         [System.Windows.Forms.ListView]$listView
     )
 
+    # Check if any accounts are selected
+    if ($listView.CheckedItems.Count -eq 0) {
+        Show-ErrorMessage "No accounts selected. Please select at least one account to clear security groups."
+        return
+    }
+
     # Confirm whether to proceed with removing group memberships
-    $proceed = [System.Windows.Forms.MessageBox]::Show("Do you want to proceed with clearing security groups for these disabled accounts?", "Confirmation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
+    $proceed = [System.Windows.Forms.MessageBox]::Show("Do you want to proceed with clearing security groups for the selected disabled accounts?", "Confirmation", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
 
     if ($proceed -eq [System.Windows.Forms.DialogResult]::Yes) {
         foreach ($item in $listView.CheckedItems) {
@@ -204,7 +216,7 @@ function Clear-SecurityGroupsFromDisabledUsers {
                 Remove-UserFromGroups -userDN $user.DistinguishedName
             }
         }
-        Show-InfoMessage "Completed clearing security groups for disabled user accounts. Log file generated at: $logPath"
+        Show-InfoMessage "Completed clearing security groups for selected disabled user accounts. Log file generated at: $logPath"
     } else {
         Show-InfoMessage "Operation canceled. No changes have been made."
     }
@@ -239,8 +251,8 @@ function Remove-UserFromGroups {
 
 # Create a new Windows Form object
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "AD User Accounts Manager"   # Set the title of the form
-$form.Size = New-Object System.Drawing.Size(800, 600)  # Adjusted window size
+$form.Text = "Expired and Disabled AD User Accounts Manager"   # Set the title of the form
+$form.Size = New-Object System.Drawing.Size(800, 650)  # Adjusted window size
 $form.StartPosition = "CenterScreen"  # Set the form to open in the center of the screen
 
 # Create a label to prompt for domain FQDN
@@ -292,9 +304,9 @@ $form.Controls.Add($checkboxSelectAll)
 
 # Create a button to list expired accounts
 $buttonListExpired = New-Object System.Windows.Forms.Button
-$buttonListExpired.Location = New-Object System.Drawing.Point(110, 480)
-$buttonListExpired.Size = New-Object System.Drawing.Size(170, 30)
-$buttonListExpired.Text = "List Expired AD Accounts"
+$buttonListExpired.Location = New-Object System.Drawing.Point(120, 480)
+$buttonListExpired.Size = New-Object System.Drawing.Size(150, 40)
+$buttonListExpired.Text = "List Expired Accounts"
 $buttonListExpired.Add_Click({
     $domainFQDN = $textboxDomain.Text.Trim()
     if ([string]::IsNullOrWhiteSpace($domainFQDN)) {
@@ -308,9 +320,9 @@ $form.Controls.Add($buttonListExpired)
 
 # Create a button to disable expired accounts
 $buttonDisableExpired = New-Object System.Windows.Forms.Button
-$buttonDisableExpired.Location = New-Object System.Drawing.Point(290, 480)
-$buttonDisableExpired.Size = New-Object System.Drawing.Size(170, 30)
-$buttonDisableExpired.Text = "Disable Expired AD Accounts"
+$buttonDisableExpired.Location = New-Object System.Drawing.Point(280, 480)
+$buttonDisableExpired.Size = New-Object System.Drawing.Size(150, 40)
+$buttonDisableExpired.Text = "Disable Expired Accounts"
 $buttonDisableExpired.Add_Click({
     $domainFQDN = $textboxDomain.Text.Trim()
     if ([string]::IsNullOrWhiteSpace($domainFQDN)) {
@@ -324,9 +336,9 @@ $form.Controls.Add($buttonDisableExpired)
 
 # Create a button to list disabled accounts
 $buttonListDisabled = New-Object System.Windows.Forms.Button
-$buttonListDisabled.Location = New-Object System.Drawing.Point(470, 480)
-$buttonListDisabled.Size = New-Object System.Drawing.Size(170, 30)
-$buttonListDisabled.Text = "List Disabled AD Accounts"
+$buttonListDisabled.Location = New-Object System.Drawing.Point(440, 480)
+$buttonListDisabled.Size = New-Object System.Drawing.Size(150, 40)
+$buttonListDisabled.Text = "List Disabled Accounts"
 $buttonListDisabled.Add_Click({
     $domainFQDN = $textboxDomain.Text.Trim()
     if ([string]::IsNullOrWhiteSpace($domainFQDN)) {
@@ -340,9 +352,9 @@ $form.Controls.Add($buttonListDisabled)
 
 # Create a button to clear security groups from disabled accounts
 $buttonClearGroups = New-Object System.Windows.Forms.Button
-$buttonClearGroups.Location = New-Object System.Drawing.Point(650, 480)
-$buttonClearGroups.Size = New-Object System.Drawing.Size(120, 30)
-$buttonClearGroups.Text = "Clear AD Groups"
+$buttonClearGroups.Location = New-Object System.Drawing.Point(600, 480)
+$buttonClearGroups.Size = New-Object System.Drawing.Size(150, 40)
+$buttonClearGroups.Text = "Clear Security Groups"
 $buttonClearGroups.Add_Click({
     $domainFQDN = $textboxDomain.Text.Trim()
     if ([string]::IsNullOrWhiteSpace($domainFQDN)) {
@@ -356,8 +368,8 @@ $form.Controls.Add($buttonClearGroups)
 
 # Create a button to close the window
 $buttonClose = New-Object System.Windows.Forms.Button
-$buttonClose.Location = New-Object System.Drawing.Point(10, 520)
-$buttonClose.Size = New-Object System.Drawing.Size(760, 30)
+$buttonClose.Location = New-Object System.Drawing.Point(10, 530)
+$buttonClose.Size = New-Object System.Drawing.Size(760, 40)
 $buttonClose.Text = "Close"
 $buttonClose.Add_Click({
     $form.Close()
