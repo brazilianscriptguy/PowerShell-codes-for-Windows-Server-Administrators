@@ -1,6 +1,6 @@
 # PowerShell Script to Gather DHCP Scopes for Updating DNS Reverse Zones and Sites and Services Subnets
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 06, 2024
+# Updated: August 07, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -206,6 +206,7 @@ function Add-ReverseDNSZone {
 function Update-SitesAndServicesSubnets {
     param (
         [string]$SubnetCIDR,
+        [string]$Location,
         [string]$Description
     )
 
@@ -215,10 +216,10 @@ function Update-SitesAndServicesSubnets {
 
         if (-not $existingSubnet) {
             try {
-                # Add the subnet to Sites and Services with description
-                Write-Host "Adding subnet $SubnetCIDR to Active Directory Sites and Services with description: $Description"
-                New-ADReplicationSubnet -Name $SubnetCIDR -Site $sitesAndServicesTarget -Description $Description
-                Log-Message "Added subnet $SubnetCIDR to Active Directory Sites and Services with description: $Description"
+                # Add the subnet to Sites and Services with location and description
+                Write-Host "Adding subnet $SubnetCIDR to Active Directory Sites and Services with location: $Location and description: $Description"
+                New-ADReplicationSubnet -Name $SubnetCIDR -Site $sitesAndServicesTarget -Location $Location -Description $Description
+                Log-Message "Added subnet $SubnetCIDR to Active Directory Sites and Services with location: $Location and description: $Description"
             } catch {
                 Write-Host "Failed to add subnet $SubnetCIDR to Active Directory Sites and Services - $($_.Exception.Message)" -ForegroundColor Red
                 Log-Message "Failed to add subnet $SubnetCIDR to Active Directory Sites and Services - $($_.Exception.Message)" -MessageType "ERROR"
@@ -274,7 +275,8 @@ function Process-DHCPScopes {
         $subnetMask = $scope.SubnetMask
         $prefixLength = Get-PrefixLength -SubnetMask $subnetMask
         $scopeId = $scope.ScopeId
-        $description = $scope.Name # Using the Name property for description
+        $location = $scope.Name # Using the Scope Name property for location
+        $description = $scope.Description # Using the Description property for description
         $subnetCIDR = "$subnetAddress/$prefixLength"
 
         if ([string]::IsNullOrWhiteSpace($subnetAddress) -or $prefixLength -eq 0) {
@@ -289,8 +291,8 @@ function Process-DHCPScopes {
         # Add reverse DNS zone for each subnet
         Add-ReverseDNSZone -SubnetCIDR $subnetCIDR -SubnetMask $subnetMask
 
-        # Update Sites and Services subnets
-        Update-SitesAndServicesSubnets -SubnetCIDR $subnetCIDR -Description $description
+        # Update Sites and Services subnets with location and description
+        Update-SitesAndServicesSubnets -SubnetCIDR $subnetCIDR -Location $location -Description $description
 
         # Update progress bar and status
         $ProgressBar.Value = [math]::Round(($CurrentCount / $TotalScopes) * 100)
@@ -298,7 +300,7 @@ function Process-DHCPScopes {
     }
 
     $ProgressBar.Value = 100
-    Show-InfoMessage "Reverse DNS entries and Sites and Services subnets have been updated for all DHCP scopes. See the log file at ${logPath}"
+    Show-InfoMessage "Reverse DNS entries and Sites and Services subnets have been updated for all DHCP scopes."
     Log-Message "Reverse DNS entries and Sites and Services subnets have been updated for all DHCP scopes."
     Start-Sleep -Seconds 2
     $ExecuteButton.Enabled = $true
