@@ -136,7 +136,7 @@ function Remove-SelectedWorkstationAccounts {
 # Main function to run the GUI
 function Show-GUI {
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "Inactive Workstation Account Cleaner"
+    $form.Text = "Inactive AD Workstations Account Cleaner"
     $form.Size = New-Object System.Drawing.Size(710, 520)
     $form.StartPosition = "CenterScreen"
 
