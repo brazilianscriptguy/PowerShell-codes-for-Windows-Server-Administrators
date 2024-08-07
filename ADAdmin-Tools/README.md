@@ -68,63 +68,65 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 30. **Inventory-ADGroups-their-Members.ps1**: Streamlines the retrieval and documentation of AD group and their member information, aiding in audit and compliance efforts.
 
-31. **Manages-FSMO-Roles.ps1**: Facilitates the management of Flexible Single Master Operations (FSMO) roles within an Active Directory forest. This script allows administrators to retrieve the current FSMO role holders and transfer these roles to specified domain controllers.
+31. **Manages-Disabled-Expired-ADUserAccounts.ps1**: Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
 
-32. **Move-ADComputer-betweenOUs.ps1**: Facilitates the relocation of computer accounts between OUs within AD, simplifying organizational structure adjustments.
+32. **Manages-FSMO-Roles.ps1**: Facilitates the management of Flexible Single Master Operations (FSMO) roles within an Active Directory forest. This script allows administrators to retrieve the current FSMO role holders and transfer these roles to specified domain controllers.
 
-33. **Move-ADUser-betweenOUs.ps1**: Simplifies the process of moving user accounts between OUs within AD, aiding in organizational structure adjustments.
+33. **Move-ADComputer-betweenOUs.ps1**: Facilitates the relocation of computer accounts between OUs within AD, simplifying organizational structure adjustments.
 
-34. **Organize-CERTs-Repository.ps1**: Organizes all SSL/TLS certificates by issuer names. The script provides a user-friendly folder browser for selecting source and target directories, efficiently categorizing certificates into issuer-named directories.
+34. **Move-ADUser-betweenOUs.ps1**: Simplifies the process of moving user accounts between OUs within AD, aiding in organizational structure adjustments.
 
-35. **Purge-ExpiredCAs-Explicitly.ps1**: Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
+35. **Organize-CERTs-Repository.ps1**: Organizes all SSL/TLS certificates by issuer names. The script provides a user-friendly folder browser for selecting source and target directories, efficiently categorizing certificates into issuer-named directories.
 
-36. **Purge-ExpiredCAs-viaGPO.ps1**: Assists in removing outdated Certification Authority (CA) certificates through GPO, maintaining a secure and current certificate environment.
+36. **Purge-ExpiredCAs-Explicitly.ps1**: Focuses on the targeted removal of expired CA certificates, ensuring the trustworthiness of the certificate infrastructure.
 
-37. **Purge-ExpiredCERTs-Repository.ps1**: Searches and removes expired certificate files stored as a files repository.
+37. **Purge-ExpiredCAs-viaGPO.ps1**: Assists in removing outdated Certification Authority (CA) certificates through GPO, maintaining a secure and current certificate environment.
 
-38. **Remove-EmptyFiles-or-DateRange.ps1**: Streamlines file management by detecting and deleting empty files and allowing removal of files within a specified date range, thereby optimizing storage and enhancing system organization.
+38. **Purge-ExpiredCERTs-Repository.ps1**: Searches and removes expired certificate files stored as a files repository.
 
-39. **Remove-SharedFolders-and-Drives-viaGPO.ps1**: Automates the management of shared folders on workstations by enabling necessary services, creating required administrative shares, and removing both custom and administrative shares on specified drives, thus ensuring streamlined network share configuration and enhanced security.
+39. **Remove-EmptyFiles-or-DateRange.ps1**: Streamlines file management by detecting and deleting empty files and allowing removal of files within a specified date range, thereby optimizing storage and enhancing system organization.
 
-40. **Remove-Softwares-NonCompliance-viaGPO.ps1**: Facilitates the automated, silent removal of specified software packages from workstations, enhancing system security and compliance by ensuring only approved applications are installed.
+40. **Remove-SharedFolders-and-Drives-viaGPO.ps1**: Automates the management of shared folders on workstations by enabling necessary services, creating required administrative shares, and removing both custom and administrative shares on specified drives, thus ensuring streamlined network share configuration and enhanced security.
 
-41. **Rename-DiskVolumes-viaGPO.ps1**: Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
+41. **Remove-Softwares-NonCompliance-viaGPO.ps1**: Facilitates the automated, silent removal of specified software packages from workstations, enhancing system security and compliance by ensuring only approved applications are installed.
 
-42. **Reset-ADUserPasswordsToDefault.ps1**: Allows for the bulk resetting of user passwords to a default value within a specified OU, enhancing security management efficiency.
+42. **Rename-DiskVolumes-viaGPO.ps1**: Automates the renaming of disk volumes, utilizing GPO for uniformity and ease of management across workstations.
 
-43. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**: Resets and synchronizes all Domain GPOs. This script is intended to be called by a GPO and scheduled as a task, ensuring that all Group Policies are up-to-date and effectively applied across workstations.
+43. **Reset-ADUserPasswordsToDefault.ps1**: Allows for the bulk resetting of user passwords to a default value within a specified OU, enhancing security management efficiency.
 
-44. **Restart-NetworkAdapter.ps1**: Restarts the chosen Ethernet adapter. Users can select an adapter from a list, disable it, wait 5 seconds, and re-enable it with a single click. Useful for maintaining connections during RDP sessions.
+44. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**: Resets and synchronizes all Domain GPOs. This script is intended to be called by a GPO and scheduled as a task, ensuring that all Group Policies are up-to-date and effectively applied across workstations.
 
-45. **Retrieve-ADComputer-SharedFolders.ps1**: Searches Active Directory for workstations, checks for any local folder sharing, and logs the results. Provides a user-friendly GUI for specifying the domain, viewing results, and exporting data to a CSV file.
+45. **Restart-NetworkAdapter.ps1**: Restarts the chosen Ethernet adapter. Users can select an adapter from a list, disable it, wait 5 seconds, and re-enable it with a single click. Useful for maintaining connections during RDP sessions.
 
-46. **Retrieve-ServersDiskSpace.ps1**: Retrieves disk space usage from multiple servers in an Active Directory domain. The script gathers disk space information from all servers and displays the results in a user-friendly text box.
+46. **Retrieve-ADComputer-SharedFolders.ps1**: Searches Active Directory for workstations, checks for any local folder sharing, and logs the results. Provides a user-friendly GUI for specifying the domain, viewing results, and exporting data to a CSV file.
 
-47. **Retrieve-Windows-ProductKey.ps1**: Retrieves the current Windows Product Key from the registry and displays it in a simple graphical user interface (GUI), while also logging the process and any errors encountered.
+47. **Retrieve-ServersDiskSpace.ps1**: Retrieves disk space usage from multiple servers in an Active Directory domain. The script gathers disk space information from all servers and displays the results in a user-friendly text box.
 
-48. **Shorten-LongFileNames.ps1**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
+48. **Retrieve-Windows-ProductKey.ps1**: Retrieves the current Windows Product Key from the registry and displays it in a simple graphical user interface (GUI), while also logging the process and any errors encountered.
 
-49. **Synchronize-ADComputerTime.ps1**: Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
+49. **Shorten-LongFileNames.ps1**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
-50. **Synchronize-All-ForestDCs.ps1**: Automates the synchronization of all Domain Controllers (DCs) within an Active Directory forest across multiple sites, ensuring consistency and up-to-date replication, and retrieves the replication summary.
+50. **Synchronize-ADComputerTime.ps1**: Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
 
-51. **Uninstall-SelectedApp.ps1**: Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
+51. **Synchronize-All-ForestDCs.ps1**: Automates the synchronization of all Domain Controllers (DCs) within an Active Directory forest across multiple sites, ensuring consistency and up-to-date replication, and retrieves the replication summary.
 
-52. **Unjoin-ADComputer-and-Cleanup.ps1**: Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
+52. **Uninstall-SelectedApp.ps1**: Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
 
-53. **Unlock-SMBShareADUserAccess.ps1**: Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
+53. **Unjoin-ADComputer-and-Cleanup.ps1**: Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
 
-54. **Update-ADComputer-Descriptions.ps1**: Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
+54. **Unlock-SMBShareADUserAccess.ps1**: Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
 
-55. **Update-ADComputer-Winget-Explicit.ps1**: Leverages the `winget` tool for direct, script-driven software updates, enhancing system security and performance.
+55. **Update-ADComputer-Descriptions.ps1**: Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
 
-56. **Update-ADComputer-Winget-viaGPO.ps1**: Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
+56. **Update-ADComputer-Winget-Explicit.ps1**: Leverages the `winget` tool for direct, script-driven software updates, enhancing system security and performance.
 
-57. **Update-ADUserDisplayName.ps1**: Retrieves users whose email addresses match a specified filter, extracts the first and last names from the email, converts them to uppercase, and updates the display name accordingly.
+57. **Update-ADComputer-Winget-viaGPO.ps1**: Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
 
-58. **Update-DNS-n-Sites-Services.ps1**: Automates the process of updating reverse DNS zones and Active Directory Sites and Services subnets based on DHCP scope data.
+58. **Update-ADUserDisplayName.ps1**: Retrieves users whose email addresses match a specified filter, extracts the first and last names from the email, converts them to uppercase, and updates the display name accordingly.
 
-59. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
+59. **Update-DNS-n-Sites-Services.ps1**: Automates the process of updating reverse DNS zones and Active Directory Sites and Services subnets based on DHCP scope data.
+
+60. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
 ## Additional Assistance
 All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the README.md file in the main root folder.
