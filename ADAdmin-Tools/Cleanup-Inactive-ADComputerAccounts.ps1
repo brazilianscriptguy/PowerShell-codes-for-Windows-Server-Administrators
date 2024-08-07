@@ -1,4 +1,4 @@
-# PowerShell script to locate and remove old computer accounts from the domain
+# PowerShell Script to Locate and Remove Old AD Workstations Accounts from Domain
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Updated: August 7, 2024
 
