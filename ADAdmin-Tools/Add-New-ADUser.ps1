@@ -1,6 +1,6 @@
 # PowerShell Script to Add Users into specified OUs and Groups
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 07, 2024
+# Updated: August 08, 2024
 
 # Hide PowerShell console window
 Add-Type @"
@@ -29,6 +29,9 @@ $logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 
+# Use the default My Documents folder for CSV files
+$csvFilePath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "${scriptName}_UserCreationLog.csv"
+
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
     $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
@@ -41,9 +44,9 @@ if (-not (Test-Path $logDir)) {
 # Enhanced logging function with error handling
 function Log-Message {
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory=$true)]
         [string]$Message,
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory=$false)]
         [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -53,20 +56,6 @@ function Log-Message {
     } catch {
         Write-Error "Failed to write to log: $_"
     }
-}
-
-# Function to display error messages
-function Show-ErrorMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    Log-Message "Error: $message" -MessageType "ERROR"
-}
-
-# Function to display information messages
-function Show-InfoMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    Log-Message "Info: $message" -MessageType "INFO"
 }
 
 # Function to export user creation details to CSV
@@ -82,9 +71,6 @@ function Export-ToCSV {
         [string]$UserGroup,
         [datetime]$Timestamp
     )
-
-    $csvDir = [Environment]::GetFolderPath('MyDocuments')
-    $csvFilePath = Join-Path $csvDir "${scriptName}_UserCreationLog.csv"
 
     $userDetails = [PSCustomObject]@{
         Timestamp      = $Timestamp
@@ -106,8 +92,22 @@ function Export-ToCSV {
             $userDetails | Export-Csv -Path $csvFilePath -NoTypeInformation -Append -Force
         }
     } catch {
-        Show-ErrorMessage "Failed to export user details to CSV: $_"
+        Write-Error "Failed to export user details to CSV: $_"
     }
+}
+
+# Function to display error messages
+function Show-ErrorMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message "Error: $message" -MessageType "ERROR"
+}
+
+# Function to display information messages
+function Show-InfoMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message "Info: $message" -MessageType "INFO"
 }
 
 # Function to retrieve all domains in the current forest
@@ -117,7 +117,7 @@ function Get-ForestDomains {
         $domains = $forest.Domains | ForEach-Object { $_.Name }
         return $domains
     } catch {
-        Show-ErrorMessage "Failed to retrieve forest domains: $_"
+        Write-Error "Failed to retrieve forest domains: $_"
         return @()
     }
 }
@@ -126,11 +126,10 @@ function Get-ForestDomains {
 function Get-UPNSuffix {
     try {
         $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
-        # Extract UPN suffix in the form "forestname.forestsuffix"
         $upnSuffix = $forest.RootDomain.Name
         return $upnSuffix
     } catch {
-        Show-ErrorMessage "Failed to retrieve UPN suffix: $_"
+        Write-Error "Failed to retrieve UPN suffix: $_"
         return ""
     }
 }
@@ -142,11 +141,10 @@ function Get-AllOUs {
     )
 
     try {
-        # Retrieve all OUs from Active Directory and filter for those containing "Usuarios"
         $allOUs = Get-ADOrganizationalUnit -Server $Domain -Filter {Name -like "*Usuarios*"} | Select-Object -ExpandProperty DistinguishedName
         return $allOUs
     } catch {
-        Show-ErrorMessage "Failed to retrieve Organizational Units: $_"
+        Write-Error "Failed to retrieve Organizational Units: $_"
         return @()
     }
 }
@@ -158,11 +156,10 @@ function Get-AllGroups {
     )
 
     try {
-        # Retrieve all groups from Active Directory and filter for those starting with "G_"
         $allGroups = Get-ADGroup -Server $Domain -Filter {Name -like "G_*"} | Select-Object -ExpandProperty Name
         return $allGroups
     } catch {
-        Show-ErrorMessage "Failed to retrieve groups: $_"
+        Write-Error "Failed to retrieve groups: $_"
         return @()
     }
 }
@@ -186,20 +183,16 @@ function Create-ADUser {
     )
 
     try {
-        # Check if the SamAccountName already exists to avoid duplicates
         $existingUser = Get-ADUser -Server $Domain -Filter { SamAccountName -eq $SamAccountName } -ErrorAction SilentlyContinue
         if ($existingUser) {
             Show-ErrorMessage "A user with the Logon Account Name '$SamAccountName' already exists."
             return $false
         }
 
-        # Set the expiration date to "Never" if no expiration is checked
         $expiration = if ($NoExpiration) { $null } else { $AccountExpirationDate }
 
-        # Retrieve UPN suffix for the forest
         $upnSuffix = Get-UPNSuffix
 
-        # Create a new user in the specified OU with the provided details
         New-ADUser -Server $Domain `
                    -Name "$GivenName $Surname" `
                    -GivenName $GivenName `
@@ -216,10 +209,8 @@ function Create-ADUser {
                    -Enabled $true `
                    -AccountExpirationDate $expiration
 
-        # Add the user to the specified group
         Add-ADGroupMember -Server $Domain -Identity $UserGroup -Members $SamAccountName
 
-        # Log and export user creation details
         Log-Message "User: $SamAccountName - $DisplayName, created successfully in OU: $OU on domain $Domain and added to group: $UserGroup at Forest: $upnSuffix"
         Export-ToCSV -Domain $Domain `
                      -OU $OU `
@@ -234,6 +225,7 @@ function Create-ADUser {
         Show-InfoMessage "User: $SamAccountName - $DisplayName, created successfully in OU: $OU on domain $Domain and added to group: $UserGroup at Forest: $upnSuffix"
         return $true
     } catch {
+        Log-Message "Failed to create user ${GivenName} ${Surname}: $_" -MessageType "ERROR"
         Show-ErrorMessage "Failed to create user ${GivenName} ${Surname}: $_"
         return $false
     }
@@ -247,8 +239,7 @@ function Show-Form {
     $form.Height = 680
     $form.StartPosition = "CenterScreen"
 
-    # Create labels and textboxes for user information input
-    $labelsText = @("Domain:", "OU Search:", "OU:", "Given Names:", "Surnames:", "Display Name:", "Description:", "Phone Number:", "Email Address:", "Password:", "Logon Account Name:", "Account Expiration Date:", "User Group Search:", "User Group:")
+    $labelsText = @("Domain:", "OU Search:", "OU:", "Given Names:", "Surnames:", "Display Name:", "Description:", "Phone Number:", "Email Address:", "Temporary Password:", "Logon Name/ Code:", "Account Expiration Date:", "User Group Search:", "User Group:")
     $positions = @(10, 50, 90, 130, 170, 210, 250, 290, 330, 370, 410, 450, 490, 530)
     $textBoxes = @()
 
@@ -438,7 +429,7 @@ function Show-Form {
         UpdateGroupComboBox
     })
 
-    # Function to automatically fill the Display Name
+    # Function to update Display Name
     function UpdateDisplayName {
         $firstName = $textBoxes[0].Text -split ' ' | Select-Object -First 1
         $lastName = $textBoxes[1].Text -split ' ' | Select-Object -Last 1
@@ -497,7 +488,7 @@ function Show-Form {
                 Clear-Form
             }
         } else {
-            Log-Message "Input validation failed: One or more fields were empty." -MessageType "WARNING"
+            Log-Message "Input validation failed: One or more fields were empty." -MessageType "ERROR"
         }
     })
 
