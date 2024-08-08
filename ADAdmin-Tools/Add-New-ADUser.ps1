@@ -25,28 +25,48 @@ Import-Module ActiveDirectory
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-
-# Use the default My Documents folder for log and CSV files
-$logDir = [Environment]::GetFolderPath('MyDocuments')
+$logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 
-# Path for CSV export in My Documents
-$csvFilePath = Join-Path $logDir "${scriptName}_UserCreationLog.csv"
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+    if (-not (Test-Path $logDir)) {
+        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
+        return
+    }
+}
 
-# Function to log messages with error handling
+# Enhanced logging function with error handling
 function Log-Message {
     param (
         [Parameter(Mandatory = $true)]
-        [string]$Message
+        [string]$Message,
+        [Parameter(Mandatory = $false)]
+        [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
         Write-Error "Failed to write to log: $_"
     }
+}
+
+# Function to display error messages
+function Show-ErrorMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message "Error: $message" -MessageType "ERROR"
+}
+
+# Function to display information messages
+function Show-InfoMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message "Info: $message" -MessageType "INFO"
 }
 
 # Function to export user creation details to CSV
@@ -62,6 +82,9 @@ function Export-ToCSV {
         [string]$UserGroup,
         [datetime]$Timestamp
     )
+
+    $csvDir = [Environment]::GetFolderPath('MyDocuments')
+    $csvFilePath = Join-Path $csvDir "${scriptName}_UserCreationLog.csv"
 
     $userDetails = [PSCustomObject]@{
         Timestamp      = $Timestamp
@@ -83,7 +106,7 @@ function Export-ToCSV {
             $userDetails | Export-Csv -Path $csvFilePath -NoTypeInformation -Append -Force
         }
     } catch {
-        Write-Error "Failed to export user details to CSV: $_"
+        Show-ErrorMessage "Failed to export user details to CSV: $_"
     }
 }
 
@@ -94,7 +117,7 @@ function Get-ForestDomains {
         $domains = $forest.Domains | ForEach-Object { $_.Name }
         return $domains
     } catch {
-        Write-Error "Failed to retrieve forest domains: $_"
+        Show-ErrorMessage "Failed to retrieve forest domains: $_"
         return @()
     }
 }
@@ -107,7 +130,7 @@ function Get-UPNSuffix {
         $upnSuffix = $forest.RootDomain.Name
         return $upnSuffix
     } catch {
-        Write-Error "Failed to retrieve UPN suffix: $_"
+        Show-ErrorMessage "Failed to retrieve UPN suffix: $_"
         return ""
     }
 }
@@ -123,7 +146,7 @@ function Get-AllOUs {
         $allOUs = Get-ADOrganizationalUnit -Server $Domain -Filter {Name -like "*Usuarios*"} | Select-Object -ExpandProperty DistinguishedName
         return $allOUs
     } catch {
-        Write-Error "Failed to retrieve Organizational Units: $_"
+        Show-ErrorMessage "Failed to retrieve Organizational Units: $_"
         return @()
     }
 }
@@ -139,7 +162,7 @@ function Get-AllGroups {
         $allGroups = Get-ADGroup -Server $Domain -Filter {Name -like "G_*"} | Select-Object -ExpandProperty Name
         return $allGroups
     } catch {
-        Write-Error "Failed to retrieve groups: $_"
+        Show-ErrorMessage "Failed to retrieve groups: $_"
         return @()
     }
 }
@@ -166,7 +189,7 @@ function Create-ADUser {
         # Check if the SamAccountName already exists to avoid duplicates
         $existingUser = Get-ADUser -Server $Domain -Filter { SamAccountName -eq $SamAccountName } -ErrorAction SilentlyContinue
         if ($existingUser) {
-            [System.Windows.Forms.MessageBox]::Show("A user with the Logon Account Name '$SamAccountName' already exists.", "Duplicate User", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            Show-ErrorMessage "A user with the Logon Account Name '$SamAccountName' already exists."
             return $false
         }
 
@@ -208,11 +231,10 @@ function Create-ADUser {
                      -UserGroup $UserGroup `
                      -Timestamp (Get-Date)
 
-        [System.Windows.Forms.MessageBox]::Show("User: $SamAccountName - $DisplayName, created successfully in OU: $OU on domain $Domain and added to group: $UserGroup at Forest: $upnSuffix", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        Show-InfoMessage "User: $SamAccountName - $DisplayName, created successfully in OU: $OU on domain $Domain and added to group: $UserGroup at Forest: $upnSuffix"
         return $true
     } catch {
-        Log-Message "Failed to create user ${GivenName} ${Surname}: $_"
-        [System.Windows.Forms.MessageBox]::Show("Failed to create user ${GivenName} ${Surname}: $_", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        Show-ErrorMessage "Failed to create user ${GivenName} ${Surname}: $_"
         return $false
     }
 }
@@ -451,7 +473,7 @@ function Show-Form {
         $isValidInput = $true
         foreach ($textBox in $textBoxes) {
             if ([string]::IsNullOrWhiteSpace($textBox.Text)) {
-                [System.Windows.Forms.MessageBox]::Show("Please fill in all fields.", "Input Required", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+                Show-ErrorMessage "Please fill in all fields."
                 $isValidInput = $false
                 break
             }
@@ -475,7 +497,7 @@ function Show-Form {
                 Clear-Form
             }
         } else {
-            Log-Message "Input validation failed: One or more fields were empty."
+            Log-Message "Input validation failed: One or more fields were empty." -MessageType "WARNING"
         }
     })
 
