@@ -26,13 +26,13 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 9. **Create-OUsDefaultADStructure.ps1**: Assists in creating a standardized AD infrastructure with predefined OUs, streamlining new domain setups or reorganizations.
 
-10. **Create-Script-MainCore.ps1**: Provides a template for creating customizable Header, Import Modules, Logging, and Messages functions for PowerShell scripts, enhancing usability across various administration tasks.
+10. **Create-Script-Automatic-MenuGUI.ps1**: Automates the discovery and execution of PowerShell scripts with a dynamic GUI-based interface. It automatically scans all subdirectories of the current directory to find `.ps1` files, organizes them into categorized sections based on directory names, and displays them in a user-friendly interface.
 
-11. **Create-Script-MainCSV-Exports.ps1**: Provides a global PowerShell script template for exporting data to CSV files.
+11. **Create-Script-MainCore.ps1**: Provides a template for creating customizable Header, Import Modules, Logging, and Messages functions for PowerShell scripts, enhancing usability across various administration tasks.
 
-12. **Create-Script-MainGUI.ps1**: Provides a template for creating customizable GUIs for PowerShell scripts, enhancing usability across various administration tasks.
+12. **Create-Script-MainCSV-Exports.ps1**: Provides a global PowerShell script template for exporting data to CSV files.
 
-13. **Create-Script-Automatic-MenuGUI.ps1**: Automates the discovery and execution of PowerShell scripts with a dynamic GUI-based interface. It automatically scans all subdirectories of the current directory to find `.ps1` files, organizes them into categorized sections based on directory names, and displays them in a user-friendly interface.
+13. **Create-Script-MainGUI.ps1**: Provides a template for creating customizable GUIs for PowerShell scripts, enhancing usability across various administration tasks.
 
 14. **Delete-FilesByExtension-Bulk.ps1** and **Delete-FilesByExtension-Bulk.txt**: Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
 
