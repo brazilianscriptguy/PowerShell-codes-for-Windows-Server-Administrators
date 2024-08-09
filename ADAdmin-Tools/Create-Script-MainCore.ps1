@@ -1,5 +1,6 @@
+# PowerShell Script to 
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: July 19, 2024
+# Updated: August 08, 2024 [gets current date]
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -39,7 +40,7 @@ $logPath = Join-Path $logDir $logFileName
 if (-not (Test-Path $logDir)) {
     $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
     if (-not (Test-Path $logDir)) {
-        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
+        Show-ErrorMessage "Failed to create log directory at $logDir. Logging will not be possible."
         return
     }
 }
@@ -57,7 +58,7 @@ function Log-Message {
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
-        Write-Error "Failed to write to log: $_"
+        Show-ErrorMessage "Failed to write to log: $_"
     }
 }
 
@@ -68,14 +69,7 @@ function Show-ErrorMessage {
     Log-Message "Error: $message" -MessageType "ERROR"
 }
 
-# Function to display warning messages
-function Show-WarningMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Warning', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
-    Log-Message "Warning: $message" -MessageType "WARNING"
-}
-
-# Function to display information messages
+# Function to display informational messages
 function Show-InfoMessage {
     param ([string]$message)
     [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
@@ -83,3 +77,7 @@ function Show-InfoMessage {
 }
 
 # New code funtions...
+
+
+
+# End of script
