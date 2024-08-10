@@ -1,10 +1,10 @@
 # Files in the Eventlogs-Tools Folder
 
 ## Prerequisite:
-Before you run the scripts in this folder, ensure the `Microsoft Log Parser utility` is installed on your system. Also, to fully utilize these scripts, you must be able to execute `PowerShell scripts (.PS1)`, particularly those that use the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This requires installing the `Remote Server Administration Tools (RSAT)`.
+Before running the scripts in this folder, ensure that the `Microsoft Log Parser utility` is installed on your system. Additionally, to fully utilize these scripts, you must be able to execute `PowerShell scripts (.PS1)`, particularly those that use the `Import-Module ActiveDirectory` command, especially on Windows 10 machines. This requires the installation of the `Remote Server Administration Tools (RSAT)`.
 
 ## Description:
-This directory contains scripts designed for selecting and processing Windows Event Log files (*.evtx). These scripts focus on extracting relevant information from the logs and generating outputs in a CSV file format for easy analysis.
+This directory contains a collection of scripts designed for selecting and processing Windows Event Log files (*.evtx). These scripts focus on extracting relevant information from the logs and generating outputs in a CSV file format for easy analysis. **All scripts in this folder are equipped with a graphical user interface (GUI), enhancing user interaction and making them more user-friendly and accessible for event log management tasks.**
 
 ### Script Descriptions (Alphabetically Ordered)
 
@@ -35,4 +35,4 @@ This directory contains scripts designed for selecting and processing Windows Ev
 13. **COMING SOON**: Stay tuned for the next series of EventID analyses, providing more innovative and efficient tools to enhance system administration and event log management.
 
 ## Additional Assistance
-All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please refer to the README.md file in the main root folder.
+All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please refer to the `README.md` file in the main root folder.
