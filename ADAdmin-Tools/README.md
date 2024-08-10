@@ -4,7 +4,7 @@
 To effectively utilize the scripts in this folder, it's essential to have the ability to run `PowerShell scripts (.PS1)` that incorporate the `Import-Module ActiveDirectory` command, especially on Windows 10 workstations. Installation of the `Remote Server Administration Tools (RSAT)` is required for this purpose.
 
 ## Description:
-This section showcases a comprehensive suite of PowerShell and Visual Basic scripts, expertly designed to streamline the management of `Active Directory (AD)` and `Windows Server environments`. These tools are specifically developed to automate and simplify a broad spectrum of administrative tasks involving AD objects like users, groups, and organizational units (OUs), along with server management and software deployment processes. Each script is designed to generate `.LOG` files and `.CSV` output results, facilitating easy analysis and documentation of administrative actions and outcomes.
+This section features a comprehensive suite of PowerShell and Visual Basic scripts, expertly designed to streamline the management of `Active Directory (AD)` and `Windows Server environments`. These tools automate and simplify a broad spectrum of administrative tasks involving AD objects like users, groups, and organizational units (OUs), along with server management and software deployment processes. **All scripts in this repository are equipped with a graphical user interface (GUI), enhancing user interaction and making them more accessible and user-friendly for managing both server and workstation environments.** Each script is designed to generate `.LOG` files and `.CSV` output results, facilitating easy analysis and documentation of administrative actions and outcomes.
 
 ### Script Descriptions (Alphabetically Ordered)
 
@@ -94,7 +94,9 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 43. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**: Resets and synchronizes all Domain GPOs. This script is intended to be called by a GPO and scheduled as a task, ensuring that all Group Policies are up-to-date and effectively applied across workstations.
 
-44. **Restart-NetworkAdapter.ps1**: Restarts the chosen Ethernet adapter. Users can select an adapter from a list, disable it, wait 5 seconds, and re-enable it with a single click. Useful for maintaining connections during RDP sessions.
+44. **Restart-NetworkAdapter.ps1**: Restarts the chosen Ethernet adapter. Users can select
+
+ an adapter from a list, disable it, wait 5 seconds, and re-enable it with a single click. Useful for maintaining connections during RDP sessions.
 
 45. **Retrieve-ADComputer-SharedFolders.ps1**: Searches Active Directory for workstations, checks for any local folder sharing, and logs the results. Provides a user-friendly GUI for specifying the domain, viewing results, and exporting data to a CSV file.
 
@@ -102,9 +104,7 @@ This section showcases a comprehensive suite of PowerShell and Visual Basic scri
 
 47. **Retrieve-ServersDiskSpace.ps1**: Retrieves disk space usage from multiple servers in an Active Directory domain. The script gathers disk space information from all servers and displays the results in a user-friendly text box.
 
-48. **Retrieve-Windows-ProductKey.ps1**: Retrieves the current Windows Product Key from the registry and displays it in a simple graphical user interface (GUI), while also logging
-
- the process and any errors encountered.
+48. **Retrieve-Windows-ProductKey.ps1**: Retrieves the current Windows Product Key from the registry and displays it in a simple graphical user interface (GUI), while also logging the process and any errors encountered.
 
 49. **Shorten-LongFileNames.ps1**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
