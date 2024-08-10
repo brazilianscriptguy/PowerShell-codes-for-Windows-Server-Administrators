@@ -1,6 +1,6 @@
-# PowerShell Scripts for Windows Server Administration and VBScript Repository for Workstation Management
+# PowerShell ToolSet for Windows Server Administration and VBScript Repository for Workstation Management, Adjustments, and Compliance
 
-This repository is a curated collection of PowerShell and VBScript scripts designed for the advanced management of Windows Servers and Windows 10 and 11 workstations. Created by `@brazilianscriptguy`, it includes a variety of scripts that simplify administrative tasks on Windows Servers and streamline management tasks on Windows 10 and 11 workstations. **Every script in this repository features a GUI, enhancing user interaction and making them more user-friendly and accessible** for managing both server and workstation environments.
+This repository is a curated collection of PowerShell and VBScript scripts designed for the advanced management of Windows Servers and Windows 10 and 11 workstations. Created by `@brazilianscriptguy`, it includes a variety of scripts that simplify administrative tasks on Windows Servers and streamline management, adjustments, and compliance tasks on Windows 10 and 11 workstations. **Every script in this repository features a GUI, enhancing user interaction and making them more user-friendly and accessible** for managing both server and workstation environments.
 
 ## Introduction
 
