@@ -1,29 +1,29 @@
 ## Requirements for Running .VBS Scripts on Windows 10 and 11 Workstations
 
-1. **Windows PowerShell 5.1 or Newer**: Ensure your workstation is equipped with Windows PowerShell version 5.1 or later. This version is necessary for executing PowerShell commands and .VBS scripts effectively on Windows 10 and 11 workstations.
+1. **Windows PowerShell 5.1 or Newer**: Ensure your workstation is equipped with Windows PowerShell version 5.1 or later. This version is necessary for effectively executing PowerShell commands and .VBS scripts on Windows 10 and 11 workstations.
 
-2. **Administrative Rights**: Administrative privileges on the workstation are required to run .VBS scripts, as such access enables the implementation of changes at the system level.
+2. **Administrative Rights**: Administrative privileges are required to run .VBS scripts, as these permissions allow for changes at the system level.
 
-3. **Script Execution Policy**: The script execution policy on your workstation must allow for .VBS scripts to be run. You may need to modify this policy according to your organization's security standards to facilitate script execution.
+3. **Script Execution Policy**: The script execution policy on your workstation must permit the running of .VBS scripts. You may need to modify this policy in line with your organization's security standards to allow script execution.
 
-4. **Required Dependencies**: Verify that all dependencies needed by the .VBS scripts are in place. Dependencies can include additional scripts, files, or software components critical for the successful execution of the scripts.
+4. **Required Dependencies**: Ensure that all necessary dependencies for the .VBS scripts are in place. Dependencies may include additional scripts, files, or software components essential for the successful execution of the scripts.
 
 ## Steps to Use ITSM-Templates Scripts
 
-- **Clone ITSM-Templates Folder to DML**: Prior to utilizing the ITSM-Templates scripts for configuring workstations, clone the entire `ITSM-Templates` folder directly to your Definitive Media Library (DML) network path. This path should serve as your repository for scripts.
+- **Clone ITSM-Templates Folder to DML**: Before utilizing the ITSM-Templates scripts for workstation configuration, clone the entire `ITSM-Templates` folder directly to your Definitive Media Library (DML) network path. This path should serve as your repository for scripts.
 
-- **Follow the Checklist PDF**: Refer to the PDF document titled `APRIL-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf`. This document, found at the root of the `ITSM-Templates` folder, contains detailed instructions on how to apply the ITSM-Templates scripts effectively.
+- **Follow the Checklist PDF**: Refer to the PDF document titled `APRIL-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf`. This document, located at the root of the `ITSM-Templates` folder, provides detailed instructions for effectively applying the ITSM-Templates scripts.
 
-- **Review Each .VBS and .REG File Individually**: Go through each .VBS script and .REG file individually to customize them according to your preferences and requirements. This ensures that all code is tailored specifically for your needs.
+- **Review Each .VBS and .REG File Individually**: Review each .VBS script and .REG file individually to customize them according to your specific needs. This ensures that all code is tailored precisely to your requirements.
 
-- **Review the CustomImages Folder**: Customize Windows workstation themes and appearances according to your preferences and requirements. Review the `ITSM-Templates\CustomImages` folder to personalize your appearance images further.
+- **Review the CustomImages Folder**: Customize Windows workstation themes and appearances based on your preferences and requirements. Review the `ITSM-Templates\CustomImages` folder to further personalize your appearance images.
 
-By adhering to these prerequisites and steps, you can ensure a smooth setup and utilization of the ITSM-Templates scripts for configuring workstations running on Windows 10 and 11 workstations.
+By adhering to these prerequisites and steps, you can ensure a smooth setup and utilization of the ITSM-Templates scripts for configuring Windows 10 and 11 workstations.
 
 ## List of Scripts in the ITSM-Templates Folder
 
 ### ITSM-DefaultVBSing.vbs
-Located at `C:\ITSM-Templates\UniqueScripts\`, this script is designed to perform various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. To execute, right-click on the script and choose `Run with command prompt`.
+Located at `C:\ITSM-Templates\UniqueScripts\`, this script performs various configurations on a Windows workstation as part of the IT Service Management (ITSM) process. To execute, right-click on the script and choose `Run with command prompt`.
 
 It encompasses ten distinct configurations:
 
@@ -31,9 +31,9 @@ It encompasses ten distinct configurations:
 
 2. **CopyDefaultFolders.vbs**: Copies default desktop folders and XML profiles related to desktop appearance and the start button, standardizing the user experience across workstations.
 
-3. **CopyHosts.vbs**: Protects network connections before installing antivirus (AV) software, possibly by configuring network settings or adding specific entries to the hosts file.
+3. **CopyHosts.vbs**: Protects network connections before installing antivirus (AV) software, potentially by configuring network settings or adding specific entries to the hosts file.
 
-4. **CopyLogonBackground.vbs**: Copies standardized lock screen images, maintaining consistency in the login interface appearance.
+4. **CopyLogonBackground.vbs**: Copies standardized lock screen images, ensuring consistency in the login interface appearance.
 
 5. **CopyUserLogo.vbs**: Copies standardized user profile images, ensuring consistency in user interface elements across workstations.
 
@@ -41,7 +41,7 @@ It encompasses ten distinct configurations:
 
 7. **Disable-Windows-Firewall.vbs**: Disables the Windows Firewall, allowing for network communication without firewall restrictions.
 
-8. **Grant-Full-Access-Legacy-App.vbs**: Grants execution permissions in the root folder of your legacy application for the common user profile of the station.
+8. **Grant-Full-Access-Legacy-App.vbs**: Grants execution permissions in the root folder of your legacy application for the common user profile of the workstation.
 
 9. **Renew-all-IP-Connections.vbs**: Renews all TCP/IP connections, ensuring network connectivity is refreshed and potentially resolving network issues.
 
@@ -52,13 +52,13 @@ Located at `C:\ITSM-Templates\UniqueScripts\`, this script performs registry mod
 
 It encompasses ten distinct configurations:
 
-1. **AddStartPageADM.reg**: Configures the browser homepage, likely setting it to a specific webpage or corporate intranet site.
+1. **AddStartPageADM.reg**: Configures the browser homepage, setting it to a specific webpage or corporate intranet site.
 
 2. **DisableUAC-LUA.reg**: Disables User Account Control (UAC) to reduce user prompts and restrictions for certain operations.
 
 3. **Enable-AutoShareAdmin.reg**: Enables administrative sharing, allowing for easier administration and file sharing across the network.
 
-4. **Register-Owner.reg**: Customizes company data in the Windows license, likely including the company name or other identifying information.
+4. **Register-Owner.reg**: Customizes company data in the Windows license, including the company name or other identifying information.
 
 5. **WSUS-App-Intranet.reg**: Points to the corporate WSUS (Windows Server Update Services), ensuring that the workstation receives updates from the corporate update server.
 
