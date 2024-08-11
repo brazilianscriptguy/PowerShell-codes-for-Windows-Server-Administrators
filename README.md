@@ -110,6 +110,12 @@ Now, you're all set to leverage the power of these PowerShell scripts for effici
 
 If you have any questions, need further assistance, or wish to contribute, feel free to reach out. You can contact me directly at luizhamilton.lhr@gmail.com or join the [PowerShell-Br WhatsApp channel](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c).
 
+Support my work and gain access to exclusive content by becoming a patron on [Patreon](https://patreon.com/brazilianscriptguy).
+
+For detailed information on the latest updates and releases, visit the [ITSM-SysAdminToolSet Release](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/releases/tag/ITSM-SysAdminToolSet).
+
 ---
 
 Thank you for choosing the PowerShell ToolSet for Windows Server Administration and VBScript Repository for Workstation Management. We hope these tools enhance your efficiency and streamline your workflows.
+
+---
