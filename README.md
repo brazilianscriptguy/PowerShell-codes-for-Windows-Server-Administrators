@@ -10,11 +10,12 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 
 ## GitHub Statistics
 
-Here are some statistics about my GitHub activity:
+Here’s a snapshot of my GitHub activity:
 
 ![GitHub Stats](https://github-readme-stats.vercel.app/api?username=brazilianscriptguy&show_icons=true&theme=radical)
 ![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=brazilianscriptguy&layout=compact&theme=radical)
 ![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=brazilianscriptguy&theme=radical)
+![GitHub Activity Graph](https://activity-graph.herokuapp.com/graph?username=brazilianscriptguy&theme=github)
 
 ---
 
