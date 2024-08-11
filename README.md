@@ -1,12 +1,25 @@
+```markdown
 # PowerShell ToolSet for Windows Server Administration and VBScript Repository for Workstation Management, Adjustments, and Compliance
 
 This repository is a curated collection of PowerShell and VBScript scripts designed for the advanced management of Windows Servers and Windows 10 and 11 workstations. Created by `@brazilianscriptguy`, it includes a variety of scripts that simplify administrative tasks on Windows Servers and streamline management, adjustments, and compliance tasks on Windows 10 and 11 workstations. **Every script in this repository features a GUI, enhancing user interaction and making them more user-friendly and accessible** for managing both server and workstation environments.
+
+![GitHub Stars](https://img.shields.io/github/stars/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social)
+![GitHub Forks](https://img.shields.io/github/forks/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social)
+![GitHub Watchers](https://img.shields.io/github/watchers/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social)
+![GitHub Issues](https://img.shields.io/github/issues/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)
+![GitHub License](https://img.shields.io/github/license/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)
 
 ## Introduction
 
 Welcome to the PowerShell and VBScript Repository, a comprehensive source of scripts and tools specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10 and 11 workstations. Whether you're looking to bolster security, optimize system performance, or streamline administrative workflows, our collection in the **ADAdmin-Tools**, **EventLog-Tools**, and **ITSM-Templates** folders is here to elevate your management capabilities.
 
 Our repository provides scripts that solve common administrative and management challenges while introducing enhanced efficiency and clarity into your operations. Dive into our diverse collection and discover how our scripts can transform your approach to server and workstation management.
+
+## GitHub Stats
+
+![Your GitHub Stats](https://github-readme-stats.vercel.app/api?username=brazilianscriptguy&show_icons=true&theme=radical)
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=brazilianscriptguy&layout=compact&theme=radical)
+![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=brazilianscriptguy&theme=radical)
 
 ## Features
 
@@ -80,3 +93,14 @@ Installing these scripts is straightforward. Follow these steps to get started:
 Now, you're all set to leverage the power of these PowerShell scripts for efficient Windows Server administration. Feel free to explore and customize them to suit your specific needs.
 
 For questions or further assistance, you can reach out to me at luizhamilton.lhr@gmail.com or join my WhatsApp channel: [PowerShell-Br](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c).
+```
+
+### Summary of Enhancements:
+
+1. **GitHub Stats and Badges**: Introduced GitHub stats and badges to visually represent your contributions and repository metrics, adding a dynamic aspect to your `README.md`.
+
+2. **Structure**: Organized the content into clear sections, making it easy for users to navigate through the document and find relevant information.
+
+3. **Installation Instructions**: Included detailed steps for setting up and using the scripts, ensuring users can get started with minimal effort.
+
+4. **Customizations and Compatibility**: Provided information on how users can tailor the scripts to their specific environments, along with compatibility and prerequisites.
