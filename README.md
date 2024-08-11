@@ -7,7 +7,21 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 ![GitHub Watchers](https://img.shields.io/github/watchers/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social)
 ![GitHub Issues](https://img.shields.io/github/issues/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)
 ![GitHub License](https://img.shields.io/github/license/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)
+
+
+**GitHub Activity Graph:**
 [![Ashutosh's github activity graph](https://github-readme-activity-graph.cyclic.app/graph?username=brazilianscriptguy&bg_color=0f2d3d&color=1cadfb&line=1cadfb&point=1cadfb&area=true&hide_border=true)](https://github.com/ashutosh00710/github-readme-activity-graph)
+## GitHub Statistics
+
+Below is an overview of my GitHub activity:
+
+![GitHub Stats](https://github-readme-stats.vercel.app/api?username=brazilianscriptguy&show_icons=true&theme=radical)
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=brazilianscriptguy&layout=compact&theme=radical)
+![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=brazilianscriptguy&theme=radical)
+
+**GitHub Activity Graph:**
+[![GitHub Activity Graph](https://activity-graph.herokuapp.com/graph?username=brazilianscriptguy&theme=github)](https://activity-graph.herokuapp.com/graph?username=brazilianscriptguy&theme=github)
+
 
 ## GitHub Statistics
 
