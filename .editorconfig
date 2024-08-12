@@ -16,3 +16,11 @@ indent_size = 4
 [*.txt]
 indent_style = space
 indent_size = 2
+
+# Treat EXE files as binary
+[*.exe]
+charset = binary
+
+# Treat PDF files as binary
+[*.pdf]
+charset = binary
