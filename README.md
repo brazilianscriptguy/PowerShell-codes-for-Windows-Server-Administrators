@@ -57,9 +57,9 @@ Ensure your environment meets the following requirements before running the scri
 - **EventLog-Tools**: Requires the `Microsoft Log Parser utility`.
 - **ADAdmin-Tools**: Requires `Remote Server Administration Tools (RSAT)` on Windows 10 and 11 workstations.
 
-### Installing RSAT on Windows 10 and 11
+### Installing RSAT on Windows 10 and 11 workstations
 
-1. **Open Settings**: Go to `Settings` on your Windows 10 or 11 computer.
+1. **Open Settings**: Go to `Settings` on your Windows 10 or 11 workstation.
 2. **Apps & Features**: Navigate to `Apps`, then select `Optional Features`.
 3. **Add a Feature**: Click on `Add a feature`.
 4. **Search for RSAT**: Type "RSAT" in the search bar to find all available RSAT tools.
@@ -70,10 +70,11 @@ Ensure your environment meets the following requirements before running the scri
 
 ## Customizations
 
-This repository allows you to tailor scripts to your specific needs. Common customizations include:
+This repository provides the flexibility to tailor scripts to your specific needs. Common customizations include:
 
-- **Configuration Files**: Modify included configuration files to control script execution, ensuring alignment with your Windows Server environment.
-- **Script Parameters**: Adjust script parameters to tailor functionality to different scenarios. If you encounter inconsistencies or need adjustments, feel free to reach out for assistance.
+- **Configuration Files**: Modify the included configuration files to control script execution, ensuring they align with your Windows Server 2019 or Windows 10 and 11 workstation environments.
+- **Script Parameters**: Adjust script parameters to adapt functionality to different scenarios. If you encounter inconsistencies or need further adjustments, feel free to reach out for assistance.
+- **Code Customizations**: Some code parameters can be customized. It's essential to read all documentation and conduct tests in your specific environment to ensure proper functionality.
 
 ## Installation
 
