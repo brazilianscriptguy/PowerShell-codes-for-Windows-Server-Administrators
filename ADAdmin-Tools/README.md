@@ -1,12 +1,16 @@
 # Files in the AD-AdminTools Folder
 
-## Prerequisite:
-To effectively utilize the scripts in this folder, it's essential to have the ability to run `PowerShell scripts (.PS1)` that incorporate the `Import-Module ActiveDirectory` command, especially on Windows 10 workstations. Installation of the `Remote Server Administration Tools (RSAT)` is required for this purpose.
+## 🛠️ Prerequisites
 
-## Description:
-This section features a comprehensive suite of PowerShell and Visual Basic scripts, expertly designed to streamline the management of `Active Directory (AD)` and `Windows Server environments`. These tools automate and simplify a broad spectrum of administrative tasks involving AD objects like users, groups, and organizational units (OUs), along with server management and software deployment processes. **All scripts in this repository are equipped with a graphical user interface (GUI), enhancing user interaction and making them more accessible and user-friendly for managing both server and workstation environments.** Each script is designed to generate `.LOG` files and `.CSV` output results, facilitating easy analysis and documentation of administrative actions and outcomes.
+To effectively utilize the scripts in this folder, it's essential to have the ability to run **PowerShell scripts (.PS1)** that incorporate the `Import-Module ActiveDirectory` command, especially on Windows 10 workstations. Installation of the **Remote Server Administration Tools (RSAT)** is required for this purpose.
 
-### Script Descriptions (Alphabetically Ordered)
+## 📄 Description
+
+This section features a comprehensive suite of PowerShell and Visual Basic scripts, expertly designed to streamline the management of **Active Directory (AD)** and **Windows Server environments**. These tools automate and simplify a broad spectrum of administrative tasks involving AD objects like users, groups, and organizational units (OUs), along with server management and software deployment processes.
+
+> **✨ All scripts in this repository are equipped with a graphical user interface (GUI), enhancing user interaction and making them more accessible and user-friendly for managing both server and workstation environments.** Each script is designed to generate `.LOG` files and `.CSV` output results, facilitating easy analysis and documentation of administrative actions and outcomes.
+
+### 📜 Script Descriptions (Alphabetically Ordered)
 
 1. **Add-ADComputer-n-GrantJoinPermissions.ps1**: Automates adding workstations to the domain and granting appropriate permissions.
 
@@ -94,9 +98,9 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 43. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**: Resets and synchronizes all Domain GPOs. This script is intended to be called by a GPO and scheduled as a task, ensuring that all Group Policies are up-to-date and effectively applied across workstations.
 
-44. **Restart-NetworkAdapter.ps1**: Restarts the chosen Ethernet adapter. Users can select
+44. **Restart
 
- an adapter from a list, disable it, wait 5 seconds, and re-enable it with a single click. Useful for maintaining connections during RDP sessions.
+-NetworkAdapter.ps1**: Restarts the chosen Ethernet adapter. Users can select an adapter from a list, disable it, wait 5 seconds, and re-enable it with a single click. Useful for maintaining connections during RDP sessions.
 
 45. **Retrieve-ADComputer-SharedFolders.ps1**: Searches Active Directory for workstations, checks for any local folder sharing, and logs the results. Provides a user-friendly GUI for specifying the domain, viewing results, and exporting data to a CSV file.
 
@@ -130,5 +134,6 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 60. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
-## Additional Assistance
+## ❓ Additional Assistance
+
 All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the `README.md` file in the main root folder.
