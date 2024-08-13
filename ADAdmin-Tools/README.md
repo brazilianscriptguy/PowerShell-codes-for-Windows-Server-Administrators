@@ -1,4 +1,4 @@
-# Files in the AD-AdminTools Folder
+# Files in the ADAdminTools Folder
 
 ## 🛠️ Prerequisites
 
