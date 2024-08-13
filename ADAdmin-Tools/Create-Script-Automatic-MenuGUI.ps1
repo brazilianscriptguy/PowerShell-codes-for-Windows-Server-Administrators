@@ -1,6 +1,6 @@
 # PowerShell Script to create a Menu to Execute PowerShell Scripts
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 02, 2024
+# Updated: August 13, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -106,7 +106,7 @@ function Create-GUI {
         Write-Host "Creating UI for category: $CategoryName" -ForegroundColor Blue
 
         $groupBox = [System.Windows.Forms.GroupBox]::new()
-        $groupBox.Text = "$CategoryName Tools"
+        $groupBox.Text = "$CategoryName"
         $groupBox.Size = [System.Drawing.Size]::new(550, 200)
         $groupBox.Location = [System.Drawing.Point]::new(25, $yPos.Value)
         $groupBox.Font = [System.Drawing.Font]::new("Arial", 10, [System.Drawing.FontStyle]::Bold)
