@@ -1,6 +1,6 @@
 # PowerShell Script to Manage Expired and Disabled AD User Accounts
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 13, 2024
+# Updated: August 14, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -114,9 +114,13 @@ function List-ExpiredAccounts {
     $expiredUsers | ForEach-Object {
         $listItem = New-Object System.Windows.Forms.ListViewItem
         $listItem.Text = $_.SamAccountName
-        $displayName = if ($_.DisplayName -ne $null) { $_.DisplayName } else { "N/A" }
+        
+        # Handle DisplayName and AccountExpirationDate
+        $displayName = if ($_.DisplayName) { $_.DisplayName } else { "N/A" }
+        $expirationDate = if ($_.AccountExpirationDate) { ([DateTime]$_.AccountExpirationDate).ToString("yyyy-MM-dd") } else { "N/A" }
+
         $listItem.SubItems.Add($displayName)
-        $listItem.SubItems.Add(([DateTime]$_.AccountExpirationDate).ToString("yyyy-MM-dd"))
+        $listItem.SubItems.Add($expirationDate)
         $listView.Items.Add($listItem)
     }
 }
@@ -187,9 +191,13 @@ function List-DisabledAccounts {
     $disabledUsers | ForEach-Object {
         $listItem = New-Object System.Windows.Forms.ListViewItem
         $listItem.Text = $_.SamAccountName
-        $displayName = if ($_.DisplayName -ne $null) { $_.DisplayName } else { "N/A" }
+        
+        # Handle DisplayName and whenChanged
+        $displayName = if ($_.DisplayName) { $_.DisplayName } else { "N/A" }
+        $lastChanged = if ($_.whenChanged) { ([DateTime]$_.whenChanged).ToString("yyyy-MM-dd") } else { "N/A" }
+
         $listItem.SubItems.Add($displayName)
-        $listItem.SubItems.Add(([DateTime]$_.whenChanged).ToString("yyyy-MM-dd"))
+        $listItem.SubItems.Add($lastChanged)
         $listView.Items.Add($listItem)
     }
 }
@@ -229,8 +237,8 @@ function Remove-UserFromGroups {
 function On-RemoveFromGroupsClick {
     param (
         [System.Windows.Forms.ListView]$listView,
-        [string]$domainFQDN,
-        [System.Windows.Forms.ProgressBar]$progressBar
+        [System.Windows.Forms.ProgressBar]$progressBar,
+        [string]$domainFQDN
     )
 
     # Check if any accounts are selected
@@ -239,7 +247,8 @@ function On-RemoveFromGroupsClick {
         return
     }
 
-    # Set progress bar maximum value
+    # Initialize the progress bar
+    $progressBar.Minimum = 0
     $progressBar.Maximum = $listView.CheckedItems.Count
     $progressBar.Value = 0
 
@@ -247,8 +256,8 @@ function On-RemoveFromGroupsClick {
     foreach ($item in $listView.CheckedItems) {
         $samAccountName = $item.Text
         Remove-UserFromGroups -SamAccountName $samAccountName -domainFQDN $domainFQDN
-
-        # Increment progress bar
+        
+        # Increment the progress bar
         $progressBar.PerformStep()
     }
 
@@ -258,13 +267,73 @@ function On-RemoveFromGroupsClick {
     # Show message box with information
     Show-InfoMessage "Selected accounts have been removed from their groups. Log file generated at: $logPath"
 }
+# Function to disable user accounts by name or from a file
+function Disable-UserAccountsFromList {
+    param (
+        [string[]]$accountNames,
+        [string]$domainFQDN
+    )
+
+    foreach ($name in $accountNames) {
+        try {
+            $user = Get-ADUser -Server $domainFQDN -Filter {SamAccountName -eq $name}
+            if ($user) {
+                $user | Disable-ADAccount
+                Log-Message -Message "Disabled $name's account."
+                Show-InfoMessage "Disabled account for user: $name"
+            } else {
+                Log-Message -Message "User $name not found." -MessageType "ERROR"
+                Show-ErrorMessage "User $name not found."
+            }
+        } catch {
+            Log-Message -Message "Failed to disable ${name}: $_" -MessageType "ERROR"
+            Show-ErrorMessage "Failed to disable ${name}: $_"
+        }
+    }
+}
+
+# Function to handle the "Disable Users" button click event for manual input or file upload
+function On-DisableUsersClick {
+    param (
+        [System.Windows.Forms.TextBox]$inputTextBox,
+        [string]$domainFQDN
+    )
+
+    $input = $inputTextBox.Text.Trim()
+    if ([System.IO.File]::Exists($input)) {
+        $usernames = Get-Content -Path $input
+        Show-InfoMessage "Disabling users from file: $input"
+    } else {
+        $usernames = $input -split ","
+        Show-InfoMessage "Disabling users from input: $input"
+    }
+
+    Disable-UserAccountsFromList -accountNames $usernames -domainFQDN $domainFQDN
+}
+
+# Function to handle the "Disable Users" button click event for manual input or file upload
+function On-DisableUsersClick {
+    param (
+        [System.Windows.Forms.TextBox]$inputTextBox,
+        [string]$domainFQDN
+    )
+
+    $input = $inputTextBox.Text.Trim()
+    if ([System.IO.File]::Exists($input)) {
+        $usernames = Get-Content -Path $input
+    } else {
+        $usernames = $input -split ","
+    }
+
+    Disable-UserAccountsFromList -accountNames $usernames -domainFQDN $domainFQDN
+}
 
 # Function to create and show the GUI with tabs
 function Show-GUI {
     # Create and configure the form
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "AD User Management"
-    $form.Size = New-Object System.Drawing.Size(600, 700)
+    $form.Size = New-Object System.Drawing.Size(620, 700)
     $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 
     # Create and configure the TabControl
@@ -272,37 +341,31 @@ function Show-GUI {
     $tabControl.Size = New-Object System.Drawing.Size(580, 640)
     $tabControl.Location = New-Object System.Drawing.Point(10, 10)
 
-    # TAB 1: Expired Users
+    # Create tabs
     $tabExpiredUsers = New-Object System.Windows.Forms.TabPage
     $tabExpiredUsers.Text = "Expired Users"
 
-    # TAB 2: Disabled Users
     $tabDisabledUsers = New-Object System.Windows.Forms.TabPage
     $tabDisabledUsers.Text = "Disabled Users"
 
-    # Add tabs to the TabControl
-    $tabControl.Controls.Add($tabExpiredUsers)
-    $tabControl.Controls.Add($tabDisabledUsers)
-    $form.Controls.Add($tabControl)
+    # Add domain dropdown to both tabs
+    $domainComboBoxExpired = New-Object System.Windows.Forms.ComboBox
+    $domainComboBoxExpired.Size = New-Object System.Drawing.Size(400, 30)
+    $domainComboBoxExpired.Location = New-Object System.Drawing.Point(10, 10)
+    $domainComboBoxExpired.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+    $domainComboBoxExpired.Items.AddRange((Get-ForestDomains))
+    $domainComboBoxExpired.SelectedIndex = 0
+    $tabExpiredUsers.Controls.Add($domainComboBoxExpired)
 
-    # Domain ComboBox for both tabs
-    $domainComboBox1 = New-Object System.Windows.Forms.ComboBox
-    $domainComboBox1.Size = New-Object System.Drawing.Size(400, 30)
-    $domainComboBox1.Location = New-Object System.Drawing.Point(10, 10)
-    $domainComboBox1.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-    $domainComboBox1.Items.AddRange((Get-ForestDomains))
-    $domainComboBox1.SelectedIndex = 0
-    $tabExpiredUsers.Controls.Add($domainComboBox1)
+    $domainComboBoxDisabled = New-Object System.Windows.Forms.ComboBox
+    $domainComboBoxDisabled.Size = New-Object System.Drawing.Size(400, 30)
+    $domainComboBoxDisabled.Location = New-Object System.Drawing.Point(10, 10)
+    $domainComboBoxDisabled.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+    $domainComboBoxDisabled.Items.AddRange((Get-ForestDomains))
+    $domainComboBoxDisabled.SelectedIndex = 0
+    $tabDisabledUsers.Controls.Add($domainComboBoxDisabled)
 
-    $domainComboBox2 = New-Object System.Windows.Forms.ComboBox
-    $domainComboBox2.Size = New-Object System.Drawing.Size(400, 30)
-    $domainComboBox2.Location = New-Object System.Drawing.Point(10, 10)
-    $domainComboBox2.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-    $domainComboBox2.Items.AddRange((Get-ForestDomains))
-    $domainComboBox2.SelectedIndex = 0
-    $tabDisabledUsers.Controls.Add($domainComboBox2)
-
-    ### TAB 1 CONTENTS ###
+    ### TAB 1: Expired Users ###
 
     # Create and configure the "List Expired Users" button
     $listExpiredButton = New-Object System.Windows.Forms.Button
@@ -310,7 +373,7 @@ function Show-GUI {
     $listExpiredButton.Size = New-Object System.Drawing.Size(180, 30)
     $listExpiredButton.Location = New-Object System.Drawing.Point(10, 50)
     $listExpiredButton.Add_Click({
-        List-ExpiredAccounts -domainFQDN $domainComboBox1.SelectedItem -listView $expiredListView
+        List-ExpiredAccounts -domainFQDN $domainComboBoxExpired.SelectedItem -listView $expiredListView
     })
     $tabExpiredUsers.Controls.Add($listExpiredButton)
 
@@ -320,7 +383,7 @@ function Show-GUI {
     $disableExpiredButton.Size = New-Object System.Drawing.Size(180, 30)
     $disableExpiredButton.Location = New-Object System.Drawing.Point(200, 50)
     $disableExpiredButton.Add_Click({
-        Disable-ExpiredAccounts -domainFQDN $domainComboBox1.SelectedItem -listView $expiredListView
+        Disable-ExpiredAccounts -domainFQDN $domainComboBoxExpired.SelectedItem -listView $expiredListView
     })
     $tabExpiredUsers.Controls.Add($disableExpiredButton)
 
@@ -345,7 +408,7 @@ function Show-GUI {
     $expiredListView.CheckBoxes = $true
     $tabExpiredUsers.Controls.Add($expiredListView)
 
-    ### TAB 2 CONTENTS ###
+    ### TAB 2: Disabled Users ###
 
     # Create and configure the "List Disabled Users" button
     $listDisabledButton = New-Object System.Windows.Forms.Button
@@ -353,7 +416,7 @@ function Show-GUI {
     $listDisabledButton.Size = New-Object System.Drawing.Size(180, 30)
     $listDisabledButton.Location = New-Object System.Drawing.Point(10, 50)
     $listDisabledButton.Add_Click({
-        List-DisabledAccounts -domainFQDN $domainComboBox2.SelectedItem -listView $disabledListView
+        List-DisabledAccounts -domainFQDN $domainComboBoxDisabled.SelectedItem -listView $disabledListView
     })
     $tabDisabledUsers.Controls.Add($listDisabledButton)
 
@@ -363,7 +426,7 @@ function Show-GUI {
     $removeFromGroupsButton.Size = New-Object System.Drawing.Size(180, 30)
     $removeFromGroupsButton.Location = New-Object System.Drawing.Point(200, 50)
     $removeFromGroupsButton.Add_Click({
-        On-RemoveFromGroupsClick -listView $disabledListView -domainFQDN $domainComboBox2.SelectedItem -progressBar $progressBar
+        On-RemoveFromGroupsClick -listView $disabledListView -progressBar $progressBar -domainFQDN $domainComboBoxDisabled.SelectedItem
     })
     $tabDisabledUsers.Controls.Add($removeFromGroupsButton)
 
@@ -379,7 +442,7 @@ function Show-GUI {
 
     # Create and configure the disabled accounts list view
     $disabledListView = New-Object System.Windows.Forms.ListView
-    $disabledListView.Size = New-Object System.Drawing.Size(540, 360)
+    $disabledListView.Size = New-Object System.Drawing.Size(540, 400)
     $disabledListView.Location = New-Object System.Drawing.Point(10, 90)
     $disabledListView.View = [System.Windows.Forms.View]::Details
     $disabledListView.Columns.Add("SAM Account Name", 150)
@@ -390,11 +453,51 @@ function Show-GUI {
 
     # Create and configure the progress bar
     $progressBar = New-Object System.Windows.Forms.ProgressBar
-    $progressBar.Size = New-Object System.Drawing.Size(540, 30)
-    $progressBar.Location = New-Object System.Drawing.Point(10, 460)
-    $progressBar.Style = [System.Windows.Forms.ProgressBarStyle]::Continuous
-    $progressBar.Minimum = 0
+    $progressBar.Size = New-Object System.Drawing.Size(540, 20)
+    $progressBar.Location = New-Object System.Drawing.Point(10, 500)
+    $progressBar.Step = 1
     $tabDisabledUsers.Controls.Add($progressBar)
+
+    # Create and configure the input text box with example text and button to disable users from a list or file
+$inputTextBox = New-Object System.Windows.Forms.TextBox
+$inputTextBox.Size = New-Object System.Drawing.Size(400, 20)
+$inputTextBox.Location = New-Object System.Drawing.Point(10, 530)
+$inputTextBox.Text = "Type a user account or a .txt file name with full path"  # Example placeholder text
+$inputTextBox.ForeColor = [System.Drawing.Color]::Gray  # Set the placeholder text color
+
+# Event to clear the placeholder text when the user clicks on the textbox
+$inputTextBox.Add_GotFocus({
+    if ($inputTextBox.Text -eq "Type a user account or a .txt file name with full path") {
+        $inputTextBox.Text = ""
+        $inputTextBox.ForeColor = [System.Drawing.Color]::Black
+    }
+})
+
+# Event to restore the placeholder text if the user leaves the textbox empty
+$inputTextBox.Add_LostFocus({
+    if ($inputTextBox.Text.Trim() -eq "") {
+        $inputTextBox.Text = "Type a user account or a .txt file name with full path"
+        $inputTextBox.ForeColor = [System.Drawing.Color]::Gray
+    }
+})
+
+$tabDisabledUsers.Controls.Add($inputTextBox)
+
+$disableUsersButton = New-Object System.Windows.Forms.Button
+$disableUsersButton.Text = "Disable Users"
+$disableUsersButton.Size = New-Object System.Drawing.Size(180, 30)
+$disableUsersButton.Location = New-Object System.Drawing.Point(420, 525)
+$disableUsersButton.Add_Click({
+    On-DisableUsersClick -inputTextBox $inputTextBox -domainFQDN $domainComboBoxDisabled.SelectedItem
+})
+$tabDisabledUsers.Controls.Add($disableUsersButton)
+
+
+    # Add tabs to TabControl
+    $tabControl.TabPages.AddRange(@($tabExpiredUsers, $tabDisabledUsers))
+
+    # Add TabControl to form
+    $form.Controls.Add($tabControl)
 
     # Show the form
     [System.Windows.Forms.Application]::Run($form)
