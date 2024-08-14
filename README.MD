@@ -26,6 +26,7 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 [![Email](https://img.shields.io/badge/Email-luizhamilton.lhr@gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:luizhamilton.lhr@gmail.com "target=_blank")
 
 📍 **Location**: `0°01'51.8"N 51°02'57.2"W`
+
 🕒 **Time Zone**: `11:11:11 (UTC -03:00)`
 
 ## 📊 My GitHub Statistics
