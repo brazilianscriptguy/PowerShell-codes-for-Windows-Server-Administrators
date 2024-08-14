@@ -2,24 +2,24 @@
 
 Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript Repository—a carefully curated collection of scripts designed for the advanced management of Windows Servers and Windows 10 and 11 workstations. Developed by `@brazilianscriptguy`, this repository offers a wide array of tools that simplify administrative tasks on Windows Servers while streamlining management, adjustments, and compliance tasks on Windows workstations. **Every script in these repositories features a graphical user interface (GUI), enhancing user interaction** and making them more accessible and user-friendly for managing both server and workstation environments.
 
-![GitHub Stars](https://img.shields.io/github/stars/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social)
-![GitHub Forks](https://img.shields.io/github/forks/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social)
-![GitHub Watchers](https://img.shields.io/github/watchers/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social)
-![GitHub Issues](https://img.shields.io/github/issues/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)
-![GitHub License](https://img.shields.io/github/license/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)
+[![GitHub Stars](https://img.shields.io/github/stars/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social)](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators "target=_blank")
+[![GitHub Forks](https://img.shields.io/github/forks/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social)](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators "target=_blank")
+[![GitHub Watchers](https://img.shields.io/github/watchers/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social)](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators "target=_blank")
+[![GitHub Issues](https://img.shields.io/github/issues/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/issues "target=_blank")
+[![GitHub License](https://img.shields.io/github/license/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/blob/main/LICENSE "target=_blank")
 
 ## 🌐 Connect with Me
 
-[![GitHub](https://img.shields.io/badge/GitHub-@brazilianscriptguy-181717?style=for-the-badge&logo=github)](https://github.com/brazilianscriptguy)
-[![Patreon](https://img.shields.io/badge/Patreon-Support%20Me-red?style=for-the-badge&logo=patreon)](https://patreon.com/brazilianscriptguy)
-[![Twitter](https://img.shields.io/badge/Twitter-@brazscriptguy-1DA1F2?style=for-the-badge&logo=twitter)](https://x.com/brazscriptguy)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-in/brazilianscriptguy-0077B5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/brazilianscriptguy/)
-[![YouTube](https://img.shields.io/badge/YouTube-@brazilianscriptguy-FF0000?style=for-the-badge&logo=youtube)](https://www.youtube.com/@brazilianscriptguy)
-[![Instagram](https://img.shields.io/badge/Instagram-@4tetraforensics-E4405F?style=for-the-badge&logo=instagram)](https://www.instagram.com/4tetraforensics)
-[![WhatsApp](https://img.shields.io/badge/WhatsApp-Channel-25D366?style=for-the-badge&logo=whatsapp)](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c)
-[![ORCID](https://img.shields.io/badge/ORCID-0000--0003--3705--7468-A6CE39?style=for-the-badge&logo=orcid)](https://orcid.org/0000-0003-3705-7468)
-[![Lattes CV](https://img.shields.io/badge/Lattes%20CV-0191525072495482-00A693?style=for-the-badge&logo=academia)](http://lattes.cnpq.br/0191525072495482)  
-[![Email](https://img.shields.io/badge/Email-luizhamilton.lhr@gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:luizhamilton.lhr@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-@brazilianscriptguy-181717?style=for-the-badge&logo=github)](https://github.com/brazilianscriptguy "target=_blank")
+[![Patreon](https://img.shields.io/badge/Patreon-Support%20Me-red?style=for-the-badge&logo=patreon)](https://patreon.com/brazilianscriptguy "target=_blank")
+[![Twitter](https://img.shields.io/badge/Twitter-@brazscriptguy-1DA1F2?style=for-the-badge&logo=twitter)](https://x.com/brazscriptguy "target=_blank")
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-in/brazilianscriptguy-0077B5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/brazilianscriptguy/ "target=_blank")
+[![YouTube](https://img.shields.io/badge/YouTube-@brazilianscriptguy-FF0000?style=for-the-badge&logo=youtube)](https://www.youtube.com/@brazilianscriptguy "target=_blank")
+[![Instagram](https://img.shields.io/badge/Instagram-@4tetraforensics-E4405F?style=for-the-badge&logo=instagram)](https://www.instagram.com/4tetraforensics "target=_blank")
+[![WhatsApp](https://img.shields.io/badge/WhatsApp-Channel-25D366?style=for-the-badge&logo=whatsapp)](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c "target=_blank")
+[![ORCID](https://img.shields.io/badge/ORCID-0000--0003--3705--7468-A6CE39?style=for-the-badge&logo=orcid)](https://orcid.org/0000-0003-3705-7468 "target=_blank")
+[![Lattes CV](https://img.shields.io/badge/Lattes%20CV-0191525072495482-00A693?style=for-the-badge&logo=academia)](http://lattes.cnpq.br/0191525072495482 "target=_blank")  
+[![Email](https://img.shields.io/badge/Email-luizhamilton.lhr@gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:luizhamilton.lhr@gmail.com "target=_blank")
 
 - 📍 **Location**: `0°01'51.8"N 51°02'57.2"W`
 - 🕒 **Time Zone**: `11:11:11 (UTC -03:00)`
