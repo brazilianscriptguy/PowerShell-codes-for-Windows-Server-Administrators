@@ -14,18 +14,19 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 
 ## 🌐 Connect with Me
 
-[![GitHub](https://img.shields.io/badge/GitHub-@brazilianscriptguy-181717?style=for-the-badge&logo=github)](https://github.com/brazilianscriptguy "target=_blank")
-[![Patreon](https://img.shields.io/badge/Patreon-Support%20Me-red?style=for-the-badge&logo=patreon)](https://patreon.com/brazilianscriptguy "target=_blank")
-[![X](https://img.shields.io/badge/Follow-@brazscriptguy-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/brazscriptguy "target=_blank")
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-in/brazilianscriptguy-0077B5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/brazilianscriptguy/ "target=_blank")
-[![YouTube](https://img.shields.io/badge/YouTube-@brazilianscriptguy-FF0000?style=for-the-badge&logo=youtube)](https://www.youtube.com/@brazilianscriptguy "target=_blank")
-[![Instagram](https://img.shields.io/badge/Instagram-@4tetraforensics-E4405F?style=for-the-badge&logo=instagram)](https://www.instagram.com/4tetraforensics "target=_blank")
-[![WhatsApp](https://img.shields.io/badge/WhatsApp-Channel-25D366?style=for-the-badge&logo=whatsapp)](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c "target=_blank")
-[![ORCID](https://img.shields.io/badge/ORCID-0000--0003--3705--7468-A6CE39?style=for-the-badge&logo=orcid)](https://orcid.org/0000-0003-3705-7468 "target=_blank")
-[![Lattes CV](https://img.shields.io/badge/Lattes%20CV-0191525072495482-00A693?style=for-the-badge&logo=academia)](http://lattes.cnpq.br/0191525072495482 "target=_blank")  
-[![Email](https://img.shields.io/badge/Email-luizhamilton.lhr@gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:luizhamilton.lhr@gmail.com "target=_blank")
-[![Location](https://img.shields.io/badge/Location-0°01'51.8%22N%2051°02'57.2%22W-blue?style=for-the-badge&logo=google-maps)](https://www.google.com/maps)
-[![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=America%2FBrazil%2FMacap%C3%A1%20(UTC%20-03%3A00)&color=brightgreen&style=for-the-badge&logo=clock)](https://time.is/Macap%C3%A1)
+[![GitHub](https://img.shields.io/badge/GitHub-@brazilianscriptguy-181717?style=for-the-badge&logo=github)](https://github.com/brazilianscriptguy)
+[![Patreon](https://img.shields.io/badge/Patreon-Support%20Me-red?style=for-the-badge&logo=patreon)](https://patreon.com/brazilianscriptguy)
+[![Twitter](https://img.shields.io/badge/X%20Twitter-@brazscriptguy-000000?style=for-the-badge&logo=twitter)](https://x.com/brazscriptguy "target=_blank")
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-in/brazilianscriptguy-0077B5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/brazilianscriptguy/)
+[![YouTube](https://img.shields.io/badge/YouTube-@brazilianscriptguy-FF0000?style=for-the-badge&logo=youtube)](https://www.youtube.com/@brazilianscriptguy)
+[![Instagram](https://img.shields.io/badge/Instagram-@4tetraforensics-E4405F?style=for-the-badge&logo=instagram)](https://www.instagram.com/4tetraforensics)
+[![WhatsApp](https://img.shields.io/badge/WhatsApp-Channel-25D366?style=for-the-badge&logo=whatsapp)](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c)
+[![ORCID](https://img.shields.io/badge/ORCID-0000--0003--3705--7468-A6CE39?style=for-the-badge&logo=orcid)](https://orcid.org/0000-0003-3705-7468)
+[![Lattes CV](https://img.shields.io/badge/Lattes%20CV-0191525072495482-00A693?style=for-the-badge&logo=academia)](http://lattes.cnpq.br/0191525072495482)
+[![Email](https://img.shields.io/badge/Email-luizhamilton.lhr@gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:luizhamilton.lhr@gmail.com)
+
+[![Location](https://img.shields.io/static/v1?label=Location&message=27%C2%B000%273.9%22S%2048%C2%B036%2721.3%22W&color=blue&style=for-the-badge&logo=map-marker)](https://www.google.com/maps/search/?api=1&query=-27.0009722,-48.6059167)
+[![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=America%2C%20Brasil%2C%20Florian%C3%B3polis%20(UTC%20-03%3A00)&color=brightgreen&style=for-the-badge&logo=clock)](https://time.is/Florian%C3%B3polis)
 
 ## 📊 My GitHub Statistics
 
