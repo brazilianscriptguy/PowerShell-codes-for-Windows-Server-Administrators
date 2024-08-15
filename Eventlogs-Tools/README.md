@@ -32,7 +32,7 @@ This directory contains a collection of scripts designed for selecting and proce
 
 10. **EventID5136-5137-5141-ADObjectChanges.ps1**: Analyzes Active Directory object changes/deletions (Event IDs 5136, 5137, and 5141) and generates a CSV report.
 
-11. **EventID6008-UnexpectedShutdown.ps1**: Aggregates unexpected shutdowns (Event ID 6008) into a CSV file for diagnosing system instability.
+11. **EventIDs1074-6006-6008-6013-SystemRestarts.ps1**: Retrieves ordinary system restarts and unexpected shutdowns (EventID 6008) into a CSV file for diagnosing system instability, and generates a CSV report.
 
 12. **EventLogFiles-MigratorTool.ps1**: Manages Windows Server Event Log files by reorganizing, moving, and resizing them for optimized accessibility.
 
