@@ -27,18 +27,7 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 
 [![Location](https://img.shields.io/badge/Location-27°00'04.3%22S%2048°36'19.2%22W-brightgreen?style=for-the-badge&logo=googlemaps)](https://www.google.com/maps?q=-27.0011813,-48.6053388)
 
-1. **Using "clock" emoji as text**:
-   ![⏰ Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=brightgreen&style=for-the-badge)
-
-2. **Using "alarm clock" emoji as text**:
-   ![⏲️ Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=orange&style=for-the-badge)
-
-3. **Using "hourglass" emoji as text**:
-   ![⏳ Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=blue&style=for-the-badge)
-
-4. **Simple text without icons**:
-   ![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=red&style=for-the-badge)
-
+[![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%20%2F%20BRAZIL%20%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=brightgreen&style=for-the-badge)](https://time.is/Balneário_Camboriú)
 
 
 ## 📊 My GitHub Statistics
