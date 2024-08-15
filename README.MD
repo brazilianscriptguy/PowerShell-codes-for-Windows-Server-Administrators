@@ -16,7 +16,7 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 
 [![GitHub](https://img.shields.io/badge/GitHub-@brazilianscriptguy-181717?style=for-the-badge&logo=github)](https://github.com/brazilianscriptguy)
 [![Patreon](https://img.shields.io/badge/Patreon-Support%20Me-red?style=for-the-badge&logo=patreon)](https://patreon.com/brazilianscriptguy)
-[![Twitter](https://img.shields.io/badge/X%20Twitter-@brazscriptguy-000000?style=for-the-badge&logo=twitter)](https://x.com/brazscriptguy "target=_blank")
+[![X](https://img.shields.io/badge/X-@brazscriptguy-000000?style=for-the-badge&logo=x)](https://x.com/brazscriptguy "target=_blank")
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-in/brazilianscriptguy-0077B5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/brazilianscriptguy/)
 [![YouTube](https://img.shields.io/badge/YouTube-@brazilianscriptguy-FF0000?style=for-the-badge&logo=youtube)](https://www.youtube.com/@brazilianscriptguy)
 [![Instagram](https://img.shields.io/badge/Instagram-@4tetraforensics-E4405F?style=for-the-badge&logo=instagram)](https://www.instagram.com/4tetraforensics)
@@ -25,8 +25,9 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 [![Lattes CV](https://img.shields.io/badge/Lattes%20CV-0191525072495482-00A693?style=for-the-badge&logo=academia)](http://lattes.cnpq.br/0191525072495482)
 [![Email](https://img.shields.io/badge/Email-luizhamilton.lhr@gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:luizhamilton.lhr@gmail.com)
 
-[![Location](https://img.shields.io/static/v1?label=Location&message=27%C2%B000%273.9%22S%2048%C2%B036%2721.3%22W&color=blue&style=for-the-badge&logo=map-marker)](https://www.google.com/maps/search/?api=1&query=-27.0009722,-48.6059167)
-[![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=America%2C%20Brasil%2C%20Florian%C3%B3polis%20(UTC%20-03%3A00)&color=brightgreen&style=for-the-badge&logo=clock)](https://time.is/Florian%C3%B3polis)
+[![Location](https://img.shields.io/badge/Location-27%C2%B000%273.9%22S%2048%C2%B036%2721.3%22W-blue?style=for-the-badge&logo=map-marker)](https://www.google.com/maps/search/?api=1&query=-27.0009722,-48.6059167)
+[![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=America%2C%20Brazil%2C%20Balne%C3%A1rio%20Cambori%C3%BA%20(UTC%20-03%3A00)&color=brightgreen&style=for-the-badge&logo=clock)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
+
 
 ## 📊 My GitHub Statistics
 
