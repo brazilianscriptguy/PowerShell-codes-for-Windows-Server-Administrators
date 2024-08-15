@@ -25,8 +25,7 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 [![Lattes CV](https://img.shields.io/badge/Lattes%20CV-0191525072495482-00A693?style=for-the-badge&logo=academia)](http://lattes.cnpq.br/0191525072495482)
 [![Email](https://img.shields.io/badge/Email-luizhamilton.lhr@gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:luizhamilton.lhr@gmail.com)
 [![Location](https://img.shields.io/badge/Location-27°00'04.3%22S%2048°36'19.2%22W-brightgreen?style=for-the-badge&logo=googlemaps)](https://www.google.com/maps?q=-27.0011813,-48.6053388)
-[![Time Zone](https://img.shields.io/badge/Time%20Zone-UTC%20-3%3A00%20%2F%20Balneário%20Camboriú-brightgreen?style=for-the-badge)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
-
+[![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=UTC%20-3%3A00%20/%20Balneário%20Camboriú&color=blue&style=for-the-badge)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
 
 ## 📊 My GitHub Statistics
 
