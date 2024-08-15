@@ -20,7 +20,7 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-in/brazilianscriptguy-0077B5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/brazilianscriptguy/)
 [![YouTube](https://img.shields.io/badge/YouTube-@brazilianscriptguy-FF0000?style=for-the-badge&logo=youtube)](https://www.youtube.com/@brazilianscriptguy)
 [![Instagram](https://img.shields.io/badge/Instagram-@4tetraforensics-E4405F?style=for-the-badge&logo=instagram)](https://www.instagram.com/4tetraforensics)
-[![WhatsApp](https://img.shields.io/badge/WhatsApp-PowerShell-Br-25D366?style=for-the-badge&logo=whatsapp)](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c)
+[![WhatsApp](https://img.shields.io/badge/PowerShell--Br-Channel-25D366?style=for-the-badge&logo=whatsapp)](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c)
 [![ORCID](https://img.shields.io/badge/ORCID-0000--0003--3705--7468-A6CE39?style=for-the-badge&logo=orcid)](https://orcid.org/0000-0003-3705-7468)
 [![Lattes CV](https://img.shields.io/badge/Lattes%20CV-0191525072495482-00A693?style=for-the-badge&logo=academia)](http://lattes.cnpq.br/0191525072495482)
 [![Email](https://img.shields.io/badge/Email-luizhamilton.lhr@gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:luizhamilton.lhr@gmail.com)
