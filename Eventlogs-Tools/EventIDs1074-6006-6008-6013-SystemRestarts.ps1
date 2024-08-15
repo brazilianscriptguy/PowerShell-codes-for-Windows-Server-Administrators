@@ -1,4 +1,4 @@
-# PowerShell Script for Monitoring Event IDs 1074, 6006, 6008, 6013 - Systems restarts
+# PowerShell Script for Monitoring Event IDs 1074, 6006, 6008, 6013 - System Restarts
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Updated: August 15, 2024
 
