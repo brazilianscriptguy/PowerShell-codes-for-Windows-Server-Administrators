@@ -25,9 +25,8 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 [![Lattes CV](https://img.shields.io/badge/Lattes%20CV-0191525072495482-00A693?style=for-the-badge&logo=academia)](http://lattes.cnpq.br/0191525072495482)
 [![Email](https://img.shields.io/badge/Email-luizhamilton.lhr@gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:luizhamilton.lhr@gmail.com)
 
-[![Location](https://img.shields.io/badge/Location-27%C2%B000%273.9%22S%2048%C2%B036%2721.3%22W-blue?style=for-the-badge&logo=map-marker)](https://www.google.com/maps/search/?api=1&query=-27.0009722,-48.6059167)
-[![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=America%2C%20Brazil%2C%20Balne%C3%A1rio%20Cambori%C3%BA%20(UTC%20-03%3A00)&color=brightgreen&style=for-the-badge&logo=clock)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
-
+[![Location](https://img.shields.io/badge/Location-27%C2%B000%273.9%22S%2048%C2%B036%2721.3%22W-blue?style=for-the-badge&logo=map-pin)](https://www.google.com/maps/search/?api=1&query=-27.0009722,-48.6059167)
+[![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=brightgreen&style=for-the-badge&logo=clock)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
 
 ## 📊 My GitHub Statistics
 
