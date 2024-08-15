@@ -26,7 +26,21 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 [![Email](https://img.shields.io/badge/Email-luizhamilton.lhr@gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:luizhamilton.lhr@gmail.com)
 
 [![Location](https://img.shields.io/badge/Location-27°00'04.3%22S%2048°36'19.2%22W-brightgreen?style=for-the-badge&logo=googlemaps)](https://www.google.com/maps?q=-27.0011813,-48.6053388)
-[![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=brightgreen&style=for-the-badge&logo=clock)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
+1. **Blue Badge with Clock Icon**:
+   [![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=blue&style=for-the-badge&logo=clock)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
+
+2. **Orange Badge with Time Icon**:
+   [![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=orange&style=for-the-badge&logo=hourglass)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
+
+3. **Purple Badge with Calendar Icon**:
+   [![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=purple&style=for-the-badge&logo=calendar)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
+
+4. **Red Badge with Clock Icon**:
+   [![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=red&style=for-the-badge&logo=clock)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
+
+5. **Teal Badge with Alarm Icon**:
+   [![Time Zone](https://img.shields.io/static/v1?label=Time%20Zone&message=AMERICA%2F%20BRAZIL%2F%20BALNE%C3%81RIO%20CAMBORI%C3%9A%20(UTC%20-03%3A00)&color=teal&style=for-the-badge&logo=alarm)](https://time.is/Balne%C3%A1rio_Cambori%C3%BA)
+
 
 ## 📊 My GitHub Statistics
 
