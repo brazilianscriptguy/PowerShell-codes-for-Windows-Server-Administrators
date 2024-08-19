@@ -141,7 +141,7 @@ function Get-AllOUs {
     )
 
     try {
-        $allOUs = Get-ADOrganizationalUnit -Server $Domain -Filter {Name -like "*servicos*"} | Select-Object -ExpandProperty DistinguishedName
+        $allOUs = Get-ADOrganizationalUnit -Server $Domain -Filter {Name -like "*services*"} | Select-Object -ExpandProperty DistinguishedName
         return $allOUs
     } catch {
         Write-Error "Failed to retrieve Organizational Units: $_"
