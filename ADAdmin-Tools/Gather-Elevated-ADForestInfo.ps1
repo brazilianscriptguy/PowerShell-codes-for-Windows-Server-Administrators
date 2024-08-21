@@ -235,13 +235,13 @@ function Get-InetOrgPersons {
     return $inetOrgPersons
 }
 
-# Function to gather AD accounts and groups with 'servicos' or 'servico' in the name or description
+# Function to gather AD accounts and groups with 'services' or 'service' in the name or description
 function Get-ServiceAccountsAndGroups {
     param ($Server)
     $serviceAccountsAndGroups = @()
 
-    # ADUser accounts and AD groups with 'servicos' or 'servico' in the name or description
-    $accounts = Get-ADUser -Filter { (SamAccountName -like "*servico*") -or (Description -like "*servico*") -or (SamAccountName -like "*servicos*") -or (Description -like "*servicos*") } -Server $Server -Properties SamAccountName, DistinguishedName
+    # ADUser accounts and AD groups with 'services' or 'service' in the name or description
+    $accounts = Get-ADUser -Filter { (SamAccountName -like "*service*") -or (Description -like "*service*") -or (SamAccountName -like "*services*") -or (Description -like "*services*") } -Server $Server -Properties SamAccountName, DistinguishedName
     $serviceAccountsAndGroups += $accounts | ForEach-Object {
         [PSCustomObject]@{
             Type              = "Service Account"
@@ -250,7 +250,7 @@ function Get-ServiceAccountsAndGroups {
         }
     }
 
-    $groups = Get-ADGroup -Filter { (SamAccountName -like "*servico*") -or (Description -like "*servico*") -or (SamAccountName -like "*servicos*") -or (Description -like "*servicos*") } -Server $Server -Properties SamAccountName, DistinguishedName
+    $groups = Get-ADGroup -Filter { (SamAccountName -like "*service*") -or (Description -like "*service*") -or (SamAccountName -like "*services*") -or (Description -like "*services*") } -Server $Server -Properties SamAccountName, DistinguishedName
     $serviceAccountsAndGroups += $groups | ForEach-Object {
         [PSCustomObject]@{
             Type              = "Service Group"
