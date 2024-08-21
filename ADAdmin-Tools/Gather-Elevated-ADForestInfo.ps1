@@ -1,6 +1,6 @@
-# PowerShell Script to Gather AD Information and Export in Specified CSV Format
+# PowerShell Script to Gather Elevated Active Directory (AD) Groups and Users
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Last Updated: August 20, 2024
+# Last Updated: August 21, 2024
 
 # Hide the PowerShell console window for a cleaner UI
 Add-Type @"
