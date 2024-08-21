@@ -1,6 +1,6 @@
 # 📂 Files in the Eventlogs-Tools Folder
 
-🛠️ Prerequisites
+## 🛠️ Prerequisites
 
 Before running the scripts in this folder, ensure that the **Microsoft Log Parser utility** is installed on your system. Additionally, to fully utilize these scripts, you must have the ability to execute PowerShell scripts `(.PS1)`, especially those that use the `Import-Module ActiveDirectory` command. This is particularly important on Windows 10 and 11 Workstations, which require the installation of `Remote Server Administration Tools (RSAT)`.
 
