@@ -1,10 +1,14 @@
-# 🖥️ ITSM-Templates and Support Scripts for Windows 10 and 11 Workstations
+# 🖥️ Efficient Workstation Management, Configuration, and ITSM Compliance on Windows 10 and 11
 
 ## Overview
 
-This repository contains a carefully curated collection of `.VBS` and PowerShell scripts designed to streamline the management and configuration of Windows 10 and 11 workstations within an IT Service Management (ITSM) framework. These scripts automate various administrative tasks, helping IT professionals optimize their workflows and maintain consistent configurations across workstations.
+This repository provides a carefully curated collection of `.VBS` and PowerShell scripts designed to streamline the management and configuration of Windows 10 and 11 workstations within an IT Service Management (ITSM) framework. These scripts automate various administrative tasks, enabling IT professionals to optimize workflows and maintain consistent configurations across workstations.
 
-Each script in these repositories **features a graphical user interface** `(GUI)`, **enhances user interaction**, and includes functionalities for **generating operational** `.log files`, making workstation management more intuitive and user-friendly.
+Each script in this repository **features a graphical user interface** `(GUI)`, **enhances user interaction**, and includes functionalities for **generating operational** `.log` files, making workstation management more intuitive and user-friendly.
+
+---
+
+This version maintains clarity and flow, with an emphasis on the repository's purpose and functionality.
 
 ## Installation and Setup
 
