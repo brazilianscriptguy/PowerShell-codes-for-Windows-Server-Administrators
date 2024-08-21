@@ -14,9 +14,9 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 1. **Add-ADComputers-GrantPermissions.ps1**: Automates the process of adding workstations to specific Organizational Units (OUs) in Active Directory and grants the necessary permissions for those workstations to join the domain.
 
-2. **Add-ADInetOrgPerson.ps1**: Creates new `InetOrgPerson` entries in Active Directory, enabling operators to specify detailed account information, including organizational attributes, and automate the process of account creation for non-standard AD user accounts, ensuring compliance with directory services.
+2. **Add-ADInetOrgPerson.ps1**: Automates the creation of new `InetOrgPerson` entries in Active Directory, allowing operators to specify detailed account information, including organizational attributes. This script streamlines the process of creating non-standard AD user accounts while ensuring compliance with directory service policies.
 
-3. **Add-ADUserAccount.ps1**: Creates new Active Directory (AD) users within specified Organizational Units (OUs), allowing operators to select the target domain, search for and choose an OU, and specify user details.
+3. **Add-ADUserAccount.ps1**: Facilitates the creation of new Active Directory `(AD) user accounts` within specified Organizational Units (OUs). Operators can select the target domain, search for and choose an OU, and provide the necessary user details, simplifying the account creation process.
 
 4. **Adjust-ExpirationDate-ADUserAccount.ps1**: Provides a GUI to search for Active Directory users by account description, list matching users, and update their account expiration dates, streamlining user management in IT environments.
 
