@@ -85,6 +85,7 @@ $services = @(
     [PSCustomObject]@{ Name = "DHCP - Ports: 67, 68"; Ports = "67,68"; Optional = $false },
     [PSCustomObject]@{ Name = "Direct Printing - Ports: 9100"; Ports = "9100"; Optional = $false },
     [PSCustomObject]@{ Name = "DNS - Ports: 53"; Ports = "53"; Optional = $false },
+    [PSCustomObject]@{ Name = "ElasticSearch - Ports: 9200, 9300"; Ports = "9200,9300"; Optional = $true },
     [PSCustomObject]@{ Name = "Exchange Services - Ports: 25, 587, 110, 995, 143, 993, 80, 443"; Ports = "25,587,110,995,143,993,80,443"; Optional = $true },
     [PSCustomObject]@{ Name = "Federation Services (ADFS) - Ports: 443, 49443"; Ports = "443,49443"; Optional = $true },
     [PSCustomObject]@{ Name = "Global Catalog - Ports: 3268"; Ports = "3268"; Optional = $false },
@@ -100,13 +101,20 @@ $services = @(
     [PSCustomObject]@{ Name = "LDAPS - Ports: 636"; Ports = "636"; Optional = $false },
     [PSCustomObject]@{ Name = "LPD Service - Ports: 515"; Ports = "515"; Optional = $false },
     [PSCustomObject]@{ Name = "Microsoft Identity Manager/Synchronization Service - Ports: 5725"; Ports = "5725"; Optional = $true },
+    [PSCustomObject]@{ Name = "MongoDB - Ports: 27017"; Ports = "27017"; Optional = $true },
+    [PSCustomObject]@{ Name = "MSSQL Analysis Services - Ports: 2383"; Ports = "2383"; Optional = $true },
+    [PSCustomObject]@{ Name = "MSSQL Reporting Services - Ports: 80, 443"; Ports = "80,443"; Optional = $true },
+    [PSCustomObject]@{ Name = "MySQL - Ports: 3306"; Ports = "3306"; Optional = $true },
     [PSCustomObject]@{ Name = "NetBIOS - Ports: 137, 138"; Ports = "137,138"; Optional = $false },
     [PSCustomObject]@{ Name = "Network Discovery - Ports: 3702, 5355, 1900, 5357, 5358"; Ports = "3702,5355,1900,5357,5358"; Optional = $false },
     [PSCustomObject]@{ Name = "NTP - Ports: 123"; Ports = "123"; Optional = $false },
+    [PSCustomObject]@{ Name = "Oracle Database - Ports: 1521"; Ports = "1521"; Optional = $true },
     [PSCustomObject]@{ Name = "RADIUS - Ports: 1812, 1813"; Ports = "1812,1813"; Optional = $true },
     [PSCustomObject]@{ Name = "RD Gateway - Ports: 3391"; Ports = "3391"; Optional = $false },
+    [PSCustomObject]@{ Name = "Redis - Ports: 6379"; Ports = "6379"; Optional = $true },
     [PSCustomObject]@{ Name = "Remote Desktop - Ports: 3389"; Ports = "3389"; Optional = $false },
     [PSCustomObject]@{ Name = "RPC - Ports: 135"; Ports = "135"; Optional = $false },
+    [PSCustomObject]@{ Name = "RabbitMQ - Ports: 5672"; Ports = "5672"; Optional = $true },
     [PSCustomObject]@{ Name = "SharePoint - Ports: 80, 443"; Ports = "80,443"; Optional = $true },
     [PSCustomObject]@{ Name = "SMB - Ports: 445"; Ports = "445"; Optional = $false },
     [PSCustomObject]@{ Name = "SQL Server - Ports: 1433"; Ports = "1433"; Optional = $true },
@@ -114,6 +122,7 @@ $services = @(
     [PSCustomObject]@{ Name = "WinRM - HTTPS - Ports: 5986"; Ports = "5986"; Optional = $true },
     [PSCustomObject]@{ Name = "WSUS - Ports: 8530, 8531"; Ports = "8530,8531"; Optional = $false }
 )
+
 
 # Initialize the main form
 $form = New-Object System.Windows.Forms.Form
