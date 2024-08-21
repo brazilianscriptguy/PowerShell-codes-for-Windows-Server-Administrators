@@ -4,12 +4,6 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 
 > **Each script in these repositories **features a graphical user interface** `(GUI)`, **enhances user interaction**, and includes functionalities for **generating operational** `.log files` and **exporting results** to `.csv files`, making server and workstation management more intuitive and user-friendly.**
 
-[![GitHub Stars](https://img.shields.io/github/stars/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social&v=2)](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)
-[![GitHub Forks](https://img.shields.io/github/forks/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social&v=2)](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)
-[![GitHub Watchers](https://img.shields.io/github/watchers/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?style=social&v=2)](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)
-[![GitHub Issues](https://img.shields.io/github/issues/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?v=2)](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/issues)
-[![GitHub License](https://img.shields.io/github/license/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators?v=2)](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/blob/main/LICENSE)
-
 ## 🗂️ My GitHub Contributions
 
 [![GitHub Contribution Grid](https://ghchart.rshah.org/brazilianscriptguy)](https://github.com/brazilianscriptguy)
