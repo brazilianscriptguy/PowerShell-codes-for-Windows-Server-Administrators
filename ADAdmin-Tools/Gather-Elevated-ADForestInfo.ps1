@@ -1,6 +1,6 @@
-# PowerShell Script to Gather All Elevated AD User Accounts, Groups, and Service Accounts
+# PowerShell Script to Gather AD Information and Export in Specified CSV Format
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Last Updated: August 21, 2024
+# Last Updated: August 20, 2024
 
 # Hide the PowerShell console window for a cleaner UI
 Add-Type @"
@@ -36,7 +36,7 @@ Add-Type -AssemblyName System.Drawing
 $global:logBox = New-Object System.Windows.Forms.ListBox
 $logDir = 'C:\Logs-TEMP'
 $global:logPath = Join-Path $logDir "ADForestSyncTool_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
-$global:results = @()  # Initialize an empty array to store results
+$global:results = @{}  # Initialize a hashtable to store results
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
@@ -75,7 +75,6 @@ function Handle-Error {
     )
     Write-Log -Message "ERROR: $ErrorMessage" -Type "ERROR"
     [System.Windows.Forms.MessageBox]::Show($ErrorMessage, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    # You may want to add additional error recovery or shutdown logic here
 }
 
 # Function to create the GUI
@@ -117,7 +116,7 @@ function Create-GUI {
         
         try {
             $global:results = Get-ADForestInfo
-            $displayResults = $global:results | ForEach-Object { "$($_.Domain) - $($_.Type): $($_.Name) ($($_.DistinguishedName))" }
+            $displayResults = $global:results.GetEnumerator() | ForEach-Object { "$($_.Key) - $($_.Value -join ', ')" }
             $textBox.Text = $displayResults -join "`r`n"
             $buttonSave.Enabled = $true
             Write-Log -Message "Information gathering completed successfully." -Type "INFO"
@@ -139,7 +138,23 @@ function Create-GUI {
         $saveFileDialog.ShowDialog()
         if ($saveFileDialog.FileName -ne "") {
             try {
-                $global:results | Export-Csv -Path $saveFileDialog.FileName -NoTypeInformation -Encoding UTF8
+                # Prepare the CSV data
+                $csvData = @()
+
+                foreach ($category in $global:results.Keys) {
+                    # Create a new object with dynamic properties based on the domains
+                    $row = New-Object PSObject
+                    $row | Add-Member -MemberType NoteProperty -Name "Category" -Value $category
+                    
+                    foreach ($domain in $global:results[$category].Keys) {
+                        $domainName = $domain.Replace('.', '_')  # Replace dots in domain names with underscores
+                        $row | Add-Member -MemberType NoteProperty -Name $domainName -Value ($global:results[$category][$domain] -join ', ')
+                    }
+
+                    $csvData += $row
+                }
+
+                $csvData | Export-Csv -Path $saveFileDialog.FileName -NoTypeInformation -Encoding UTF8
                 [System.Windows.Forms.MessageBox]::Show("Results saved to " + $saveFileDialog.FileName, "Save Successful")
                 Write-Log -Message "Results saved to CSV file: $($saveFileDialog.FileName)" -Type "INFO"
             } catch {
@@ -156,84 +171,38 @@ function Create-GUI {
 function Get-ADForestInfo {
     $forest = Get-ADForest
     $domains = $forest.Domains
-    $results = @()
+    $results = @{}
+    $global:referenceDomain = $domains[0]  # Set the first domain as the reference domain
 
+    # Initialize results structure for each category and domain
+    $categories = @("Admins Groups", "Administrators Users Accounts into Admins Groups", "Administrators Groups into Admins Groups", "Services Accounts", "InetOrgPerson", "Builtin Admins Groups", "Service Group")
+
+    foreach ($category in $categories) {
+        $results[$category] = @{}
+        foreach ($domain in $domains) {
+            $results[$category][$domain] = @()
+        }
+    }
+
+    # Gather data for each category
     foreach ($domain in $domains) {
-        # List Builtin Admins groups and their members
-        $builtinAdminsGroups = Get-BuiltinAdminsGroups -Server $domain
-        $results += $builtinAdminsGroups | ForEach-Object {
-            [PSCustomObject]@{
-                Domain            = $domain
-                Type              = "Builtin Admins Group"
-                Name              = $_.Group
-                DistinguishedName = $_.DistinguishedName
-                Member            = $_.Member
-            }
-        }
-
-        # List all Admins groups and their members, including nested groups
-        $adminsGroups = Get-AdminsGroups -Server $domain
-        $results += $adminsGroups | ForEach-Object {
-            [PSCustomObject]@{
-                Domain            = $domain
-                Type              = "Admins Group"
-                Name              = $_.Group
-                DistinguishedName = $_.DistinguishedName
-                Member            = $_.Member
-            }
-        }
-
-        # List all Admins user accounts
-        $adminsUsers = Get-AdminsUsers -Server $domain
-        $results += $adminsUsers | ForEach-Object {
-            [PSCustomObject]@{
-                Domain            = $domain
-                Type              = "Admin User"
-                Name              = $_.Name
-                DistinguishedName = $_.DistinguishedName
-            }
-        }
-
-        # List all InetOrgPerson objects
-        $inetOrgPersons = Get-InetOrgPersons -Server $domain
-        $results += $inetOrgPersons | ForEach-Object {
-            [PSCustomObject]@{
-                Domain            = $domain
-                Type              = "InetOrgPerson"
-                Name              = $_.Name
-                DistinguishedName = $_.DistinguishedName
-            }
-        }
-
-        # List AD accounts and groups with 'servicos' or 'servico' in the name or description
-        $serviceAccountsAndGroups = Get-ServiceAccountsAndGroups -Server $domain
-        $results += $serviceAccountsAndGroups | ForEach-Object {
-            [PSCustomObject]@{
-                Domain            = $domain
-                Type              = $_.Type
-                Name              = $_.Name
-                DistinguishedName = $_.DistinguishedName
-            }
-        }
-
-        $results += [PSCustomObject]@{
-            Domain            = $domain
-            Type              = "Separator"
-            Name              = "---------------------------------------------"
-            DistinguishedName = ""
-        }
+        $results["Admins Groups"][$domain] = Get-AdminsGroups -Server $domain | ForEach-Object { $_.Name }
+        $results["Administrators Users Accounts into Admins Groups"][$domain] = Get-AdminsUsersRecursive -Server $domain | ForEach-Object { $_.SamAccountName }
+        $results["Administrators Groups into Admins Groups"][$domain] = Get-AdminsGroupsMembers -Server $domain | ForEach-Object { $_.SamAccountName }
+        $results["Services Accounts"][$domain] = Get-ServiceAccountsAndGroups -Server $domain | Where-Object { $_.Type -eq "Service Account" } | ForEach-Object { $_.Name }
+        $results["InetOrgPerson"][$domain] = Get-InetOrgPersons -Server $domain | ForEach-Object { $_.SamAccountName }
+        $results["Builtin Admins Groups"][$domain] = Get-BuiltinAdminsGroups -Server $domain | ForEach-Object { $_.Name }
+        $results["Service Group"][$domain] = Get-ServiceAccountsAndGroups -Server $domain | Where-Object { $_.Type -eq "Service Group" } | ForEach-Object { $_.Name }
     }
 
     return $results
 }
 
-# Functions to gather specific AD information
-
 # Function to gather all Builtin Admins groups and their members
 function Get-BuiltinAdminsGroups {
     param ($Server)
     $builtinAdminsGroups = Get-ADGroup -Filter { Name -like "Administrators" -or Name -like "Admins" -or Name -like "*Admin*" } -Server $Server -Properties Member | 
-                           Select-Object Name, DistinguishedName, @{Name="Member";Expression={$_ | Get-ADGroupMember -Recursive | Select-Object -ExpandProperty SamAccountName}}
+                           Select-Object Name, DistinguishedName, @{Name="Member";Expression={$_ | Get-ADGroupMember -Recursive -Server $Server | Select-Object -ExpandProperty SamAccountName}}
     return $builtinAdminsGroups
 }
 
@@ -241,15 +210,20 @@ function Get-BuiltinAdminsGroups {
 function Get-AdminsGroups {
     param ($Server)
     $adminGroups = Get-ADGroup -Filter { Name -like "*Admin*" -or Name -like "*Admins*" -or Name -like "Administrators" } -Server $Server -Properties Member |
-                   Select-Object Name, DistinguishedName, @{Name="Member";Expression={$_ | Get-ADGroupMember -Recursive | Select-Object -ExpandProperty SamAccountName}}
+                   Select-Object Name, DistinguishedName, @{Name="Member";Expression={$_ | Get-ADGroupMember -Recursive -Server $Server | Select-Object -ExpandProperty SamAccountName}}
     return $adminGroups
 }
 
-# Function to gather all Admins user accounts
-function Get-AdminsUsers {
+# Function to gather all Admins user accounts, including those in nested groups
+function Get-AdminsUsersRecursive {
     param ($Server)
-    $adminsUsers = Get-ADUser -Filter { MemberOf -like "*Admin*" -or MemberOf -like "*Admins*" -or MemberOf -like "*Administrators*" } -Server $Server -Properties SamAccountName, DistinguishedName |
-                   Select-Object SamAccountName, DistinguishedName
+    $adminsGroups = Get-ADGroup -Filter { Name -like "*Admin*" -or Name -like "*Admins*" -or Name -like "Administrators" } -Server $Server
+    $adminsUsers = @()
+
+    foreach ($group in $adminsGroups) {
+        $adminsUsers += Get-ADGroupMember -Identity $group.DistinguishedName -Recursive -Server $Server | Where-Object { $_.objectClass -eq "user" } | Select-Object SamAccountName, DistinguishedName
+    }
+
     return $adminsUsers
 }
 
@@ -267,8 +241,7 @@ function Get-ServiceAccountsAndGroups {
     $serviceAccountsAndGroups = @()
 
     # ADUser accounts and AD groups with 'servicos' or 'servico' in the name or description
-    $accounts = Get-ADUser -Filter { (SamAccountName -like "*service*") -or (Description -like "*service*") -or (SamAccountName -like "*services*") -or (Description -like "*services*") } -Server $Server -Properties SamAccountName, DistinguishedName |
-                Select-Object SamAccountName, DistinguishedName
+    $accounts = Get-ADUser -Filter { (SamAccountName -like "*servico*") -or (Description -like "*servico*") -or (SamAccountName -like "*servicos*") -or (Description -like "*servicos*") } -Server $Server -Properties SamAccountName, DistinguishedName
     $serviceAccountsAndGroups += $accounts | ForEach-Object {
         [PSCustomObject]@{
             Type              = "Service Account"
@@ -277,8 +250,7 @@ function Get-ServiceAccountsAndGroups {
         }
     }
 
-    $groups = Get-ADGroup -Filter { (SamAccountName -like "*service*") -or (Description -like "*service*") -or (SamAccountName -like "*services*") -or (Description -like "*services*") } -Server $Server -Properties SamAccountName, DistinguishedName |
-              Select-Object SamAccountName, DistinguishedName
+    $groups = Get-ADGroup -Filter { (SamAccountName -like "*servico*") -or (Description -like "*servico*") -or (SamAccountName -like "*servicos*") -or (Description -like "*servicos*") } -Server $Server -Properties SamAccountName, DistinguishedName
     $serviceAccountsAndGroups += $groups | ForEach-Object {
         [PSCustomObject]@{
             Type              = "Service Group"
@@ -288,6 +260,14 @@ function Get-ServiceAccountsAndGroups {
     }
 
     return $serviceAccountsAndGroups
+}
+
+# Function to gather all members of Admins groups, including nested groups
+function Get-AdminsGroupsMembers {
+    param ($Server)
+    $adminGroups = Get-ADGroup -Filter { Name -like "*Admin*" -or Name -like "*Admins*" -or Name -like "Administrators" } -Server $Server -Properties Member |
+                   Select-Object Name, DistinguishedName, @{Name="Member";Expression={$_ | Get-ADGroupMember -Recursive -Server $Server | Select-Object -ExpandProperty SamAccountName}}
+    return $adminGroups
 }
 
 # Run the GUI
