@@ -1,6 +1,6 @@
 # PowerShell Script to Check Services Ports Connectivity
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 8, 2024.
+# Update: August 21, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -25,14 +25,58 @@ public class Window {
 
 [Window]::Hide()
 
-# Load necessary .NET assemblies for GUI
+# Import necessary libraries for GUI and Active Directory
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+Import-Module ActiveDirectory
 
-# Determine the script name and set up the path for the CSV export
+# Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
 
-# Define services and ports to test with port numbers included in the service name text
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+    if (-not (Test-Path $logDir)) {
+        Show-ErrorMessage "Failed to create log directory at $logDir. Logging will not be possible."
+        return
+    }
+}
+
+# Enhanced logging function with error handling
+function Log-Message {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+        [Parameter(Mandatory=$false)]
+        [string]$MessageType = "INFO"
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
+    try {
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        Show-ErrorMessage "Failed to write to log: $_"
+    }
+}
+
+# Function to display error messages
+function Show-ErrorMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message "Error: $message" -MessageType "ERROR"
+}
+
+# Function to display informational messages
+function Show-InfoMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message "Info: $message" -MessageType "INFO"
+}
+
+# Define services and ports to test
 $services = @(
     [PSCustomObject]@{ Name = "AD Replication - Ports: 135"; Ports = "135"; Optional = $false },
     [PSCustomObject]@{ Name = "AD Web Services - Ports: 9389"; Ports = "9389"; Optional = $false },
@@ -73,80 +117,124 @@ $services = @(
 
 # Initialize the main form
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Server Network Port Tester'
-$form.Size = New-Object System.Drawing.Size(700, 600)
+$form.Text = 'Host Network Port Tester'
+$form.Size = New-Object System.Drawing.Size(730, 640)
 $form.StartPosition = 'CenterScreen'
 
 # Server name label and textbox
-$labelServer = New-Object System.Windows.Forms.Label
-$labelServer.Location = New-Object System.Drawing.Point(10, 20)
-$labelServer.Size = New-Object System.Drawing.Size(80, 20)
-$labelServer.Text = 'Server:'
-$form.Controls.Add($labelServer)
+$labelMachine = New-Object System.Windows.Forms.Label
+$labelMachine.Location = New-Object System.Drawing.Point(10, 20)
+$labelMachine.Size = New-Object System.Drawing.Size(160, 20)
+$labelMachine.Text = 'Machine Name or IP Address:'
+$form.Controls.Add($labelMachine)
 
-$textboxServer = New-Object System.Windows.Forms.TextBox
-$textboxServer.Location = New-Object System.Drawing.Point(100, 20)
-$textboxServer.Size = New-Object System.Drawing.Size(580, 20)
-$form.Controls.Add($textboxServer)
+$textboxMachine = New-Object System.Windows.Forms.TextBox
+$textboxMachine.Location = New-Object System.Drawing.Point(170, 20)
+$textboxMachine.Size = New-Object System.Drawing.Size(530, 20)
+$form.Controls.Add($textboxMachine)
 
 # Results textbox
 $textboxResults = New-Object System.Windows.Forms.TextBox
-$textboxResults.Location = New-Object System.Drawing.Point(10, 410)
-$textboxResults.Size = New-Object System.Drawing.Size(670, 140)
+$textboxResults.Location = New-Object System.Drawing.Point(10, 450)
+$textboxResults.Size = New-Object System.Drawing.Size(690, 140)
 $textboxResults.Multiline = $true
 $textboxResults.ScrollBars = 'Vertical'
 $form.Controls.Add($textboxResults)
 
 # Test button
 $buttonTest = New-Object System.Windows.Forms.Button
-$buttonTest.Location = New-Object System.Drawing.Point(10, 380)
+$buttonTest.Location = New-Object System.Drawing.Point(10, 420)
 $buttonTest.Size = New-Object System.Drawing.Size(120, 23)
 $buttonTest.Text = 'Test Connectivity'
 $form.Controls.Add($buttonTest)
 
+# Export button
+$buttonExport = New-Object System.Windows.Forms.Button
+$buttonExport.Location = New-Object System.Drawing.Point(140, 420)
+$buttonExport.Size = New-Object System.Drawing.Size(120, 23)
+$buttonExport.Text = 'Export Results'
+$form.Controls.Add($buttonExport)
+
 # Service selection CheckedListBox
 $checkedListBox = New-Object System.Windows.Forms.CheckedListBox
 $checkedListBox.Location = New-Object System.Drawing.Point(10, 50)
-$checkedListBox.Size = New-Object System.Drawing.Size(670, 320)
+$checkedListBox.Size = New-Object System.Drawing.Size(690, 360)
 $checkedListBox.CheckOnClick = $true
 foreach ($service in $services) {
     [void]$checkedListBox.Items.Add($service.Name)
 }
 $form.Controls.Add($checkedListBox)
 
+# Function to export results to CSV
+function Export-Results {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Server,
+        [Parameter(Mandatory=$true)]
+        [Array]$Results
+    )
+    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+    $csvFileName = "$Server-$scriptName-$timestamp.csv"
+    $csvPath = Join-Path $logDir $csvFileName
+    $Results | Export-Csv -Path $csvPath -NoTypeInformation
+    Show-InfoMessage "Results exported to: $csvPath"
+}
+
 # Test Connectivity Button Click Event
 $buttonTest.Add_Click({
     $textboxResults.Clear()
-    $server = $textboxServer.Text
-    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-    $csvPath = [Environment]::GetFolderPath('MyDocuments') + "\${scriptName}-${server}-${timestamp}.csv"
-    $textboxResults.AppendText("Starting connectivity test for server: $server`n`n")
+    $MachineInput = $textboxMachine.Text
+
+    if ([string]::IsNullOrWhiteSpace($MachineInput)) {
+        Show-ErrorMessage "Please enter a machine name or IP address."
+        return
+    }
+
+    # Check if machine name includes a port number
+    $Machine, $CustomPort = $MachineInput -split ':'
+
+    $textboxResults.AppendText("Starting connectivity test for machine: $Machine`n`n")
     $successfulTests = @()
 
     foreach ($index in $checkedListBox.CheckedIndices) {
         $selectedService = $services[$index]
-        foreach ($port in ($selectedService.Ports -split ',')) {
-            $testResult = Test-NetConnection -ComputerName $server -Port $port -ErrorAction SilentlyContinue -InformationLevel Quiet
+        $portsToTest = if ($CustomPort) { $CustomPort } else { $selectedService.Ports }
+        
+        foreach ($port in ($portsToTest -split ',')) {
+            $testResult = Test-NetConnection -ComputerName $Machine -Port $port -ErrorAction SilentlyContinue -InformationLevel Quiet
             if ($testResult) {
                 $resultObj = [PSCustomObject]@{
-                    ServerName = $server
-                    ServiceName = $selectedService.Name
-                    Port = $port
-                    Result = "True"
+                    ServerName   = $Machine
+                    ServiceName  = $selectedService.Name
+                    Port         = $port
+                    Result       = "Success"
                 }
                 $successfulTests += $resultObj
                 $textboxResults.AppendText("Success: $($selectedService.Name) on port $port`n")
+                Log-Message "Success: $($selectedService.Name) on port $port for machine $Machine"
             } else {
                 $textboxResults.AppendText("Failed: $($selectedService.Name) on port $port`n")
+                Log-Message "Failed: $($selectedService.Name) on port $port for machine $Machine" -MessageType "ERROR"
             }
         }
     }
 
     if ($successfulTests.Count -gt 0) {
-        $successfulTests | Export-Csv -Path $csvPath -NoTypeInformation
-        $textboxResults.AppendText("`nResults have been exported to: $csvPath")
+        $textboxResults.AppendText("`nConnectivity tests completed successfully.")
+        $buttonExport.Enabled = $true
     } else {
         $textboxResults.AppendText("`nNo successful connections were made.")
+        Log-Message "No successful connections were made." -MessageType "WARNING"
+    }
+})
+
+# Export Results Button Click Event
+$buttonExport.Add_Click({
+    $Machine = $textboxMachine.Text
+    if ($successfulTests.Count -gt 0) {
+        Export-Results -Server $Machine -Results $successfulTests
+    } else {
+        Show-ErrorMessage "No results to export to .CSV file. The Log file is located at: $logPath"
     }
 })
 
