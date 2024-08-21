@@ -1,6 +1,6 @@
 # PowerShell Script to Locate and Remove Old AD Workstations Accounts from Domain
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 7, 2024
+# Updated: August 21, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -77,15 +77,16 @@ function Show-InfoMessage {
     Log-Message "Info: $message" -MessageType "INFO"
 }
 
-# Function to get the Domain Controller HostName
-function Get-DomainControllerHostName {
+# Function to get all FQDN Domain Names in the Forest
+function Get-FQDNDomainNames {
     try {
-        $dc = Get-ADDomainController -Discover
-        Log-Message "Domain Controller HostName fetched: $($dc.HostName)"
-        return $dc.HostName
+        $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
+        $domains = $forest.Domains | ForEach-Object { $_.Name }
+        Log-Message "FQDN Domain Names fetched: $($domains -join ', ')"
+        return $domains
     } catch {
-        Show-ErrorMessage "Unable to fetch Domain Controller HostName."
-        return "YourDCServerHere"
+        Show-ErrorMessage "Unable to fetch FQDN Domain Names."
+        return @()
     }
 }
 
@@ -113,9 +114,17 @@ function Remove-SelectedWorkstationAccounts {
     $RemovedComputers = @()
     foreach ($computer in $SelectedComputers) {
         try {
-            Remove-ADComputer -Identity $computer.DistinguishedName -Confirm:$false -Server $DCName
-            $RemovedComputers += $computer
-            Log-Message "Removed computer: $($computer.Name) - DN: $($computer.DistinguishedName)"
+            # Check if the computer object has child objects
+            $hasChildren = Get-ADObject -Filter { ParentDistinguishedName -eq $computer.DistinguishedName } -SearchBase $computer.DistinguishedName -Server $DCName
+
+            if ($hasChildren.Count -gt 0) {
+                Log-Message "Skipped removal of computer: $($computer.Name) - DN: $($computer.DistinguishedName) because it contains child objects."
+                Write-Warning "Skipped removal of computer: $($computer.Name) - DN: $($computer.DistinguishedName) because it contains child objects."
+            } else {
+                Remove-ADComputer -Identity $computer.DistinguishedName -Confirm:$false -Server $DCName
+                $RemovedComputers += $computer
+                Log-Message "Removed computer: $($computer.Name) - DN: $($computer.DistinguishedName)"
+            }
         } catch {
             Log-Message "Failed to remove computer with DN: $($computer.DistinguishedName). Error: $_" -MessageType "ERROR"
             Write-Warning "Failed to remove computer with DN: $($computer.DistinguishedName). Error: $_"
@@ -140,22 +149,23 @@ function Show-GUI {
     $form.Size = New-Object System.Drawing.Size(710, 520)
     $form.StartPosition = "CenterScreen"
 
-    # Automatically get the HostName of the Domain Controller
-    $DCName = Get-DomainControllerHostName
+    # Fetch all FQDN Domain Names in the Forest
+    $fqdnDomains = Get-FQDNDomainNames
+
+    # Dropdown List for Domain Controller names input
+    $comboBoxDC = New-Object System.Windows.Forms.ComboBox
+    $comboBoxDC.Location = New-Object System.Drawing.Point(190, 10)
+    $comboBoxDC.Size = New-Object System.Drawing.Size(200, 20)
+    $comboBoxDC.Items.AddRange($fqdnDomains)
+    $comboBoxDC.SelectedIndex = 0
+    $form.Controls.Add($comboBoxDC)
 
     # Label for Domain Controller name input
     $labelDC = New-Object System.Windows.Forms.Label
     $labelDC.Location = New-Object System.Drawing.Point(10, 10)
     $labelDC.Size = New-Object System.Drawing.Size(180, 20)
-    $labelDC.Text = "Domain Controller Name:"
+    $labelDC.Text = "Domain Controller FQDN:"
     $form.Controls.Add($labelDC)
-
-    # TextBox for Domain Controller name input
-    $textBoxDC = New-Object System.Windows.Forms.TextBox
-    $textBoxDC.Location = New-Object System.Drawing.Point(190, 10)
-    $textBoxDC.Size = New-Object System.Drawing.Size(200, 20)
-    $textBoxDC.Text = $DCName
-    $form.Controls.Add($textBoxDC)
 
     # Label for Inactive Days input
     $labelDays = New-Object System.Windows.Forms.Label
@@ -188,61 +198,61 @@ function Show-GUI {
     $buttonFind.Size = New-Object System.Drawing.Size(150, 50)
     $buttonFind.Text = "Find Old Workstations"
     $buttonFind.Add_Click({
-        $DCName = $textBoxDC.Text
-        $InactiveDays = $textBoxDays.Text
-        if ([string]::IsNullOrWhiteSpace($DCName) -or ![int]::TryParse($textBoxDays.Text, [ref]$InactiveDays)) {
-            Show-ErrorMessage "Please provide both Domain Controller Name and a valid number for Inactive Days Threshold."
-            return
-        }
-        $oldComputers = Find-OldWorkstationAccounts -DCName $DCName -InactiveDays $InactiveDays
-        $listView.Items.Clear()
-        foreach ($computer in $oldComputers) {
-            $item = New-Object System.Windows.Forms.ListViewItem($computer.Name)
-            $item.SubItems.Add($computer.DistinguishedName)
-            $item.Tag = $computer
-            $listView.Items.Add($item)
-        }
-        Show-InfoMessage "Found $($oldComputers.Count) old workstation(s) with an inactive threshold of $InactiveDays day(s)."
-    })
-    $form.Controls.Add($buttonFind)
+        $DCName = $comboBoxDC.SelectedItem
+            $InactiveDays = $textBoxDays.Text
+    if ([string]::IsNullOrWhiteSpace($DCName) -or ![int]::TryParse($textBoxDays.Text, [ref]$InactiveDays)) {
+        Show-ErrorMessage "Please provide both Domain Controller FQDN and a valid number for Inactive Days Threshold."
+        return
+    }
+    $oldComputers = Find-OldWorkstationAccounts -DCName $DCName -InactiveDays $InactiveDays
+    $listView.Items.Clear()
+    foreach ($computer in $oldComputers) {
+        $item = New-Object System.Windows.Forms.ListViewItem($computer.Name)
+        $item.SubItems.Add($computer.DistinguishedName)
+        $item.Tag = $computer
+        $listView.Items.Add($item)
+    }
+    Show-InfoMessage "Found $($oldComputers.Count) old workstation(s) with an inactive threshold of $InactiveDays day(s)."
+})
+$form.Controls.Add($buttonFind)
 
-    # Checkbox to select/deselect all workstations
-    $checkboxSelectAll = New-Object System.Windows.Forms.CheckBox
-    $checkboxSelectAll.Location = New-Object System.Drawing.Point(10, 430)
-    $checkboxSelectAll.Size = New-Object System.Drawing.Size(150, 20)
-    $checkboxSelectAll.Text = "Select/Deselect All"
-    $checkboxSelectAll.Add_CheckedChanged({
-        $isChecked = $checkboxSelectAll.Checked
-        foreach ($item in $listView.Items) {
-            $item.Checked = $isChecked
-        }
-    })
-    $form.Controls.Add($checkboxSelectAll)
+# Checkbox to select/deselect all workstations
+$checkboxSelectAll = New-Object System.Windows.Forms.CheckBox
+$checkboxSelectAll.Location = New-Object System.Drawing.Point(10, 430)
+$checkboxSelectAll.Size = New-Object System.Drawing.Size(150, 20)
+$checkboxSelectAll.Text = "Select/Deselect All"
+$checkboxSelectAll.Add_CheckedChanged({
+    $isChecked = $checkboxSelectAll.Checked
+    foreach ($item in $listView.Items) {
+        $item.Checked = $isChecked
+    }
+})
+$form.Controls.Add($checkboxSelectAll)
 
-    # Button to remove selected workstations and export details to CSV
-    $buttonRemove = New-Object System.Windows.Forms.Button
-    $buttonRemove.Location = New-Object System.Drawing.Point(200, 430)
-    $buttonRemove.Size = New-Object System.Drawing.Size(480, 40)
-    $buttonRemove.Text = "Remove Selected Workstations and Export to CSV"
-    $buttonRemove.Add_Click({
-        $selectedItems = $listView.CheckedItems
-        if ($selectedItems.Count -eq 0) {
-            Show-ErrorMessage "No workstations selected for removal."
-            return
-        }
+# Button to remove selected workstations and export details to CSV
+$buttonRemove = New-Object System.Windows.Forms.Button
+$buttonRemove.Location = New-Object System.Drawing.Point(200, 430)
+$buttonRemove.Size = New-Object System.Drawing.Size(480, 40)
+$buttonRemove.Text = "Remove Selected Workstations and Export to CSV"
+$buttonRemove.Add_Click({
+    $selectedItems = $listView.CheckedItems
+    if ($selectedItems.Count -eq 0) {
+        Show-ErrorMessage "No workstations selected for removal."
+        return
+    }
 
-        $DCName = $textBoxDC.Text
-        if ([string]::IsNullOrWhiteSpace($DCName)) {
-            Show-ErrorMessage "Domain Controller Name is missing."
-            return
-        }
+    $DCName = $comboBoxDC.SelectedItem
+    if ([string]::IsNullOrWhiteSpace($DCName)) {
+        Show-ErrorMessage "Domain Controller FQDN is missing."
+        return
+    }
 
-        $selectedComputers = $selectedItems | ForEach-Object { $_.Tag }
-        Remove-SelectedWorkstationAccounts -SelectedComputers $selectedComputers -DCName $DCName
-    })
-    $form.Controls.Add($buttonRemove)
+    $selectedComputers = $selectedItems | ForEach-Object { $_.Tag }
+    Remove-SelectedWorkstationAccounts -SelectedComputers $selectedComputers -DCName $DCName
+})
+$form.Controls.Add($buttonRemove)
 
-    $form.ShowDialog() | Out-Null
+$form.ShowDialog() | Out-Null
 }
 
 # Call the Show-GUI function to display the GUI and start the script
