@@ -56,7 +56,7 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 22. **Find-Shorter-ADComputerNames.ps1**: Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
 
-23. **Gather-Elevated-ADForestInfo.ps1:** Collects and identifies elevated user accounts, critical security groups, and service accounts across an entire Active Directory forest, ensuring compatibility with diverse AD environments.
+23. **Gather-Elevated-ADForestInfo.ps1:** Gathers comprehensive information on elevated Active Directory (AD) groups and users, including administrators, service accounts, and special groups, across an entire AD Forest.
 
 24. **Initiate-MultipleRDPSessions.ps1**: Enables the initiation of RDP sessions to multiple servers simultaneously, significantly enhancing remote management capabilities.
 
