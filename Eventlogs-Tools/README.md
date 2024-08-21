@@ -1,16 +1,14 @@
-# 📂 Files in the Eventlogs-Tools Folder
+
+# 📂 Eventlogs-Tools Folder
 
 ## 🛠️ Prerequisites
 
-Before running the scripts in this folder, ensure that the **Microsoft Log Parser utility** is installed on your system. Additionally, to fully utilize these scripts, you must have the ability to execute PowerShell scripts `(.PS1)`, especially those that use the `Import-Module ActiveDirectory` command. This is particularly important on Windows 10 and 11 Workstations, which require the installation of `Remote Server Administration Tools (RSAT)`.
+Before using the scripts in this folder, make sure the **Microsoft Log Parser utility** is installed on your system. Additionally, to fully leverage these scripts, you must be able to run PowerShell `(.PS1)` scripts, particularly those utilizing the `Import-Module ActiveDirectory` command. This is especially necessary for Windows 10 and 11 workstations, which require the installation of `Remote Server Administration Tools (RSAT)`.
 
-Each script in this repository **features a graphical user interface** `(GUI)`, enhances user interaction, and includes functionalities for **generating operational** `.log` files and **exporting results** to `.csv` files, making server and workstation management more intuitive and user-friendly.
+📄 Description
+This directory contains a collection of scripts specifically designed to process Windows Event Log files (.evtx). These scripts extract relevant information from the logs and generate outputs in .CSV format for straightforward analysis.
 
-## 📄 Description
-
-This directory contains a collection of scripts designed for selecting and processing **Windows Event Log files (.evtx)**. These scripts focus on extracting relevant information from the logs and generating outputs in a `.CSV` file format for easy analysis.
-
-> **✨ All scripts in this folder are equipped with a graphical user interface (GUI), enhancing user interaction and making them more user-friendly and accessible for event log management tasks.**
+> Each script features a graphical user interface (GUI) to enhance user interaction. Additionally, they offer functionalities for generating .log files and exporting results to .csv files, making the management of servers and workstations more intuitive and efficient.
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
