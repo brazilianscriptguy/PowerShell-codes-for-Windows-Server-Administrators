@@ -12,7 +12,7 @@ This directory contains a collection of scripts specifically designed to process
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
-1. **EventID-Count-AllEvents-EVTX.ps1**: Analyzes EVTX files, counting each EventID occurrence, and exports the results to a CSV file for easier event log analysis.
+1. **EventID-Count-AllEvtx-Events.ps1**: Analyzes EVTX files, counting each EventID occurrence, and exports the results to a CSV file for easier event log analysis.
 
 2. **EventID307-PrintAudit.ps1**: Extracts detailed insights from the Microsoft-Windows-PrintService/Operational Event Log (Event ID 307), auditing print activities.
 
