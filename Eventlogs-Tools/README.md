@@ -3,7 +3,7 @@
 
 ## 🛠️ Prerequisites
 
-Before using the scripts in this folder, make sure the **Microsoft Log Parser utility** is installed on your system. Additionally, to fully leverage these scripts, you must be able to run PowerShell `(.PS1)` scripts, particularly those utilizing the `Import-Module ActiveDirectory` command. This is especially necessary for Windows 10 and 11 workstations, which require the installation of `Remote Server Administration Tools (RSAT)`.
+Before using the scripts in this folder, ensure that the **Microsoft Log Parser utility** is installed on the Windows Server machines where these scripts will be executed. Additionally, to fully leverage these scripts, you must be able to run PowerShell `(.PS1)` scripts, particularly those that utilize the `Import-Module ActiveDirectory` command. If you prefer to execute these scripts from a Windows 10 or 11 workstation, the `Remote Server Administration Tools (RSAT)` must be installed on that workstation.
 
 ## 📄 Description
 This directory contains a collection of scripts specifically designed to process `Windows Event Log files (.evtx)`. These scripts extract relevant information from the logs and generate outputs in .CSV format for straightforward analysis.
