@@ -1,6 +1,6 @@
-﻿# PowerShell script to Uninstall Non-Compliance Software by Name via GPO
+﻿# PowerShell script to Uninstall Non-Compliant Software by Name via GPO
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: July 17, 2024
+# Updated: August 22, 2024
 
 param (
     [string[]]$SoftwareNames = @(
@@ -55,22 +55,27 @@ try {
         Get-ChildItem $path | ForEach-Object {
             $software = Get-ItemProperty $_.PsPath
             foreach ($name in $SoftwareNames) {
+                # Partial name matching
                 if ($software.DisplayName -like "*$name*") {
                     Log-Message "Software found for removal: $($software.DisplayName)"
                     $uninstallCommand = $software.UninstallString
-                    if ($uninstallCommand -like "*msiexec*") {
-                        $uninstallCommand = $uninstallCommand -replace "msiexec.exe", "msiexec.exe /quiet /norestart"
-                        $processInfo = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $uninstallCommand" -Wait -PassThru -NoNewWindow
-                    } elseif ($uninstallCommand) {
-                        # Assume uninstallation can be run silently
-                        $processInfo = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $uninstallCommand /S" -Wait -PassThru -NoNewWindow
-                    }
-                    if ($processInfo -and $processInfo.ExitCode -ne 0) {
-                        Log-Message "Error uninstalling $($software.DisplayName) with exit code: $($processInfo.ExitCode)"
-                    } elseif ($processInfo) {
-                        Log-Message "$($software.DisplayName) was successfully uninstalled silently via executable command."
+                    if ($uninstallCommand) {
+                        if ($uninstallCommand -like "*msiexec*") {
+                            $uninstallCommand = $uninstallCommand -replace "msiexec.exe", "msiexec.exe /quiet /norestart"
+                            $processInfo = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $uninstallCommand" -Wait -PassThru -NoNewWindow
+                        } else {
+                            # Assume uninstallation can be run silently
+                            $processInfo = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $uninstallCommand /S" -Wait -PassThru -NoNewWindow
+                        }
+                        if ($processInfo -and $processInfo.ExitCode -ne 0) {
+                            Log-Message "Error uninstalling $($software.DisplayName) with exit code: $($processInfo.ExitCode)"
+                        } elseif ($processInfo) {
+                            Log-Message "$($software.DisplayName) was successfully uninstalled silently via executable command."
+                        } else {
+                            Log-Message "No uninstallation method found for $($software.DisplayName)."
+                        }
                     } else {
-                        Log-Message "No uninstallation method found for $($software.DisplayName)."
+                        Log-Message "No uninstall string found for $($software.DisplayName)."
                     }
                 }
             }
