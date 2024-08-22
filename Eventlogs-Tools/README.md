@@ -8,7 +8,7 @@ Before using the scripts in this folder, ensure that the **Microsoft Log Parser 
 ## 📄 Description
 This directory contains a collection of scripts specifically designed to process `Windows Event Log files (.evtx)`. These scripts extract relevant information from the logs and generate outputs in .CSV format for straightforward analysis.
 
-> **Each script features a graphical user interface `(GUI)` to enhance user interaction. Additionally, they offer functionalities for generating `.log` files and exporting results to `.csv` files, making the management of servers and workstations more intuitive and efficient.**
+> **✨ Each script features a graphical user interface `(GUI)` to enhance user interaction. Additionally, they offer functionalities for generating `.log` files and exporting results to `.csv` files, making the management of servers and workstations more intuitive and efficient.**
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
