@@ -1,6 +1,6 @@
 # PowerShell Script to Check Services Ports Connectivity
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: August 21, 2024
+# Update: August 22, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -28,7 +28,6 @@ public class Window {
 # Import necessary libraries for GUI and Active Directory
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-Import-Module ActiveDirectory
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
@@ -123,7 +122,6 @@ $services = @(
     [PSCustomObject]@{ Name = "WSUS - Ports: 8530, 8531"; Ports = "8530,8531"; Optional = $false }
 )
 
-
 # Initialize the main form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Host Network Port Tester'
@@ -137,10 +135,29 @@ $labelMachine.Size = New-Object System.Drawing.Size(160, 20)
 $labelMachine.Text = 'Machine Name or IP Address:'
 $form.Controls.Add($labelMachine)
 
+# Textbox for machine name or IP with a placeholder
 $textboxMachine = New-Object System.Windows.Forms.TextBox
 $textboxMachine.Location = New-Object System.Drawing.Point(170, 20)
 $textboxMachine.Size = New-Object System.Drawing.Size(530, 20)
+$textboxMachine.ForeColor = [System.Drawing.Color]::Gray
+$textboxMachine.Text = 'e.g., 172.16.20.10:8531 or wsus-server.com:8531'
 $form.Controls.Add($textboxMachine)
+
+# Event to clear the placeholder when the user starts typing
+$textboxMachine.Add_GotFocus({
+    if ($textboxMachine.ForeColor -eq [System.Drawing.Color]::Gray) {
+        $textboxMachine.Text = ''
+        $textboxMachine.ForeColor = [System.Drawing.Color]::Black
+    }
+})
+
+# Event to restore the placeholder if the textbox is left empty
+$textboxMachine.Add_LostFocus({
+    if ([string]::IsNullOrWhiteSpace($textboxMachine.Text)) {
+        $textboxMachine.Text = 'e.g., 172.16.20.10:8531 or wsustests.com:8531'
+        $textboxMachine.ForeColor = [System.Drawing.Color]::Gray
+    }
+})
 
 # Results textbox
 $textboxResults = New-Object System.Windows.Forms.TextBox
@@ -162,6 +179,7 @@ $buttonExport = New-Object System.Windows.Forms.Button
 $buttonExport.Location = New-Object System.Drawing.Point(140, 420)
 $buttonExport.Size = New-Object System.Drawing.Size(120, 23)
 $buttonExport.Text = 'Export Results'
+$buttonExport.Enabled = $false
 $form.Controls.Add($buttonExport)
 
 # Service selection CheckedListBox
@@ -174,6 +192,9 @@ foreach ($service in $services) {
 }
 $form.Controls.Add($checkedListBox)
 
+# Global variable to store successful tests
+$global:successfulTests = @()
+
 # Function to export results to CSV
 function Export-Results {
     param (
@@ -183,8 +204,10 @@ function Export-Results {
         [Array]$Results
     )
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-    $csvFileName = "$Server-$scriptName-$timestamp.csv"
-    $csvPath = Join-Path $logDir $csvFileName
+    $documentsFolder = [Environment]::GetFolderPath('MyDocuments')
+    $ServerSafe = $Server -replace "[:]", "-" # Replace any illegal characters with hyphens
+    $csvFileName = "$ServerSafe-$scriptName-$timestamp.csv"
+    $csvPath = Join-Path $documentsFolder $csvFileName
     $Results | Export-Csv -Path $csvPath -NoTypeInformation
     Show-InfoMessage "Results exported to: $csvPath"
 }
@@ -192,6 +215,7 @@ function Export-Results {
 # Test Connectivity Button Click Event
 $buttonTest.Add_Click({
     $textboxResults.Clear()
+    $global:successfulTests.Clear()
     $MachineInput = $textboxMachine.Text
 
     if ([string]::IsNullOrWhiteSpace($MachineInput)) {
@@ -200,50 +224,69 @@ $buttonTest.Add_Click({
     }
 
     # Check if machine name includes a port number
-    $Machine, $CustomPort = $MachineInput -split ':'
+    $Machine, $CustomPort = $MachineInput -split ':', 2
 
-    $textboxResults.AppendText("Starting connectivity test for machine: $Machine`n`n")
-    $successfulTests = @()
+    if ($CustomPort) {
+        $textboxResults.AppendText("Starting direct connectivity test to $Machine on port $CustomPort`n`n")
+        $testResult = Test-NetConnection -ComputerName $Machine -Port $CustomPort -ErrorAction SilentlyContinue -InformationLevel Quiet
 
-    foreach ($index in $checkedListBox.CheckedIndices) {
-        $selectedService = $services[$index]
-        $portsToTest = if ($CustomPort) { $CustomPort } else { $selectedService.Ports }
-        
-        foreach ($port in ($portsToTest -split ',')) {
-            $testResult = Test-NetConnection -ComputerName $Machine -Port $port -ErrorAction SilentlyContinue -InformationLevel Quiet
-            if ($testResult) {
-                $resultObj = [PSCustomObject]@{
-                    ServerName   = $Machine
-                    ServiceName  = $selectedService.Name
-                    Port         = $port
-                    Result       = "Success"
+        if ($testResult) {
+            $resultObj = [PSCustomObject]@{
+                ServerName   = $Machine
+                ServiceName  = "Direct Test to $CustomPort"
+                Port         = $CustomPort
+                Result       = "Success"
+            }
+            $global:successfulTests += $resultObj
+            $textboxResults.AppendText("Success: Direct connectivity to $Machine on port $CustomPort`n")
+            Log-Message "Success: Direct connectivity to $Machine on port $CustomPort"
+        } else {
+            $textboxResults.AppendText("Failed: Direct connectivity to $Machine on port $CustomPort`n")
+            Log-Message "Failed: Direct connectivity to $Machine on port $CustomPort" -MessageType "ERROR"
+        }
+    } else {
+        $textboxResults.AppendText("Starting connectivity test for machine: $Machine`n`n")
+        foreach ($index in $checkedListBox.CheckedIndices) {
+            $selectedService = $services[$index]
+            $portsToTest = $selectedService.Ports
+            
+            foreach ($port in ($portsToTest -split ',')) {
+                $testResult = Test-NetConnection -ComputerName $Machine -Port $port -ErrorAction SilentlyContinue -InformationLevel Quiet
+                if ($testResult) {
+                    $resultObj = [PSCustomObject]@{
+                        ServerName   = $Machine
+                        ServiceName  = $selectedService.Name
+                        Port         = $port
+                        Result       = "Success"
+                    }
+                    $global:successfulTests += $resultObj
+                    $textboxResults.AppendText("Success: $($selectedService.Name) on port $port`n")
+                    Log-Message "Success: $($selectedService.Name) on port $port for machine $Machine"
+                } else {
+                    $textboxResults.AppendText("Failed: $($selectedService.Name) on port $port`n")
+                    Log-Message "Failed: $($selectedService.Name) on port $port for machine $Machine" -MessageType "ERROR"
                 }
-                $successfulTests += $resultObj
-                $textboxResults.AppendText("Success: $($selectedService.Name) on port $port`n")
-                Log-Message "Success: $($selectedService.Name) on port $port for machine $Machine"
-            } else {
-                $textboxResults.AppendText("Failed: $($selectedService.Name) on port $port`n")
-                Log-Message "Failed: $($selectedService.Name) on port $port for machine $Machine" -MessageType "ERROR"
             }
         }
     }
 
-    if ($successfulTests.Count -gt 0) {
+    if ($global:successfulTests.Count -gt 0) {
         $textboxResults.AppendText("`nConnectivity tests completed successfully.")
         $buttonExport.Enabled = $true
     } else {
         $textboxResults.AppendText("`nNo successful connections were made.")
         Log-Message "No successful connections were made." -MessageType "WARNING"
+        $buttonExport.Enabled = $false
     }
 })
 
 # Export Results Button Click Event
 $buttonExport.Add_Click({
     $Machine = $textboxMachine.Text
-    if ($successfulTests.Count -gt 0) {
-        Export-Results -Server $Machine -Results $successfulTests
+    if ($global:successfulTests.Count -gt 0) {
+        Export-Results -Server $Machine -Results $global:successfulTests
     } else {
-        Show-ErrorMessage "No results to export to .CSV file. The Log file is located at: $logPath"
+        Show-ErrorMessage "No results to export. Log file located at: $logPath"
     }
 })
 
