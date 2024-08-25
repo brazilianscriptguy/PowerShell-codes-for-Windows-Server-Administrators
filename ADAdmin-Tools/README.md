@@ -2,7 +2,7 @@
 
 ## 🛠️ Prerequisites
 
-To effectively utilize the scripts in this folder, it's essential to have the ability to run **PowerShell scripts (.PS1)** that incorporate the `Import-Module ActiveDirectory` command, especially on Windows 10 workstations. Installation of the **Remote Server Administration Tools (RSAT)** is required for this purpose.
+To effectively utilize the scripts in this folder, especially when executing them from a Windows 10 or 11 workstation for administering Windows Server functions, it is essential to have the capability to run **PowerShell scripts (.PS1)** that incorporate the `Import-Module ActiveDirectory` command. For this purpose, the installation of **Remote Server Administration Tools (RSAT)** is required on the workstation. In Windows Server environments, all necessary modules are natively supported.
 
 ## 📄 Description
 
