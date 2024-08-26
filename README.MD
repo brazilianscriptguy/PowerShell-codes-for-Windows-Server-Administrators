@@ -7,6 +7,7 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 ## 🗂️ My GitHub Contributions
 
 [![GitHub Contribution Grid](https://ghchart.rshah.org/brazilianscriptguy)](https://github.com/brazilianscriptguy)
+[**Total of Views**](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/graphs/traffic)
 
 ## 🌐 Connect with Me
 
