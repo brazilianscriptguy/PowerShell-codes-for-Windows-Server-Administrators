@@ -7,7 +7,6 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 ## 🗂️ My GitHub Contributions
 
 [![GitHub Contribution Grid](https://ghchart.rshah.org/brazilianscriptguy)](https://github.com/brazilianscriptguy)
-![Visitor Count](https://komarev.com/ghpvc/?username=brazilianscriptguy&style=flat-square)
 
 ## 🌐 Connect with Me
 
