@@ -35,11 +35,13 @@ This repository is a comprehensive source of scripts and tools specifically desi
 
 ## 🚀 Features
 
-The repository is organized into three main root folders, each focusing on a different aspect of Windows Server management and Windows workstation compliance using PowerShell and VBScript scripts:
+The repository is organized into three main root folders, each dedicated to a specific aspect of Windows Server management and Windows workstation compliance using PowerShell and VBScript scripts:
 
-- **ADAdmin-Tools**: Automate and manage system administration tasks, including Active Directory management, user, group, and organizational unit (OU) administration, as well as DHCP, DNS, Sites and Services, and system synchronization.
-- **EventLog-Tools**: Analyze and generate a variety of EventID reports from Windows Event Log (.evtx) files to enhance troubleshooting and monitoring.
-- **ITSM-Templates**: Leverage templates and scripts tailored for IT Service Management (ITSM), focusing on workstation hardening, configuration, compliance, and automation.
+- **ADAdmin-Tools**: Automate and manage a wide range of system administration tasks, including Active Directory management, user, group, and organizational unit (OU) administration. This folder also covers essential services such as DHCP, DNS, Sites and Services, and system synchronization, providing comprehensive tools for efficient management of Windows Server environments.
+
+- **EventLog-Tools**: Focus on analyzing and generating detailed reports for various EventIDs from Windows Event Log (.evtx) files. These tools are designed to enhance troubleshooting and monitoring, enabling administrators to quickly identify and resolve issues within their Windows environments.
+
+- **ITSM-Templates**: Offer a collection of templates and scripts specifically tailored for IT Service Management (ITSM). This folder emphasizes workstation hardening, configuration, compliance, and automation, helping organizations maintain high standards of security and operational efficiency across their Windows workstations.
 
 ### 🌟 Key Highlights
 
