@@ -1,4 +1,4 @@
-# PowerShell Script to Retrieve Installed Software x86 and x64 with GUID and Enhanced GUI
+# PowerShell Script to Install FortiClient VPN and configure Custom VPN Tunnels
 # Author: Luiz Hamilton Silva
 # Updated: July 26, 2024
 
