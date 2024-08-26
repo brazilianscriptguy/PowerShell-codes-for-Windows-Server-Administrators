@@ -7,7 +7,7 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 ## 🗂️ My GitHub Contributions
 
 [![GitHub Contribution Grid](https://ghchart.rshah.org/brazilianscriptguy)](https://github.com/brazilianscriptguy)
-[![Visitor Count](https://visitor-badge.glitch.me/badge?page_id=brazilianscriptguy.PowerShell-codes-for-Windows-Server-Administrators)
+![Visitor Count](https://visitor-badge.glitch.me/badge?page_id=brazilianscriptguy.PowerShell-codes-for-Windows-Server-Administrators)
 
 ## 🌐 Connect with Me
 
