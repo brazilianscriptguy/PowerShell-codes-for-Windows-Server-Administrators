@@ -1,6 +1,6 @@
 # PowerShell Script to Install FortiClient VPN and configure Custom VPN Tunnels
 # Author: Luiz Hamilton Silva
-# Updated: July 26, 2024
+# Updated: August 26, 2024
 
 # Initial parameters for setting paths and registry keys.
 param (
