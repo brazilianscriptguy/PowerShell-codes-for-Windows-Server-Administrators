@@ -30,6 +30,7 @@ Thank you for considering contributing to this project! Contributions are welcom
 
 ## Additional Resources
 - **Code of Conduct**: Please refer to our [Code of Conduct](CODE_OF_CONDUCT.md) for guidelines on how to interact with the community.
-- **Getting Started**: If you're new to the project, start by reviewing the [README.md](README.md) file, which provides an overview of the project.
+- **Getting Started**: If you're new to the project, start by reviewing the [README.md](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/tree/main) file, which provides an overview of the project.
+
 
 Thank you for contributing to the PowerShell ToolSet for Windows Server Administration and VBScript Repository!
