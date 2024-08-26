@@ -35,11 +35,11 @@ This repository is a comprehensive source of scripts and tools specifically desi
 
 ## 🚀 Features
 
-The repository is organized into distinct folders, each focusing on different areas of Windows Server management and Windows workstation maintenance using PowerShell and VBScript:
+The repository is organized into three main root folders, each focusing on a different aspect of Windows Server management and Windows workstation compliance using PowerShell and VBScript scripts:
 
-- **ADAdmin-Tools**: Automate and manage Active Directory tasks, such as user, group, and organizational unit (OU) management.
-- **EventLog-Tools**: Analyze and generate reports from Windows Event Logs for more effective troubleshooting and monitoring.
-- **ITSM-Templates**: Utilize templates and scripts focused on IT Service Management, including workstation configuration, compliance, and automation.
+- **ADAdmin-Tools**: Automate and manage system administration tasks, including Active Directory management, user, group, and organizational unit (OU) administration, as well as DHCP, DNS, Sites and Services, and system synchronization.
+- **EventLog-Tools**: Analyze and generate a variety of EventID reports from Windows Event Log (.evtx) files to enhance troubleshooting and monitoring.
+- **ITSM-Templates**: Leverage templates and scripts tailored for IT Service Management (ITSM), focusing on workstation hardening, configuration, compliance, and automation.
 
 ### 🌟 Key Highlights
 
