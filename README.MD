@@ -65,12 +65,13 @@ To begin using the tools in this repository:
 
 ## 🛠️ Prerequisites
 
-Ensure your environment meets the following requirements before running the scripts:
+**Ensure your environment meets the following requirements before running the scripts:**
 
 - **PowerShell Version**: PowerShell version 5.1 or later is required.
-- **Administrative Rights**: Most scripts require administrative privileges.
-- **EventLog-Tools**: Requires the `Microsoft Log Parser utility`.
-- **ADAdmin-Tools**: Requires `Remote Server Administration Tools (RSAT)` on Windows 10 and 11 workstations.
+- **Administrative Rights**: Most scripts require administrative privileges to run successfully.
+- **ADAdmin-Tools**: Requires the installation of `Remote Server Administration Tools (RSAT)` on Windows 10 and 11 workstations.
+- **EventLog-Tools**: Requires the `Microsoft Log Parser utility` to be installed.
+- **ITSM-Templates**: Compatible with Windows 10 or 11 workstations starting from version 1507.
 
 ### 🔧 Installing RSAT on Windows 10 and 11 Workstations
 
