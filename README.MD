@@ -73,7 +73,7 @@ To begin using the tools in this repository:
 - **EventLog-Tools folder**: These scripts require the `Microsoft Log Parser utility` to be installed on all Windows environments.
 - **ITSM-Templates folder**: These scripts are tailored for Windows 10 workstations starting from version 1507 to Windows 11 (24H2).
 
-### 🔧 Installing RSAT on Windows 10 and 11 Workstations
+## 🔧 Installing RSAT on Windows 10 and 11 Workstations
 
 1. **Open Settings**: Go to `Settings` on your Windows 10 or 11 workstation.
 2. **Apps & Features**: Navigate to `Apps`, then select `Optional Features`.
@@ -84,7 +84,7 @@ To begin using the tools in this repository:
    - `DNS Server Tools`
    - `Group Policy Management Tools`
 
-### 🔧 Installing Microsoft Log Parser Utility on Windows
+## 🔧 Installing Microsoft Log Parser Utility on Windows
 
 1. **Download**: Visit the [Microsoft Log Parser 2.2 download page](https://www.microsoft.com/en-us/download/details.aspx?id=24659) and download the `LogParser.msi` file.
 2. **Run Installer**: Double-click the downloaded `LogParser.msi` file to start the installation process.
