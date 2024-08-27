@@ -121,4 +121,4 @@ For the latest updates and releases, visit the [ITSM-SysAdminToolSet Release](ht
 
 ---
 
-Thank you for choosing the PowerShell ToolSet for Windows Server Administration and VBScript Repository for Workstation Management. We hope these tools enhance your efficiency and streamline your workflows.
+*Thank you for choosing the PowerShell ToolSet for Windows Server Administration and VBScript Repository for Workstation Management. We hope these tools enhance your efficiency and streamline your workflows.*
