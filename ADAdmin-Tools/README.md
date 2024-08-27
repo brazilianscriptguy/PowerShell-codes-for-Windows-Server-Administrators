@@ -142,4 +142,4 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 ## ❓ Additional Assistance
 
-All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the `README.md` file in the main root folder.
+*All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the `README.md` file in the main root folder.*
