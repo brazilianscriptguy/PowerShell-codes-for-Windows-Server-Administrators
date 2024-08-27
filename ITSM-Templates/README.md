@@ -87,4 +87,4 @@ Stay tuned for new scripts addressing evolving ITSM needs, offering more innovat
 
 ## ❓ Additional Assistance
 
-All script codes are customizable to fit your preferences and requirements. For more detailed information on prerequisites and environment setup, refer to the `README.md` file in the root directory.
+*All script codes are customizable to fit your preferences and requirements. For more detailed information on prerequisites and environment setup, refer to the `README.md` file in the root directory.*
