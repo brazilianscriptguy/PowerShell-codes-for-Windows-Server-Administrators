@@ -84,6 +84,14 @@ To begin using the tools in this repository:
    - `DNS Server Tools`
    - `Group Policy Management Tools`
 
+### 🔧 Installing Microsoft Log Parser Utility on Windows
+
+1. **Download**: Visit the [Microsoft Log Parser 2.2 download page](https://www.microsoft.com/en-us/download/details.aspx?id=24659) and download the `LogParser.msi` file.
+2. **Run Installer**: Double-click the downloaded `LogParser.msi` file to start the installation process.
+3. **Install**: Follow the installation wizard, accepting the license agreement and selecting the installation directory.
+4. **Verify**: Open a command prompt or PowerShell window, type `LogParser.exe`, and press **Enter** to confirm the installation.
+5. **(Optional) Add to PATH**: To access Log Parser from any directory, add the installation path (e.g., `C:\Program Files (x86)\Log Parser 2.2\`) to your system’s PATH environment variable.
+
 ## ⚙️ Customizations
 
 This repository provides the flexibility to tailor scripts to your specific needs. Common customizations include:
