@@ -1,6 +1,6 @@
 # PowerShell Script to Unlock User in a DFS Namespace Access with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 10, 2024
+# Updated: September 06, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -181,12 +181,46 @@ function Get-DFSNamespaces {
     }
 }
 
+# Function to retrieve all domains in the current forest with enhanced error handling and logging
+function Get-ForestDomains {
+    try {
+        # Get the current forest
+        $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
+
+        # Retrieve all domains in the forest
+        $domains = $forest.Domains | ForEach-Object { $_.Name }
+
+        # Check if any domains were retrieved
+        if ($domains.Count -gt 0) {
+            Log-Message "Successfully retrieved forest domains: $($domains -join ', ')"
+            return $domains
+        } else {
+            Show-WarningMessage "No domains found in the current forest."
+            Log-Message "No domains found in the current forest."
+            return @() # Return an empty array if no domains found
+        }
+    } catch {
+        # Log and display error message if the operation fails
+        Show-ErrorMessage "Failed to retrieve forest domains: $_"
+        Log-Message "Error retrieving forest domains: $_" -MessageType "ERROR"
+        return @() # Return an empty array in case of an error
+    }
+}
+
 # Retrieve the FQDN of the current domain
 $currentDomainFQDN = Get-DomainFQDN
 $localComputerName = $env:COMPUTERNAME
 
 # Retrieve DFS Namespaces
 $dfsNamespaces = Get-DFSNamespaces -ComputerName $localComputerName
+
+# Retrieve Forest Domains
+$forestDomains = Get-ForestDomains
+if ($forestDomains.Count -eq 0) {
+    Show-WarningMessage "Unable to retrieve forest domains. Please check your Active Directory settings."
+} else {
+    Log-Message "Forest domains: $($forestDomains -join ', ')"
+}
 
 # Main form setup
 $main_form = New-Object System.Windows.Forms.Form
