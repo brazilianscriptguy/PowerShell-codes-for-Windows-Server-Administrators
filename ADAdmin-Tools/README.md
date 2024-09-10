@@ -28,7 +28,7 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 8. **Cleanup-Inactive-ADComputerAccounts.ps1**: Identifies and removes inactive workstation accounts from Active Directory (AD), enhancing network security and organizational efficiency.
 
-9. **Clear-and-ReSyncGPOs-ADComputer.ps1**: Performs a complete reset of Domain GPOs with confirmation via a user-friendly GUI, followed by re-synchronization to ensure current policies are accurately applied.
+9. **Clear-and-ReSyncGPOs-ADComputers.ps1**: Performs a complete reset of Domain GPOs with confirmation via a user-friendly GUI, followed by re-synchronization to ensure current policies are accurately applied.
 
 10. **Copy-and-Sync-Folder-to-ADComputers-viaGPO.ps1**: Synchronizes a folder from a network location to the desktops of AD computers, ensuring only new or updated files are copied and outdated files are removed. Logs operations for easy tracking and error handling.
 
