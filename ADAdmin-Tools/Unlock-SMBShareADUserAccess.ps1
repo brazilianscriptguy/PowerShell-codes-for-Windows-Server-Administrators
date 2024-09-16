@@ -1,6 +1,6 @@
 # PowerShell Script to Unlock User in a DFS Namespace Access with GUI
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: September 06, 2024
+# Updated: September 16, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -145,15 +145,29 @@ function Show-InfoMessage {
     Log-Message "Info: $message" -MessageType "INFO"
 }
 
-# Function to get the FQDN of the domain name
-function Get-DomainFQDN {
+# Function to retrieve all domains in the current forest with enhanced error handling and logging
+function Get-ForestDomains {
     try {
-        $ComputerSystem = Get-CimInstance -ClassName Win32_ComputerSystem
-        $Domain = $ComputerSystem.Domain
-        return $Domain
+        # Get the current forest
+        $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
+
+        # Retrieve all domains in the forest
+        $domains = $forest.Domains | ForEach-Object { $_.Name }
+
+        # Check if any domains were retrieved
+        if ($domains.Count -gt 0) {
+            Log-Message "Successfully retrieved forest domains: $($domains -join ', ')"
+            return $domains
+        } else {
+            Show-WarningMessage "No domains found in the current forest."
+            Log-Message "No domains found in the current forest."
+            return @() # Return an empty array if no domains found
+        }
     } catch {
-        Show-WarningMessage "Unable to fetch FQDN automatically."
-        return "YourDomainHere"
+        # Log and display error message if the operation fails
+        Show-ErrorMessage "Failed to retrieve forest domains: $_"
+        Log-Message "Error retrieving forest domains: $_" -MessageType "ERROR"
+        return @() # Return an empty array in case of an error
     }
 }
 
@@ -181,39 +195,6 @@ function Get-DFSNamespaces {
     }
 }
 
-# Function to retrieve all domains in the current forest with enhanced error handling and logging
-function Get-ForestDomains {
-    try {
-        # Get the current forest
-        $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
-
-        # Retrieve all domains in the forest
-        $domains = $forest.Domains | ForEach-Object { $_.Name }
-
-        # Check if any domains were retrieved
-        if ($domains.Count -gt 0) {
-            Log-Message "Successfully retrieved forest domains: $($domains -join ', ')"
-            return $domains
-        } else {
-            Show-WarningMessage "No domains found in the current forest."
-            Log-Message "No domains found in the current forest."
-            return @() # Return an empty array if no domains found
-        }
-    } catch {
-        # Log and display error message if the operation fails
-        Show-ErrorMessage "Failed to retrieve forest domains: $_"
-        Log-Message "Error retrieving forest domains: $_" -MessageType "ERROR"
-        return @() # Return an empty array in case of an error
-    }
-}
-
-# Retrieve the FQDN of the current domain
-$currentDomainFQDN = Get-DomainFQDN
-$localComputerName = $env:COMPUTERNAME
-
-# Retrieve DFS Namespaces
-$dfsNamespaces = Get-DFSNamespaces -ComputerName $localComputerName
-
 # Retrieve Forest Domains
 $forestDomains = Get-ForestDomains
 if ($forestDomains.Count -eq 0) {
@@ -222,6 +203,10 @@ if ($forestDomains.Count -eq 0) {
     Log-Message "Forest domains: $($forestDomains -join ', ')"
 }
 
+# Retrieve DFS Namespaces on the local computer
+$localComputerName = $env:COMPUTERNAME
+$dfsNamespaces = Get-DFSNamespaces -ComputerName $localComputerName
+
 # Main form setup
 $main_form = New-Object System.Windows.Forms.Form
 $main_form.Text = 'Unlock User in DFS Namespace'
@@ -229,14 +214,15 @@ $main_form.Size = New-Object System.Drawing.Size(500, 400)
 $main_form.StartPosition = 'CenterScreen'
 $main_form.Topmost = $true
 
-# Labels and TextBoxes setup
-$main_form.Controls.Add((Create-Label 'Select the DFS Namespace:' @(10,20) @(480,20)))
-$comboBox_namespace = Create-ComboBox @(10,50) @(460,20) -Items $dfsNamespaces
-$main_form.Controls.Add($comboBox_namespace)
+# Labels and ComboBox setup for domains
+$main_form.Controls.Add((Create-Label 'Select the Domain:' @(10,20) @(480,20)))
+$comboBox_domain = Create-ComboBox @(10,50) @(460,20) -Items $forestDomains
+$main_form.Controls.Add($comboBox_domain)
 
-$main_form.Controls.Add((Create-Label 'Enter the Domain name:' @(10,90) @(480,20)))
-$textbox_domain = Create-TextBox @(10,120) @(460,20) -Text $currentDomainFQDN
-$main_form.Controls.Add($textbox_domain)
+# Labels and ComboBox setup for DFS Namespaces
+$main_form.Controls.Add((Create-Label 'Select the DFS Namespace:' @(10,90) @(480,20)))
+$comboBox_namespace = Create-ComboBox @(10,120) @(460,20) -Items $dfsNamespaces
+$main_form.Controls.Add($comboBox_namespace)
 
 $main_form.Controls.Add((Create-Label 'Enter the User Login name:' @(10,160) @(480,20)))
 $textbox_user = Create-TextBox @(10,190) @(460,20)
@@ -245,10 +231,12 @@ $main_form.Controls.Add($textbox_user)
 # Check Blocked Users Button with Validation and Error Handling
 $check_button = Create-Button 'Check Blocked Users' @(10,230) @(230,40) {
     try {
-        if ([string]::IsNullOrWhiteSpace($comboBox_namespace.SelectedItem) -or [string]::IsNullOrWhiteSpace($textbox_domain.Text) -or [string]::IsNullOrWhiteSpace($textbox_user.Text)) {
+        if ([string]::IsNullOrWhiteSpace($comboBox_namespace.SelectedItem) -or [string]::IsNullOrWhiteSpace($comboBox_domain.SelectedItem) -or [string]::IsNullOrWhiteSpace($textbox_user.Text)) {
             Show-WarningMessage 'Please enter all required fields (namespace, domain name, and username).'
         } else {
             $namespace = "\\$($comboBox_namespace.SelectedItem)"
+            $domain = $comboBox_domain.SelectedItem
+            $username = "$domain\$($textbox_user.Text)"
             $result = Get-SmbShareAccess -Name $namespace
             if ($result) {
                 $result | Out-GridView -Title 'SMB Share Access'
@@ -267,11 +255,12 @@ $main_form.Controls.Add($check_button)
 # Unlock User Button with Validation, Error Handling, and Feedback
 $unblock_button = Create-Button 'Unlock User' @(250,230) @(230,40) {
     try {
-        if ([string]::IsNullOrWhiteSpace($comboBox_namespace.SelectedItem) -or [string]::IsNullOrWhiteSpace($textbox_domain.Text) -or [string]::IsNullOrWhiteSpace($textbox_user.Text)) {
+        if ([string]::IsNullOrWhiteSpace($comboBox_namespace.SelectedItem) -or [string]::IsNullOrWhiteSpace($comboBox_domain.SelectedItem) -or [string]::IsNullOrWhiteSpace($textbox_user.Text)) {
             Show-WarningMessage 'Please enter all required fields (namespace, domain name, and username).'
         } else {
             $namespace = "\\$($comboBox_namespace.SelectedItem)"
-            $username = "$($textbox_domain.Text)\$($textbox_user.Text)"
+            $domain = $comboBox_domain.SelectedItem
+            $username = "$domain\$($textbox_user.Text)"
             Unblock-SmbShareAccess -Name $namespace -AccountName $username -Force
             Show-InfoMessage 'User successfully unlocked!'
             Log-Message "User $username successfully unlocked in DFS Namespace: $namespace"
