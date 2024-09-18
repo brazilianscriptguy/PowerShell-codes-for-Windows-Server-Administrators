@@ -328,7 +328,7 @@ function Process-DHCPScopes {
 
 # Initialize form components
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Update DHCP and DNS Zones'
+$form.Text = 'Update DNS Reverse Zones and Sites and Services Subnets'
 $form.Size = New-Object System.Drawing.Size(500, 410)
 $form.StartPosition = 'CenterScreen'
 
