@@ -1,6 +1,6 @@
 # PowerShell Script to Gather DHCP Scopes for Updating DNS Reverse Zones and Sites and Services Subnets
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: September 18, 2024
+# Updated: September 23, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -28,9 +28,26 @@ public class Window {
 # Import necessary libraries for GUI and system operations
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-Import-Module ActiveDirectory
-Import-Module DhcpServer
-Import-Module DNSServer
+
+# Function to display error messages
+function Show-ErrorMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message "Error: $message" -MessageType "ERROR"
+}
+
+# Function to get the FQDN of the domain name
+function Get-DomainFQDN {
+    try {
+        # Retrieve domain information using WMI
+        $ComputerSystem = Get-WmiObject Win32_ComputerSystem
+        $Domain = $ComputerSystem.Domain
+        return $Domain
+    } catch {
+        Show-ErrorMessage "Unable to fetch FQDN automatically."
+        return "YourDomainHere"
+    }
+}
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
@@ -50,9 +67,9 @@ if (-not (Test-Path $logDir)) {
 # Enhanced logging function with error handling
 function Log-Message {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$Message,
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -64,35 +81,31 @@ function Log-Message {
     }
 }
 
-# Function to display error messages
-function Show-ErrorMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    Log-Message "Error: $message" -MessageType "ERROR"
+# Import necessary modules
+Try {
+    if (-not (Get-Module -Name ActiveDirectory)) {
+        Import-Module ActiveDirectory -ErrorAction Stop
+    }
+    Log-Message "Active Directory module imported successfully."
+} Catch {
+    Show-ErrorMessage "Failed to import Active Directory module: $($_.Exception.Message)`nPlease ensure the Active Directory module is installed."
+    return
 }
 
-# Function to get the FQDN of the current Domain Controller
-function Get-DomainControllerFQDN {
-    try {
-        $domainController = (Get-ADDomainController -Discover -Service "PrimaryDC").HostName
-        return $domainController
-    } catch {
-        Log-Message -Message "Error retrieving the FQDN of the Domain Controller: $_" -MessageType "ERROR"
-        return ""
-    }
+Try {
+    Import-Module DhcpServer -ErrorAction Stop
+    Log-Message "DHCP Server module imported successfully."
+} Catch {
+    Show-ErrorMessage "Failed to import DHCP Server module: $($_.Exception.Message)`nPlease ensure the DHCP Server module is installed."
+    return
 }
 
-# Function to get the FQDN of the domain name
-function Get-DomainFQDN {
-    try {
-        # Retrieve domain information using WMI
-        $ComputerSystem = Get-WmiObject Win32_ComputerSystem
-        $Domain = $ComputerSystem.Domain
-        return $Domain
-    } catch {
-        Show-ErrorMessage "Unable to fetch FQDN automatically."
-        return "YourDomainHere"
-    }
+Try {
+    Import-Module DnsServer -ErrorAction Stop
+    Log-Message "DNS Server module imported successfully."
+} Catch {
+    Show-ErrorMessage "Failed to import DNS Server module: $($_.Exception.Message)`nPlease ensure the DNS Server module is installed."
+    return
 }
 
 # Function to convert a subnet mask to CIDR prefix length
@@ -100,7 +113,7 @@ function Get-PrefixLength {
     param (
         [string]$SubnetMask
     )
-    
+
     $binaryMask = ([Convert]::ToString(([IPAddress]$SubnetMask).Address, 2)).PadLeft(32, '0')
     return ($binaryMask.ToCharArray() | Where-Object { $_ -eq '1' }).Count
 }
@@ -136,14 +149,6 @@ function Construct-ReverseZoneName {
 
     switch ($PrefixLength) {
         24 { return "$($networkParts[2]).$($networkParts[1]).$($networkParts[0]).in-addr.arpa" }
-        22 {
-            # Handle /22 networks, covering 4 class C networks
-            $thirdOctet = [int]$networkParts[2]
-            $zoneStart = ($thirdOctet - ($thirdOctet % 4))
-            return "$zoneStart-$($zoneStart + 3).$($networkParts[1]).$($networkParts[0]).in-addr.arpa"
-        }
-        16 { return "$($networkParts[1]).$($networkParts[0]).in-addr.arpa" }
-        8  { return "$($networkParts[0]).in-addr.arpa" }
         default {
             Write-Host "Unsupported prefix length for reverse DNS zone: $PrefixLength" -ForegroundColor Yellow
             return ""
@@ -155,51 +160,73 @@ function Construct-ReverseZoneName {
 function Add-OrUpdate-ReverseDNSZone {
     param (
         [string]$SubnetCIDR,
-        [string]$SubnetMask
+        [string]$SubnetMask,
+        [string]$dnsServer
     )
 
     if (-not [string]::IsNullOrWhiteSpace($SubnetCIDR)) {
         # Extract subnet information
         $subnetAddress, $prefixLength = $SubnetCIDR -split '/'
         $networkId = Get-NetworkId -IPAddress $subnetAddress -SubnetMask $SubnetMask
-        $reverseZoneName = Construct-ReverseZoneName -NetworkId $networkId -PrefixLength $prefixLength
 
-        if ($reverseZoneName -eq "") {
-            Write-Host "Invalid reverse zone name. Skipping creation." -ForegroundColor Yellow
-            Log-Message "Invalid reverse zone name for subnet $SubnetCIDR. Skipping creation." -MessageType "WARNING"
+        $reverseZoneNames = @()
+        
+        if ($prefixLength -eq 24) {
+            $reverseZoneName = Construct-ReverseZoneName -NetworkId $networkId -PrefixLength $prefixLength
+            $reverseZoneNames += $reverseZoneName
+        }
+        elseif ($prefixLength -eq 22) {
+            # For /22 subnets, generate reverse zones for each /24 within it
+            $ip = [IPAddress]::Parse($networkId)
+            $ipBytes = $ip.GetAddressBytes()
+            $octet0 = [int]$ipBytes[0]
+            $octet1 = [int]$ipBytes[1]
+            $octet2 = [int]$ipBytes[2]
+
+            for ($i = 0; $i -lt 4; $i++) {
+                $currentThirdOctet = $octet2 + $i
+                $reverseZoneName = "$currentThirdOctet.$octet1.$octet0.in-addr.arpa"
+                $reverseZoneNames += $reverseZoneName
+            }
+        }
+        else {
+            Write-Host "Unsupported prefix length for reverse DNS zone: $prefixLength" -ForegroundColor Yellow
+            Log-Message "Unsupported prefix length for reverse DNS zone: $prefixLength" -MessageType "WARNING"
             return
         }
 
-        # Check if the reverse DNS zone already exists
-        $existingZone = Get-DnsServerZone -Name $reverseZoneName -ComputerName $dnsServer -ErrorAction SilentlyContinue
+        foreach ($reverseZoneName in $reverseZoneNames) {
+            # Check if the reverse DNS zone already exists
+            $existingZone = Get-DnsServerZone -Name $reverseZoneName -ComputerName $dnsServer -ErrorAction SilentlyContinue
 
-        if ($existingZone) {
-            Write-Host "Reverse DNS zone $reverseZoneName already exists. Updating with NonsecureAndSecure dynamic updates."
-            Log-Message "Reverse DNS zone $reverseZoneName already exists. Updating with NonsecureAndSecure dynamic updates."
+            if ($existingZone) {
+                Write-Host "Reverse DNS zone $reverseZoneName already exists. Updating with NonsecureAndSecure dynamic updates."
+                Log-Message "Reverse DNS zone $reverseZoneName already exists. Updating with NonsecureAndSecure dynamic updates."
 
-            try {
-                # Update existing zone to use Secure and Non-Secure Dynamic Updates
-                Set-DnsServerPrimaryZone -Name $reverseZoneName -DynamicUpdate NonsecureAndSecure -ComputerName $dnsServer
-                Write-Host "Successfully updated reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
-                Log-Message "Successfully updated reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
-            } catch {
-                Write-Host "Failed to update reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -ForegroundColor Red
-                Log-Message "Failed to update reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -MessageType "ERROR"
-            }
-        } else {
-            try {
-                # Create a new reverse DNS zone as a primary zone for all DNS servers in the forest
-                Write-Host "Creating reverse DNS zone: $reverseZoneName with NetworkId: $networkId"
-                Add-DnsServerPrimaryZone -NetworkId $networkId -ReplicationScope Forest -DynamicUpdate NonsecureAndSecure -ComputerName $dnsServer
-                Write-Host "Successfully created reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
-                Log-Message "Successfully created reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
-            } catch {
-                if ($_.FullyQualifiedErrorId -eq "WIN32 9609,Add-DnsServerPrimaryZone") {
-                    Write-Host "Zone $reverseZoneName already exists, skipping creation." -ForegroundColor Yellow
-                    Log-Message "Zone $reverseZoneName already exists. Skipping." -MessageType "WARNING"
-                } else {
-                    Write-Host "Failed to create reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -ForegroundColor Red
-                    Log-Message "Failed to create reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -MessageType "ERROR"
+                try {
+                    # Update existing zone to use Secure and Non-Secure Dynamic Updates
+                    Set-DnsServerPrimaryZone -Name $reverseZoneName -DynamicUpdate NonsecureAndSecure -ComputerName $dnsServer
+                    Write-Host "Successfully updated reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
+                    Log-Message "Successfully updated reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
+                } catch {
+                    Write-Host "Failed to update reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -ForegroundColor Red
+                    Log-Message "Failed to update reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -MessageType "ERROR"
+                }
+            } else {
+                try {
+                    # Create a new reverse DNS zone with the specified zone name
+                    Write-Host "Creating reverse DNS zone: $reverseZoneName"
+                    Add-DnsServerPrimaryZone -Name $reverseZoneName -DynamicUpdate NonsecureAndSecure -ReplicationScope Forest -ComputerName $dnsServer
+                    Write-Host "Successfully created reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
+                    Log-Message "Successfully created reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
+                } catch {
+                    if ($_.FullyQualifiedErrorId -like "*9609*") {
+                        Write-Host "Zone $reverseZoneName already exists, skipping creation." -ForegroundColor Yellow
+                        Log-Message "Zone $reverseZoneName already exists. Skipping." -MessageType "WARNING"
+                    } else {
+                        Write-Host "Failed to create reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -ForegroundColor Red
+                        Log-Message "Failed to create reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -MessageType "ERROR"
+                    }
                 }
             }
         }
@@ -209,56 +236,32 @@ function Add-OrUpdate-ReverseDNSZone {
     }
 }
 
-# Function to add or update a reverse DNS zone for a given subnet
-function Add-OrUpdate-ReverseDNSZone {
+# Function to update Sites and Services subnets
+function Update-SitesAndServicesSubnets {
     param (
         [string]$SubnetCIDR,
-        [string]$SubnetMask
+        [string]$Location,
+        [string]$Description,
+        [string]$SitesAndServicesTarget
     )
+    try {
+        # Check if the subnet already exists in Active Directory
+        $existingSubnet = Get-ADReplicationSubnet -Filter { Name -eq $SubnetCIDR } -ErrorAction SilentlyContinue
 
-    if (-not [string]::IsNullOrWhiteSpace($SubnetCIDR)) {
-        # Extract subnet information
-        $subnetAddress, $prefixLength = $SubnetCIDR -split '/'
-        $networkId = Get-NetworkId -IPAddress $subnetAddress -SubnetMask $SubnetMask
-        $reverseZoneName = Construct-ReverseZoneName -NetworkId $networkId -PrefixLength $prefixLength
-
-        if ($reverseZoneName -eq "") {
-            Write-Host "Invalid reverse zone name. Skipping creation." -ForegroundColor Yellow
-            Log-Message "Invalid reverse zone name for subnet $SubnetCIDR. Skipping creation." -MessageType "WARNING"
-            return
-        }
-
-        # Check if the reverse DNS zone already exists
-        $existingZone = Get-DnsServerZone -Name $reverseZoneName -ComputerName $dnsServer -ErrorAction SilentlyContinue
-
-        if ($existingZone) {
-            Write-Host "Reverse DNS zone $reverseZoneName already exists. Updating with NonsecureAndSecure dynamic updates."
-            Log-Message "Reverse DNS zone $reverseZoneName already exists. Updating with NonsecureAndSecure dynamic updates."
-
-            try {
-                # Update existing zone to use Secure and Non-Secure Dynamic Updates
-                Set-DnsServerPrimaryZone -Name $reverseZoneName -DynamicUpdate NonsecureAndSecure -ComputerName $dnsServer
-                Write-Host "Successfully updated reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
-                Log-Message "Successfully updated reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
-            } catch {
-                Write-Host "Failed to update reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -ForegroundColor Red
-                Log-Message "Failed to update reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -MessageType "ERROR"
-            }
+        if ($existingSubnet) {
+            # Subnet exists, update it
+            Set-ADReplicationSubnet -Identity $existingSubnet -Description $Description -Location $Location -Site $SitesAndServicesTarget
+            Write-Host "Updated subnet $SubnetCIDR in Sites and Services."
+            Log-Message "Updated subnet $SubnetCIDR in Sites and Services."
         } else {
-            try {
-                # Double-check to ensure the zone doesn't exist before creation
-                Write-Host "Creating reverse DNS zone: $reverseZoneName with NetworkId: $networkId"
-                Add-DnsServerPrimaryZone -NetworkId $networkId -ReplicationScope Forest -DynamicUpdate NonsecureAndSecure -ComputerName $dnsServer
-                Write-Host "Successfully created reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
-                Log-Message "Successfully created reverse DNS zone: $reverseZoneName with NonsecureAndSecure Dynamic Updates"
-            } catch {
-                Write-Host "Failed to create reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -ForegroundColor Red
-                Log-Message "Failed to create reverse DNS zone: $reverseZoneName - $($_.Exception.Message)" -MessageType "ERROR"
-            }
+            # Subnet does not exist, create it
+            New-ADSubnet -Name $SubnetCIDR -Location $Location -Description $Description -Site $SitesAndServicesTarget
+            Write-Host "Created subnet $SubnetCIDR in Sites and Services."
+            Log-Message "Created subnet $SubnetCIDR in Sites and Services."
         }
-    } else {
-        Write-Host "Empty or invalid subnet received for reverse DNS zone creation." -ForegroundColor Yellow
-        Log-Message "Empty or invalid subnet received for reverse DNS zone creation." -MessageType "WARNING"
+    } catch {
+        Write-Host "Failed to update Sites and Services subnet $SubnetCIDR - $($_.Exception.Message)" -ForegroundColor Red
+        Log-Message "Failed to update Sites and Services subnet $SubnetCIDR - $($_.Exception.Message)" -MessageType "ERROR"
     }
 }
 
@@ -308,10 +311,10 @@ function Process-DHCPScopes {
         Log-Message "Processing subnet: $subnetCIDR"
 
         # Add or update reverse DNS zone for each subnet
-        Add-OrUpdate-ReverseDNSZone -SubnetCIDR $subnetCIDR -SubnetMask $subnetMask
+        Add-OrUpdate-ReverseDNSZone -SubnetCIDR $subnetCIDR -SubnetMask $subnetMask -dnsServer $DNSServer
 
         # Update Sites and Services subnets with location and description
-        Update-SitesAndServicesSubnets -SubnetCIDR $subnetCIDR -Location $location -Description $description
+        Update-SitesAndServicesSubnets -SubnetCIDR $subnetCIDR -Location $location -Description $description -SitesAndServicesTarget $SitesAndServicesTarget
 
         # Update progress bar and status
         $ProgressBar.Value = [math]::Round(($CurrentCount / $TotalScopes) * 100)
@@ -332,18 +335,18 @@ $form.Text = 'Update DNS Reverse Zones and Sites and Services Subnets'
 $form.Size = New-Object System.Drawing.Size(500, 410)
 $form.StartPosition = 'CenterScreen'
 
-# Domain Controller label and textbox
-$labelDC = New-Object System.Windows.Forms.Label
-$labelDC.Text = 'Enter DHCP Server FQDN:'
-$labelDC.Location = New-Object System.Drawing.Point(10, 20)
-$labelDC.Size = New-Object System.Drawing.Size(220, 20)
-$form.Controls.Add($labelDC)
+# DHCP Server label and textbox
+$labelDHCP = New-Object System.Windows.Forms.Label
+$labelDHCP.Text = 'Enter DHCP Server FQDN:'
+$labelDHCP.Location = New-Object System.Drawing.Point(10, 20)
+$labelDHCP.Size = New-Object System.Drawing.Size(220, 20)
+$form.Controls.Add($labelDHCP)
 
-$textBoxDC = New-Object System.Windows.Forms.TextBox
-$textBoxDC.Location = New-Object System.Drawing.Point(240, 20)
-$textBoxDC.Size = New-Object System.Drawing.Size(240, 20)
-$textBoxDC.Text = (Get-DomainFQDN)
-$form.Controls.Add($textBoxDC)
+$textBoxDHCP = New-Object System.Windows.Forms.TextBox
+$textBoxDHCP.Location = New-Object System.Drawing.Point(240, 20)
+$textBoxDHCP.Size = New-Object System.Drawing.Size(240, 20)
+$textBoxDHCP.Text = (Get-DomainFQDN)
+$form.Controls.Add($textBoxDHCP)
 
 # DNS Server label and textbox
 $labelDNS = New-Object System.Windows.Forms.Label
@@ -391,7 +394,7 @@ $executeButton.Text = 'Execute'
 
 $CancelRequested = $false
 $executeButton.Add_Click({
-    $dhcpServer = $textBoxDC.Text
+    $dhcpServer = $textBoxDHCP.Text
     $dnsServer = $textBoxDNS.Text
     $sitesAndServicesTarget = $textBoxSites.Text
 
