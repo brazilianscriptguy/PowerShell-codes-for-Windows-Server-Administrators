@@ -36,15 +36,28 @@ function Show-ErrorMessage {
     Log-Message "Error: $message" -MessageType "ERROR"
 }
 
-# Function to get the FQDN of the domain name
-function Get-DomainFQDN {
+# Get the FQDN of the current machine
+function Get-FQDN {
+    try {
+        $FQDN = ([System.Net.Dns]::GetHostEntry($env:COMPUTERNAME)).HostName
+    } catch {
+        $FQDN = $env:COMPUTERNAME
+        Log-Message -Message "Could not determine FQDN. Using COMPUTERNAME: $FQDN" -MessageType "WARNING"
+    }
+    return $FQDN
+}
+
+# Get the Domain Name (without the full FQDN)
+function Get-DomainName {
     try {
         # Retrieve domain information using WMI
         $ComputerSystem = Get-WmiObject Win32_ComputerSystem
         $Domain = $ComputerSystem.Domain
-        return $Domain
+        # Extract just the domain name (first part before the dot)
+        $DomainName = $Domain.Split('.')[0]
+        return $DomainName
     } catch {
-        Show-ErrorMessage "Unable to fetch FQDN automatically."
+        Show-ErrorMessage "Unable to fetch Domain Name automatically."
         return "YourDomainHere"
     }
 }
@@ -345,7 +358,7 @@ $form.Controls.Add($labelDHCP)
 $textBoxDHCP = New-Object System.Windows.Forms.TextBox
 $textBoxDHCP.Location = New-Object System.Drawing.Point(240, 20)
 $textBoxDHCP.Size = New-Object System.Drawing.Size(240, 20)
-$textBoxDHCP.Text = (Get-DomainFQDN)
+$textBoxDHCP.Text = Get-FQDN
 $form.Controls.Add($textBoxDHCP)
 
 # DNS Server label and textbox
@@ -358,7 +371,7 @@ $form.Controls.Add($labelDNS)
 $textBoxDNS = New-Object System.Windows.Forms.TextBox
 $textBoxDNS.Location = New-Object System.Drawing.Point(240, 50)
 $textBoxDNS.Size = New-Object System.Drawing.Size(240, 20)
-$textBoxDNS.Text = (Get-DomainFQDN)
+$textBoxDNS.Text = Get-FQDN
 $form.Controls.Add($textBoxDNS)
 
 # Sites and Services Subnet target label and textbox
@@ -371,7 +384,8 @@ $form.Controls.Add($labelSites)
 $textBoxSites = New-Object System.Windows.Forms.TextBox
 $textBoxSites.Location = New-Object System.Drawing.Point(240, 80)
 $textBoxSites.Size = New-Object System.Drawing.Size(240, 20)
-$textBoxSites.Text = (Get-DomainFQDN).Split('.')[0]
+# Automatically fill with just the current Domain Name
+$textBoxSites.Text = Get-DomainName
 $form.Controls.Add($textBoxSites)
 
 # Progress bar
