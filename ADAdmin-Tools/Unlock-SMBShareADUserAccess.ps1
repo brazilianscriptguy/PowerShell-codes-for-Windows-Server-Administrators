@@ -1,6 +1,6 @@
-# PowerShell Script to Unlock User in a DFS Namespace Access with GUI
+# PowerShell Script to Manage DFS Permissions and Unlock Users
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: September 16, 2024
+# Updated: September 23, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -22,7 +22,6 @@ public class Window {
     }
 }
 "@
-
 [Window]::Hide()
 
 # Load Windows Forms and drawing libraries
@@ -30,254 +29,242 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
-# Configure error handling to silently continue
-$ErrorActionPreference = "SilentlyContinue"
+# Configure error handling
+$ErrorActionPreference = "Stop"
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
-$logFileName = "${scriptName}_$(Get-Date -Format 'yyyyMMddHHmmss').log"
-$logPath = Join-Path $logDir $logFileName
+$logPath = Join-Path $logDir "$scriptName.log"
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
-    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
-    if (-not (Test-Path $logDir)) {
+    try {
+        New-Item -Path $logDir -ItemType Directory -ErrorAction Stop
+    } catch {
         Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
         return
     }
 }
 
-# Enhanced logging function with error handling
+# Logging function with error handling
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Message,
-        [Parameter(Mandatory=$false)]
-        [string]$MessageType = "INFO"
+        [string]$Message
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] [$MessageType] $Message"
+    $logEntry = "[$timestamp] $Message"
     try {
-        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+        Add-Content -Path $logPath -Value $logEntry
     } catch {
         Write-Error "Failed to write to log: $_"
     }
-}
-
-# Function to create label
-function Create-Label {
-    param (
-        [string]$Text,
-        [int[]]$Location,
-        [int[]]$Size
-    )
-    $label = New-Object System.Windows.Forms.Label
-    $label.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
-    $label.Size = New-Object System.Drawing.Size($Size[0], $Size[1])
-    $label.Text = $Text
-    return $label
-}
-
-# Function to create textbox
-function Create-TextBox {
-    param (
-        [int[]]$Location,
-        [int[]]$Size,
-        [string]$Text = ""
-    )
-    $textBox = New-Object System.Windows.Forms.TextBox
-    $textBox.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
-    $textBox.Size = New-Object System.Drawing.Size($Size[0], $Size[1])
-    $textBox.Text = $Text
-    return $textBox
-}
-
-# Function to create button
-function Create-Button {
-    param (
-        [string]$Text,
-        [int[]]$Location,
-        [int[]]$Size,
-        [ScriptBlock]$OnClick
-    )
-    $button = New-Object System.Windows.Forms.Button
-    $button.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
-    $button.Size = New-Object System.Drawing.Size($Size[0], $Size[1])
-    $button.Text = $Text
-    $button.Add_Click($OnClick)
-    return $button
-}
-
-# Function to create ComboBox
-function Create-ComboBox {
-    param (
-        [int[]]$Location,
-        [int[]]$Size,
-        [string[]]$Items
-    )
-    $comboBox = New-Object System.Windows.Forms.ComboBox
-    $comboBox.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
-    $comboBox.Size = New-Object System.Drawing.Size($Size[0], $Size[1])
-    $comboBox.Items.AddRange($Items)
-    $comboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-    return $comboBox
 }
 
 # Function to display error messages
 function Show-ErrorMessage {
     param ([string]$message)
     [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    Log-Message "Error: $message" -MessageType "ERROR"
+    Log-Message "Error: $message"
 }
 
-# Function to display warning messages
-function Show-WarningMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Warning', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
-    Log-Message "Warning: $message" -MessageType "WARNING"
-}
-
-# Function to display information messages
-function Show-InfoMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    Log-Message "Info: $message" -MessageType "INFO"
-}
-
-# Function to retrieve all domains in the current forest with enhanced error handling and logging
-function Get-ForestDomains {
-    try {
-        # Get the current forest
-        $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
-
-        # Retrieve all domains in the forest
-        $domains = $forest.Domains | ForEach-Object { $_.Name }
-
-        # Check if any domains were retrieved
-        if ($domains.Count -gt 0) {
-            Log-Message "Successfully retrieved forest domains: $($domains -join ', ')"
-            return $domains
-        } else {
-            Show-WarningMessage "No domains found in the current forest."
-            Log-Message "No domains found in the current forest."
-            return @() # Return an empty array if no domains found
-        }
-    } catch {
-        # Log and display error message if the operation fails
-        Show-ErrorMessage "Failed to retrieve forest domains: $_"
-        Log-Message "Error retrieving forest domains: $_" -MessageType "ERROR"
-        return @() # Return an empty array in case of an error
-    }
-}
-
-# Function to gather current DFS namespaces using Win32_Share
-function Get-DFSNamespaces {
+# Function to create a control element (label, combobox, etc.)
+function Create-Control {
     param (
-        [string]$ComputerName
+        [string]$type,
+        [string]$text = '',
+        [array]$location,
+        [array]$size,
+        [scriptblock]$onClick = $null,
+        [array]$items = $null
     )
+    $control = New-Object ("System.Windows.Forms.$type")
+    $control.Text = $text
+    $control.Location = New-Object System.Drawing.Point($location[0], $location[1])
+    $control.Size = New-Object System.Drawing.Size($size[0], $size[1])
 
+    if ($type -eq 'ComboBox') {
+        $control.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+        if ($items) { $control.Items.AddRange($items) }
+    } elseif ($type -eq 'Button' -and $onClick) {
+        $control.Add_Click($onClick)
+    }
+    return $control
+}
+
+# Function to gather DFS namespaces
+function Get-DFSNamespaces {
     try {
-        $shares = Get-CimInstance -ClassName Win32_Share -ComputerName $ComputerName | Where-Object {
-            $_.Type -eq 0 # 0 is the type for Disk Drive
-        }
-        $namespaces = $shares.Name
-        if ($namespaces) {
-            Log-Message "Retrieved DFS Namespaces: $($namespaces -join ', ')"
-            return $namespaces
-        } else {
-            Show-WarningMessage "No DFS Namespaces found."
-            return @()
-        }
+        Get-SmbShare | Where-Object { $_.Special -eq $false } | Select-Object -ExpandProperty Name
     } catch {
-        Show-WarningMessage "Failed to retrieve DFS Namespaces: $_"
+        Show-ErrorMessage "Failed to retrieve DFS Namespaces: $_"
         return @()
     }
 }
 
-# Retrieve Forest Domains
-$forestDomains = Get-ForestDomains
-if ($forestDomains.Count -eq 0) {
-    Show-WarningMessage "Unable to retrieve forest domains. Please check your Active Directory settings."
-} else {
-    Log-Message "Forest domains: $($forestDomains -join ', ')"
+# Function to gather all permissions for a specific user
+function Get-UserPermissions {
+    param (
+        [string]$username
+    )
+    try {
+        $shares = Get-SmbShare
+        $permissions = @()
+
+        foreach ($share in $shares) {
+            $access = Get-SmbShareAccess -Name $share.Name | Where-Object { $_.AccountName -eq $username }
+            if ($access) {
+                $permissions += $access
+            }
+        }
+        return $permissions
+    } catch {
+        Show-ErrorMessage "Failed to retrieve permissions for user: $username"
+        return @()
+    }
 }
 
-# Retrieve DFS Namespaces on the local computer
-$localComputerName = $env:COMPUTERNAME
-$dfsNamespaces = Get-DFSNamespaces -ComputerName $localComputerName
+# Function to unlock selected users
+function Unlock-Users {
+    param (
+        [string]$shareName,
+        [array]$selectedUsers
+    )
+    if ([string]::IsNullOrWhiteSpace($shareName) -or $selectedUsers.Count -eq 0) {
+        Show-ErrorMessage 'Please select a DFS Share and at least one locked user.'
+    } else {
+        foreach ($username in $selectedUsers) {
+            try {
+                Unblock-SmbShareAccess -Name $shareName -AccountName $username -Force
+                Show-ErrorMessage "User $username successfully unlocked in DFS Share: $shareName."
+                Log-Message "User $username successfully unlocked in DFS Share: $shareName."
+            } catch {
+                Show-ErrorMessage "Failed to unlock user ${username}: $_"
+            }
+        }
+    }
+}
+
+# Function to create CheckedListBox for locked users
+function CreateCheckedListBox {
+    param (
+        [array]$location,
+        [array]$size
+    )
+    $checkedListBox = New-Object System.Windows.Forms.CheckedListBox
+    $checkedListBox.Location = New-Object System.Drawing.Point($location[0], $location[1])
+    $checkedListBox.Size = New-Object System.Drawing.Size($size[0], $size[1])
+    return $checkedListBox
+}
 
 # Main form setup
 $main_form = New-Object System.Windows.Forms.Form
-$main_form.Text = 'Unlock User in DFS Namespace'
-$main_form.Size = New-Object System.Drawing.Size(500, 400)
+$main_form.Text = 'Manage DFS Permissions and Unlock Users'
+$main_form.Size = New-Object System.Drawing.Size(500, 520)  # Increased height
 $main_form.StartPosition = 'CenterScreen'
-$main_form.Topmost = $true
 
-# Labels and ComboBox setup for domains
-$main_form.Controls.Add((Create-Label 'Select the Domain:' @(10,20) @(480,20)))
-$comboBox_domain = Create-ComboBox @(10,50) @(460,20) -Items $forestDomains
-$main_form.Controls.Add($comboBox_domain)
+# Create TabControl to organize features
+$tabControl = New-Object System.Windows.Forms.TabControl
+$tabControl.Size = New-Object System.Drawing.Size(480, 400)  # Adjusted height for content
+$tabControl.Location = New-Object System.Drawing.Point(10, 10)
 
-# Labels and ComboBox setup for DFS Namespaces
-$main_form.Controls.Add((Create-Label 'Select the DFS Namespace:' @(10,90) @(480,20)))
-$comboBox_namespace = Create-ComboBox @(10,120) @(460,20) -Items $dfsNamespaces
-$main_form.Controls.Add($comboBox_namespace)
+# Tab 1: Manage Locked Users
+$tabPage1 = New-Object System.Windows.Forms.TabPage
+$tabPage1.Text = "Manage Locked Users"
+$tabPage2 = New-Object System.Windows.Forms.TabPage
+$tabPage2.Text = "User Permissions"
 
-$main_form.Controls.Add((Create-Label 'Enter the User Login name:' @(10,160) @(480,20)))
-$textbox_user = Create-TextBox @(10,190) @(460,20)
-$main_form.Controls.Add($textbox_user)
+# Auto-populate DFS Shares
+$dfsShares = Get-DFSNamespaces
 
-# Check Blocked Users Button with Validation and Error Handling
-$check_button = Create-Button 'Check Blocked Users' @(10,230) @(230,40) {
-    try {
-        if ([string]::IsNullOrWhiteSpace($comboBox_namespace.SelectedItem) -or [string]::IsNullOrWhiteSpace($comboBox_domain.SelectedItem) -or [string]::IsNullOrWhiteSpace($textbox_user.Text)) {
-            Show-WarningMessage 'Please enter all required fields (namespace, domain name, and username).'
-        } else {
-            $namespace = "\\$($comboBox_namespace.SelectedItem)"
-            $domain = $comboBox_domain.SelectedItem
-            $username = "$domain\$($textbox_user.Text)"
-            $result = Get-SmbShareAccess -Name $namespace
-            if ($result) {
-                $result | Out-GridView -Title 'SMB Share Access'
-                Log-Message "SMB Share Access retrieved successfully."
+# --- Tab 1: Manage Locked Users ---
+$tabPage1.Controls.Add((Create-Control -type 'Label' -text 'Select the DFS Share:' -location @(10,20) -size @(440,20)))
+$comboBox_share = Create-Control -type 'ComboBox' -location @(10,50) -size @(440,20) -items $dfsShares
+$tabPage1.Controls.Add($comboBox_share)
+
+# Locked users CheckedListBox
+$tabPage1.Controls.Add((Create-Control -type 'Label' -text 'Locked Users:' -location @(10,90) -size @(440,20)))
+$checkedListBox_lockedUsers = CreateCheckedListBox @(10,120) @(440,120)
+$tabPage1.Controls.Add($checkedListBox_lockedUsers)
+
+# Button to load locked users into CheckedListBox
+$load_button = Create-Control -type 'Button' -text 'Load Locked Users' -location @(10,260) -size @(440,30) -onClick {
+    $shareName = $comboBox_share.SelectedItem
+    if ([string]::IsNullOrWhiteSpace($shareName)) {
+        Show-ErrorMessage 'Please select a DFS Share.'
+    } else {
+        try {
+            $lockedUsers = Get-SmbShareAccess -Name $shareName | Where-Object { $_.AccessControlType -eq 'Deny' } | Select-Object -ExpandProperty AccountName
+            if ($lockedUsers.Count -gt 0) {
+                $checkedListBox_lockedUsers.Items.Clear()
+                $checkedListBox_lockedUsers.Items.AddRange($lockedUsers)
+                Log-Message "Locked users loaded successfully for share: $shareName."
             } else {
-                Show-InfoMessage 'No blocked users found for the specified DFS Namespace.'
-                Log-Message "No blocked users found for DFS Namespace: $namespace"
+                Show-ErrorMessage "No locked users found for the share: $shareName."
             }
+        } catch {
+            Show-ErrorMessage "Failed to load locked users: $_"
         }
-    } catch {
-        Show-ErrorMessage "Failed to retrieve SMB Share Access: $_"
     }
 }
-$main_form.Controls.Add($check_button)
+$tabPage1.Controls.Add($load_button)
 
-# Unlock User Button with Validation, Error Handling, and Feedback
-$unblock_button = Create-Button 'Unlock User' @(250,230) @(230,40) {
-    try {
-        if ([string]::IsNullOrWhiteSpace($comboBox_namespace.SelectedItem) -or [string]::IsNullOrWhiteSpace($comboBox_domain.SelectedItem) -or [string]::IsNullOrWhiteSpace($textbox_user.Text)) {
-            Show-WarningMessage 'Please enter all required fields (namespace, domain name, and username).'
+# Unlock Users Button
+$unblock_button = Create-Control -type 'Button' -text 'Unlock Selected Users' -location @(10,300) -size @(440,30) -onClick {
+    $shareName = $comboBox_share.SelectedItem
+    $selectedUsers = $checkedListBox_lockedUsers.CheckedItems
+    Unlock-Users -shareName $shareName -selectedUsers $selectedUsers
+}
+$tabPage1.Controls.Add($unblock_button)
+
+# --- Tab 2: User Permissions ---
+$tabPage2.Controls.Add((Create-Control -type 'Label' -text 'Enter User to Manage Permissions:' -location @(10,20) -size @(440,20)))
+$textbox_user = New-Object System.Windows.Forms.TextBox
+$textbox_user.Location = New-Object System.Drawing.Point(10,50)
+$textbox_user.Size = New-Object System.Drawing.Size(440,20)
+$tabPage2.Controls.Add($textbox_user)
+
+# ListBox to show all DFS permissions of the specified user
+$tabPage2.Controls.Add((Create-Control -type 'Label' -text 'User Permissions on DFS Shares:' -location @(10,80) -size @(440,20)))
+$listbox_permissions = New-Object System.Windows.Forms.ListBox
+$listbox_permissions.Location = New-Object System.Drawing.Point(10,110)
+$listbox_permissions.Size = New-Object System.Drawing.Size(440,120)
+$tabPage2.Controls.Add($listbox_permissions)
+
+# Button to load all permissions for the specified user
+$load_permissions_button = Create-Control -type 'Button' -text 'Load User Permissions' -location @(10,250) -size @(440,30) -onClick {
+    $username = $textbox_user.Text
+    if ([string]::IsNullOrWhiteSpace($username)) {
+        Show-ErrorMessage 'Please enter a username to load permissions.'
+    } else {
+        $permissions = Get-UserPermissions -username $username
+        if ($permissions.Count -gt 0) {
+            $listbox_permissions.Items.Clear()
+            $permissions | ForEach-Object {
+                $listbox_permissions.Items.Add("Share: $($_.Name) | Access: $($_.AccessControlType)")
+            }
+            Log-Message "Permissions loaded successfully for user: $username."
         } else {
-            $namespace = "\\$($comboBox_namespace.SelectedItem)"
-            $domain = $comboBox_domain.SelectedItem
-            $username = "$domain\$($textbox_user.Text)"
-            Unblock-SmbShareAccess -Name $namespace -AccountName $username -Force
-            Show-InfoMessage 'User successfully unlocked!'
-            Log-Message "User $username successfully unlocked in DFS Namespace: $namespace"
+            Show-ErrorMessage "No permissions found for user: $username."
         }
-    } catch {
-        Show-ErrorMessage "Failed to unlock user: $_"
     }
 }
-$main_form.Controls.Add($unblock_button)
+$tabPage2.Controls.Add($load_permissions_button)
+
+# Add tabs to TabControl
+$tabControl.Controls.Add($tabPage1)
+$tabControl.Controls.Add($tabPage2)
+
+# Add TabControl to the main form
+$main_form.Controls.Add($tabControl)
 
 # Close Button
-$close_button = Create-Button 'Close' @(10,280) @(470,40) {
+$close_button = Create-Control -type 'Button' -text 'Close' -location @(10,430) -size @(460,30) -onClick {
     $main_form.Close()
 }
 $main_form.Controls.Add($close_button)
 
-# Show the main form
 [void]$main_form.ShowDialog()
 
 # End of script
