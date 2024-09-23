@@ -110,35 +110,37 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 49. **Retrieve-ADComputer-SharedFolders.ps1**: Searches Active Directory for workstations, checks for any local folder sharing, and logs the results. Provides a user-friendly GUI for specifying the domain, viewing results, and exporting data to a CSV file.
 
-50. **Retrieve-Empty-DNSReverseLookupZone.ps1**: Provides a user-friendly graphical interface for identifying and managing empty DNS reverse lookup zones on a specified DNS server, simplifying DNS maintenance by helping administrators efficiently clean up unused reverse lookup zones.
+50. **Retrieve-DHCPReservations.ps1**: Automates the listing of DHCP reservations and allows filtering by hostname. It provides a graphical user interface (GUI) that simplifies the process of viewing DHCP reservations on Windows Server environments.
 
-51. **Retrieve-ServersDiskSpace.ps1**: Retrieves disk space usage from multiple servers in an Active Directory domain. The script gathers disk space information from all servers and displays the results in a user-friendly text box.
+51. **Retrieve-Empty-DNSReverseLookupZone.ps1**: Provides a user-friendly graphical interface for identifying and managing empty DNS reverse lookup zones on a specified DNS server, simplifying DNS maintenance by helping administrators efficiently clean up unused reverse lookup zones.
 
-52. **Retrieve-Windows-ProductKey.ps1**: Retrieves the current Windows Product Key from the registry and displays it in a simple graphical user interface (GUI), while also logging the process and any errors encountered.
+52. **Retrieve-ServersDiskSpace.ps1**: Retrieves disk space usage from multiple servers in an Active Directory domain. The script gathers disk space information from all servers and displays the results in a user-friendly text box.
 
-53. **Shorten-LongFileNames.ps1**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
+53. **Retrieve-Windows-ProductKey.ps1**: Retrieves the current Windows Product Key from the registry and displays it in a simple graphical user interface (GUI), while also logging the process and any errors encountered.
 
-54. **Synchronize-ADComputerTime.ps1**: Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
+54. **Shorten-LongFileNames.ps1**: Efficiently shortens files with long names to prevent system errors and improve file system organization.
 
-55. **Synchronize-All-ForestDCs.ps1**: Automates the synchronization of all Domain Controllers (DCs) within an Active Directory forest across multiple sites, ensuring consistency and up-to-date replication, and retrieves the replication summary.
+55. **Synchronize-ADComputerTime.ps1**: Ensures accurate workstation time settings across different time zones, utilizing a GUI for easy adjustments.
 
-56. **Uninstall-SelectedApp.ps1**: Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
+56. **Synchronize-All-ForestDCs.ps1**: Automates the synchronization of all Domain Controllers (DCs) within an Active Directory forest across multiple sites, ensuring consistency and up-to-date replication, and retrieves the replication summary.
 
-57. **Unjoin-ADComputer-and-Cleanup.ps1**: Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
+57. **Uninstall-SelectedApp.ps1**: Offers a GUI to streamline the uninstallation process of applications, improving administrative efficiency.
 
-58. **Unlock-SMBShareADUserAccess.ps1**: Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
+58. **Unjoin-ADComputer-and-Cleanup.ps1**: Simplifies the process of safely removing a computer from a Windows domain, including cleanup actions, via an intuitive GUI.
 
-59. **Update-ADComputer-Descriptions.ps1**: Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
+59. **Unlock-SMBShareADUserAccess.ps1**: Quickly resolves SMB Share access issues, ensuring uninterrupted user access to shared network resources.
 
-60. **Update-ADComputer-Winget-Explicit.ps1**: Leverages the `winget` tool for direct, script-driven software updates, enhancing system security and performance.
+60. **Update-ADComputer-Descriptions.ps1**: Facilitates the updating of workstation descriptions in AD, using a GUI for streamlined data entry and management.
 
-61. **Update-ADComputer-Winget-viaGPO.ps1**: Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
+61. **Update-ADComputer-Winget-Explicit.ps1**: Leverages the `winget` tool for direct, script-driven software updates, enhancing system security and performance.
 
-62. **Update-ADUserDisplayName.ps1**: Retrieves users whose email addresses match a specified filter, extracts the first and last names from the email, converts them to uppercase, and updates the display name accordingly.
+62. **Update-ADComputer-Winget-viaGPO.ps1**: Automates the process of updating software on Windows workstations through `winget`, with deployment via Group Policy for ease and efficiency.
 
-63. **Update-DNS-n-Sites-Services.ps1**: Automates the process of updating reverse DNS zones and Active Directory Sites and Services subnets based on DHCP scope data.
+63. **Update-ADUserDisplayName.ps1**: Retrieves users whose email addresses match a specified filter, extracts the first and last names from the email, converts them to uppercase, and updates the display name accordingly.
 
-64. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
+64. **Update-DNS-n-Sites-Services.ps1**: Automates the process of updating reverse DNS zones and Active Directory Sites and Services subnets based on DHCP scope data.
+
+65. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
 ## ❓ Additional Assistance
 
