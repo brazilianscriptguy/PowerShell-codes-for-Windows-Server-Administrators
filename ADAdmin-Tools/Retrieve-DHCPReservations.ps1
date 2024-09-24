@@ -279,7 +279,4 @@ $buttonExportCSV.Add_Click({
 # Run the form
 [void]$form.ShowDialog()
 
-# Optionally show the PowerShell console window after the form is closed
-#[Window]::Show()
-
 # End of script
