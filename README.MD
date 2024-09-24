@@ -81,6 +81,7 @@ To begin using the tools in this repository:
 4. **Search for RSAT**: Type "RSAT" in the search bar to find all available RSAT tools.
 5. **Select and Install**: Choose the relevant RSAT tools, such as:
    - `Active Directory Domain Services and Lightweight Directory Tools`
+   - `DHCP Server Tools`
    - `DNS Server Tools`
    - `Group Policy Management Tools`
 
