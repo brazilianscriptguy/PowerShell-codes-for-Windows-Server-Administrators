@@ -1,6 +1,6 @@
 # PowerShell script to Synchronize all DCs in the Forest across All Sites
 # Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: August 5, 2024
+# Updated: September 5, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -161,7 +161,7 @@ $form.Controls.Add($syncButton)
 $logButton = New-Object System.Windows.Forms.Button
 $logButton.Location = New-Object System.Drawing.Point(250, 520)
 $logButton.Size = New-Object System.Drawing.Size(150, 50)
-$logButton.Text = "View Output Log"
+$logButton.Text = "View Output Logs"
 $logButton.Add_Click({
     Show-Log
 })
@@ -171,7 +171,7 @@ $form.Controls.Add($logButton)
 $replSummaryButton = New-Object System.Windows.Forms.Button
 $replSummaryButton.Location = New-Object System.Drawing.Point(450, 520)
 $replSummaryButton.Size = New-Object System.Drawing.Size(250, 50)
-$replSummaryButton.Text = "Show Repadmin ReplSummary"
+$replSummaryButton.Text = "Show Replication Summary"
 $replSummaryButton.Add_Click({
     Show-ReplSummary
 })
