@@ -1,6 +1,6 @@
-# PowerShell Script to Retrieve DHCP Server Reservations IP Address
+# PowerShell Script to Retrieve DHCP reservations and allows filtering by hostname(s).
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: September 23, 2024
+# Updated: September 25, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -31,7 +31,7 @@ Add-Type -AssemblyName System.Drawing
 Import-Module DhcpServer -ErrorAction SilentlyContinue
 
 # Determine the script name and set up logging path
-$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$scriptName = 'Retrieve-DHCPReservations'
 $logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
@@ -100,7 +100,7 @@ $form.StartPosition = "CenterScreen"
 $labelDhcpServer = New-Object System.Windows.Forms.Label
 $labelDhcpServer.Location = New-Object System.Drawing.Point(10, 20)
 $labelDhcpServer.Size = New-Object System.Drawing.Size(110, 20)
-$labelDhcpServer.Text = "DHCP Server Name:"
+$labelDhcpServer.Text = "DHCP Server:"
 
 # Create a textbox for DHCP Server input
 $textDhcpServer = New-Object System.Windows.Forms.TextBox
@@ -119,6 +119,16 @@ $textNameFilter = New-Object System.Windows.Forms.TextBox
 $textNameFilter.Location = New-Object System.Drawing.Point(130, 50)
 $textNameFilter.Size = New-Object System.Drawing.Size(400, 20)
 
+# Create a ToolTip object and set up the tooltip for the Name Filter textbox
+$toolTip = New-Object System.Windows.Forms.ToolTip
+$toolTip.SetToolTip($textNameFilter, "Enter hostnames separated by commas (e.g., TJP,MCPP,OPQP)")
+
+# Create a label for additional instructions on Name filter
+$labelNameFilterTip = New-Object System.Windows.Forms.Label
+$labelNameFilterTip.Location = New-Object System.Drawing.Point(130, 75)
+$labelNameFilterTip.Size = New-Object System.Drawing.Size(400, 15)
+$labelNameFilterTip.Text = "Use commas to separate multiple hostnames."
+
 # Create a button to trigger the data retrieval
 $buttonGetReservations = New-Object System.Windows.Forms.Button
 $buttonGetReservations.Location = New-Object System.Drawing.Point(550, 18)
@@ -134,7 +144,7 @@ $buttonExportCSV.Enabled = $false  # Initially disabled
 
 # Create a DataGridView to display the reservations
 $dataGridView = New-Object System.Windows.Forms.DataGridView
-$dataGridView.Location = New-Object System.Drawing.Point(10, 90)
+$dataGridView.Location = New-Object System.Drawing.Point(10, 100)
 $dataGridView.Size = New-Object System.Drawing.Size(810, 410)
 $dataGridView.AutoSizeColumnsMode = 'Fill'
 $dataGridView.ReadOnly = $true
@@ -144,21 +154,22 @@ $form.Controls.Add($labelDhcpServer)
 $form.Controls.Add($textDhcpServer)
 $form.Controls.Add($labelNameFilter)
 $form.Controls.Add($textNameFilter)
+$form.Controls.Add($labelNameFilterTip)
 $form.Controls.Add($buttonGetReservations)
 $form.Controls.Add($buttonExportCSV)
 $form.Controls.Add($dataGridView)
 
-# Variables to store the retrieved data
-$allReservations = @()
-$filteredReservations = @()
+# Variables to store the retrieved data (use script scope)
+$script:allReservations = @()
+$script:filteredReservations = @()
 
 # Define the button click event for Get Reservations
 $buttonGetReservations.Add_Click({
     # Clear previous data
     $dataGridView.Rows.Clear()
     $dataGridView.Columns.Clear()
-    $allReservations = @()
-    $filteredReservations = @()
+    $script:allReservations = @()
+    $script:filteredReservations = @()
     $buttonExportCSV.Enabled = $false  # Disable export button until data is loaded
 
     # Get the DHCP server name from the textbox
@@ -181,7 +192,7 @@ $buttonGetReservations.Add_Click({
         Log-Message -Message "Attempting to retrieve DHCP scopes from server: $dhcpServer"
 
         # Initialize an array to store all reservations
-        $allReservations = @()
+        $script:allReservations = @()
 
         # Get all DHCP scopes on the specified server
         $scopes = Get-DhcpServerv4Scope -ComputerName $dhcpServer -ErrorAction Stop
@@ -190,16 +201,16 @@ $buttonGetReservations.Add_Click({
 
         # Loop through each scope to get reservations
         foreach ($scope in $scopes) {
-            $reservations = Get-DhcpServerv4Reservation -ComputerName $dhcpServer -ScopeId $scope.ScopeId -ErrorAction Stop
+            $reservations = Get-DhcpServerv4Reservation -ComputerName $dhcpServer -ScopeId $scope.ScopeId -ErrorAction SilentlyContinue
             if ($reservations) {
-                $allReservations += $reservations
+                $script:allReservations += $reservations
                 Log-Message -Message "Retrieved $($reservations.Count) reservations from scope $($scope.ScopeId)"
             } else {
                 Log-Message -Message "No reservations found in scope $($scope.ScopeId)"
             }
         }
 
-        if ($allReservations.Count -eq 0) {
+        if ($script:allReservations.Count -eq 0) {
             Show-InfoMessage "No reservations found on the specified DHCP server."
             return
         }
@@ -207,14 +218,27 @@ $buttonGetReservations.Add_Click({
         # Apply name filter if provided
         $filterText = $textNameFilter.Text.Trim()
         if (-not [string]::IsNullOrEmpty($filterText)) {
-            $filteredReservations = $allReservations | Where-Object { $_.Name -like "*$filterText*" }
-            Log-Message -Message "Applied name filter: '*$filterText*', resulting in $($filteredReservations.Count) reservations"
+            # Split the input by commas, trim whitespace, and filter out empty entries
+            $filterArray = $filterText -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+
+            if ($filterArray.Count -eq 0) {
+                Show-ErrorMessage "Invalid filter input. Please enter valid hostnames separated by commas."
+                return
+            }
+
+            # Build a regex pattern with alternation for multiple filters
+            $escapedFilters = $filterArray | ForEach-Object { [regex]::Escape($_) }
+            $regexPattern = ($escapedFilters -join '|')
+
+            # Apply the regex pattern to filter reservations
+            $script:filteredReservations = $script:allReservations | Where-Object { $_.Name -match $regexPattern }
+            Log-Message -Message "Applied name filters: '$($filterArray -join ', ')', resulting in $($script:filteredReservations.Count) reservations"
         } else {
-            $filteredReservations = $allReservations
-            Log-Message -Message "No name filter applied, total reservations: $($filteredReservations.Count)"
+            $script:filteredReservations = $script:allReservations
+            Log-Message -Message "No name filter applied, total reservations: $($script:filteredReservations.Count)"
         }
 
-        if ($filteredReservations.Count -eq 0) {
+        if ($script:filteredReservations.Count -eq 0) {
             Show-InfoMessage "No reservations match the specified filter."
             return
         }
@@ -226,7 +250,7 @@ $buttonGetReservations.Add_Click({
         }
 
         # Populate the DataGridView with reservation data
-        foreach ($reservation in $filteredReservations) {
+        foreach ($reservation in $script:filteredReservations) {
             $row = $dataGridView.Rows.Add()
             $dataGridView.Rows[$row].Cells["ScopeId"].Value = $reservation.ScopeId
             $dataGridView.Rows[$row].Cells["IPAddress"].Value = $reservation.IPAddress
@@ -262,17 +286,27 @@ $buttonExportCSV.Add_Click({
         if ($saveFileDialog.ShowDialog() -eq 'OK') {
             $csvPath = $saveFileDialog.FileName
 
-            # Export the filtered reservations to CSV
-            $filteredReservations |
-                Select-Object ScopeId, IPAddress, ClientId, Description, Name |
-                Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+            # Log the number of reservations to export
+            Log-Message -Message "Number of reservations to export: $($script:filteredReservations.Count)"
 
-            Show-InfoMessage "Reservations exported successfully to $csvPath"
-            Log-Message -Message "Reservations exported to $csvPath"
+            if ($script:filteredReservations.Count -gt 0) {
+                # Select properties that are present in the reservation objects
+                $exportData = $script:filteredReservations | Select-Object ScopeId, IPAddress, ClientId, Description, Name
+
+                # Export the filtered reservations to CSV
+                $exportData | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+
+                Show-InfoMessage "Reservations exported successfully to $csvPath"
+                Log-Message -Message "Reservations exported to $csvPath"
+            } else {
+                Show-ErrorMessage "There are no reservations to export."
+                Log-Message -Message "Export failed: No data to export." -MessageType "ERROR"
+            }
         }
     }
     catch {
         Show-ErrorMessage "An error occurred during export: $($_.Exception.Message)"
+        Log-Message -Message "An error occurred during export: $($_.Exception.Message)" -MessageType "ERROR"
     }
 })
 
