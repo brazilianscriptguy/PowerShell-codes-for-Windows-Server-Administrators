@@ -72,7 +72,7 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 31. **Inventory-InstalledSoftwareList.ps1**: Compiles a detailed inventory of installed software, presenting the data in an easy-to-analyze format, ideal for auditing and tracking purposes.
 
-32. **Inventory-LastLogonADUser.ps1**: Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
+32. **Inventory-ADUserLastLogon.ps1**: Offers insights into user logon activities, identifying potentially inactive accounts for better AD management.
 
 33. **Manage-Disabled-Expired-ADUserAccounts.ps1**: Automates the disabling of expired user accounts within an Active Directory environment, enhancing security and compliance by ensuring inactive accounts are promptly deactivated.
 
