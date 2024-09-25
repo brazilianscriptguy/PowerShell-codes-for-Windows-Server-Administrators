@@ -57,9 +57,7 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 22. **Enhance-BGInfoDisplay-viaGPO.ps1** and **Enhance-BGInfoDisplay-viaGPO.bgi**: Integrates BGInfo to enrich server desktop displays with critical system information, deployed easily across servers via GPO.
 
 23. **Find-Shorter-ADComputerNames.ps1**: Automates the identification and cataloging of Active Directory workstation names that are shorter than 15 characters, enhancing network management and compliance monitoring.
-
-24. **Gather-Elevated-ADForestInfo.ps1:** Gathers comprehensive information on elevated Active Directory (AD) groups and users, including administrators, service accounts, and special groups, across an entire AD Forest.
-
+   
 25. **Initiate-MultipleRDPSessions.ps1**: Enables the initiation of RDP sessions to multiple servers simultaneously, significantly enhancing remote management capabilities.
 
 26. **Install-FusionInventoryAgent-viaGPO.vbs**: Facilitates the deployment of FusionInventory Agent on workstations and servers, optimizing inventory management via Group Policy Objects (GPO).
@@ -111,7 +109,8 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 49. **Retrieve-ADComputer-SharedFolders.ps1**: Searches Active Directory for workstations, checks for any local folder sharing, and logs the results. Provides a user-friendly GUI for specifying the domain, viewing results, and exporting data to a CSV file.
 
 50. **Retrieve-DHCPReservations.ps1**: Automates the listing of DHCP reservations and allows filtering by hostname. It provides a graphical user interface (GUI) that simplifies the process of viewing DHCP reservations on Windows Server environments.
-51. ssss
+
+51. **Retrieve-Elevated-ADForestInfo.ps1**: Gathers comprehensive information on elevated Active Directory (AD) groups and users, including administrators, service accounts, and special groups, across an entire AD Forest.
 
 52. **Retrieve-Empty-DNSReverseLookupZone.ps1**: Provides a user-friendly graphical interface for identifying and managing empty DNS reverse lookup zones on a specified DNS server, simplifying DNS maintenance by helping administrators efficiently clean up unused reverse lookup zones.
 
