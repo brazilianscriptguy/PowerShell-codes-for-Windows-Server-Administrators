@@ -121,7 +121,7 @@ $textNameFilter.Size = New-Object System.Drawing.Size(400, 20)
 
 # Create a ToolTip object and set up the tooltip for the Name Filter textbox
 $toolTip = New-Object System.Windows.Forms.ToolTip
-$toolTip.SetToolTip($textNameFilter, "Enter hostnames separated by commas (e.g., TJP,MCPP,OPQP)")
+$toolTip.SetToolTip($textNameFilter, "Enter hostnames separated by commas (e.g., PRT,WKS,SRV)")
 
 # Create a label for additional instructions on Name filter
 $labelNameFilterTip = New-Object System.Windows.Forms.Label
