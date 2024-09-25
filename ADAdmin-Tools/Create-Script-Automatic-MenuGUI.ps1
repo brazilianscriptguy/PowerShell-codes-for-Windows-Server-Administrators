@@ -1,6 +1,6 @@
-# PowerShell Script to create a Menu to Execute PowerShell Scripts
+# PowerShell Script Template to create a Menu to Execute PowerShell Scripts
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 15, 2024
+# Updated: September 25, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -28,13 +28,13 @@ public class Window {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Get the current script directory
+# Get the current script directory (can be customized as needed)
 $scriptDirectory = (Get-Location).Path
 Write-Host "Current Script Directory: $scriptDirectory" -ForegroundColor Cyan
 
 # Function to generate a dictionary of script filenames and paths from all subdirectories
 function Get-ScriptDictionaries {
-    # Get all subdirectories in the current directory
+    # Get all subdirectories in the current directory (customize path if needed)
     $directories = Get-ChildItem -Path $scriptDirectory -Directory
 
     # Create a dictionary to hold scripts for each directory
@@ -95,7 +95,7 @@ function Create-GUI {
     # Define initial position for group boxes
     $yPosition = 60
 
-    # Function to create a group box and a checked list box for a category
+    # Function to create a group box and a checked list box for each script category
     function Create-CategoryUI {
         param (
             [string]$CategoryName,
