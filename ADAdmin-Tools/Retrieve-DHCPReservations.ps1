@@ -121,13 +121,14 @@ $textNameFilter.Size = New-Object System.Drawing.Size(400, 20)
 
 # Create a ToolTip object and set up the tooltip for the Name Filter textbox
 $toolTip = New-Object System.Windows.Forms.ToolTip
-$toolTip.SetToolTip($textNameFilter, "Enter hostnames separated by commas (e.g., PRT,WKS,SRV)")
+$toolTip.SetToolTip($textNameFilter, "Enter hostnames separated by commas (e.g. PRT,WKS,SRV)")
 
 # Create a label for additional instructions on Name filter
 $labelNameFilterTip = New-Object System.Windows.Forms.Label
 $labelNameFilterTip.Location = New-Object System.Drawing.Point(130, 75)
 $labelNameFilterTip.Size = New-Object System.Drawing.Size(400, 15)
-$labelNameFilterTip.Text = "Use commas to separate multiple hostnames."
+$labelNameFilterTip.Text = "Use commas to separate multiple hostnames.  (e.g. PRT,WKS,SRV)"
+$labelNameFilterTip.ForeColor = [System.Drawing.Color]::Gray
 
 # Create a button to trigger the data retrieval
 $buttonGetReservations = New-Object System.Windows.Forms.Button
