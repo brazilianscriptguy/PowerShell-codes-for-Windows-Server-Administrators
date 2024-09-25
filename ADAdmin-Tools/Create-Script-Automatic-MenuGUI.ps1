@@ -1,6 +1,6 @@
 # PowerShell Script to create a Menu to Execute PowerShell Scripts
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 13, 2024
+# Updated: August 15, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
