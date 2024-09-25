@@ -12,7 +12,7 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 Here is the list with the correct ordering, and I’ve added a blank line between each script for clarity:
 
-### 📜 **Script Descriptions (Improved)**
+### 📜 Script Descriptions (Alphabetically Ordered)
 
 1. **Add-ADComputers-GrantPermissions.ps1**: Automates adding workstations to specific Organizational Units (OUs) in Active Directory and assigns necessary permissions for those workstations to join the domain.
 
