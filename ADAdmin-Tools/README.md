@@ -38,8 +38,6 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 13. **Create-Script-MainCore.ps1**: Provides a template for creating customizable Header, Import Modules, Logging, and Messages functions for PowerShell scripts, enhancing usability across various administration tasks.
 
-14. **Create-Script-MainCSV-Exports.ps1**: Provides a global PowerShell script template for exporting data to CSV files.
-
 15. **Create-Script-MainGUI.ps1**: Provides a template for creating customizable GUIs for PowerShell scripts, enhancing usability across various administration tasks.
 
 16. **Delete-FilesByExtension-Bulk.ps1** and **Delete-FilesByExtension-Bulk.txt**: Facilitates the bulk deletion of files by specifying their extensions, streamlining file management and optimizing storage usage.
