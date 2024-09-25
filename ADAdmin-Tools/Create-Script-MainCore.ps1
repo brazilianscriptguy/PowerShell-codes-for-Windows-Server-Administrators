@@ -1,8 +1,8 @@
-# PowerShell Script to 
+# Generalized PowerShell Script Core for GUI-based Tools
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 08, 2024 [gets current date]
+# Last Updated: September 24, 2024
 
-# Hide the PowerShell console window
+# Hide the PowerShell console window for a cleaner UI
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
@@ -22,62 +22,202 @@ public class Window {
     }
 }
 "@
-
 [Window]::Hide()
 
-# Import necessary libraries for GUI
+# Import necessary modules (customize based on your needs)
+if (-not (Get-Module -Name ActiveDirectory)) {
+    try {
+        Import-Module ActiveDirectory -ErrorAction Stop
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Failed to import ActiveDirectory module. Ensure it's installed and you have the necessary permissions.", "Module Import Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        exit
+    }
+}
+
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-Import-Module ActiveDirectory
 
-# Determine the script name and set up logging path
+# Determine the script name for logging and exporting .csv files
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+
+# Log and CSV paths
 $logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
+$csvPath = [Environment]::GetFolderPath('MyDocuments') + "\${scriptName}-$timestamp.csv"
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
     $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
     if (-not (Test-Path $logDir)) {
-        Show-ErrorMessage "Failed to create log directory at $logDir. Logging will not be possible."
+        [System.Windows.Forms.MessageBox]::Show("Failed to create log directory at $logDir. Logging will not be possible.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         return
     }
 }
 
-# Enhanced logging function with error handling
-function Log-Message {
+# Global Variables Initialization
+$global:logBox = New-Object System.Windows.Forms.ListBox
+$global:results = @{}  # Initialize a hashtable to store results
+
+# Centralized logging function
+function Write-Log {
     param (
-        [Parameter(Mandatory=$true)]
-        [string]$Message,
-        [Parameter(Mandatory=$false)]
-        [string]$MessageType = "INFO"
+        [Parameter(Mandatory = $true)][string]$Message,
+        [Parameter(Mandatory = $false)][ValidateSet("INFO", "ERROR", "WARNING")][string]$Type = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] [$MessageType] $Message"
+    $logEntry = "[$timestamp] [$Type] $Message"
     try {
-        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+        Add-Content -Path $logPath -Value "$logEntry`r`n" -ErrorAction Stop
+        if ($global:logBox -ne $null) {
+            $global:logBox.Invoke([Action]{
+                $global:logBox.Items.Add($logEntry)
+                $global:logBox.TopIndex = $global:logBox.Items.Count - 1
+            })
+        }
     } catch {
-        Show-ErrorMessage "Failed to write to log: $_"
+        Write-Error "Failed to write to log: $_"
     }
+    Write-Output $logEntry
 }
 
-# Function to display error messages
-function Show-ErrorMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    Log-Message "Error: $message" -MessageType "ERROR"
+# Unified error handling function
+function Handle-Error {
+    param (
+        [Parameter(Mandatory = $true)][string]$ErrorMessage
+    )
+    Write-Log -Message "ERROR: $ErrorMessage" -Type "ERROR"
+    [System.Windows.Forms.MessageBox]::Show($ErrorMessage, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
 }
 
-# Function to display informational messages
-function Show-InfoMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    Log-Message "Info: $message" -MessageType "INFO"
+# Generalized function to create the GUI
+function Create-GUI {
+    # Create the form
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Generalized PowerShell Tool"
+    $form.Size = New-Object System.Drawing.Size(800,600)
+    $form.StartPosition = "CenterScreen"
+
+    # Create a textbox for displaying results
+    $textBox = New-Object System.Windows.Forms.TextBox
+    $textBox.Multiline = $true
+    $textBox.ScrollBars = "Vertical"
+    $textBox.Size = New-Object System.Drawing.Size(760,300)
+    $textBox.Location = New-Object System.Drawing.Point(10,10)
+    $textBox.ReadOnly = $true
+    $form.Controls.Add($textBox)
+
+    # Label to instruct the user (Customize based on use case)
+    $instructionLabel = New-Object System.Windows.Forms.Label
+    $instructionLabel.Text = "Instructions for the user:"
+    $instructionLabel.Location = New-Object System.Drawing.Point(10, 320)
+    $instructionLabel.Size = New-Object System.Drawing.Size(300,20)
+    $form.Controls.Add($instructionLabel)
+
+    # Combo box (optional, customize based on use case)
+    $comboBox = New-Object System.Windows.Forms.ComboBox
+    $comboBox.Location = New-Object System.Drawing.Point(10, 345)
+    $comboBox.Size = New-Object System.Drawing.Size(300, 30)
+    $comboBox.DropDownStyle = "DropDownList"
+    $form.Controls.Add($comboBox)
+
+    # Initialize logBox
+    $global:logBox.Size = New-Object System.Drawing.Size(760,100)
+    $global:logBox.Location = New-Object System.Drawing.Point(10,385)
+    $form.Controls.Add($global:logBox)
+
+    # Create a button to start the process
+    $buttonStart = New-Object System.Windows.Forms.Button
+    $buttonStart.Text = "Start"
+    $buttonStart.Size = New-Object System.Drawing.Size(100,30)
+    $buttonStart.Location = New-Object System.Drawing.Point(10,500)
+    $form.Controls.Add($buttonStart)
+
+    # Create a button to save the results to CSV
+    $buttonSave = New-Object System.Windows.Forms.Button
+    $buttonSave.Text = "Save to CSV"
+    $buttonSave.Size = New-Object System.Drawing.Size(100,30)
+    $buttonSave.Location = New-Object System.Drawing.Point(120,500)
+    $buttonSave.Enabled = $false
+    $form.Controls.Add($buttonSave)
+
+    # Event handler for the Start button
+    $buttonStart.Add_Click({
+        $buttonStart.Enabled = $false
+        $buttonSave.Enabled = $false
+        $textBox.Clear()
+        $textBox.Text = "Process started, please wait..."
+
+        try {
+            # Placeholder for main logic, customize this
+            $global:results = Get-Results
+            if ($global:results -eq $null) {
+                throw "No results were returned."
+            }
+
+            $displayResults = $global:results.GetEnumerator() | ForEach-Object {
+                "$($_.Key): $($_.Value -join ', ')"
+            }
+            $textBox.Text = $displayResults -join "`r`n"
+            $buttonSave.Enabled = $true
+            Write-Log -Message "Process completed successfully." -Type "INFO"
+        } catch {
+            Handle-Error "An error occurred during the process: $_"
+        } finally {
+            $buttonStart.Enabled = $true
+        }
+    })
+
+    # Event handler for the Save to CSV button
+    $buttonSave.Add_Click({
+        if ($null -eq $global:results -or $global:results.Count -eq 0) {
+            [System.Windows.Forms.MessageBox]::Show("No data to save. Please ensure the process has completed successfully.", "No Data", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+            return
+        }
+
+        try {
+            # Prepare the CSV data (customize as needed)
+            $csvData = @()
+            foreach ($category in $global:results.Keys) {
+                $row = New-Object PSObject
+                $row | Add-Member -MemberType NoteProperty -Name "Category" -Value $category
+
+                # Example: Customize how data is added to the CSV
+                foreach ($item in $global:results[$category]) {
+                    $row | Add-Member -MemberType NoteProperty -Name $item -Value ($item -join ', ')
+                }
+
+                $csvData += $row
+            }
+
+            # Export the results to CSV file
+            $csvData | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+            [System.Windows.Forms.MessageBox]::Show("Results saved to " + $csvPath, "Save Successful", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+            Write-Log -Message "Results saved to CSV file: $csvPath" -Type "INFO"
+        } catch {
+            Handle-Error "Failed to save results to CSV: $_"
+        }
+    })
+
+    # Show the form
+    $form.ShowDialog()
 }
 
-# New code funtions...
+# Placeholder for the main logic to gather/process results (customize as needed)
+function Get-Results {
+    $results = @{}
 
+    # Example of categories, customize based on use case
+    $categories = @("Category1", "Category2", "Category3")
+    foreach ($category in $categories) {
+        $results[$category] = @("Item1", "Item2", "Item3")
+    }
 
+    return $results
+}
+
+# Run the GUI
+Create-GUI
 
 # End of script
