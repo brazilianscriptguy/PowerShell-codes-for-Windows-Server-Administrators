@@ -22,7 +22,7 @@ Here is the list with the correct ordering, and I’ve added a blank line betwee
 
 4. **Adjust-ExpirationDate-ADUserAccount.ps1**: Provides a GUI for searching Active Directory users by account description and updating their expiration dates, streamlining user management.
 
-5. **Broadcast-ADUserLogonMessage-viaGPO.ps1**: Displays customizable warning messages to users upon login via GPO, enabling broad communication in managed environments.
+5. **Broadcast-ADUserLogonMessage-viaGPO.ps1 and Broadcast-ADUser-LogonMessage-viaGPO.hta**: Displays customizable warning messages to users upon login via GPO, enabling broad communication in managed environments.
 
 6. **Check-ServicesPort-Connectivity.ps1**: Checks the connectivity of service ports through a GUI, displaying real-time results and exporting successful connections to a CSV file for network diagnostics.
 
