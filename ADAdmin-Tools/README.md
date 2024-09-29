@@ -42,7 +42,7 @@ Here is the list with the correct ordering, and I’ve added a blank line betwee
 
 14. **Create-Script-MainGUI.ps1**: Provides a template for creating customizable graphical user interfaces (GUIs) for PowerShell scripts.
 
-15. **Delete-FilesByExtension-Bulk.ps1**: Facilitates bulk deletion of files based on their extension, streamlining file management and optimizing storage usage.
+15. **Delete-FilesByExtension-Bulk.ps1 and Delete-FilesByExtension-Bulk.txt:** Facilitates bulk deletion of files based on their extension, streamlining file management and optimizing storage usage.
 
 16. **Deploy-FortiClientVPN-viaGPO.ps1**: Automates the installation, configuration, and tunnel setup for FortiClient VPN across workstations using GPO, ensuring secure and consistent remote access.
 
