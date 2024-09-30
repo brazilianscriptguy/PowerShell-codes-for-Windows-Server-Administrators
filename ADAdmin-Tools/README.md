@@ -203,7 +203,8 @@ Here is the list with the correct ordering, and I’ve added a blank line betwee
 63. **Update-DNS-n-Sites-Services.ps1**  
     Automates the update of DNS zones and Active Directory Sites and Services subnets based on DHCP data.
 
-64. **NEXT COMING SOON**: Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
+64. **NEXT COMING SOON**
+    Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
 ## ❓ Additional Assistance
 
