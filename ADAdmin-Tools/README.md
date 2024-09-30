@@ -12,7 +12,7 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 Here is the list with the correct ordering, and I’ve added a blank line between each script for clarity:
 
-## 📜 Script Descriptions (Alphabetically Ordered)
+### 📜 Script Descriptions (Alphabetically Ordered)
 
 1. **Add-ADComputers-GrantPermissions.ps1**  
    Automates adding workstations to specific Organizational Units (OUs) in Active Directory and assigns the necessary permissions for workstations to join the domain.
@@ -203,9 +203,9 @@ Here is the list with the correct ordering, and I’ve added a blank line betwee
 63. **Update-DNS-n-Sites-Services.ps1**  
     Automates the update of DNS zones and Active Directory Sites and Services subnets based on DHCP data.
 
-64. **NEXT COMING SOON**
+### NEXT COMING SOON
     Stay tuned for more innovative and efficient PowerShell scripts that will continue to enhance system administration efficiency and effectiveness.
 
-## ❓ Additional Assistance
+### ❓ Additional Assistance
 
 *All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the `README.md` file in the main root folder.*
