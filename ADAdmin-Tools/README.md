@@ -60,7 +60,7 @@ Here is the list with the correct ordering, and I’ve added a blank line betwee
 
 23. **Initiate-MultipleRDPSessions.ps1**: Enables initiating multiple RDP sessions to different servers simultaneously, enhancing remote management capabilities.
 
-24. **Install-FusionInventoryAgent-viaGPO.vbs**: Deploys FusionInventory Agent on workstations via GPO, optimizing inventory management and reporting in enterprise environments.
+24. **Install-FusionInventoryAgent-viaGPO.ps1**: Deploys FusionInventory Agent on workstations via GPO, optimizing inventory management and reporting in enterprise environments.
 
 25. **Inventory-ADDomainComputers.ps1**: Generates an inventory of all computers in a specified AD domain, aiding in asset management and tracking.
 
