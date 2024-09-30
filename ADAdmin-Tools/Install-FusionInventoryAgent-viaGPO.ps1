@@ -5,7 +5,7 @@
 param (
     [string]$FusionInventoryURL = "http://you-GLPI-web-location.com/plugins/fusioninventory/clients/2.6.1/fusioninventory-agent_windows-x64_2.6.1.exe",
     [string]$FusionInventoryLogDir = "C:\Scripts-LOGS",
-    [string]$ExpectedVersion = "2.6"  # Expected version
+    [string]$ExpectedVersion = "2.6"  # Expected version as showed at 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\FusionInventory-Agent'
 )
 
 $ErrorActionPreference = "Stop"
