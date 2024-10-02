@@ -1,6 +1,6 @@
 # PowerShell Script to Add Workstations into specified OUs and Grant Join Permissions
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 9, 2024
+# Updated: October 02, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -76,15 +76,14 @@ function Show-InfoMessage {
     Log-Message "Info: $message" -MessageType "INFO"
 }
 
-# Grant-ComputerJoinPermission Function
+# Function to grant join permissions for computers
 function Grant-ComputerJoinPermission {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
-        [parameter(Position = 0, Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [Security.Principal.NTAccount] $Identity,
 
-        [parameter(Position = 1, Mandatory = $true)]
-        [alias("ComputerName")]
+        [Parameter(Mandatory = $true)]
         [String[]] $Name,
 
         [String] $Domain,
@@ -93,145 +92,80 @@ function Grant-ComputerJoinPermission {
     )
 
     begin {
-        # Validate if identity exists
         try {
             [Void]$Identity.Translate([Security.Principal.SecurityIdentifier])
         } catch [Security.Principal.IdentityNotMappedException] {
             throw "Unable to identify identity - '$Identity'"
         }
 
-        # Create DirectorySearcher object
-        $Searcher = [ADSISearcher]""
+        $Searcher = [ADSISearcher]"" 
         [Void]$Searcher.PropertiesToLoad.Add("distinguishedName")
 
         function Initialize-DirectorySearcher {
-            if ($Domain) {
-                if ($Server) {
-                    $path = "LDAP://$Server/$Domain"
-                } else {
-                    $path = "LDAP://$Domain"
-                }
+            $path = if ($Domain) {
+                if ($Server) { "LDAP://$Server/$Domain" } else { "LDAP://$Domain" }
             } else {
-                if ($Server) {
-                    $path = "LDAP://$Server"
-                } else {
-                    $path = ""
-                }
+                if ($Server) { "LDAP://$Server" } else { "" }
             }
 
-            if ($Credential) {
+            $dirEntry = if ($Credential) {
                 $networkCredential = $Credential.GetNetworkCredential()
-                $dirEntry = New-Object DirectoryServices.DirectoryEntry(
-                    $path,
-                    $networkCredential.UserName,
-                    $networkCredential.Password
-                )
+                New-Object DirectoryServices.DirectoryEntry($path, $networkCredential.UserName, $networkCredential.Password)
             } else {
-                $dirEntry = [ADSI]$path
+                [ADSI]$path
             }
 
             $Searcher.SearchRoot = $dirEntry
             $Searcher.Filter = "(objectClass=domain)"
             try {
                 [Void]$Searcher.FindOne()
-            } catch [Management.Automation.MethodInvocationException] {
+            } catch {
                 throw $_.Exception.InnerException
             }
         }
 
         Initialize-DirectorySearcher
 
-        # AD rights GUIDs
-        $AD_RIGHTS_GUID_RESET_PASSWORD      = "00299570-246D-11D0-A768-00AA006E0529"
-        $AD_RIGHTS_GUID_VALIDATED_WRITE_DNS = "72E39547-7B18-11D1-ADEF-00C04FD8D5CD"
-        $AD_RIGHTS_GUID_VALIDATED_WRITE_SPN = "F3A64788-5306-11D1-A9C5-0000F80367C1"
-        $AD_RIGHTS_GUID_ACCT_RESTRICTIONS   = "4C164200-20C0-11D0-A768-00AA006E0529"
+        $AD_RIGHTS_GUIDS = @{
+            "ResetPassword" = "00299570-246D-11D0-A768-00AA006E0529"
+            "ValidatedWriteDNS" = "72E39547-7B18-11D1-ADEF-00C04FD8D5CD"
+            "ValidatedWriteSPN" = "F3A64788-5306-11D1-A9C5-0000F80367C1"
+            "AccountRestrictions" = "4C164200-20C0-11D0-A768-00AA006E0529"
+        }
 
-        # Searches for a computer object; if found, returns its DirectoryEntry
         function Get-ComputerDirectoryEntry {
-            param(
-                [String]$name
-            )
+            param ([String]$name)
             $Searcher.Filter = "(&(objectClass=computer)(name=$name))"
             try {
                 $searchResult = $Searcher.FindOne()
-                if ($searchResult) {
-                    $searchResult.GetDirectoryEntry()
-                }
-            } catch [Management.Automation.MethodInvocationException] {
+                if ($searchResult) { $searchResult.GetDirectoryEntry() }
+            } catch {
                 Write-Error -Exception $_.Exception.InnerException
             }
         }
 
-        function Grant-ComputerJoinPermission {
-            param(
-                [String]$name
-            )
-            $domainName = $Searcher.SearchRoot.dc
-            # Get computer DirectoryEntry
+        function Grant-ComputerPermissions {
+            param ([String]$name)
             $dirEntry = Get-ComputerDirectoryEntry $name
             if (-not $dirEntry) {
-                Write-Error "Unable to find computer '$name' in domain '$domainName'" -Category ObjectNotFound
+                Write-Error "Unable to find computer '$name' in domain '$Domain'"
                 return
             }
-            if (-not $PSCmdlet.ShouldProcess($name, "Allow '$Identity' to join computer to domain '$domainName'")) {
-                return
-            }
-            # Build list of access control entries (ACEs)
-            $accessControlEntries = New-Object Collections.ArrayList
-            #--------------------------------------------------------------------------
-            # Reset password
-            #--------------------------------------------------------------------------
-            [Void]$accessControlEntries.Add((
-                New-Object DirectoryServices.ExtendedRightAccessRule(
-                    $Identity,
-                    [Security.AccessControl.AccessControlType]"Allow",
-                    [Guid]$AD_RIGHTS_GUID_RESET_PASSWORD
-                )
-            ))
-            #--------------------------------------------------------------------------
-            # Validated write to DNS host name
-            #--------------------------------------------------------------------------
-            [Void]$accessControlEntries.Add((
-                New-Object DirectoryServices.ActiveDirectoryAccessRule(
-                    $Identity,
-                    [DirectoryServices.ActiveDirectoryRights]"Self",
-                    [Security.AccessControl.AccessControlType]"Allow",
-                    [Guid]$AD_RIGHTS_GUID_VALIDATED_WRITE_DNS
-                )
-            ))
-            #--------------------------------------------------------------------------
-            # Validated write to service principal name
-            #--------------------------------------------------------------------------
-            [Void]$accessControlEntries.Add((
-                New-Object DirectoryServices.ActiveDirectoryAccessRule(
-                    $Identity,
-                    [DirectoryServices.ActiveDirectoryRights]"Self",
-                    [Security.AccessControl.AccessControlType]"Allow",
-                    [Guid]$AD_RIGHTS_GUID_VALIDATED_WRITE_SPN
-                )
-            ))
-            #--------------------------------------------------------------------------
-            # Write account restrictions
-            #--------------------------------------------------------------------------
-            [Void]$accessControlEntries.Add((
-                New-Object DirectoryServices.ActiveDirectoryAccessRule(
-                    $Identity,
-                    [DirectoryServices.ActiveDirectoryRights]"WriteProperty",
-                    [Security.AccessControl.AccessControlType]"Allow",
-                    [Guid]$AD_RIGHTS_GUID_ACCT_RESTRICTIONS
-                )
-            ))
-            # Get ActiveDirectorySecurity object
+
             $adSecurity = $dirEntry.ObjectSecurity
-            # Add ACEs to ActiveDirectorySecurity object
-            $accessControlEntries | ForEach-Object {
-                $adSecurity.AddAccessRule($_)
+            $AD_RIGHTS_GUIDS.GetEnumerator() | ForEach-Object {
+                $accessRule = New-Object DirectoryServices.ActiveDirectoryAccessRule(
+                    $Identity,
+                    [DirectoryServices.ActiveDirectoryRights]"Self",
+                    [Security.AccessControl.AccessControlType]"Allow",
+                    [Guid]$_.Value
+                )
+                $adSecurity.AddAccessRule($accessRule)
             }
-            # Commit changes
+
             try {
                 $dirEntry.CommitChanges()
-            } catch [Management.Automation.MethodInvocationException] {
+            } catch {
                 Write-Error -Exception $_.Exception.InnerException
             }
         }
@@ -239,17 +173,16 @@ function Grant-ComputerJoinPermission {
 
     process {
         foreach ($nameItem in $Name) {
-            Grant-ComputerJoinPermission $nameItem
+            Grant-ComputerPermissions $nameItem
         }
     }
 }
 
-# Function to get the FQDN of the domain name and forest name
+# Function to get the FQDN of the domain name
 function Get-DomainFQDN {
     try {
         $ComputerSystem = Get-WmiObject Win32_ComputerSystem
-        $Domain = $ComputerSystem.Domain
-        return $Domain
+        return $ComputerSystem.Domain
     } catch {
         Write-Warning "Unable to fetch FQDN automatically."
         return "YourDomainHere"
@@ -292,6 +225,7 @@ $btnOpenFile = New-Object System.Windows.Forms.Button
 $btnOpenFile.Location = New-Object System.Drawing.Point(10, 70)
 $btnOpenFile.Size = New-Object System.Drawing.Size(380, 30)
 $btnOpenFile.Text = 'Select Computers List File'
+
 $form.Controls.Add($btnOpenFile)
 
 $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -332,7 +266,7 @@ $cmbOU.Size = New-Object System.Drawing.Size(380, 20)
 $cmbOU.DropDownStyle = 'DropDownList'
 
 # Retrieve and store all OUs initially
-$allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Computers*"' | Select-Object -ExpandProperty DistinguishedName
+$allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Comput*"' | Select-Object -ExpandProperty DistinguishedName
 
 # Function to update ComboBox based on search
 function UpdateOUComboBox {
@@ -346,11 +280,8 @@ function UpdateOUComboBox {
         $cmbOU.SelectedIndex = 0
     }
 }
-
-# Initially populate ComboBox
 UpdateOUComboBox
 
-# Search TextBox change event
 $txtOUSearch.Add_TextChanged({
     UpdateOUComboBox
 })
@@ -388,6 +319,7 @@ $btnAddAndGrant = New-Object System.Windows.Forms.Button
 $btnAddAndGrant.Location = New-Object System.Drawing.Point(10, 270)
 $btnAddAndGrant.Size = New-Object System.Drawing.Size(380, 30)
 $btnAddAndGrant.Text = 'Add and Grant Join Permissions'
+
 $btnAddAndGrant.Add_Click({
     $computers = $txtComputers.Text -split ','
     $ou = $cmbOU.SelectedItem.ToString()
