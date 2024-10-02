@@ -1,6 +1,6 @@
 # PowerShell Script to Add Users into specified OUs and Groups
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 08, 2024
+# Updated: October 02, 2024
 
 # Hide PowerShell console window
 Add-Type @"
@@ -10,6 +10,7 @@ public class Window {
     [DllImport("kernel32.dll", SetLastError = true)]
     static extern IntPtr GetConsoleWindow();
     [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     public static void Hide() {
         var handle = GetConsoleWindow();
@@ -19,23 +20,22 @@ public class Window {
 "@
 [Window]::Hide()
 
-# Import Windows Forms and Active Directory module
+# Import necessary modules and assemblies
 Add-Type -AssemblyName System.Windows.Forms
 Import-Module ActiveDirectory
 
-# Determine the script name and set up logging path
+# Define log and CSV file paths
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
-
-# Use the default My Documents folder for CSV files
 $csvFilePath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "${scriptName}_UserCreationLog.csv"
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
-    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
-    if (-not (Test-Path $logDir)) {
+    try {
+        New-Item -Path $logDir -ItemType Directory -ErrorAction Stop
+    } catch {
         Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
         return
     }
@@ -47,6 +47,7 @@ function Log-Message {
         [Parameter(Mandatory=$true)]
         [string]$Message,
         [Parameter(Mandatory=$false)]
+        [ValidateSet("INFO", "ERROR", "WARNING")]
         [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -71,7 +72,6 @@ function Export-ToCSV {
         [string]$UserGroup,
         [datetime]$Timestamp
     )
-
     $userDetails = [PSCustomObject]@{
         Timestamp      = $Timestamp
         Domain         = $Domain
@@ -85,7 +85,6 @@ function Export-ToCSV {
     }
 
     try {
-        # Check if CSV file exists and write header if it doesn't
         if (-not (Test-Path $csvFilePath)) {
             $userDetails | Export-Csv -Path $csvFilePath -NoTypeInformation -Append
         } else {
@@ -98,24 +97,23 @@ function Export-ToCSV {
 
 # Function to display error messages
 function Show-ErrorMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    Log-Message "Error: $message" -MessageType "ERROR"
+    param ([string]$Message)
+    [System.Windows.Forms.MessageBox]::Show($Message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message "Error: $Message" -MessageType "ERROR"
 }
 
 # Function to display information messages
 function Show-InfoMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    Log-Message "Info: $message" -MessageType "INFO"
+    param ([string]$Message)
+    [System.Windows.Forms.MessageBox]::Show($Message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message "Info: $Message" -MessageType "INFO"
 }
 
 # Function to retrieve all domains in the current forest
 function Get-ForestDomains {
     try {
         $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
-        $domains = $forest.Domains | ForEach-Object { $_.Name }
-        return $domains
+        return $forest.Domains | ForEach-Object { $_.Name }
     } catch {
         Write-Error "Failed to retrieve forest domains: $_"
         return @()
@@ -126,8 +124,7 @@ function Get-ForestDomains {
 function Get-UPNSuffix {
     try {
         $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
-        $upnSuffix = $forest.RootDomain.Name
-        return $upnSuffix
+        return $forest.RootDomain.Name
     } catch {
         Write-Error "Failed to retrieve UPN suffix: $_"
         return ""
@@ -136,13 +133,9 @@ function Get-UPNSuffix {
 
 # Function to retrieve all Organizational Units (OUs) containing "Users"
 function Get-AllOUs {
-    param (
-        [string]$Domain
-    )
-
+    param ([string]$Domain)
     try {
-        $allOUs = Get-ADOrganizationalUnit -Server $Domain -Filter {Name -like "*Users*"} | Select-Object -ExpandProperty DistinguishedName
-        return $allOUs
+        return Get-ADOrganizationalUnit -Server $Domain -Filter { Name -like "*Users*" } | Select-Object -ExpandProperty DistinguishedName
     } catch {
         Write-Error "Failed to retrieve Organizational Units: $_"
         return @()
@@ -151,13 +144,9 @@ function Get-AllOUs {
 
 # Function to retrieve all groups starting with "G_"
 function Get-AllGroups {
-    param (
-        [string]$Domain
-    )
-
+    param ([string]$Domain)
     try {
-        $allGroups = Get-ADGroup -Server $Domain -Filter {Name -like "G_*"} | Select-Object -ExpandProperty Name
-        return $allGroups
+        return Get-ADGroup -Server $Domain -Filter { Name -like "G_*" } | Select-Object -ExpandProperty Name
     } catch {
         Write-Error "Failed to retrieve groups: $_"
         return @()
@@ -190,7 +179,6 @@ function Create-ADUser {
         }
 
         $expiration = if ($NoExpiration) { $null } else { $AccountExpirationDate }
-
         $upnSuffix = Get-UPNSuffix
 
         New-ADUser -Server $Domain `
@@ -332,7 +320,7 @@ function Show-Form {
             $cmbDescription.DropDownStyle = 'DropDownList'
             $form.Controls.Add($cmbDescription)
 
-            # Predefined descriptions in alphabetical order
+            # Predefined descriptions
             $descriptions = @(
                 "Analista Judiciario",
                 "Assessor de Gabinete",
@@ -373,7 +361,6 @@ function Show-Form {
     $dateTimePicker.Format = [System.Windows.Forms.DateTimePickerFormat]::Short
     $dateTimePicker.Location = New-Object System.Drawing.Point(160, $positions[11])
     $dateTimePicker.Size = New-Object System.Drawing.Size(160, 20)
-    # Set default expiration date to 1 year from today
     $dateTimePicker.Value = (Get-Date).AddYears(1)
     $form.Controls.Add($dateTimePicker)
 
