@@ -1,6 +1,6 @@
 # PowerShell Script to Gather DHCP Scopes for Updating DNS Reverse Zones and Sites and Services Subnets
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: September 23, 2024
+# Updated: October 02, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -268,7 +268,7 @@ function Update-SitesAndServicesSubnets {
             Log-Message "Updated subnet $SubnetCIDR in Sites and Services."
         } else {
             # Subnet does not exist, create it
-            New-ADSubnet -Name $SubnetCIDR -Location $Location -Description $Description -Site $SitesAndServicesTarget
+            New-ADReplicationSubnet -Name $SubnetCIDR -Location $Location -Description $Description -Site $SitesAndServicesTarget
             Write-Host "Created subnet $SubnetCIDR in Sites and Services."
             Log-Message "Created subnet $SubnetCIDR in Sites and Services."
         }
