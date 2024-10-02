@@ -1,6 +1,6 @@
 # PowerShell Script to Check Services Ports Connectivity
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: August 22, 2024
+# Updated: October 2, 2024
 
 # Hide the PowerShell console window
 Add-Type @"
@@ -22,10 +22,9 @@ public class Window {
     }
 }
 "@
-
 [Window]::Hide()
 
-# Import necessary libraries for GUI and Active Directory
+# Import necessary libraries for GUI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
@@ -39,12 +38,12 @@ $logPath = Join-Path $logDir $logFileName
 if (-not (Test-Path $logDir)) {
     $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
     if (-not (Test-Path $logDir)) {
-        Show-ErrorMessage "Failed to create log directory at $logDir. Logging will not be possible."
+        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
         return
     }
 }
 
-# Enhanced logging function with error handling
+# Enhanced logging function
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
@@ -140,7 +139,7 @@ $textboxMachine = New-Object System.Windows.Forms.TextBox
 $textboxMachine.Location = New-Object System.Drawing.Point(170, 20)
 $textboxMachine.Size = New-Object System.Drawing.Size(530, 20)
 $textboxMachine.ForeColor = [System.Drawing.Color]::Gray
-$textboxMachine.Text = 'e.g., 172.16.20.10:8531 or wsus-server.com:8531'
+$textboxMachine.Text = 'e.g., 172.16.20.10 or wsus-server.com'
 $form.Controls.Add($textboxMachine)
 
 # Event to clear the placeholder when the user starts typing
@@ -154,7 +153,7 @@ $textboxMachine.Add_GotFocus({
 # Event to restore the placeholder if the textbox is left empty
 $textboxMachine.Add_LostFocus({
     if ([string]::IsNullOrWhiteSpace($textboxMachine.Text)) {
-        $textboxMachine.Text = 'e.g., 172.16.20.10:8531 or wsustests.com:8531'
+        $textboxMachine.Text = 'e.g., 172.16.20.10 or wsus-server.com'
         $textboxMachine.ForeColor = [System.Drawing.Color]::Gray
     }
 })
@@ -195,6 +194,22 @@ $form.Controls.Add($checkedListBox)
 # Global variable to store successful tests
 $global:successfulTests = @()
 
+# Function to test port connectivity
+function Test-PortConnectivity {
+    param (
+        [string]$Machine,
+        [string]$Port
+    )
+
+    try {
+        $testResult = Test-NetConnection -ComputerName $Machine -Port $Port -ErrorAction SilentlyContinue -InformationLevel Quiet
+        return $testResult
+    } catch {
+        Log-Message "Error during port testing: $_" -MessageType "ERROR"
+        return $false
+    }
+}
+
 # Function to export results to CSV
 function Export-Results {
     param (
@@ -216,56 +231,33 @@ function Export-Results {
 $buttonTest.Add_Click({
     $textboxResults.Clear()
     $global:successfulTests.Clear()
-    $MachineInput = $textboxMachine.Text
+    $MachineInput = $textboxMachine.Text.Trim()
 
     if ([string]::IsNullOrWhiteSpace($MachineInput)) {
         Show-ErrorMessage "Please enter a machine name or IP address."
         return
     }
 
-    # Check if machine name includes a port number
-    $Machine, $CustomPort = $MachineInput -split ':', 2
+    $textboxResults.AppendText("Starting connectivity test for machine: $MachineInput`n`n")
+    foreach ($index in $checkedListBox.CheckedIndices) {
+        $selectedService = $services[$index]
+        $portsToTest = $selectedService.Ports
 
-    if ($CustomPort) {
-        $textboxResults.AppendText("Starting direct connectivity test to $Machine on port $CustomPort`n`n")
-        $testResult = Test-NetConnection -ComputerName $Machine -Port $CustomPort -ErrorAction SilentlyContinue -InformationLevel Quiet
-
-        if ($testResult) {
-            $resultObj = [PSCustomObject]@{
-                ServerName   = $Machine
-                ServiceName  = "Direct Test to $CustomPort"
-                Port         = $CustomPort
-                Result       = "Success"
-            }
-            $global:successfulTests += $resultObj
-            $textboxResults.AppendText("Success: Direct connectivity to $Machine on port $CustomPort`n")
-            Log-Message "Success: Direct connectivity to $Machine on port $CustomPort"
-        } else {
-            $textboxResults.AppendText("Failed: Direct connectivity to $Machine on port $CustomPort`n")
-            Log-Message "Failed: Direct connectivity to $Machine on port $CustomPort" -MessageType "ERROR"
-        }
-    } else {
-        $textboxResults.AppendText("Starting connectivity test for machine: $Machine`n`n")
-        foreach ($index in $checkedListBox.CheckedIndices) {
-            $selectedService = $services[$index]
-            $portsToTest = $selectedService.Ports
-            
-            foreach ($port in ($portsToTest -split ',')) {
-                $testResult = Test-NetConnection -ComputerName $Machine -Port $port -ErrorAction SilentlyContinue -InformationLevel Quiet
-                if ($testResult) {
-                    $resultObj = [PSCustomObject]@{
-                        ServerName   = $Machine
-                        ServiceName  = $selectedService.Name
-                        Port         = $port
-                        Result       = "Success"
-                    }
-                    $global:successfulTests += $resultObj
-                    $textboxResults.AppendText("Success: $($selectedService.Name) on port $port`n")
-                    Log-Message "Success: $($selectedService.Name) on port $port for machine $Machine"
-                } else {
-                    $textboxResults.AppendText("Failed: $($selectedService.Name) on port $port`n")
-                    Log-Message "Failed: $($selectedService.Name) on port $port for machine $Machine" -MessageType "ERROR"
+        foreach ($port in ($portsToTest -split ',')) {
+            $testResult = Test-PortConnectivity -Machine $MachineInput -Port $port
+            if ($testResult) {
+                $resultObj = [PSCustomObject]@{
+                    ServerName   = $MachineInput
+                    ServiceName  = $selectedService.Name
+                    Port         = $port
+                    Result       = "Success"
                 }
+                $global:successfulTests += $resultObj
+                $textboxResults.AppendText("Success: $($selectedService.Name) on port $port`n")
+                Log-Message "Success: $($selectedService.Name) on port $port for machine $MachineInput"
+            } else {
+                $textboxResults.AppendText("Failed: $($selectedService.Name) on port $port`n")
+                Log-Message "Failed: $($selectedService.Name) on port $port for machine $MachineInput" -MessageType "ERROR"
             }
         }
     }
@@ -282,7 +274,7 @@ $buttonTest.Add_Click({
 
 # Export Results Button Click Event
 $buttonExport.Add_Click({
-    $Machine = $textboxMachine.Text
+    $Machine = $textboxMachine.Text.Trim()
     if ($global:successfulTests.Count -gt 0) {
         Export-Results -Server $Machine -Results $global:successfulTests
     } else {
