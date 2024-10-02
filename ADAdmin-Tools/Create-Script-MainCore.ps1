@@ -44,11 +44,10 @@ function Log-Message {
     $logEntry = "[$timestamp] [$MessageType] $Message"
 
     try {
-        # Ensure the log path exists
-        if (-not (Test-Path $logPath)) {
-            throw "Log path '$logPath' does not exist."
+        # Ensure the log path exists, create if necessary
+        if (-not (Test-Path $logDir)) {
+            New-Item -Path $logDir -ItemType Directory -ErrorAction Stop
         }
-
         # Attempt to write to the log file
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
@@ -101,15 +100,9 @@ $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 $csvPath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "${scriptName}-$timestamp.csv"
 
-# Ensure the log directory exists, create if needed
-if (-not (Test-Path $logDir)) {
-    try {
-        $null = New-Item -Path $logDir -ItemType Directory -ErrorAction Stop
-    } catch {
-        [System.Windows.Forms.MessageBox]::Show("Failed to create log directory at $logDir. Logging will not be possible.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        $logDir = $null
-    }
-}
+# Global Variables Initialization
+$global:logBox = New-Object System.Windows.Forms.ListBox
+$global:results = @{}  # Initialize a hashtable to store results
 
 # Generalized function to create the GUI
 function Create-GUI {
@@ -142,7 +135,8 @@ function Create-GUI {
     $comboBox.DropDownStyle = "DropDownList"
     $form.Controls.Add($comboBox)
 
-    # Initialize logBox
+    # Initialize logBox (properly as a ListBox)
+    $global:logBox = New-Object System.Windows.Forms.ListBox
     $global:logBox.Size = New-Object System.Drawing.Size(760,100)
     $global:logBox.Location = New-Object System.Drawing.Point(10,385)
     $form.Controls.Add($global:logBox)
