@@ -156,7 +156,7 @@ Here is the list with the correct ordering, and I’ve added a blank line betwee
     Scans AD for workstations, checks for shared folders, and logs results, aiding in network share management.
 
 48. **Retrieve-DHCPReservations.ps1**  
-    Lists DHCP reservations and provides filtering by hostname, simplifying DHCP management.
+    Lists DHCP reservations and allows filtering by hostname(s) and/or description(s), simplifying DHCP management.
 
 49. **Retrieve-Elevated-ADForestInfo.ps1**  
     Gathers information about elevated users and groups across an AD forest, helping administrators monitor privileged accounts.
