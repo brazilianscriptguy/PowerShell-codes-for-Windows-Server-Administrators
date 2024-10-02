@@ -1,64 +1,34 @@
-# Generalized Main Core PowerShell Script to any other Sripts
+# Generalized Main Core PowerShell Script to be used with other scripts
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Last Updated: September 24, 2024
+# Last Updated: October 02, 2024
 
-# Hide the PowerShell console window for a cleaner UI
-Add-Type @"
-using System;
-using System.Runtime.InteropServices;
-public class Window {
-    [DllImport("kernel32.dll", SetLastError = true)]
-    static extern IntPtr GetConsoleWindow();
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-    public static void Hide() {
-        var handle = GetConsoleWindow();
-        ShowWindow(handle, 0); // 0 = SW_HIDE
+param(
+    [switch]$ShowConsole = $false
+)
+
+# Hide the PowerShell console window for a cleaner UI unless requested to show the console
+if (-not $ShowConsole) {
+    Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+    public class Window {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetConsoleWindow();
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        public static void Hide() {
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, 0); // 0 = SW_HIDE
+        }
+        public static void Show() {
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, 5); // 5 = SW_SHOW
+        }
     }
-    public static void Show() {
-        var handle = GetConsoleWindow();
-        ShowWindow(handle, 5); // 5 = SW_SHOW
-    }
-}
 "@
-[Window]::Hide()
-
-# Import necessary modules (customize based on your needs)
-if (-not (Get-Module -Name ActiveDirectory)) {
-    try {
-        Import-Module ActiveDirectory -ErrorAction Stop
-    } catch {
-        [System.Windows.Forms.MessageBox]::Show("Failed to import ActiveDirectory module. Ensure it's installed and you have the necessary permissions.", "Module Import Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        exit
-    }
+    [Window]::Hide()
 }
-
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
-
-# Determine the script name for logging and exporting .csv files
-$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
-
-# Log and CSV paths
-$logDir = 'C:\Logs-TEMP'
-$logFileName = "${scriptName}.log"
-$logPath = Join-Path $logDir $logFileName
-$csvPath = [Environment]::GetFolderPath('MyDocuments') + "\${scriptName}-$timestamp.csv"
-
-# Ensure the log directory exists
-if (-not (Test-Path $logDir)) {
-    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
-    if (-not (Test-Path $logDir)) {
-        [System.Windows.Forms.MessageBox]::Show("Failed to create log directory at $logDir. Logging will not be possible.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        return
-    }
-}
-
-# Global Variables Initialization
-$global:logBox = New-Object System.Windows.Forms.ListBox
-$global:results = @{}  # Initialize a hashtable to store results
 
 # Enhanced logging function with error handling and validation
 function Log-Message {
@@ -93,8 +63,52 @@ function Handle-Error {
     param (
         [Parameter(Mandatory = $true)][string]$ErrorMessage
     )
-    Write-Log -Message "ERROR: $ErrorMessage" -Type "ERROR"
+    Log-Message -Message "ERROR: $ErrorMessage" -MessageType "ERROR"
     [System.Windows.Forms.MessageBox]::Show($ErrorMessage, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+}
+
+# Generalized import module function with error handling
+function Import-RequiredModule {
+    param (
+        [string]$ModuleName
+    )
+    if (-not (Get-Module -Name $ModuleName)) {
+        try {
+            if (Get-Module -ListAvailable -Name $ModuleName) {
+                Import-Module -Name $ModuleName -ErrorAction Stop
+            } else {
+                [System.Windows.Forms.MessageBox]::Show("Module $ModuleName is not available. Please install the module.", "Module Import Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                exit
+            }
+        } catch {
+            Handle-Error "Failed to import $ModuleName module. Ensure it's installed and you have the necessary permissions."
+            exit
+        }
+    }
+}
+Import-RequiredModule -ModuleName 'ActiveDirectory'
+
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+# Determine script name and set up file paths dynamically
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+
+# Set log and CSV paths, allow dynamic configuration or fallback to defaults
+$logDir = if ($env:LOG_PATH -and $env:LOG_PATH -ne "") { $env:LOG_PATH } else { 'C:\Logs-TEMP' }
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
+$csvPath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "${scriptName}-$timestamp.csv"
+
+# Ensure the log directory exists, create if needed
+if (-not (Test-Path $logDir)) {
+    try {
+        $null = New-Item -Path $logDir -ItemType Directory -ErrorAction Stop
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Failed to create log directory at $logDir. Logging will not be possible.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        $logDir = $null
+    }
 }
 
 # Generalized function to create the GUI
@@ -167,7 +181,7 @@ function Create-GUI {
             }
             $textBox.Text = $displayResults -join "`r`n"
             $buttonSave.Enabled = $true
-            Write-Log -Message "Process completed successfully." -Type "INFO"
+            Log-Message -Message "Process completed successfully." -MessageType "INFO"
         } catch {
             Handle-Error "An error occurred during the process: $_"
         } finally {
@@ -200,7 +214,7 @@ function Create-GUI {
             # Export the results to CSV file
             $csvData | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
             [System.Windows.Forms.MessageBox]::Show("Results saved to " + $csvPath, "Save Successful", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-            Write-Log -Message "Results saved to CSV file: $csvPath" -Type "INFO"
+            Log-Message -Message "Results saved to CSV file: $csvPath" -MessageType "INFO"
         } catch {
             Handle-Error "Failed to save results to CSV: $_"
         }
