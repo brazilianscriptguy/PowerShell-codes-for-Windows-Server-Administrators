@@ -1,65 +1,44 @@
 # PowerShell Script to Search and Update Expiration AD Users Account by Description
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: July 8, 2024
+# Updated: October 2, 2024
 
-# Hide the PowerShell console window, avoiding type redefinition
-if (-not ([System.Type]::GetType('Window'))) {
-    Add-Type @"
-    using System;
-    using System.Runtime.InteropServices;
-    public class Window {
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetConsoleWindow();
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-        public static void Hide() {
-            var handle = GetConsoleWindow();
-            ShowWindow(handle, 0); // 0 = SW_HIDE
-        }
-        public static void Show() {
-            var handle = GetConsoleWindow();
-            ShowWindow(handle, 5); // 5 = SW_SHOW
-        }
+# Hide the PowerShell console window
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class Window {
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern IntPtr GetConsoleWindow();
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    public static void Hide() {
+        var handle = GetConsoleWindow();
+        ShowWindow(handle, 0); // 0 = SW_HIDE
     }
-"@
+    public static void Show() {
+        var handle = GetConsoleWindow();
+        ShowWindow(handle, 5); // 5 = SW_SHOW
+    }
 }
+"@
 
 [Window]::Hide()
 
-# Load necessary assemblies for GUI
+# Load necessary assemblies for GUI and Active Directory module
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+Import-Module ActiveDirectory
 
-# Determine the script name and set up logging path
-$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$logDir = 'C:\Logs-TEMP'
-$logFileName = "${scriptName}.log"
-$logPath = Join-Path $logDir $logFileName
-
-# Ensure the log directory exists
-if (-not (Test-Path $logDir)) {
-    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
-    if (-not (Test-Path $logDir)) {
-        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
-        return
-    }
-}
-
-# Enhanced logging function with error handling
-function Log-Message {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$Message,
-        [Parameter(Mandatory=$false)]
-        [string]$MessageType = "INFO"
-    )
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] [$MessageType] $Message"
+# Function to gather all domains in the current forest
+function Get-ForestDomains {
     try {
-        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+        $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
+        $domains = $forest.Domains | ForEach-Object { $_.Name }
+        return $domains
     } catch {
-        Write-Error "Failed to write to log: $_"
+        Show-ErrorMessage "Failed to retrieve forest domains: $_"
+        return @("YourDomainHere")  # Default fallback
     }
 }
 
@@ -77,14 +56,28 @@ function Show-InfoMessage {
     Log-Message "Info: $message" -MessageType "INFO"
 }
 
-# Function to get the FQDN of the domain name
-function Get-DomainFQDN {
+# Function to log messages
+function Log-Message {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+        [Parameter(Mandatory=$false)]
+        [string]$MessageType = "INFO"
+    )
+    $logDir = 'C:\Logs-TEMP'
+    $logFileName = "UserExpirationLog.log"
+    $logPath = Join-Path $logDir $logFileName
+
+    if (-not (Test-Path $logDir)) {
+        $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+    }
+
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
     try {
-        $domain = (Get-WmiObject Win32_ComputerSystem).Domain
-        return $domain
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
-        Show-ErrorMessage "Unable to fetch FQDN automatically."
-        return "YourDomainHere"
+        Write-Error "Failed to write to log: $_"
     }
 }
 
@@ -144,22 +137,29 @@ function Update-ADUsers {
 # Create a new Windows Form object
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "AD User Account Expiration Manager"
-$form.Size = New-Object System.Drawing.Size(600, 400)
+$form.Size = New-Object System.Drawing.Size(600, 420)
 $form.StartPosition = "CenterScreen"
 
-# Create a label for FQDN
-$labelFQDN = New-Object System.Windows.Forms.Label
-$labelFQDN.Location = New-Object System.Drawing.Point(10, 10)
-$labelFQDN.Size = New-Object System.Drawing.Size(560, 20)
-$labelFQDN.Text = "Domain FQDN:"
-$form.Controls.Add($labelFQDN)
+# Create a label for Domain selection
+$labelDomain = New-Object System.Windows.Forms.Label
+$labelDomain.Location = New-Object System.Drawing.Point(10, 10)
+$labelDomain.Size = New-Object System.Drawing.Size(560, 20)
+$labelDomain.Text = "Select Domain:"
+$form.Controls.Add($labelDomain)
 
-# Create a textbox for FQDN input, prefilled with the current domain
-$textboxFQDN = New-Object System.Windows.Forms.TextBox
-$textboxFQDN.Location = New-Object System.Drawing.Point(10, 30)
-$textboxFQDN.Size = New-Object System.Drawing.Size(560, 20)
-$textboxFQDN.Text = Get-DomainFQDN
-$form.Controls.Add($textboxFQDN)
+# Create a ComboBox for Domain selection
+$comboBoxDomain = New-Object System.Windows.Forms.ComboBox
+$comboBoxDomain.Location = New-Object System.Drawing.Point(10, 30)
+$comboBoxDomain.Size = New-Object System.Drawing.Size(560, 20)
+$comboBoxDomain.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+
+# Populate the ComboBox with domains from the forest
+$forestDomains = Get-ForestDomains
+foreach ($domain in $forestDomains) {
+    $comboBoxDomain.Items.Add($domain)
+}
+$comboBoxDomain.SelectedIndex = 0
+$form.Controls.Add($comboBoxDomain)
 
 # Create a label for description
 $labelDescription = New-Object System.Windows.Forms.Label
@@ -206,11 +206,11 @@ $buttonListUsers.Location = New-Object System.Drawing.Point(10, 320)
 $buttonListUsers.Size = New-Object System.Drawing.Size(120, 30)
 $buttonListUsers.Text = "List Users"
 $buttonListUsers.Add_Click({
-    $fqdn = $textboxFQDN.Text.Trim()
+    $fqdn = $comboBoxDomain.SelectedItem.ToString()
     $description = $textboxDescription.Text.Trim()
 
     if ([string]::IsNullOrWhiteSpace($fqdn)) {
-        Show-ErrorMessage "Please enter the domain FQDN."
+        Show-ErrorMessage "Please select a domain."
         return
     }
 
@@ -241,11 +241,11 @@ $buttonUpdateUsers.Location = New-Object System.Drawing.Point(270, 320)
 $buttonUpdateUsers.Size = New-Object System.Drawing.Size(120, 30)
 $buttonUpdateUsers.Text = "Update Users"
 $buttonUpdateUsers.Add_Click({
-    $fqdn = $textboxFQDN.Text.Trim()
+    $fqdn = $comboBoxDomain.SelectedItem.ToString()
     $expirationDateText = $textboxExpirationDate.Text.Trim()
 
     if ([string]::IsNullOrWhiteSpace($fqdn)) {
-        Show-ErrorMessage "Please enter the domain FQDN."
+        Show-ErrorMessage "Please select a domain."
         return
     }
 
