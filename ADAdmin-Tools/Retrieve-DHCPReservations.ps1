@@ -1,142 +1,186 @@
-# PowerShell Script to Retrieve DHCP reservations and allows filtering by hostname(s).
+# PowerShell Script to Retrieve DHCP reservations and allows filtering by hostname(s) and/or description(s).
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: September 25, 2024
+# Updated: October 02, 2024
 
-# Hide the PowerShell console window
-Add-Type @"
-using System;
-using System.Runtime.InteropServices;
-public class Window {
-    [DllImport("kernel32.dll", SetLastError = true)]
-    static extern IntPtr GetConsoleWindow();
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-    public static void Hide() {
-        var handle = GetConsoleWindow();
-        ShowWindow(handle, 0); // 0 = SW_HIDE
+param(
+    [switch]$ShowConsole = $false
+)
+
+# Hide the PowerShell console window for a cleaner UI unless the user requests otherwise
+if (-not $ShowConsole) {
+    Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+    public class Window {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetConsoleWindow();
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        public static void Hide() {
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, 0); // 0 = SW_HIDE
+        }
+        public static void Show() {
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, 5); // 5 = SW_SHOW
+        }
     }
-    public static void Show() {
-        var handle = GetConsoleWindow();
-        ShowWindow(handle, 5); // 5 = SW_SHOW
+"@
+    [Window]::Hide()
+}
+
+# Import necessary modules (customize based on your needs)
+function Import-RequiredModule {
+    param (
+        [string]$ModuleName
+    )
+    if (-not (Get-Module -Name $ModuleName)) {
+        try {
+            if (Get-Module -ListAvailable -Name $ModuleName) {
+                Import-Module -Name $ModuleName -ErrorAction Stop
+            } else {
+                [System.Windows.Forms.MessageBox]::Show("Module $ModuleName is not available. Please install the module.", "Module Import Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                exit
+            }
+        } catch {
+            [System.Windows.Forms.MessageBox]::Show("Failed to import $ModuleName module. Ensure it's installed and you have the necessary permissions.", "Module Import Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            exit
+        }
     }
 }
-"@
+Import-RequiredModule -ModuleName 'DhcpServer'
 
-[Window]::Hide()
-
-# Import necessary assemblies and modules
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-Import-Module DhcpServer -ErrorAction SilentlyContinue
 
-# Determine the script name and set up logging path
-$scriptName = 'Retrieve-DHCPReservations'
-$logDir = 'C:\Logs-TEMP'
+# Determine script name and set up file paths dynamically
+$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+
+# Set log and CSV paths, allow dynamic configuration or fallback to defaults
+$logDir = if ($env:LOG_PATH -and $env:LOG_PATH -ne "") { $env:LOG_PATH } else { 'C:\Logs-TEMP' }
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
+$csvPath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "${scriptName}-$timestamp.csv"
 
-# Ensure the log directory exists
+# Ensure the log directory exists, create if needed
 if (-not (Test-Path $logDir)) {
     try {
         $null = New-Item -Path $logDir -ItemType Directory -ErrorAction Stop
     } catch {
-        [System.Windows.Forms.MessageBox]::Show("Failed to create log directory at $logDir. Logging will not be possible.", 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        return
+        [System.Windows.Forms.MessageBox]::Show("Failed to create log directory at $logDir. Logging will not be possible.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        $logDir = $null
     }
 }
 
-# Enhanced logging function with error handling
-function Log-Message {
+# Global Variables Initialization
+$global:logBox = New-Object System.Windows.Forms.ListBox
+$global:results = @{}  # Initialize a hashtable to store results
+
+# Centralized logging function with error fallback
+function Write-Log {
     param (
-        [Parameter(Mandatory = $true)]
-        [string]$Message,
-        [Parameter(Mandatory = $false)]
-        [ValidateSet("INFO", "ERROR", "WARNING")]
-        [string]$MessageType = "INFO"
+        [Parameter(Mandatory = $true)][string]$Message,
+        [Parameter(Mandatory = $false)][ValidateSet("INFO", "ERROR", "WARNING")][string]$Type = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] [$MessageType] $Message"
+    $logEntry = "[$timestamp] [$Type] $Message"
     try {
-        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+        if ($logDir -ne $null) {
+            Add-Content -Path $logPath -Value "$logEntry`r`n" -ErrorAction Stop
+        }
+        if ($global:logBox -ne $null -and $global:logBox.IsHandleCreated) {
+            $global:logBox.Invoke([Action]{
+                $global:logBox.Items.Add($logEntry)
+                $global:logBox.TopIndex = $global:logBox.Items.Count - 1
+            })
+        }
     } catch {
-        [System.Windows.Forms.MessageBox]::Show("Failed to write to log: $_", 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        Write-Error "Failed to write to log: $_"
+    }
+    Write-Output $logEntry
+}
+
+# Unified error handling function
+function Handle-Error {
+    param (
+        [Parameter(Mandatory = $true)][string]$ErrorMessage
+    )
+    Write-Log -Message "ERROR: $ErrorMessage" -Type "ERROR"
+    [System.Windows.Forms.MessageBox]::Show($ErrorMessage, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+}
+
+# Get the FQDN of the current machine
+function Get-MachineFQDN {
+    try {
+        return ([System.Net.Dns]::GetHostEntry($env:COMPUTERNAME)).HostName
+    } catch {
+        Write-Log -Message "Could not determine FQDN. Using COMPUTERNAME: $($env:COMPUTERNAME)" -Type "WARNING"
+        return $env:COMPUTERNAME
     }
 }
 
-# Function to display error messages
-function Show-ErrorMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    Log-Message -Message "Error: $message" -MessageType "ERROR"
+# Helper function to create labels
+function Create-Label {
+    param (
+        [string]$Text,
+        [int]$X,
+        [int]$Y,
+        [int]$Width = 110,
+        [int]$Height = 20
+    )
+    $label = New-Object System.Windows.Forms.Label
+    $label.Text = $Text
+    $label.Location = New-Object System.Drawing.Point($X, $Y)
+    $label.Size = New-Object System.Drawing.Size($Width, $Height)
+    return $label
 }
 
-# Function to display informational messages
-function Show-InfoMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    Log-Message -Message "Info: $message" -MessageType "INFO"
-}
-
-# Get current timestamp
-$timestamp = Get-Date -Format "yyyyMMddHHmmss"
-
-# Get the FQDN of the current machine
-try {
-    $FQDN = ([System.Net.Dns]::GetHostEntry($env:COMPUTERNAME)).HostName
-} catch {
-    # Fallback to COMPUTERNAME if FQDN cannot be determined
-    $FQDN = $env:COMPUTERNAME
-    Log-Message -Message "Could not determine FQDN. Using COMPUTERNAME: $FQDN" -MessageType "WARNING"
+# Helper function to create textboxes
+function Create-Textbox {
+    param (
+        [int]$X,
+        [int]$Y,
+        [int]$Width = 390,
+        [int]$Height = 20,
+        [string]$DefaultText = ""
+    )
+    $textbox = New-Object System.Windows.Forms.TextBox
+    $textbox.Location = New-Object System.Drawing.Point($X, $Y)
+    $textbox.Size = New-Object System.Drawing.Size($Width, $Height)
+    if ($DefaultText) {
+        $textbox.Text = $DefaultText
+    }
+    return $textbox
 }
 
 # Create the form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "DHCP Reservations Viewer"
-$form.Size = New-Object System.Drawing.Size(850, 550)
+$form.Size = New-Object System.Drawing.Size(850, 560)
 $form.StartPosition = "CenterScreen"
 
-# Create a label for DHCP Server input
-$labelDhcpServer = New-Object System.Windows.Forms.Label
-$labelDhcpServer.Location = New-Object System.Drawing.Point(10, 20)
-$labelDhcpServer.Size = New-Object System.Drawing.Size(110, 20)
-$labelDhcpServer.Text = "DHCP Server:"
+# Create controls using helper functions
+$labelDhcpServer = Create-Label -Text "DHCP Server:" -X 10 -Y 20
+$textDhcpServer = Create-Textbox -X 130 -Y 20 -DefaultText (Get-MachineFQDN)
 
-# Create a textbox for DHCP Server input
-$textDhcpServer = New-Object System.Windows.Forms.TextBox
-$textDhcpServer.Location = New-Object System.Drawing.Point(130, 20)
-$textDhcpServer.Size = New-Object System.Drawing.Size(400, 20)
-$textDhcpServer.Text = $FQDN  # Set default text to current machine FQDN
+$labelNameFilter = Create-Label -Text "Filter by Name:" -X 10 -Y 50
+$textNameFilter = Create-Textbox -X 130 -Y 50
 
-# Create a label for Name filter
-$labelNameFilter = New-Object System.Windows.Forms.Label
-$labelNameFilter.Location = New-Object System.Drawing.Point(10, 50)
-$labelNameFilter.Size = New-Object System.Drawing.Size(110, 20)
-$labelNameFilter.Text = "Filter by Name:"
+$labelDescriptionFilter = Create-Label -Text "Filter by Description:" -X 10 -Y 80
+$textDescriptionFilter = Create-Textbox -X 130 -Y 80
 
-# Create a textbox for Name filter input
-$textNameFilter = New-Object System.Windows.Forms.TextBox
-$textNameFilter.Location = New-Object System.Drawing.Point(130, 50)
-$textNameFilter.Size = New-Object System.Drawing.Size(400, 20)
-
-# Create a ToolTip object and set up the tooltip for the Name Filter textbox
+# ToolTip for Name filter textbox
 $toolTip = New-Object System.Windows.Forms.ToolTip
 $toolTip.SetToolTip($textNameFilter, "Enter hostnames separated by commas (e.g. PRT,WKS,SRV)")
 
-# Create a label for additional instructions on Name filter
-$labelNameFilterTip = New-Object System.Windows.Forms.Label
-$labelNameFilterTip.Location = New-Object System.Drawing.Point(130, 75)
-$labelNameFilterTip.Size = New-Object System.Drawing.Size(400, 15)
-$labelNameFilterTip.Text = "Use commas to separate multiple hostnames.  (e.g. PRT,WKS,SRV)"
-$labelNameFilterTip.ForeColor = [System.Drawing.Color]::Gray
-
-# Create a button to trigger the data retrieval
+# Create buttons
 $buttonGetReservations = New-Object System.Windows.Forms.Button
 $buttonGetReservations.Location = New-Object System.Drawing.Point(550, 18)
 $buttonGetReservations.Size = New-Object System.Drawing.Size(120, 25)
 $buttonGetReservations.Text = "Get Reservations"
 
-# Create a button to export data to CSV
 $buttonExportCSV = New-Object System.Windows.Forms.Button
 $buttonExportCSV.Location = New-Object System.Drawing.Point(680, 18)
 $buttonExportCSV.Size = New-Object System.Drawing.Size(120, 25)
@@ -151,14 +195,13 @@ $dataGridView.AutoSizeColumnsMode = 'Fill'
 $dataGridView.ReadOnly = $true
 
 # Add controls to the form
-$form.Controls.Add($labelDhcpServer)
-$form.Controls.Add($textDhcpServer)
-$form.Controls.Add($labelNameFilter)
-$form.Controls.Add($textNameFilter)
-$form.Controls.Add($labelNameFilterTip)
-$form.Controls.Add($buttonGetReservations)
-$form.Controls.Add($buttonExportCSV)
-$form.Controls.Add($dataGridView)
+$form.Controls.AddRange(@(
+    $labelDhcpServer, $textDhcpServer,
+    $labelNameFilter, $textNameFilter,
+    $labelDescriptionFilter, $textDescriptionFilter,
+    $buttonGetReservations, $buttonExportCSV,
+    $dataGridView
+))
 
 # Variables to store the retrieved data (use script scope)
 $script:allReservations = @()
@@ -176,71 +219,46 @@ $buttonGetReservations.Add_Click({
     # Get the DHCP server name from the textbox
     $dhcpServer = $textDhcpServer.Text.Trim()
     if ([string]::IsNullOrEmpty($dhcpServer)) {
-        Show-ErrorMessage "Please enter a DHCP server name or IP address."
+        Handle-Error "Please enter a DHCP server name or IP address."
         return
     }
 
     # Import the DHCP Server module
-    Import-Module DhcpServer -ErrorAction SilentlyContinue
-
-    # Check if the module is available
-    if (-not (Get-Module -ListAvailable -Name DhcpServer)) {
-        Show-ErrorMessage "The DHCP Server module is not available. Please ensure it is installed."
-        return
-    }
+    Import-RequiredModule -ModuleName 'DhcpServer'
 
     try {
-        Log-Message -Message "Attempting to retrieve DHCP scopes from server: $dhcpServer"
-
-        # Initialize an array to store all reservations
-        $script:allReservations = @()
+        Write-Log -Message "Attempting to retrieve DHCP scopes from server: $dhcpServer"
 
         # Get all DHCP scopes on the specified server
         $scopes = Get-DhcpServerv4Scope -ComputerName $dhcpServer -ErrorAction Stop
 
-        Log-Message -Message "Found $($scopes.Count) scopes on DHCP server $dhcpServer"
+        Write-Log -Message "Found $($scopes.Count) scopes on DHCP server $dhcpServer"
 
         # Loop through each scope to get reservations
         foreach ($scope in $scopes) {
             $reservations = Get-DhcpServerv4Reservation -ComputerName $dhcpServer -ScopeId $scope.ScopeId -ErrorAction SilentlyContinue
             if ($reservations) {
                 $script:allReservations += $reservations
-                Log-Message -Message "Retrieved $($reservations.Count) reservations from scope $($scope.ScopeId)"
+                Write-Log -Message "Retrieved $($reservations.Count) reservations from scope $($scope.ScopeId)"
             } else {
-                Log-Message -Message "No reservations found in scope $($scope.ScopeId)"
+                Write-Log -Message "No reservations found in scope $($scope.ScopeId)"
             }
         }
 
         if ($script:allReservations.Count -eq 0) {
-            Show-InfoMessage "No reservations found on the specified DHCP server."
+            Handle-Error "No reservations found on the specified DHCP server."
             return
         }
 
-        # Apply name filter if provided
-        $filterText = $textNameFilter.Text.Trim()
-        if (-not [string]::IsNullOrEmpty($filterText)) {
-            # Split the input by commas, trim whitespace, and filter out empty entries
-            $filterArray = $filterText -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+        # Apply filters (hostname and description)
+        $filterTextName = $textNameFilter.Text.Trim()
+        $filterTextDescription = $textDescriptionFilter.Text.Trim()
 
-            if ($filterArray.Count -eq 0) {
-                Show-ErrorMessage "Invalid filter input. Please enter valid hostnames separated by commas."
-                return
-            }
-
-            # Build a regex pattern with alternation for multiple filters
-            $escapedFilters = $filterArray | ForEach-Object { [regex]::Escape($_) }
-            $regexPattern = ($escapedFilters -join '|')
-
-            # Apply the regex pattern to filter reservations
-            $script:filteredReservations = $script:allReservations | Where-Object { $_.Name -match $regexPattern }
-            Log-Message -Message "Applied name filters: '$($filterArray -join ', ')', resulting in $($script:filteredReservations.Count) reservations"
-        } else {
-            $script:filteredReservations = $script:allReservations
-            Log-Message -Message "No name filter applied, total reservations: $($script:filteredReservations.Count)"
-        }
+        # Filter logic (hostname and/or description)
+        $script:filteredReservations = Apply-Filters -Reservations $script:allReservations -NameFilter $filterTextName -DescriptionFilter $filterTextDescription
 
         if ($script:filteredReservations.Count -eq 0) {
-            Show-InfoMessage "No reservations match the specified filter."
+            Handle-Error "No reservations match the specified filter."
             return
         }
 
@@ -262,12 +280,31 @@ $buttonGetReservations.Add_Click({
 
         $buttonExportCSV.Enabled = $true  # Enable export button now that data is loaded
 
-        Log-Message -Message "Successfully retrieved and displayed reservations."
-    }
-    catch {
-        Show-ErrorMessage "An error occurred: $($_.Exception.Message)"
+        Write-Log -Message "Successfully retrieved and displayed reservations."
+    } catch {
+        Handle-Error "An error occurred while retrieving reservations: $($_.Exception.Message)"
     }
 })
+
+# Define filter application logic
+function Apply-Filters {
+    param (
+        [array]$Reservations,
+        [string]$NameFilter,
+        [string]$DescriptionFilter
+    )
+
+    $filteredReservations = $Reservations
+    if (-not [string]::IsNullOrEmpty($NameFilter)) {
+        $regexPatternName = ($NameFilter -split ',' | ForEach-Object { [regex]::Escape($_.Trim()) }) -join '|'
+        $filteredReservations = $filteredReservations | Where-Object { $_.Name -match $regexPatternName }
+    }
+    if (-not [string]::IsNullOrEmpty($DescriptionFilter)) {
+        $regexPatternDesc = ($DescriptionFilter -split ',' | ForEach-Object { [regex]::Escape($_.Trim()) }) -join '|'
+        $filteredReservations = $filteredReservations | Where-Object { $_.Description -match $regexPatternDesc }
+    }
+    return $filteredReservations
+}
 
 # Define the button click event for Export to CSV
 $buttonExportCSV.Add_Click({
@@ -288,26 +325,19 @@ $buttonExportCSV.Add_Click({
             $csvPath = $saveFileDialog.FileName
 
             # Log the number of reservations to export
-            Log-Message -Message "Number of reservations to export: $($script:filteredReservations.Count)"
+            Write-Log -Message "Number of reservations to export: $($script:filteredReservations.Count)"
 
             if ($script:filteredReservations.Count -gt 0) {
-                # Select properties that are present in the reservation objects
-                $exportData = $script:filteredReservations | Select-Object ScopeId, IPAddress, ClientId, Description, Name
-
                 # Export the filtered reservations to CSV
-                $exportData | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+                $script:filteredReservations | Select-Object ScopeId, IPAddress, ClientId, Description, Name | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
 
-                Show-InfoMessage "Reservations exported successfully to $csvPath"
-                Log-Message -Message "Reservations exported to $csvPath"
+                Handle-Error "Reservations exported successfully to $csvPath"
             } else {
-                Show-ErrorMessage "There are no reservations to export."
-                Log-Message -Message "Export failed: No data to export." -MessageType "ERROR"
+                Handle-Error "No reservations to export."
             }
         }
-    }
-    catch {
-        Show-ErrorMessage "An error occurred during export: $($_.Exception.Message)"
-        Log-Message -Message "An error occurred during export: $($_.Exception.Message)" -MessageType "ERROR"
+    } catch {
+        Handle-Error "An error occurred during export: $($_.Exception.Message)"
     }
 })
 
