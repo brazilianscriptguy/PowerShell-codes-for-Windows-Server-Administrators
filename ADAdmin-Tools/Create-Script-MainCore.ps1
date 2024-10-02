@@ -1,4 +1,4 @@
-# Generalized PowerShell Script Core for GUI-based Tools
+# Generalized Main Core PowerShell Script to any other Sripts
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Last Updated: September 24, 2024
 
@@ -60,26 +60,32 @@ if (-not (Test-Path $logDir)) {
 $global:logBox = New-Object System.Windows.Forms.ListBox
 $global:results = @{}  # Initialize a hashtable to store results
 
-# Centralized logging function
-function Write-Log {
+# Enhanced logging function with error handling and validation
+function Log-Message {
     param (
-        [Parameter(Mandatory = $true)][string]$Message,
-        [Parameter(Mandatory = $false)][ValidateSet("INFO", "ERROR", "WARNING")][string]$Type = "INFO"
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("INFO", "ERROR", "WARNING", "DEBUG", "CRITICAL")]
+        [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] [$Type] $Message"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
+
     try {
-        Add-Content -Path $logPath -Value "$logEntry`r`n" -ErrorAction Stop
-        if ($global:logBox -ne $null) {
-            $global:logBox.Invoke([Action]{
-                $global:logBox.Items.Add($logEntry)
-                $global:logBox.TopIndex = $global:logBox.Items.Count - 1
-            })
+        # Ensure the log path exists
+        if (-not (Test-Path $logPath)) {
+            throw "Log path '$logPath' does not exist."
         }
+
+        # Attempt to write to the log file
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
+        # Fallback: Log to console if writing to the log file fails
         Write-Error "Failed to write to log: $_"
+        Write-Output $logEntry
     }
-    Write-Output $logEntry
 }
 
 # Unified error handling function
