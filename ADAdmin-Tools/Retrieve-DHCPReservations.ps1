@@ -30,6 +30,43 @@ if (-not $ShowConsole) {
     [Window]::Hide()
 }
 
+# Enhanced logging function with error handling and validation
+function Log-Message {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("INFO", "ERROR", "WARNING", "DEBUG", "CRITICAL")]
+        [string]$MessageType = "INFO"
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
+
+    try {
+        # Ensure the log path exists
+        if (-not (Test-Path $logPath)) {
+            throw "Log path '$logPath' does not exist."
+        }
+
+        # Attempt to write to the log file
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        # Fallback: Log to console if writing to the log file fails
+        Write-Error "Failed to write to log: $_"
+        Write-Output $logEntry
+    }
+}
+
+# Unified error handling function
+function Handle-Error {
+    param (
+        [Parameter(Mandatory = $true)][string]$ErrorMessage
+    )
+    Log-Message -Message "ERROR: $ErrorMessage" -MessageType "ERROR"
+    [System.Windows.Forms.MessageBox]::Show($ErrorMessage, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+}
+
 # Import necessary modules (customize based on your needs)
 function Import-RequiredModule {
     param (
@@ -44,7 +81,7 @@ function Import-RequiredModule {
                 exit
             }
         } catch {
-            [System.Windows.Forms.MessageBox]::Show("Failed to import $ModuleName module. Ensure it's installed and you have the necessary permissions.", "Module Import Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            Handle-Error "Failed to import $ModuleName module. Ensure it's installed and you have the necessary permissions."
             exit
         }
     }
@@ -78,45 +115,12 @@ if (-not (Test-Path $logDir)) {
 $global:logBox = New-Object System.Windows.Forms.ListBox
 $global:results = @{}  # Initialize a hashtable to store results
 
-# Centralized logging function with error fallback
-function Write-Log {
-    param (
-        [Parameter(Mandatory = $true)][string]$Message,
-        [Parameter(Mandatory = $false)][ValidateSet("INFO", "ERROR", "WARNING")][string]$Type = "INFO"
-    )
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] [$Type] $Message"
-    try {
-        if ($logDir -ne $null) {
-            Add-Content -Path $logPath -Value "$logEntry`r`n" -ErrorAction Stop
-        }
-        if ($global:logBox -ne $null -and $global:logBox.IsHandleCreated) {
-            $global:logBox.Invoke([Action]{
-                $global:logBox.Items.Add($logEntry)
-                $global:logBox.TopIndex = $global:logBox.Items.Count - 1
-            })
-        }
-    } catch {
-        Write-Error "Failed to write to log: $_"
-    }
-    Write-Output $logEntry
-}
-
-# Unified error handling function
-function Handle-Error {
-    param (
-        [Parameter(Mandatory = $true)][string]$ErrorMessage
-    )
-    Write-Log -Message "ERROR: $ErrorMessage" -Type "ERROR"
-    [System.Windows.Forms.MessageBox]::Show($ErrorMessage, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-}
-
 # Get the FQDN of the current machine
 function Get-MachineFQDN {
     try {
         return ([System.Net.Dns]::GetHostEntry($env:COMPUTERNAME)).HostName
     } catch {
-        Write-Log -Message "Could not determine FQDN. Using COMPUTERNAME: $($env:COMPUTERNAME)" -Type "WARNING"
+        Log-Message -Message "Could not determine FQDN. Using COMPUTERNAME: $($env:COMPUTERNAME)" -MessageType "WARNING"
         return $env:COMPUTERNAME
     }
 }
@@ -227,21 +231,21 @@ $buttonGetReservations.Add_Click({
     Import-RequiredModule -ModuleName 'DhcpServer'
 
     try {
-        Write-Log -Message "Attempting to retrieve DHCP scopes from server: $dhcpServer"
+        Log-Message -Message "Attempting to retrieve DHCP scopes from server: $dhcpServer" -MessageType "INFO"
 
         # Get all DHCP scopes on the specified server
         $scopes = Get-DhcpServerv4Scope -ComputerName $dhcpServer -ErrorAction Stop
 
-        Write-Log -Message "Found $($scopes.Count) scopes on DHCP server $dhcpServer"
+        Log-Message -Message "Found $($scopes.Count) scopes on DHCP server $dhcpServer" -MessageType "INFO"
 
         # Loop through each scope to get reservations
         foreach ($scope in $scopes) {
             $reservations = Get-DhcpServerv4Reservation -ComputerName $dhcpServer -ScopeId $scope.ScopeId -ErrorAction SilentlyContinue
             if ($reservations) {
                 $script:allReservations += $reservations
-                Write-Log -Message "Retrieved $($reservations.Count) reservations from scope $($scope.ScopeId)"
+                Log-Message -Message "Retrieved $($reservations.Count) reservations from scope $($scope.ScopeId)" -MessageType "INFO"
             } else {
-                Write-Log -Message "No reservations found in scope $($scope.ScopeId)"
+                Log-Message -Message "No reservations found in scope $($scope.ScopeId)" -MessageType "WARNING"
             }
         }
 
@@ -280,7 +284,7 @@ $buttonGetReservations.Add_Click({
 
         $buttonExportCSV.Enabled = $true  # Enable export button now that data is loaded
 
-        Write-Log -Message "Successfully retrieved and displayed reservations."
+        Log-Message -Message "Successfully retrieved and displayed reservations." -MessageType "INFO"
     } catch {
         Handle-Error "An error occurred while retrieving reservations: $($_.Exception.Message)"
     }
@@ -294,16 +298,19 @@ function Apply-Filters {
         [string]$DescriptionFilter
     )
 
-    $filteredReservations = $Reservations
-    if (-not [string]::IsNullOrEmpty($NameFilter)) {
-        $regexPatternName = ($NameFilter -split ',' | ForEach-Object { [regex]::Escape($_.Trim()) }) -join '|'
-        $filteredReservations = $filteredReservations | Where-Object { $_.Name -match $regexPatternName }
+    if (-not [string]::IsNullOrEmpty($NameFilter) -or -not [string]::IsNullOrEmpty($DescriptionFilter)) {
+        $filteredReservations = $Reservations
+        if (-not [string]::IsNullOrEmpty($NameFilter)) {
+            $regexPatternName = ($NameFilter -split ',' | ForEach-Object { [regex]::Escape($_.Trim()) }) -join '|'
+            $filteredReservations = $filteredReservations | Where-Object { $_.Name -match $regexPatternName }
+        }
+        if (-not [string]::IsNullOrEmpty($DescriptionFilter)) {
+            $regexPatternDesc = ($DescriptionFilter -split ',' | ForEach-Object { [regex]::Escape($_.Trim()) }) -join '|'
+            $filteredReservations = $filteredReservations | Where-Object { $_.Description -match $regexPatternDesc }
+        }
+        return $filteredReservations
     }
-    if (-not [string]::IsNullOrEmpty($DescriptionFilter)) {
-        $regexPatternDesc = ($DescriptionFilter -split ',' | ForEach-Object { [regex]::Escape($_.Trim()) }) -join '|'
-        $filteredReservations = $filteredReservations | Where-Object { $_.Description -match $regexPatternDesc }
-    }
-    return $filteredReservations
+    return $Reservations # Return all if no filters are applied
 }
 
 # Define the button click event for Export to CSV
@@ -325,13 +332,15 @@ $buttonExportCSV.Add_Click({
             $csvPath = $saveFileDialog.FileName
 
             # Log the number of reservations to export
-            Write-Log -Message "Number of reservations to export: $($script:filteredReservations.Count)"
+            Log-Message -Message "Number of reservations to export: $($script:filteredReservations.Count)" -MessageType "INFO"
 
             if ($script:filteredReservations.Count -gt 0) {
                 # Export the filtered reservations to CSV
                 $script:filteredReservations | Select-Object ScopeId, IPAddress, ClientId, Description, Name | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
 
-                Handle-Error "Reservations exported successfully to $csvPath"
+                # Log success message
+                Log-Message -Message "Reservations exported successfully to $csvPath" -MessageType "INFO"
+                [System.Windows.Forms.MessageBox]::Show("Reservations exported successfully to $csvPath", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
             } else {
                 Handle-Error "No reservations to export."
             }
