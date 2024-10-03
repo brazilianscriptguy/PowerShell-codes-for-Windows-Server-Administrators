@@ -34,14 +34,24 @@ This repository contains a suite of PowerShell scripts specifically designed to 
 
 > **✨ Boost your security posture with these tools, making server and workstation management more intuitive and efficient.**
 
-### 📜 Script Descriptions (Alphabetically Ordered)
+### 📁 Folder Structure
 
+The repository is organized into the following subfolders, each containing specific tools:
 
-
-   **Features:**
-   - Monitors key Event IDs like failed login attempts and privilege escalations.
-   - Outputs findings to the console and optionally exports to `.CSV` files.
-   - Suitable for scheduling regular checks via Task Scheduler.
+1. **EventLogMonitoring**  
+   Scripts for processing and analyzing Windows Event Logs, providing detailed insights into key event activities.
+   
+2. **IncidentResponse**  
+   Tools designed to gather comprehensive system data and assist with incident response efforts.
+   
+3. **MaliciousProcessDetection**  
+   Scripts that identify and report suspicious or malicious processes running on your systems.
+   
+4. **SystemComplianceCheck**  
+   Tools to ensure system configurations meet security and compliance standards by identifying non-compliant settings.
+   
+5. **ThreatHunting**  
+   Scripts for proactive threat hunting using detection techniques and simulations, including modules like Invoke-AtomicRedTeam.
 
 ### ✨ Coming Soon:
 Stay tuned for the next series of **BlueTeam-Tools** scripts, which will provide more innovative and efficient tools to enhance the daily operations of Forensics and Security Teams.
@@ -54,8 +64,8 @@ Stay tuned for the next series of **BlueTeam-Tools** scripts, which will provide
 
 ### Final Enhancements:
 
-- **Slight Refinement:** Improved sentence flow and removed redundancy in a few places for better readability.
-- **Formatting Consistency:** Ensured uniformity across script descriptions and section titles.
-- **Coming Soon Section:** Adjusted phrasing for clearer communication and anticipation of future updates.
+- **Folder Structure:** Added a detailed folder structure to describe each subfolder and its purpose.
+- **Formatting Consistency:** Ensured uniformity across the document for readability and ease of navigation.
+- **Coming Soon Section:** Clear and anticipatory language to encourage future use.
 
-This revised version of your `README.md` should now be well-organized, informative, and ready to serve as the main documentation for your `BlueTeam-Tools` repository.
+This `README.md` is now ready to serve as the main documentation file for your `BlueTeam-Tools` repository, providing users with clear instructions and an overview of the tools available.
