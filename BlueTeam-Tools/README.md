@@ -1,6 +1,6 @@
-# 📂 EventLogMonitoring
+# 📂 BlueTeam-Tools
 
-Welcome to the **EventLogMonitoring** repository! This collection of PowerShell scripts is meticulously designed to assist Forensics and Blue Team professionals in efficiently monitoring, detecting, and responding to security threats. Each tool is built to extract crucial information from logs and other sources, generating outputs in `.CSV` format for straightforward analysis.
+Welcome to the **BlueTeam-Tools** repository! This collection of PowerShell scripts is meticulously designed to assist Forensics and Blue Team professionals in efficiently monitoring, detecting, and responding to security threats. Each tool is built to extract crucial information from logs and other sources, generating outputs in `.CSV` format for straightforward analysis.
 
 ## 🛠️ Prerequisites
 
@@ -36,50 +36,7 @@ This repository contains a suite of PowerShell scripts specifically designed to 
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
-1. ### [Automated Threat Hunting with Invoke-AtomicRedTeam](./ThreatHunting/ThreatHunting-InvokeAtomicRedTeam.ps1)
-   
-   **Description:**  
-   Leverages the **Invoke-AtomicRedTeam** module to execute atomic tests simulating adversary techniques. This script automates threat hunting and vulnerability assessments, collecting and exporting results for analysis.
 
-   **Features:**
-   - Executes specified or all atomic tests.
-   - Generates detailed `.CSV` reports of test outcomes.
-   - Provides a summary of findings directly within the console.
-
-2. ### [Collect-SystemInfo](./IncidentResponse/Collect-SystemInfo.ps1)
-   
-   **Description:**  
-   Gathers comprehensive system information crucial for incident response. This script collects data on network configurations, running services, installed software, active network connections, and scheduled tasks, exporting the information for thorough analysis.
-
-   **Features:**
-   - Creates an organized output directory for reports.
-   - Exports data in various formats (`.txt` and `.csv`).
-   - Facilitates quick assessments of system status during incidents.
-
-3. ### [Check-SystemCompliance](./SystemComplianceCheck/Check-SystemCompliance.ps1)
-   
-   **Description:**  
-   Evaluates system configurations against predefined compliance standards or organizational security policies. Identifies non-compliant settings and provides actionable reports to ensure adherence to best practices.
-
-   **Features:**
-   - Checks critical security settings like firewall status and PowerShell logging.
-   - Optionally exports compliance reports in `.CSV` format.
-   - Easily customizable to include additional compliance checks.
-
-4. ### [Detect-MaliciousProcesses](./MaliciousProcessDetection/Detect-MaliciousProcesses.ps1)
-   
-   **Description:**  
-   Scans running processes to identify known malicious signatures or suspicious behaviors such as high CPU usage. This script assists in early detection of potential threats, allowing for timely remediation.
-
-   **Features:**
-   - Utilizes a customizable list of known malicious processes.
-   - Flags processes exceeding defined CPU usage thresholds.
-   - Exports detection results for further investigation.
-
-5. ### [Monitor-SecurityEvents](./EventLogMonitoring/Monitor-SecurityEvents.ps1)
-   
-   **Description:**  
-   Monitors Windows Security Event Logs for specific Event IDs associated with suspicious or malicious activities. It provides real-time alerts and detailed reports to support proactive threat detection.
 
    **Features:**
    - Monitors key Event IDs like failed login attempts and privilege escalations.
