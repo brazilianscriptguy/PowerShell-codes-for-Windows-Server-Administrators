@@ -1,19 +1,29 @@
-
-# 📂 Eventlogs-Tools Folder
+# 📂 EventLogMonitoring Folder
 
 ## 🛠️ Prerequisites
 
-Before using the scripts in this folder, ensure that the **Microsoft Log Parser utility** is installed on the Windows Server machines or the Windows 10 or 11 workstations where these scripts will be executed. You can also execute scripts that handle `.evtx` files directly from a Windows 10 or 11 workstation. To fully leverage these scripts, which include the `Import-Module ActiveDirectory` command, **Remote Server Administration Tools (RSAT)** must be installed on the workstation.
+Before using the scripts in this folder, ensure the following prerequisites are met:
+
+1. **Microsoft Log Parser Utility**
+   - **Installation:** Required on Windows Server machines or Windows 10/11 workstations where these scripts will be executed.
+   - **Usage:** Enables advanced querying and analysis of various log formats.
+
+2. **Remote Server Administration Tools (RSAT)**
+   - **Installation:** Necessary on Windows 10/11 workstations to fully leverage scripts that include the `Import-Module ActiveDirectory` command.
+   - **Usage:** Facilitates the management of Active Directory and other remote server roles.
+
+You can also run scripts that handle `.evtx` files directly from a Windows 10 or 11 workstation.
 
 ## 📄 Description
-This directory contains a collection of scripts specifically designed to process `Windows Event Log files (.evtx)`. These scripts extract relevant information from the logs and generate outputs in .CSV format for straightforward analysis.
 
-> **✨ Each script features a graphical user interface `(GUI)` to enhance user interaction. Additionally, they offer functionalities for generating `.log` files and exporting results to `.csv` files, making the management of servers and workstations more intuitive and efficient.**
+This directory contains a collection of scripts specifically designed to process `Windows Event Log files (.evtx)`. These scripts extract relevant information from the logs and generate outputs in `.CSV` format for easy analysis.
+
+> **✨ Each script features a graphical user interface (GUI) to enhance user interaction. Additionally, they provide functionality for generating `.log` files and exporting results to `.csv` files, making server and workstation management more intuitive and efficient.**
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
 1. **EventID-Count-AllEvtx-Events.ps1**  
-   Analyzes EVTX files, counting occurrences of each EventID, and exports the results to a CSV file for easier event log analysis.
+   Analyzes EVTX files, counts occurrences of each EventID, and exports the results to a CSV file for easier event log analysis.
 
 2. **EventID307-PrintAudit.ps1**  
    Extracts detailed insights from the Microsoft-Windows-PrintService/Operational Event Log (Event ID 307), auditing print activities for enhanced tracking.
@@ -43,7 +53,7 @@ This directory contains a collection of scripts specifically designed to process
     Analyzes Active Directory object changes and deletions (Event IDs 5136, 5137, and 5141), generating a CSV report for auditing AD modifications.
 
 11. **EventIDs1074-6006-6008-6013-SystemRestarts.ps1**  
-    Retrieves details on normal system restarts and unexpected shutdowns (Event ID 6008) into a CSV file, aiding in the diagnosis of system instability.
+    Retrieves details on normal system restarts and unexpected shutdowns (Event ID 6008) into a CSV file, aiding in diagnosing system instability.
 
 12. **EventLogFiles-MigratorTool.ps1**  
     Manages Windows Server Event Log files by reorganizing, moving, and resizing them for optimized accessibility and storage efficiency.
@@ -54,3 +64,10 @@ Stay tuned for the next series of EventID analysis scripts, which will provide m
 ## ❓ Additional Assistance
 
 *All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please refer to the `README.md` file in the main root folder.*
+
+---
+
+### Improvements:
+
+1. **Clarity and Consistency:** Improved clarity and consistency, especially in phrasing, to make the instructions more concise and user-friendly.
+2. **Formatting:** Enhanced formatting for ease of reading and navigation.
