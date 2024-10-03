@@ -1,6 +1,6 @@
-# 📂 BlueTeam-Tools
+# 📂 EventLogMonitoring
 
-Welcome to the **BlueTeam-Tools** repository! This collection of PowerShell scripts is meticulously designed to assist Forensics and Blue Team professionals in efficiently monitoring, detecting, and responding to security threats. Each tool is built to extract crucial information from logs and other sources, generating outputs in `.CSV` format for straightforward analysis.
+Welcome to the **EventLogMonitoring** repository! This collection of PowerShell scripts is meticulously designed to assist Forensics and Blue Team professionals in efficiently monitoring, detecting, and responding to security threats. Each tool is built to extract crucial information from logs and other sources, generating outputs in `.CSV` format for straightforward analysis.
 
 ## 🛠️ Prerequisites
 
