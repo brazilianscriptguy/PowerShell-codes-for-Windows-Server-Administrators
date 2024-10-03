@@ -31,7 +31,7 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 
 ## 🛠️ Introduction
 
-This repository is a comprehensive source of scripts and tools specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10 and 11 workstations. Whether you're aiming to bolster security, optimize system performance, or streamline administrative workflows, our collection within the **ADAdmin-Tools**, **EventLog-Tools**, and **ITSM-Templates** folders is here to elevate your management capabilities.
+This repository is a comprehensive source of scripts and tools specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10 and 11 workstations. Whether you're aiming to bolster security, optimize system performance, or streamline administrative workflows, our collection within the **ADAdmin-Tools**, **BlueTeam-Tools**, and **ITSM-Templates** folders is here to elevate your management capabilities.
 
 ## 🚀 Features
 
@@ -39,7 +39,7 @@ The repository is organized into three main root folders, each dedicated to a sp
 
 - **ADAdmin-Tools**: Automate and manage a wide range of system administration tasks, including Active Directory management, user, group, and organizational unit (OU) administration. This folder also covers essential services such as DHCP, DNS, Sites and Services, and system synchronization, providing comprehensive tools for efficient management of Windows Server environments.
 
-- **EventLog-Tools**: Focus on analyzing and generating detailed reports for various EventIDs from Windows Event Log (.evtx) files. These tools are designed to enhance troubleshooting and monitoring, enabling administrators to quickly identify and resolve issues within their Windows environments.
+- **BlueTeam-Tools**: Focus on analyzing and generating detailed reports for various Forensics and BlueTeams everyday tasks. These tools are designed to enhance troubleshooting and monitoring, enabling administrators to quickly identify and resolve issues within their Windows environments.
 
 - **ITSM-Templates**: Offer a collection of templates and scripts specifically tailored for IT Service Management (ITSM). This folder emphasizes workstation hardening, configuration, compliance, and automation, helping organizations maintain high standards of security and operational efficiency across their Windows workstations.
 
@@ -57,7 +57,7 @@ To begin using the tools in this repository:
    git clone https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators.git
    ```
 
-2. **Explore the Folders**: Navigate through **ADAdmin-Tools**, **EventLog-Tools**, and **ITSM-Templates** to find the scripts that meet your needs.
+2. **Explore the Folders**: Navigate through **ADAdmin-Tools**, **BlueTeam-Tools**, and **ITSM-Templates** to find the scripts that meet your needs.
 
 3. **Run the Scripts**:
    - **PowerShell Scripts (`.PS1`)**: Right-click the script and select `Run with PowerShell`.
@@ -70,7 +70,7 @@ To begin using the tools in this repository:
 - **PowerShell Version**: PowerShell version 5.1 or later is required on all Windows environments.
 - **Administrative Rights**: Most scripts require administrative privileges to run successfully.
 - **ADAdmin-Tools folder**: These scripts require the installation of `Remote Server Administration Tools (RSAT)` on Windows 10 and 11 workstations.
-- **EventLog-Tools folder**: These scripts require the `Microsoft Log Parser utility` to be installed on all Windows environments.
+- **BlueTeam-Tools folder**: These scripts require the `Microsoft Log Parser utility` to be installed on all Windows environments.
 - **ITSM-Templates folder**: These scripts are tailored for Windows 10 workstations starting from version 1507 to Windows 11 (24H2).
 
 ## 🔧 Installing RSAT on Windows 10 and 11 Workstations
