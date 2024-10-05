@@ -17,7 +17,7 @@ To use these scripts effectively, ensure the following:
 1. **🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
    Removes non-compliant or unauthorized software from machines via Group Policy, enforcing software compliance and reducing vulnerabilities associated with unauthorized applications.
 
-2. **🗑️ Uninstall-SelectedApp.ps1**  
+2. **🗑️ Uninstall-SelectedApp-Tool.ps1**  
    Provides a GUI for selecting and uninstalling applications from workstations. It is particularly useful for detecting and removing unwanted or potentially malicious software. The script automates the uninstallation process, reducing manual intervention and ensuring efficient removal.
 
 ## 🚀 How to Use
@@ -25,7 +25,7 @@ To use these scripts effectively, ensure the following:
 1. **🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
    Use this script to silently remove non-compliant or unauthorized software via GPO, helping to enforce compliance and reduce vulnerabilities from unauthorized applications.
 
-2. **🗑️ Uninstall-SelectedApp.ps1**  
+2. **🗑️ Uninstall-SelectedApp-Tool.ps1**  
    - Run the script with administrative privileges to open the GUI.
    - Select the application(s) you want to uninstall from the displayed list.
    - Confirm the action to proceed with the uninstallation.
