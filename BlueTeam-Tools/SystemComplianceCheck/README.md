@@ -44,7 +44,7 @@ Before using these scripts, ensure the following:
 10. **🔑 Retrieve-Windows-ProductKey.ps1**  
     Retrieves Windows product keys from the registry, ensuring systems are properly licensed and compliant with licensing policies.
 
-11. **✂️ Shorten-LongFileNames.ps1**  
+11. **✂️ Shorten-LongFileNames-Tool.ps1**  
     Automatically shortens file names that exceed a specified length, preventing file system errors and ensuring compliance with naming standards.
 
 ## 🚀 How to Use
@@ -79,7 +79,7 @@ Before using these scripts, ensure the following:
 10. **Retrieve-Windows-ProductKey.ps1**  
     - Run the script to retrieve and log Windows product keys for license management and compliance.
 
-11. **Shorten-LongFileNames.ps1**  
+11. **Shorten-LongFileNames-Tool.ps1**  
     - Use this script to automatically shorten long file names, preventing file system errors and ensuring compliance with naming standards.
 
 ## 📝 Logging and Output
