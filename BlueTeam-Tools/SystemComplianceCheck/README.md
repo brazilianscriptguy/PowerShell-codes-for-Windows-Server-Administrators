@@ -17,7 +17,7 @@ Before using these scripts, ensure the following:
 1. **🔍 Check-ServicesPort-Connectivity.ps1**  
    A diagnostic tool that checks the connectivity of specific service ports in real time, helping verify compliance with network connectivity configurations and ensuring critical services are reachable.
 
-2. **🖥️ Find-Shorter-ADComputerNames.ps1**  
+2. **🖥️ Check-Shorter-ADComputerNames.ps1**  
    Identifies AD computer names that are shorter than a specified length, ensuring adherence to organizational naming conventions.
 
 3. **📋 Inventory-InstalledSoftwareList.ps1**  
@@ -54,7 +54,7 @@ Each script is user-friendly and straightforward:
 1. **Check-ServicesPort-Connectivity.ps1**  
    - Run the script, input the service ports, and view real-time results, which are also logged for later review.
 
-2. **Find-Shorter-ADComputerNames.ps1**  
+2. **Check-Shorter-ADComputerNames.ps1**  
    - Execute the script to generate a report of AD computer names shorter than the specified length, ensuring naming convention compliance.
 
 3. **Inventory-InstalledSoftwareList.ps1**  
