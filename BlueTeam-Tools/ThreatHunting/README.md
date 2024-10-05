@@ -26,9 +26,6 @@ Before using these scripts, ensure the following:
 4. **📂 Remove-SharedFolders-and-Drives-viaGPO.ps1**  
    Automates the removal of unauthorized shared folders and drives via Group Policy, ensuring compliance with data-sharing policies and eliminating potential risks for data leakage.
 
-5. **🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
-   Removes non-compliant or unauthorized software from machines via Group Policy, enforcing software compliance and reducing vulnerabilities associated with unauthorized applications.
-
 ## 🚀 How to Use
 
 Each script is designed to streamline security management:
@@ -44,9 +41,6 @@ Each script is designed to streamline security management:
 
 4. **📂 Remove-SharedFolders-and-Drives-viaGPO.ps1**  
    - Run this script to remove unauthorized shared folders and drives via GPO, ensuring compliance with organizational data-sharing policies and reducing security risks.
-
-5. **🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
-   - Use this script to silently remove non-compliant or unauthorized software via GPO, helping to enforce compliance and reduce vulnerabilities from unauthorized applications.
 
 ## 📝 Logging and Output
 
