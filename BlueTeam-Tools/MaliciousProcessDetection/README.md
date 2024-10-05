@@ -17,7 +17,7 @@ To use these scripts effectively, ensure the following:
 1. **🛡️ Remove-Softwares-NonCompliance-Tool.ps1**  
    This script uninstalls multiple software applications based on a list of software names provided in a `.TXT` file. It logs all actions, handles errors gracefully, and allows users to execute, cancel, or close the uninstallation process seamlessly.
    
-2. **📝 Remove-Softwares-NonCompliance.txt**  
+2. **📝 Softwares-NonCompliance-List.txt**  
    A supporting text file used by the **Remove-Softwares-NonCompliance-Tool.ps1** script, containing the list of software names to be uninstalled.
 
 3. **🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
