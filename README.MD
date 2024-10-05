@@ -31,7 +31,7 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 
 ## 🛠️ Introduction
 
-This repository is a comprehensive source of tools and scripts specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10 and 11 workstations. Whether you’re focused on optimizing system performance, boosting security, or streamlining administrative workflows, the tools in the **ADAdmin-Tools**, **BlueTeam-Tools**, and **Core-ScriptLibrary** folders are here to help.
+This repository is a comprehensive source of tools and scripts specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10 and 11 workstations. Whether you’re focused on optimizing system performance, boosting security, or streamlining administrative workflows, the tools in the **ADAdmin-Tools**, **BlueTeam-Tools**, **Core-ScriptLibrary** and **ITSM-Templates** folders are here to help.
 
 ## 🚀 Features
 
