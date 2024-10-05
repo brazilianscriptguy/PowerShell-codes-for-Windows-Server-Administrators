@@ -2,24 +2,30 @@
 
 ## 📝 Overview
 
-This folder contains a script designed to assist with the detection and removal of **malicious processes** and applications in Windows environments. The **Uninstall-SelectedApp.ps1** script offers administrators an efficient way to uninstall suspicious or unwanted applications, helping to safeguard system integrity and security.
+This folder contains scripts designed to assist with the detection and removal of **malicious processes** and applications in Windows environments. These tools help administrators efficiently uninstall suspicious or unwanted applications, safeguarding system integrity and security.
 
 ## 🛠️ Prerequisites
 
-To use the script effectively, ensure the following:
+To use these scripts effectively, ensure the following:
 
 - **PowerShell** is enabled on your system.
 - **Administrative privileges** are required to uninstall applications.
 - The **name of the application** to be uninstalled is known and correctly identified.
 
-## 📄 Script Description
+## 📄 Script Descriptions
 
-1. **🗑️ Uninstall-SelectedApp.ps1**  
-   This script provides a GUI for selecting and uninstalling applications from workstations. It is particularly useful for detecting and removing unwanted or potentially malicious software. The script automates the uninstallation process, reducing manual intervention and ensuring efficient removal.
+1. **🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
+   Removes non-compliant or unauthorized software from machines via Group Policy, enforcing software compliance and reducing vulnerabilities associated with unauthorized applications.
+
+2. **🗑️ Uninstall-SelectedApp.ps1**  
+   Provides a GUI for selecting and uninstalling applications from workstations. It is particularly useful for detecting and removing unwanted or potentially malicious software. The script automates the uninstallation process, reducing manual intervention and ensuring efficient removal.
 
 ## 🚀 How to Use
 
-1. **🗑️ Uninstall-SelectedApp.ps1**  
+1. **🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
+   Use this script to silently remove non-compliant or unauthorized software via GPO, helping to enforce compliance and reduce vulnerabilities from unauthorized applications.
+
+2. **🗑️ Uninstall-SelectedApp.ps1**  
    - Run the script with administrative privileges to open the GUI.
    - Select the application(s) you want to uninstall from the displayed list.
    - Confirm the action to proceed with the uninstallation.
@@ -27,5 +33,5 @@ To use the script effectively, ensure the following:
 
 ## 📝 Logging and Output
 
-- The script generates logs in `.LOG` format, documenting the uninstalled applications.
-- These logs can be used for auditing purposes and further analysis of system changes after the uninstallation.
+- Both scripts generate logs in `.LOG` format, documenting the actions taken.
+- These logs can be used for auditing purposes and further analysis of system changes after uninstallation.
