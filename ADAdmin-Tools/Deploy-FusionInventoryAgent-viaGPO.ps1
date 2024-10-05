@@ -1,4 +1,4 @@
-# PowerShell Script to Installing the 2.6(1) Fusioninventory Agent
+# PowerShell Script to Installing the 2.6(1) Fusioninventory Agent via GPOs
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Update: September 30, 2024
 
