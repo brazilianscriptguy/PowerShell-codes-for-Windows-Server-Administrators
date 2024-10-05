@@ -1,8 +1,8 @@
-# Comprehensive Toolset for Windows Server Administration and VBScript Repository for Efficient Workstation Management, Configuration, and ITSM Compliance on Windows 10 and 11
+# Comprehensive Toolset for Windows Server Administration and Efficient Workstation Management with VBScript for ITSM Compliance on Windows 10 and 11
 
-Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript Repository, a meticulously curated collection of scripts tailored for advanced management of Windows Servers and Windows 10 and 11 workstations. Developed by `@brazilianscriptguy`, this repository offers an extensive array of tools designed to streamline administrative tasks on Windows Servers while optimizing management, configuration, and compliance on workstations.
+Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript Repository—a meticulously curated collection of scripts tailored for advanced Windows Server and Windows 10/11 workstation management. Developed by `@brazilianscriptguy`, this repository provides an extensive suite of tools that streamline Windows Server administration while optimizing workstation management, configuration, and ITSM compliance.
 
-> **✨ Each script in these repositories **features a graphical user interface** `(GUI)`, **enhances user interaction**, and includes functionalities for **generating operational** `.log files` and **exporting results** to `.csv files`, making server and workstation management more intuitive and user-friendly.**
+> ✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script also generates `.log` files for operational tracking and **exports results to `.csv` files**, making both server and workstation management intuitive and efficient.
 
 ## 🗂️ My GitHub Contributions
 
