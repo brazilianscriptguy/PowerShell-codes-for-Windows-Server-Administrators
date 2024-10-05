@@ -31,7 +31,7 @@ Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript
 
 ## 🛠️ Introduction
 
-This repository is a comprehensive source of tools and scripts specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10 and 11 workstations. Whether you’re focused on optimizing system performance, boosting security, or streamlining administrative workflows, the tools in the **ADAdmin-Tools**, **BlueTeam-Tools**, **Core-ScriptLibrary** and **ITSM-Templates** folders are here to help.
+This repository is a comprehensive source of tools and scripts specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10 and 11 workstations. Whether you’re focused on optimizing system performance, boosting security, or streamlining administrative workflows, the tools in the **ADAdmin-Tools**, **BlueTeam-Tools**, **Core-ScriptLibrary**, and **ITSM-Templates** folders are here to help.
 
 ## 🚀 Features
 
@@ -71,9 +71,11 @@ To begin using the tools in this repository:
    git clone https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators.git
    ```
 
-2. **Explore the Folders**: Navigate through **ADAdmin-Tools**, **BlueTeam-Tools**, **Core-ScriptLibrary**, and **ITSM-Templates** to find the tools relevant to your tasks.
+2. **Save the Scripts**: Choose a directory to save the scripts and organize them as needed for easier access.
 
-3. **Run the Scripts**:
+3. **Explore the Folders**: Navigate through **ADAdmin-Tools**, **BlueTeam-Tools**, **Core-ScriptLibrary**, and **ITSM-Templates** to find the tools relevant to your tasks.
+
+4. **Run the Scripts**:
    - **PowerShell Scripts (`.ps1`)**: Right-click the script and select `Run with PowerShell`.
    - **VBScript Files (`.vbs`)**: Right-click the file and choose `Run with command prompt`.
 
@@ -91,9 +93,7 @@ Before running these scripts, ensure your environment meets the following requir
 
 1. **Open Settings**: Go to `Settings` on your Windows 10/11 workstation.
 2. **Apps & Features**: Navigate to `Apps`, then select `Optional Features`.
-3. **Add a Feature**: Click on `Add a feature`
-
- and search for `RSAT`.
+3. **Add a Feature**: Click on `Add a feature` and search for `RSAT`.
 4. **Install**: Select and install the necessary RSAT tools (e.g., Active Directory, DNS, DHCP).
 
 ## 🔧 Installing Microsoft Log Parser Utility
@@ -110,16 +110,6 @@ This repository allows significant flexibility to adapt the scripts to your spec
 - **Configuration Files**: Modify the included configuration files for specific execution behaviors.
 - **Script Parameters**: Adjust script parameters based on your requirements, such as adding or changing AD OU paths, setting domain targets, or customizing compliance checks.
 
-## 📥 Installation
-
-1. **Clone the Repository**: 
-   ```bash
-   git clone https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators.git
-   ```
-
-2. **Save the Scripts**: Choose a directory to save the scripts.
-3. **Execute the Scripts**: Ensure proper execution by following the documentation and using administrative privileges where required.
-
 ## 🤝 Support and Contributions
 
 For support, feel free to reach out via [email](mailto:luizhamilton.lhr@gmail.com) or join the [PowerShell-Br WhatsApp channel](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c). You can also support my work via [Patreon](https://patreon.com/brazilianscriptguy) for exclusive content.
@@ -129,4 +119,3 @@ For the latest updates and releases, visit the [ITSM-SysAdminToolSet Release](ht
 ---
 
 *Thank you for choosing the PowerShell ToolSet for Windows Server Administration and VBScript Repository for Workstation Management.* We hope these tools enhance your workflow and system efficiency.
-
