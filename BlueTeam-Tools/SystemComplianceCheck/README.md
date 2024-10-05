@@ -15,41 +15,39 @@ Before using these scripts, ensure the following:
 ## 📄 Script Descriptions
 
 1. **🔍 Check-ServicesPort-Connectivity.ps1**  
-   A diagnostic tool that checks the connectivity of specific service ports in real time, helping verify compliance with network connectivity configurations and ensuring critical services are reachable.
+   Checks the connectivity of specific service ports in real time, helping verify network configuration compliance and ensuring critical services are reachable.
 
 2. **🖥️ Check-Shorter-ADComputerNames.ps1**  
-   Identifies AD computer names that are shorter than a specified length, ensuring adherence to organizational naming conventions.
+   Identifies AD computer names shorter than a specified length, ensuring adherence to naming conventions.
 
-3. **📋 Retrieve-InstalledSoftwareList.ps1**  
-   Audits installed software across AD computers, generating an inventory report to check compliance with software usage policies.
-
-4. **🔐 Organize-CERTs-Repository.ps1**  
+3. **🔐 Organize-CERTs-Repository.ps1**  
    Organizes SSL/TLS certificates within the repository by issuer, ensuring proper management and compliance with security standards.
 
-5. **📂 Retrieve-ADComputer-SharedFolders.ps1**  
-   Scans AD workstations for shared folders and logs the results, helping ensure that only authorized shares are in place.
+4. **📂 Retrieve-ADComputer-SharedFolders.ps1**  
+   Scans AD workstations for shared folders and logs the results to ensure only authorized shares are in place.
 
-6. **📡 Retrieve-DHCPReservations.ps1**  
-   Lists DHCP reservations from servers, allowing filtering by hostname or description. This ensures proper network documentation.
+5. **📡 Retrieve-DHCPReservations.ps1**  
+   Lists DHCP reservations from servers, allowing filtering by hostname or description, ensuring proper network documentation.
 
-7. **🛡️ Retrieve-Elevated-ADForestInfo.ps1**  
-   Gathers information about elevated accounts and groups across the AD forest, helping monitor privileged users and ensuring security compliance.
+6. **🛡️ Retrieve-Elevated-ADForestInfo.ps1**  
+   Gathers information on elevated accounts and groups across the AD forest to help monitor privileged users and ensure security compliance.
 
-8. **🌐 Retrieve-Empty-DNSReverseLookupZone.ps1**  
-   Detects empty DNS reverse lookup zones, aiding DNS cleanup and ensuring proper zone configuration.
+7. **🌐 Retrieve-Empty-DNSReverseLookupZone.ps1**  
+   Detects empty DNS reverse lookup zones to aid in DNS cleanup and ensure proper zone configuration.
+
+8. **📋 Retrieve-InstalledSoftwareList.ps1**  
+   Audits installed software across AD computers, generating a report to check compliance with software usage policies.
 
 9. **💽 Retrieve-ServersDiskSpace.ps1**  
    Collects disk space usage data from multiple AD servers, providing insights into system health and storage compliance.
 
 10. **🔑 Retrieve-Windows-ProductKey.ps1**  
-    Retrieves Windows product keys from the registry, ensuring systems are properly licensed and compliant with software licensing policies.
+    Retrieves Windows product keys from the registry, ensuring systems are properly licensed and compliant with licensing policies.
 
 11. **✂️ Shorten-LongFileNames.ps1**  
-    Automatically shortens file names that exceed a certain length, preventing file system errors and ensuring compliance with naming standards.
+    Automatically shortens file names that exceed a specified length, preventing file system errors and ensuring compliance with naming standards.
 
 ## 🚀 How to Use
-
-Each script is user-friendly and straightforward:
 
 1. **Check-ServicesPort-Connectivity.ps1**  
    - Run the script, input the service ports, and view real-time results, which are also logged for later review.
@@ -57,23 +55,23 @@ Each script is user-friendly and straightforward:
 2. **Check-Shorter-ADComputerNames.ps1**  
    - Execute the script to generate a report of AD computer names shorter than the specified length, ensuring naming convention compliance.
 
-3. **Retrieve-InstalledSoftwareList.ps1**  
-   - Run the script to compile an inventory of installed software across AD computers, aiding in compliance audits.
-
-4. **Organize-CERTs-Repository.ps1**  
+3. **Organize-CERTs-Repository.ps1**  
    - Use this script to organize SSL/TLS certificates by issuer, ensuring the certificate repository is compliant and well-maintained.
 
-5. **Retrieve-ADComputer-SharedFolders.ps1**  
-   - Execute this script to scan shared folders on AD computers, ensuring that only authorized shares are in place.
+4. **Retrieve-ADComputer-SharedFolders.ps1**  
+   - Execute this script to scan shared folders on AD computers, ensuring only authorized shares are in place.
 
-6. **Retrieve-DHCPReservations.ps1**  
+5. **Retrieve-DHCPReservations.ps1**  
    - Run the script to retrieve and filter DHCP reservations, ensuring proper network documentation.
 
-7. **Retrieve-Elevated-ADForestInfo.ps1**  
+6. **Retrieve-Elevated-ADForestInfo.ps1**  
    - Use this script to gather information on elevated accounts across the AD forest, assisting with privileged account monitoring.
 
-8. **Retrieve-Empty-DNSReverseLookupZone.ps1**  
+7. **Retrieve-Empty-DNSReverseLookupZone.ps1**  
    - Run this script to detect and clean up empty DNS reverse lookup zones, improving DNS configuration.
+
+8. **Retrieve-InstalledSoftwareList.ps1**  
+   - Run the script to compile an inventory of installed software across AD computers, aiding in compliance audits.
 
 9. **Retrieve-ServersDiskSpace.ps1**  
    - Execute the script to collect disk space data from multiple servers, helping monitor storage compliance.
