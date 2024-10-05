@@ -20,7 +20,7 @@ Before using these scripts, ensure the following:
 2. **🖥️ Check-Shorter-ADComputerNames.ps1**  
    Identifies AD computer names that are shorter than a specified length, ensuring adherence to organizational naming conventions.
 
-3. **📋 Inventory-InstalledSoftwareList.ps1**  
+3. **📋 Retrieve-InstalledSoftwareList.ps1**  
    Audits installed software across AD computers, generating an inventory report to check compliance with software usage policies.
 
 4. **🔐 Organize-CERTs-Repository.ps1**  
@@ -57,7 +57,7 @@ Each script is user-friendly and straightforward:
 2. **Check-Shorter-ADComputerNames.ps1**  
    - Execute the script to generate a report of AD computer names shorter than the specified length, ensuring naming convention compliance.
 
-3. **Inventory-InstalledSoftwareList.ps1**  
+3. **Retrieve-InstalledSoftwareList.ps1**  
    - Run the script to compile an inventory of installed software across AD computers, aiding in compliance audits.
 
 4. **Organize-CERTs-Repository.ps1**  
