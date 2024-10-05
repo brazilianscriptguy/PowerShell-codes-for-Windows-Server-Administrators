@@ -14,7 +14,7 @@ To run these scripts, ensure the following:
 
 ## 📄 Script Descriptions
 
-1. **🧹 Cleanup-ADForest-Tool.ps1**
+1. **🧹 Cleanup-MetadData-ADForest-Tool.ps1**
    - A user-friendly tool designed to clean up your AD forest by removing orphaned objects, synchronizing Domain Controllers, and managing unnecessary CNs. This script helps maintain a secure and optimized AD environment after incidents.
 
 2. **🗑️ Delete-FilesByExtension-Bulk.ps1**
@@ -25,7 +25,7 @@ To run these scripts, ensure the following:
 
 ## 🚀 How to Use
 
-1. **🧹 Cleanup-ADForest-Tool.ps1**
+1. **🧹 Cleanup-MetadData-ADForest-Tool.ps1**
    - Execute the script with administrative privileges to start cleaning up your AD forest. A GUI will guide you through the process of selecting options for synchronization, object cleanup, and CN management.
 
 2. **🗑️ Delete-FilesByExtension-Bulk.ps1**
