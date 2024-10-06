@@ -1,4 +1,4 @@
-# PowerShell Script to Delete Cookies, Cache, and Other Data for Firefox, Chrome, Edge, Internet Explorer, WhatsApp, and Perform General System Cleanup
+# PowerShell Script to Delete Cookies, Cache, History, and Other Data for Firefox, Chrome, Edge, Internet Explorer, WhatsApp, and Perform General System Cleanup
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Updated: October 05, 2024
 
@@ -23,13 +23,16 @@ public class Window {
 }
 "@
 [Window]::Hide()
+
 # Add necessary assemblies
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+
 # Define Colors for Logging
 $Yellow = "Yellow"
 $Green  = "Green"
 $Cyan   = "Cyan"
+
 # Function to Log Messages with Color
 function Write-Log {
     param (
@@ -43,6 +46,7 @@ function Write-Log {
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = "[$timestamp] [$MessageType] $Message"
+    
     try {
         if (-not (Test-Path $logDir)) {
             New-Item -Path $logDir -ItemType Directory -ErrorAction Stop | Out-Null
@@ -52,11 +56,13 @@ function Write-Log {
         Write-Error "Failed to write to log: $_"
         Write-Host $logEntry -ForegroundColor $Color
     }
+    
     if ($global:logBox -and $global:logBox.InvokeRequired -eq $false) {
         $global:logBox.Items.Add($logEntry)
         $global:logBox.TopIndex = $global:logBox.Items.Count - 1
     }
 }
+
 # Function to Handle Errors
 function Handle-Error {
     param (
@@ -65,6 +71,7 @@ function Handle-Error {
     Write-Log -Message "ERROR: $ErrorMessage" -MessageType "ERROR" -Color $Yellow
     [System.Windows.Forms.MessageBox]::Show($ErrorMessage, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
 }
+
 # Function to Remove Items with Error Handling
 function Remove-Items {
     param (
@@ -75,152 +82,80 @@ function Remove-Items {
         if (Test-Path $Path) {
             Remove-Item -Path $Path -Recurse -Force -ErrorAction SilentlyContinue -Verbose
             Write-Log -Message "Removed: $Path" -MessageType "INFO" -Color $Cyan
-        }
-        else {
+        } else {
             Write-Log -Message "Path does not exist: $Path" -MessageType "WARNING" -Color $Yellow
         }
-    }
-    catch {
+    } catch {
         Handle-Error "Failed to remove items at path: $Path. Error: $_"
     }
 }
-# Function to Clear Firefox Data
-function Clear-FirefoxData {
-    Write-Log -Message "Clearing Mozilla Firefox Data" -MessageType "INFO" -Color $Green
-    Get-ChildItem "C:\Users" -Directory | ForEach-Object {
-        $UserName = $_.Name
-        $ProfilePath = "C:\Users\$UserName\AppData\Local\Mozilla\Firefox\Profiles"
-        if (Test-Path $ProfilePath) {
-            Get-ChildItem $ProfilePath -Directory | ForEach-Object {
-                Write-Log -Message "  Processing Firefox Profile: $($_.Name)" -MessageType "INFO" -Color $Cyan
-                $ProfileFullPath = $_.FullName
-                $PathsToClear = @(
-                    "$ProfileFullPath\cookies.sqlite",
-                    "$ProfileFullPath\cache2\entries",
-                    "$ProfileFullPath\cookies.sqlite-journal",
-                    "$ProfileFullPath\places.sqlite",
-                    "$ProfileFullPath\places.sqlite-journal",
-                    "$ProfileFullPath\sessionstore.jsonlz4",
-                    "$ProfileFullPath\webappsstore.sqlite",
-                    "$ProfileFullPath\downloads.json",
-                    "$ProfileFullPath\storage\default",
-                    "$ProfileFullPath\thumbnails",
-                    "$ProfileFullPath\cache",
-                    "$ProfileFullPath\extensions"
-                )
-                foreach ($Path in $PathsToClear) {
-                    Remove-Items -Path $Path
-                }
-            }
-        }
-        else {
-            Write-Log -Message "Firefox profiles not found for user: $UserName" -MessageType "WARNING" -Color $Yellow
-        }
-    }
-    Write-Log -Message "Mozilla Firefox Data Cleared." -MessageType "INFO" -Color $Green
-}
-# Function to Clear Chrome and Edge Data
-function Clear-ChromeAndEdgeData {
+
+# Function to Kill Browser Processes
+function Kill-BrowserProcesses {
     param (
-        [Parameter(Mandatory = $true)]
-        [ValidateSet("Chrome", "Edge")]
-        [string]$Browser
+        [Parameter(Mandatory = $true)][string[]]$Browsers
     )
-    Write-Log -Message "Clearing Microsoft $Browser Data" -MessageType "INFO" -Color $Green
-    $BrowserDataBasePath = if ($Browser -eq "Chrome") {
-        "C:\Users\*\AppData\Local\Google\Chrome\User Data"
+    foreach ($browser in $Browsers) {
+        try {
+            Get-Process -Name $browser -ErrorAction SilentlyContinue | Stop-Process -Force
+            Write-Log -Message "Stopped $browser process." -MessageType "INFO" -Color $Cyan
+        } catch {
+            Write-Log -Message "Failed to stop $browser process." -MessageType "WARNING" -Color $Yellow
+        }
     }
-    elseif ($Browser -eq "Edge") {
-        "C:\Users\*\AppData\Local\Microsoft\Edge\User Data"
-    }
+}
+
+# Function to Clear Browser Data (Generalized for Reuse)
+function Clear-BrowserData {
+    param (
+        [Parameter(Mandatory = $true)][string]$BrowserName,
+        [Parameter(Mandatory = $true)][string[]]$PathsToClear,
+        [Parameter(Mandatory = $true)][string]$UserProfileBasePath
+    )
+    Write-Log -Message "Clearing $BrowserName Data" -MessageType "INFO" -Color $Green
     Get-ChildItem -Path "C:\Users" -Directory | ForEach-Object {
         $UserName = $_.Name
-        $UserProfilePath = $_.FullName
-        if ($Browser -eq "Chrome") {
-            $BrowserPath = "$UserProfilePath\AppData\Local\Google\Chrome\User Data"
+        $UserProfilePath = Join-Path $_.FullName $UserProfileBasePath
+        if (Test-Path $UserProfilePath) {
+            Write-Log -Message "  Processing $BrowserName data for user: $UserName" -MessageType "INFO" -Color $Cyan
+            foreach ($Path in $PathsToClear) {
+                $FullPath = Join-Path $UserProfilePath $Path
+                Remove-Items -Path $FullPath
+            }
+        } else {
+            Write-Log -Message "$BrowserName data path not found for user: $UserName" -MessageType "WARNING" -Color $Yellow
         }
-        elseif ($Browser -eq "Edge") {
-            $BrowserPath = "$UserProfilePath\AppData\Local\Microsoft\Edge\User Data"
-        }
-        if (Test-Path $BrowserPath) {
-            Write-Log -Message "  Processing $Browser profiles for user: $UserName" -MessageType "INFO" -Color $Cyan
-            $Profiles = Get-ChildItem $BrowserPath -Directory | Where-Object { $_.Name -like "Profile*" -or $_.Name -eq "Default" }
-            foreach ($Profile in $Profiles) {
-                Write-Log -Message "    Cleaning profile: $($Profile.Name)" -MessageType "INFO" -Color $Cyan
-                $ProfileFullPath = $Profile.FullName
-                $PathsToClear = @(
-                    "$ProfileFullPath\Cookies",
-                    "$ProfileFullPath\Cookies-Journal",
-                    "$ProfileFullPath\Local Storage",
-                    "$ProfileFullPath\IndexedDB",
-                    "$ProfileFullPath\Cache",
-                    "$ProfileFullPath\Cache2",
-                    "$ProfileFullPath\Media Cache",
-                    "$ProfileFullPath\GPUCache",
-                    "$ProfileFullPath\Code Cache",
-                    "$ProfileFullPath\ShaderCache",
-                    "$ProfileFullPath\Local Extension Settings",
-                    "$ProfileFullPath\Sessions",
-                    "$ProfileFullPath\databases",
-                    "$ProfileFullPath\*.*_lock"
-                )
-                foreach ($Path in $PathsToClear) {
-                    Remove-Items -Path $Path
+    }
+    Write-Log -Message "$BrowserName Data Cleared." -MessageType "INFO" -Color $Green
+}
+
+# Function to Clear Browser History
+function Clear-BrowserHistory {
+    param (
+        [Parameter(Mandatory = $true)][string]$BrowserName,
+        [Parameter(Mandatory = $true)][string[]]$HistoryPaths,
+        [Parameter(Mandatory = $true)][string]$UserProfileBasePath
+    )
+    Write-Log -Message "Clearing $BrowserName History" -MessageType "INFO" -Color $Green
+    Get-ChildItem -Path "C:\Users" -Directory | ForEach-Object {
+        $UserName = $_.Name
+        $UserProfilePath = Join-Path $_.FullName $UserProfileBasePath
+        if (Test-Path $UserProfilePath) {
+            Write-Log -Message "  Processing $BrowserName history for user: $UserName" -MessageType "INFO" -Color $Cyan
+            foreach ($HistoryPath in $HistoryPaths) {
+                $FullPath = Join-Path $UserProfilePath $HistoryPath
+                if (Test-Path $FullPath) {
+                    Remove-Item -Path $FullPath -Force -ErrorAction SilentlyContinue
+                    Write-Log -Message "Removed history file: $FullPath" -MessageType "INFO" -Color $Cyan
+                } else {
+                    Write-Log -Message "History path does not exist: $FullPath" -MessageType "WARNING" -Color $Yellow
                 }
-                $FontCachePath = "$ProfileFullPath\ChromeDWriteFontCache"
-                Remove-Items -Path $FontCachePath
             }
         }
-        else {
-            Write-Log -Message "$Browser data path not found for user: $UserName" -MessageType "WARNING" -Color $Yellow
-        }
     }
-    Write-Log -Message "Microsoft $Browser Data Cleared." -MessageType "INFO" -Color $Green
+    Write-Log -Message "$BrowserName History Cleared." -MessageType "INFO" -Color $Green
 }
-# Function to Clear Internet Explorer Data
-function Clear-IeData {
-    Write-Log -Message "Clearing Internet Explorer Data" -MessageType "INFO" -Color $Green
-    Get-ChildItem "C:\Users" -Directory | ForEach-Object {
-        $UserName = $_.Name
-        $UserProfilePath = $_.FullName
-        $IeCachePath     = "$UserProfilePath\AppData\Local\Microsoft\Windows\INetCache"
-        $IeCookiesPath   = "$UserProfilePath\AppData\Local\Microsoft\Windows\INetCookies"
-        $IeHistoryPath   = "$UserProfilePath\AppData\Local\Microsoft\Windows\History"
-        Write-Log -Message "  Processing Internet Explorer data for user: $UserName" -MessageType "INFO" -Color $Cyan
-        $PathsToClear = @(
-            "$IeCachePath\*",
-            "$IeCookiesPath\*",
-            "$IeHistoryPath\*"
-        )
-        foreach ($Path in $PathsToClear) {
-            Remove-Items -Path $Path
-        }
-    }
-    $SystemPathsToClear = @(
-        "C:\Windows\Temp\*",
-        "C:\Windows\Prefetch\*",
-        "C:\$Recycle.Bin\*"
-    )
-    foreach ($Path in $SystemPathsToClear) {
-        Remove-Items -Path $Path
-    }
-    Write-Log -Message "Internet Explorer Data Cleared." -MessageType "INFO" -Color $Green
-}
-# Function to Perform General System Cleanup
-function Clear-SystemTemp {
-    Write-Log -Message "Performing General System Cleanup" -MessageType "INFO" -Color $Green
-    $GeneralTempPaths = @(
-        "C:\Users\*\AppData\Local\Temp\*",
-        "C:\Windows\Temp\*",
-        "C:\Windows\Prefetch\*",
-        "C:\$Recycle.Bin\*",
-        "C:\ProgramData\Microsoft\Windows\WER\*"
-    )
-    foreach ($Path in $GeneralTempPaths) {
-        Remove-Items -Path $Path
-    }
-    Write-Log -Message "General System Cleanup Completed." -MessageType "INFO" -Color $Green
-}
+
 # Function to Clear WhatsApp Data
 function Clear-WhatsAppData {
     Write-Log -Message "Clearing WhatsApp Data" -MessageType "INFO" -Color $Green
@@ -247,49 +182,64 @@ function Clear-WhatsAppData {
                 foreach ($ClearPath in $PathsToClear) {
                     Remove-Items -Path $ClearPath
                 }
-            }
-            else {
+            } else {
                 Write-Log -Message "WhatsApp data path not found for user: $UserName" -MessageType "WARNING" -Color $Yellow
             }
         }
     }
     Write-Log -Message "WhatsApp Data Cleared." -MessageType "INFO" -Color $Green
 }
-# Function to Import Required Module (Optional)
-function Import-RequiredModule {
-    param (
-        [string]$ModuleName
+
+# Function to Perform General System Cleanup
+function Clear-SystemTemp {
+    Write-Log -Message "Performing General System Cleanup" -MessageType "INFO" -Color $Green
+    $GeneralTempPaths = @(
+        "C:\Users\*\AppData\Local\Temp\*",
+        "C:\Windows\Temp\*",
+        "C:\Windows\Prefetch\*",
+        "C:\$Recycle.Bin\*",
+        "C:\ProgramData\Microsoft\Windows\WER\*"
     )
-    if (-not (Get-Module -Name $ModuleName)) {
-        try {
-            if (Get-Module -ListAvailable -Name $ModuleName) {
-                Import-Module -Name $ModuleName -ErrorAction Stop
-                Write-Log -Message "Module $ModuleName imported successfully." -MessageType "INFO" -Color $Green
-            } else {
-                $msg = "Module $ModuleName is not available. Please install the module."
-                Write-Log -Message $msg -MessageType "CRITICAL" -Color $Yellow
-                [System.Windows.Forms.MessageBox]::Show($msg, "Module Import Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-                exit
-            }
-        } catch {
-            Handle-Error "Failed to import $ModuleName module. Ensure it's installed and you have the necessary permissions."
-            exit
+    foreach ($Path in $GeneralTempPaths) {
+        Remove-Items -Path $Path
+    }
+    Write-Log -Message "General System Cleanup Completed." -MessageType "INFO" -Color $Green
+}
+
+# Function to Clear Application Data (%APPDATA%) and %TEMP% related to Web Browsers
+function Clear-ApplicationData {
+    Write-Log -Message "Clearing Application Data (%APPDATA%) and %TEMP% related to browsers" -MessageType "INFO" -Color $Green
+    Get-ChildItem -Path "C:\Users" -Directory | ForEach-Object {
+        $UserName = $_.Name
+        $UserProfilePath = $_.FullName
+        $PathsToClear = @(
+            "$UserProfilePath\AppData\Roaming\Mozilla",
+            "$UserProfilePath\AppData\Roaming\Google",
+            "$UserProfilePath\AppData\Roaming\Microsoft\Edge",
+            "$UserProfilePath\AppData\Local\Temp\*",
+            "$UserProfilePath\AppData\Local\Google",
+            "$UserProfilePath\AppData\Local\Mozilla",
+            "$UserProfilePath\AppData\Local\Microsoft\Edge"
+        )
+        foreach ($Path in $PathsToClear) {
+            Remove-Items -Path $Path
         }
     }
+    Write-Log -Message "Application Data (%APPDATA%) and %TEMP% related to browsers cleaned." -MessageType "INFO" -Color $Green
 }
-# Import Required Module (Optional)
-# Uncomment the following lines if you need to import ActiveDirectory module
-# Import-RequiredModule -ModuleName 'ActiveDirectory'
-# Determine script name and set up file paths dynamically
+
+# Set log and CSV paths, allow dynamic configuration or fallback to defaults
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
 $logDir = if ($env:LOG_PATH -and $env:LOG_PATH -ne "") { $env:LOG_PATH } else { 'C:\Logs-TEMP' }
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 $csvPath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "${scriptName}-$timestamp.csv"
+
 # Global Variables Initialization
 $global:logBox = New-Object System.Windows.Forms.ListBox
 $global:results = @{}
+
 # Function to Create the GUI
 function Create-GUI {
     $form = New-Object System.Windows.Forms.Form
@@ -334,27 +284,34 @@ function Create-GUI {
         $textBox.Clear()
         $textBox.Text = "Process started, please wait..."
         try {
-            Clear-FirefoxData
-            Clear-ChromeAndEdgeData -Browser "Chrome"
-            Clear-ChromeAndEdgeData -Browser "Edge"
-            Clear-IeData
+            # Kill browser processes to prevent issues during cleanup
+            Kill-BrowserProcesses -Browsers @("firefox", "chrome", "msedge", "iexplore")
+            
+            # Execute cleanup functions
+            Clear-BrowserData -BrowserName "Mozilla Firefox" -PathsToClear @("cookies.sqlite", "cache2\entries", "places.sqlite", "sessionstore.jsonlz4", "webappsstore.sqlite", "downloads.json", "storage\default", "thumbnails", "cache", "extensions") -UserProfileBasePath "AppData\Local\Mozilla\Firefox\Profiles"
+            Clear-BrowserData -BrowserName "Google Chrome" -PathsToClear @("Cookies", "Cache", "History", "Local Storage", "Sessions") -UserProfileBasePath "AppData\Local\Google\Chrome\User Data\Default"
+            Clear-BrowserData -BrowserName "Microsoft Edge" -PathsToClear @("Cookies", "Cache", "History", "Local Storage", "Sessions") -UserProfileBasePath "AppData\Local\Microsoft\Edge\User Data\Default"
+            Clear-BrowserData -BrowserName "Internet Explorer" -PathsToClear @("INetCache\*", "INetCookies\*", "History\*") -UserProfileBasePath "AppData\Local\Microsoft\Windows"
+            Clear-BrowserHistory -BrowserName "Mozilla Firefox" -HistoryPaths @("places.sqlite*") -UserProfileBasePath "AppData\Local\Mozilla\Firefox\Profiles"
             Clear-WhatsAppData
             Clear-SystemTemp
+            Clear-ApplicationData
+
             $textBox.Text = "Cleanup process completed successfully."
             Write-Log -Message "Cleanup process completed successfully." -MessageType "INFO" -Color $Green
+
             if ($ShowConsole) {
                 Write-Host "Cleanup process completed successfully." -ForegroundColor Green
             }
+
             $buttonSave.Enabled = $true
-        }
-        catch {
+        } catch {
             Handle-Error "An error occurred during the cleanup process: $_"
             $textBox.Text = "An error occurred. Check the logs for details."
             if ($ShowConsole) {
                 Write-Host "An error occurred during the cleanup process. Check the logs for details." -ForegroundColor Red
             }
-        }
-        finally {
+        } finally {
             $buttonStart.Enabled = $true
         }
     })
@@ -385,14 +342,17 @@ function Create-GUI {
     })
     $form.ShowDialog()
 }
+
 # Main Script Execution
 Write-Log -Message "#######################################################" -MessageType "INFO" -Color $Yellow
-Write-Log -Message "PowerShell commands to delete cookies, cache, and other data" -MessageType "INFO" -Color $Green
+Write-Log -Message "PowerShell commands to delete cookies, cache, history, and other data" -MessageType "INFO" -Color $Green
 Write-Log -Message "in Firefox, Chrome, Edge, Internet Explorer, WhatsApp," -MessageType "INFO" -Color $Green
 Write-Log -Message "and perform general system cleanup" -MessageType "INFO" -Color $Green
 Write-Log -Message "By Luiz Hamilton Silva - @brazilianscriptguy" -MessageType "INFO" -Color $Green
-Write-Log -Message "Updated: October 05, 2024" -MessageType "INFO" -Color $Green
+Write-Log -Message "Updated: October 06, 2024" -MessageType "INFO" -Color $Green
 Write-Log -Message "#######################################################`n" -MessageType "INFO" -Color $Yellow
+
+# Create the GUI
 Create-GUI
 
 # End of script
