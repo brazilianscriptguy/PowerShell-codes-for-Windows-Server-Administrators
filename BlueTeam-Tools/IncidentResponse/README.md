@@ -18,7 +18,7 @@ To run these scripts, ensure the following:
    A user-friendly tool designed to clean up your AD forest by removing orphaned objects, synchronizing Domain Controllers, and managing unnecessary CNs. This script helps maintain a secure and optimized AD environment after incidents.
 
 2. **🧼 Cleanup-WebBrowsers-Tool.ps1**  
-   Thoroughly removes cookies, cache, session data, and other residual files from web browsers (Mozilla Firefox, Google Chrome, Microsoft Edge, Internet Explorer), WhatsApp, and performs general system cleanup tasks across all user profiles on a Windows system.
+   Thoroughly removes cookies, cache, session data, history, and other residual files from web browsers (Mozilla Firefox, Google Chrome, Microsoft Edge, Internet Explorer) and WhatsApp, while also performing general system cleanup tasks across all user profiles on a Windows system.
 
 3. **🗑️ Delete-FilesByExtension-Bulk.ps1**  
    A powerful script for bulk deleting files based on their extensions, helping to remove unwanted or potentially harmful files during post-incident cleanup.
