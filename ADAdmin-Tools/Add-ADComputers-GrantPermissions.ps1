@@ -342,7 +342,7 @@ $cmbOU.DropDownStyle = 'DropDownList'
 
 # Retrieve and store all OUs initially
 try {
-    $allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Comput*"' | Select-Object -ExpandProperty DistinguishedName
+    $allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Computers"' | Select-Object -ExpandProperty DistinguishedName
     if ($allOUs.Count -eq 0) {
         Show-ErrorMessage "No Organizational Units (OUs) found matching the criteria."
         Log-Message "No Organizational Units (OUs) found matching the criteria." -MessageType "ERROR"
