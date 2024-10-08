@@ -342,7 +342,7 @@ $cmbOU.DropDownStyle = 'DropDownList'
 
 # Retrieve and store all OUs initially
 try {
-    $allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Computadores*"' | Select-Object -ExpandProperty DistinguishedName
+    $allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Comput*"' | Select-Object -ExpandProperty DistinguishedName
     if ($allOUs.Count -eq 0) {
         Show-ErrorMessage "No Organizational Units (OUs) found matching the criteria."
         Log-Message "No Organizational Units (OUs) found matching the criteria." -MessageType "ERROR"
@@ -390,7 +390,7 @@ $lblSupportGroup.Text = "Ingress Account:"
 $txtSupportGroup = New-Object System.Windows.Forms.TextBox
 $txtSupportGroup.Location = New-Object System.Drawing.Point(10, 190)
 $txtSupportGroup.Size = New-Object System.Drawing.Size(460, 20)
-$txtSupportGroup.Text = "ingdomain@SEDE.TJAP"  # Default Support Group
+$txtSupportGroup.Text = "ingdomain-account@FOREST.COM"  # Default Support Group Account
 $txtSupportGroup.ForeColor = [System.Drawing.Color]::Black
 $txtSupportGroup.ReadOnly = $true
 
