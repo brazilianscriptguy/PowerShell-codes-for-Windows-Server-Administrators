@@ -108,7 +108,7 @@ Before running these scripts, ensure your environment meets the following requir
 This repository allows significant flexibility to adapt the scripts to your specific environment. Common customizations include:
 
 - **Configuration Files**: Modify the included configuration files for specific execution behaviors.
-- **Script Parameters**: Adjust script parameters based on your requirements, such as adding or changing AD OU paths, setting domain targets, or customizing compliance checks.
+- **Script Parameters**: Adjust script parameters based on your requirements, such as adding or changing AD OU paths, setting Domain targets, or customizing compliance checks.
 
 ## 🤝 Support and Contributions
 
