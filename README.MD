@@ -114,8 +114,8 @@ This repository allows significant flexibility to adapt the scripts to your spec
 
 For support, feel free to reach out via [email](mailto:luizhamilton.lhr@gmail.com) or join the [PowerShell-Br WhatsApp channel](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c). You can also support my work via [Patreon](https://patreon.com/brazilianscriptguy) for exclusive content.
 
-For the latest updates and releases, visit the [ITSM-SysAdminToolSet Release](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/releases/tag/ITSM-SysAdminToolSet).
+For the latest updates and releases, visit the [SysAdminToolSet Release](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/releases/tag/SysAdminToolSet).
 
 ---
 
-*Thank you for choosing the PowerShell ToolSet for Windows Server Administration and VBScript Repository for Workstation Management.* We hope these tools enhance your workflow and system efficiency.
+*Thank you for choosing the PowerShell ToolSet for Windows Server Administration, BlueTeam Tools and VBScript Repository for Workstation Management.* We hope these tools enhance your workflow and system efficiency.
