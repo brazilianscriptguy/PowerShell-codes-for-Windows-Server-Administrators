@@ -4,20 +4,20 @@
 
 We, as members, contributors, and leaders, pledge to make participation in our community a **harassment-free** experience for everyone, regardless of:
 
-- Age
-- Body size
-- Visible or invisible disability
-- Ethnicity
-- Sex characteristics
-- Gender identity and expression
-- Level of experience
-- Education
-- Socioeconomic status
-- Nationality
-- Personal appearance
-- Race
-- Religion
-- Sexual identity and orientation
+- 🧑‍🦽 Age
+- 📏 Body size
+- ♿ Visible or invisible disability
+- 🌍 Ethnicity
+- ⚧ Sex characteristics
+- 🌈 Gender identity and expression
+- 🎓 Level of experience
+- 🎓 Education
+- 💰 Socioeconomic status
+- 🌐 Nationality
+- 👗 Personal appearance
+- 🏳️‍🌈 Race
+- ✝️ Religion
+- 🏳️‍🌈 Sexual identity and orientation
 
 We pledge to act and interact in ways that contribute to an **open, welcoming, diverse, inclusive, and healthy** community.
 
@@ -88,7 +88,7 @@ Community leaders will follow these **Community Impact Guidelines** in determini
 
 **Community Impact**: Demonstrating a pattern of violation of community standards, including sustained inappropriate behavior, harassment of an individual, or aggression toward or disparagement of classes of individuals.
 
-**Consequence**: A **permanent ban** from any sort of public interaction within the community.
+**Consequence**: A permanent ban from any sort of public interaction within the community.
 
 ## 📚 Attribution
 
