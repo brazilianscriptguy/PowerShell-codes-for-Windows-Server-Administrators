@@ -85,7 +85,7 @@ Before running these scripts, ensure your environment meets the following requir
 
 - **PowerShell Version**: PowerShell version 5.1 or later is required.
 - **Administrative Rights**: Most scripts require administrative privileges.
-- **RSAT Tools**: Required for **ADAdmin-Tools**, ensure `Remote Server Administration Tools (RSAT)` is installed.
+- **RSAT Tools**: Required for **ADAdmin-Tools** and **BlueTeam-Tools**, ensure `Remote Server Administration Tools (RSAT)` is installed.
 - **Log Parser Utility**: Required for **BlueTeam-Tools**, install [Microsoft Log Parser 2.2](https://www.microsoft.com/en-us/download/details.aspx?id=24659).
 - **ITSM-Templates**: Ensure workstations are running **Windows 10 (1507 or later)** or **Windows 11**.
 
