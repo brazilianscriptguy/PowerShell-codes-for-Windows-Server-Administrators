@@ -36,106 +36,109 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 8. **Copy-and-Sync-Folder-to-ADComputers-viaGPO.ps1**  
    Synchronizes folders from a network location to AD computers, ensuring that only new or updated files are copied while outdated files are removed, with full logging.
 
-9. **Create-OUsDefaultADStructure.ps1**  
+9. **Create-NewDHCPReservations.ps1**
+    Streamlines the process of adding new DHCP reservations by allowing users to select domains, DHCP scopes, and choose available IP addresses from the free range within a scope.
+
+10. **Create-OUsDefaultADStructure.ps1**  
    Helps create a standardized AD infrastructure by defining predefined OUs, streamlining domain setup or reorganization.
 
-10. **Deploy-FortiClientVPN-viaGPO.ps1**  
+11. **Deploy-FortiClientVPN-viaGPO.ps1**  
     Automates the installation, configuration, and tunnel setup for FortiClient VPN across workstations using GPO, ensuring secure and consistent remote access.
 
-11. **Deploy-FusionInventoryAgent-viaGPO.ps1**  
+12. **Deploy-FusionInventoryAgent-viaGPO.ps1**  
     Deploys FusionInventory Agent on workstations via GPO, optimizing inventory management and reporting in enterprise environments.
 
-12. **Deploy-KasperskyAV-viaGPO.ps1**  
+13. **Deploy-KasperskyAV-viaGPO.ps1**  
     Automates the installation and configuration of Kaspersky Antivirus across workstations using GPO, ensuring consistent protection in enterprise environments.
 
-13. **Deploy-PowerShell-viaGPO.ps1**  
+14. **Deploy-PowerShell-viaGPO.ps1**  
     Simplifies the installation of PowerShell on workstations and servers via GPO, enhancing system administration efficiency.
 
-14. **Deploy-ZoomWorkplace-viaGPO.ps1**  
+15. **Deploy-ZoomWorkplace-viaGPO.ps1**  
     Automates the deployment of Zoom software through GPO, facilitating seamless collaboration and communication in enterprise environments.
 
-15. **Enforce-Expiration-ADUserPasswords.ps1**  
+16. **Enforce-Expiration-ADUserPasswords.ps1**  
     Forces password expiration for users within a specified OU, enforcing security policies by requiring regular password updates.
 
-16. **Enhance-BGInfoDisplay-viaGPO.ps1 / Enhance-BGInfoDisplay-viaGPO.bgi**  
+17. **Enhance-BGInfoDisplay-viaGPO.ps1 / Enhance-BGInfoDisplay-viaGPO.bgi**  
     Integrates BGInfo with GPO to enrich server desktop displays with critical system information, making it easier for IT administrators to monitor system health.
 
-17. **Initiate-MultipleRDPSessions.ps1**  
+18. **Initiate-MultipleRDPSessions.ps1**  
     Enables initiating multiple RDP sessions to different servers simultaneously, enhancing remote management capabilities.
 
-18. **Inventory-ADDomainComputers.ps1**  
+19. **Inventory-ADDomainComputers.ps1**  
     Generates an inventory of all computers in a specified AD domain, aiding in asset management and tracking.
 
-19. **Inventory-ADGroups-their-Members.ps1**  
+20. **Inventory-ADGroups-their-Members.ps1**  
     Retrieves detailed information on AD groups and their members, assisting in auditing and compliance reporting.
 
-20. **Inventory-ADMemberServers.ps1**  
+21. **Inventory-ADMemberServers.ps1**  
     Provides detailed reports on member servers within an AD domain, simplifying server management and oversight.
 
-21. **Inventory-ADUserAttributes.ps1**  
+22. **Inventory-ADUserAttributes.ps1**  
     Retrieves user attributes from AD, helping administrators manage user data more effectively and ensuring accurate reporting.
 
-22. **Inventory-ADUserLastLogon.ps1**  
+23. **Inventory-ADUserLastLogon.ps1**  
     Offers insights into the last logon times of AD users, identifying potentially inactive accounts for better resource management.
 
-23. **Inventory-ADUserWithNonExpiringPasswords.ps1**  
+24. **Inventory-ADUserWithNonExpiringPasswords.ps1**  
     Lists users with non-expiring passwords, helping administrators enforce password expiration policies.
 
-24. **Inventory-InactiveADComputerAccounts.ps1**  
+25. **Inventory-InactiveADComputerAccounts.ps1**  
     Identifies inactive computer accounts within AD, helping administrators maintain a clean and secure directory.
 
-25. **Manage-Disabled-Expired-ADUserAccounts.ps1**  
+26. **Manage-Disabled-Expired-ADUserAccounts.ps1**  
     Automates the process of disabling expired AD user accounts, ensuring compliance with organizational security policies.
 
-26. **Manage-FSMOs-Roles.ps1**  
+27. **Manage-FSMOs-Roles.ps1**  
     Facilitates management and transfer of FSMO roles within an AD forest, ensuring proper domain functionality and stability.
 
-27. **Move-ADComputer-betweenOUs.ps1**  
+28. **Move-ADComputer-betweenOUs.ps1**  
     Allows the relocation of AD computer accounts between OUs, simplifying organizational structure adjustments.
 
-28. **Move-ADUser-betweenOUs.ps1**  
+29. **Move-ADUser-betweenOUs.ps1**  
     Streamlines the process of moving user accounts between OUs in AD, aiding in organizational structure changes.
 
-29. **Remove-EmptyFiles-or-DateRange.ps1**  
+30. **Remove-EmptyFiles-or-DateRange.ps1**  
     Detects and removes empty files or files within a specified date range, optimizing file storage and system organization.
 
-30. **Rename-DiskVolumes-viaGPO.ps1**  
+31. **Rename-DiskVolumes-viaGPO.ps1**  
     Renames disk volumes uniformly across workstations using GPO, simplifying disk management.
 
-31. **Reset-ADUserPasswordsToDefault.ps1**  
+32. **Reset-ADUserPasswordsToDefault.ps1**  
     Resets passwords for a group of AD users to a default value, providing an efficient way to manage password policies.
 
-32. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**  
+33. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**  
     Resets and re-synchronizes all domain GPOs, ensuring policy compliance across workstations.
 
-33. **Restart-NetworkAdapter.ps1**  
+34. **Restart-NetworkAdapter.ps1**  
     Provides a quick way to restart network adapters via a GUI, maintaining network connectivity without manual intervention.
 
-34. **Synchronize-ADComputerTime.ps1**  
+35. **Synchronize-ADComputerTime.ps1**  
     Synchronizes time settings on AD computers, ensuring accurate time across different time zones.
 
-35. **Synchronize-ADForestDCs.ps1**  
+36. **Synchronize-ADForestDCs.ps1**  
     Automates the synchronization of all Domain Controllers across an AD forest, ensuring up-to-date replication.
 
-36. **Unjoin-ADComputer-and-Cleanup.ps1**  
+37. **Unjoin-ADComputer-and-Cleanup.ps1**  
     Safely removes a computer from an AD domain and cleans up any residual data, ensuring a clean disconnection.
 
-37. **Unlock-SMBShareADUserAccess.ps1**  
+38. **Unlock-SMBShareADUserAccess.ps1**  
     Resolves issues with SMB share access, restoring user access to shared resources.
 
-38. **Update-ADComputer-Descriptions.ps1**  
+39. **Update-ADComputer-Descriptions.ps1**  
     Updates AD computer descriptions via a GUI, simplifying the management of workstation information.
 
-39. **Update-ADComputer-Winget-Explicit.ps1**  
+40. **Update-ADComputer-Winget-Explicit.ps1**  
     Uses the `winget` tool to explicitly update software on workstations, improving software management.
 
-40. **Update-ADComputer-Winget-viaGPO.ps1**  
+41. **Update-ADComputer-Winget-viaGPO.ps1**  
     Automates software updates across workstations using the `winget` tool, with deployment managed through GPO.
 
-41. **Update-ADUserDisplayName.ps1**  
+42. **Update-ADUserDisplayName.ps1**  
     Updates user display names based on their email address, standardizing naming conventions across the organization.
 
-42. **Update-DNS-n-Sites-Services.ps1**  
+43. **Update-DNS-n-Sites-Services.ps1**  
     Automates the update of DNS zones and Active Directory Sites and Services subnets based on DHCP data.
 
 ### ❓ Additional Assistance
