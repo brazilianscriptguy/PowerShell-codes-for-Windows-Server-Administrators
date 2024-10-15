@@ -28,7 +28,16 @@ public class Window {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Helper function to validate MAC address (must be 12 hexadecimal characters)
+# Import necessary modules with error handling
+try {
+    Import-Module DHCPServer -ErrorAction Stop
+    Import-Module ActiveDirectory -ErrorAction Stop
+} catch {
+    [System.Windows.Forms.MessageBox]::Show("Failed to import necessary modules: $_", "Module Import Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    exit
+}
+
+# Helper function to validate MAC address (must be 12 hexadecimal characters without separators)
 function Validate-MACAddress {
     param (
         [string]$macAddress
@@ -37,6 +46,35 @@ function Validate-MACAddress {
         return $true
     } else {
         return $false
+    }
+}
+
+# Helper functions for IP conversion
+function Convert-IpToUInt32 {
+    param (
+        [string]$ip
+    )
+    try {
+        $bytes = [System.Net.IPAddress]::Parse($ip).GetAddressBytes()
+        [Array]::Reverse($bytes) # Convert to little-endian for UInt32
+        return [BitConverter]::ToUInt32($bytes, 0)
+    } catch {
+        Write-Host "Invalid IP address format: $ip" -ForegroundColor Red
+        return $null
+    }
+}
+
+function Convert-UInt32ToIp {
+    param (
+        [UInt32]$int
+    )
+    try {
+        $bytes = [BitConverter]::GetBytes($int)
+        [Array]::Reverse($bytes) # Convert back to big-endian
+        return [System.Net.IPAddress]::new($bytes).ToString()
+    } catch {
+        Write-Host "Failed to convert integer to IP: $int" -ForegroundColor Red
+        return $null
     }
 }
 
@@ -103,22 +141,56 @@ function Get-AvailableIPs {
     )
 
     try {
-        $usedIPs = (Get-DhcpServerv4Lease -ComputerName $dhcpServer -ScopeId $ScopeID).IPAddress
-        $reservations = (Get-DhcpServerv4Reservation -ComputerName $dhcpServer -ScopeId $ScopeID).IPAddress
+        # Retrieve used IPs from leases and reservations
+        $usedIPs = (Get-DhcpServerv4Lease -ComputerName $dhcpServer -ScopeId $ScopeID | Select-Object -ExpandProperty IPAddress)
+        $reservations = (Get-DhcpServerv4Reservation -ComputerName $dhcpServer -ScopeId $ScopeID | Select-Object -ExpandProperty IPAddress)
         $allUsedIPs = $usedIPs + $reservations
 
+        # Retrieve DHCP scope details
         $scope = Get-DhcpServerv4Scope -ComputerName $dhcpServer -ScopeId $ScopeID
-        $networkAddress = [System.Net.IPAddress]::Parse($scope.StartRange)
-        $startIP = [System.Net.IPAddress]::Parse($scope.StartRange)
+        if (-not $scope) {
+            Write-Host "Scope ID $ScopeID not found on DHCP server $dhcpServer." -ForegroundColor Red
+            return @()
+        }
 
-        # Dynamically calculate available IPs
+        # Convert StartRange and EndRange to strings if they are IPAddress objects
+        $startIP = $scope.StartRange.ToString()
+        $endIP = $scope.EndRange.ToString()
+
+        # Convert IPs to UInt32 for iteration
+        $startInt = Convert-IpToUInt32 $startIP
+        $endInt = Convert-IpToUInt32 $endIP
+
+        if ($startInt -eq $null -or $endInt -eq $null) {
+            Write-Host "Invalid Start or End IP range." -ForegroundColor Red
+            return @()
+        }
+
+        # Define the first available IP as x.x.x.11 based on the network
+        $startOctets = ($startIP).Split(".")[0..2] -join "."
+        $firstAvailableIP = "$startOctets.11"
+
+        # Convert firstAvailableIP to UInt32
+        $firstAvailableInt = Convert-IpToUInt32 $firstAvailableIP
+
+        # Define end of available IPs as one IP before StartRange
+        $endAvailableInt = $startInt - 1
+
+        # Ensure that firstAvailableInt is less than or equal to endAvailableInt
+        if ($firstAvailableInt > $endAvailableInt) {
+            Write-Host "No available IPs in the specified range." -ForegroundColor Yellow
+            return @()
+        }
+
+        # Generate list of available IPs, starting from $firstAvailableInt to $endAvailableInt
         $availableIPs = @()
-        for ($ip = $networkAddress.Address + 2; $ip -lt $startIP.Address; $ip++) {
-            $newIP = [System.Net.IPAddress]::Parse([BitConverter]::GetBytes($ip).Reverse() -join ".")
-            if ($allUsedIPs -notcontains $newIP) {
-                $availableIPs += $newIP.ToString()
+        for ($i = $firstAvailableInt; $i -le $endAvailableInt; $i++) {
+            $currentIP = Convert-UInt32ToIp $i
+            if ($currentIP -and ($allUsedIPs -notcontains $currentIP)) {
+                $availableIPs += $currentIP
             }
         }
+
         return $availableIPs
     } catch {
         Write-Host "Failed to retrieve available IPs for ScopeID ${ScopeID}: $_" -ForegroundColor Red
@@ -250,7 +322,12 @@ function Create-GUI {
             $scopes = Get-DhcpServerv4Scope -ComputerName $dhcpServer
             $comboBoxScopes.Items.Clear()
             foreach ($scope in $scopes) {
-                $comboBoxScopes.Items.Add("$($scope.ScopeID) - $($scope.Name) - $($scope.StartRange) to $($scope.EndRange)")
+                # Ensure ScopeID is treated as string
+                $scopeID = $scope.ScopeId.ToString()
+                $scopeName = $scope.Name
+                $scopeStart = $scope.StartRange.ToString()
+                $scopeEnd = $scope.EndRange.ToString()
+                $comboBoxScopes.Items.Add("$scopeID - $scopeName - $scopeStart to $scopeEnd")
             }
         }
     })
@@ -261,10 +338,20 @@ function Create-GUI {
         if ($selectedScope -and $selectedDomain) {
             $scopeID = $selectedScope.Split(" ")[0]
             $dhcpServer = Get-DHCPServerFromDomain -domain $selectedDomain
-            $availableIPs = Get-AvailableIPs $scopeID $dhcpServer
+            if (-not $dhcpServer) {
+                [System.Windows.Forms.MessageBox]::Show("Failed to retrieve DHCP server.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                return
+            }
+
+            $availableIPs = Get-AvailableIPs -ScopeID $scopeID -dhcpServer $dhcpServer
             $comboBoxIPs.Items.Clear()
-            foreach ($ip in $availableIPs) {
-                $comboBoxIPs.Items.Add($ip)
+            if ($availableIPs.Count -gt 0) {
+                foreach ($ip in $availableIPs) {
+                    $comboBoxIPs.Items.Add($ip)
+                }
+                [System.Windows.Forms.MessageBox]::Show("Available IPs retrieved successfully.", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+            } else {
+                [System.Windows.Forms.MessageBox]::Show("No available IPs found in the selected scope.", "Information", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
             }
         } else {
             [System.Windows.Forms.MessageBox]::Show("Please select a valid scope and domain.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
@@ -274,9 +361,9 @@ function Create-GUI {
     $btnAddReservation.Add_Click({
         $selectedScope = $comboBoxScopes.SelectedItem
         $selectedIP = $comboBoxIPs.SelectedItem
-        $reservationName = $txtName.Text
-        $macAddress = $txtMAC.Text
-        $description = $txtDesc.Text
+        $reservationName = $txtName.Text.Trim()
+        $macAddress = $txtMAC.Text.Trim().Replace(":", "").Replace("-", "")
+        $description = $txtDesc.Text.Trim()
         $selectedDomain = $comboBoxDomains.SelectedItem
 
         if (-not (Validate-MACAddress -macAddress $macAddress)) {
@@ -287,9 +374,17 @@ function Create-GUI {
         if ($selectedScope -and $selectedIP -and $reservationName -and $macAddress -and $description -and $selectedDomain) {
             $scopeID = $selectedScope.Split(" ")[0]
             $dhcpServer = Get-DHCPServerFromDomain -domain $selectedDomain
-            Add-DhcpReservation $scopeID $selectedIP $macAddress $reservationName $description $dhcpServer
-            [System.Windows.Forms.MessageBox]::Show("Reservation added successfully.")
-            $txtName.Clear(); $txtMAC.Clear(); $txtDesc.Clear()
+            if (-not $dhcpServer) {
+                [System.Windows.Forms.MessageBox]::Show("Failed to retrieve DHCP server.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                return
+            }
+            Add-DhcpReservation -ScopeID $scopeID -IPAddress $selectedIP -MACAddress $macAddress -ReservationName $reservationName -Description $description -dhcpServer $dhcpServer
+            [System.Windows.Forms.MessageBox]::Show("Reservation added successfully.", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+            # Clear input fields
+            $txtName.Clear()
+            $txtMAC.Clear()
+            $txtDesc.Clear()
+            $comboBoxIPs.SelectedIndex = -1
         } else {
             [System.Windows.Forms.MessageBox]::Show("Please complete all fields.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
         }
