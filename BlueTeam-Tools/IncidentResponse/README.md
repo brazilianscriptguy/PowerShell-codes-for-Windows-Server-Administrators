@@ -14,7 +14,7 @@ To run these scripts, ensure the following:
 
 ## 📄 Script Descriptions
 
-1. **🧹 Cleanup-MetadData-ADForest-Tool.ps1**  
+1. **🧹 Cleanup-MetaData-ADForest-Tool.ps1**  
    A user-friendly tool designed to clean up your AD forest by removing orphaned objects, synchronizing Domain Controllers, and managing unnecessary CNs. This script helps maintain a secure and optimized AD environment after incidents.
 
 2. **🧼 Cleanup-WebBrowsers-Tool.ps1**  
