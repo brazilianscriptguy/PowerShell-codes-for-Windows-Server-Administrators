@@ -1,8 +1,8 @@
 # PowerShell core default to  logging functio; error handling function; script name and set up file paths; Set log path
-# Autho: luizhamilton.lhr@gmail.com - @brazilianscriptguy
-# Update: October 15, 2024
+# Author: Luiz Hamilton Silva - @brazilianscriptguy
+# Updated: October 15, 2024
 
-# Enhanced logging function with error handling and validation
+# Enhanced logging function with error handling and validation, refactored as a reusable method
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
@@ -29,7 +29,7 @@ function Log-Message {
     }
 }
 
-# Unified error handling function
+# Unified error handling function refactored as a reusable method
 function Handle-Error {
     param (
         [Parameter(Mandatory = $true)][string]$ErrorMessage
@@ -38,13 +38,47 @@ function Handle-Error {
     [System.Windows.Forms.MessageBox]::Show($ErrorMessage, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
 }
 
-# Determine script name and set up file paths dynamically
-$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+# Function to initialize script name and file paths, refactored for reuse in other scripts
+function Initialize-ScriptPaths {
+    param (
+        [string]$defaultLogDir = 'C:\Logs-TEMP'
+    )
 
-# Set log path allow dynamic configuration or fallback to defaults
-$logDir = if ($env:LOG_PATH -and $env:LOG_PATH -ne "") { $env:LOG_PATH } else { 'C:\Logs-TEMP' }
-$logFileName = "${scriptName}.log"
-$logPath = Join-Path $logDir $logFileName
+    # Determine script name and set up file paths dynamically
+    $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+    $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
 
-# The new code bellow
+    # Set log path allowing dynamic configuration or fallback to defaults
+    $logDir = if ($env:LOG_PATH -and $env:LOG_PATH -ne "") { $env:LOG_PATH } else { $defaultLogDir }
+    $logFileName = "${scriptName}.log"
+    $logPath = Join-Path $logDir $logFileName
+
+    return @{
+        LogDir = $logDir
+        LogPath = $logPath
+        ScriptName = $scriptName
+    }
+}
+
+# Example usage of the functions in another script
+function Example-Script {
+    # Initialize paths
+    $paths = Initialize-ScriptPaths
+
+    # Set log directory and path variables for the current session
+    $global:logDir = $paths.LogDir
+    $global:logPath = $paths.LogPath
+
+    # Log a test message
+    Log-Message -Message "Script has started" -MessageType "INFO"
+
+    try {
+        # Simulate some code here, and intentionally throw an error
+        throw "Simulated error"
+    } catch {
+        Handle-Error -ErrorMessage $_.Exception.Message
+    }
+}
+
+# Call the example function to test logging and error handling
+Example-Script
