@@ -1,4 +1,4 @@
-# PowerShell core default to  logging functio; error handling function; script name and set up file paths; Set log path
+# PowerShell core default to  logging function; error handling function; script name and set up file paths; Set log path
 # Author: Luiz Hamilton Silva - @brazilianscriptguy
 # Updated: October 15, 2024
 
