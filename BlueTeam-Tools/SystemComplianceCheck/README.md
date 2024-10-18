@@ -1,7 +1,3 @@
-Here’s a revised version of the **README.md** with enhanced clarity and formatting:
-
----
-
 # 🔵 BlueTeam Tools - System Compliance Check
 
 ## 📝 Overview
