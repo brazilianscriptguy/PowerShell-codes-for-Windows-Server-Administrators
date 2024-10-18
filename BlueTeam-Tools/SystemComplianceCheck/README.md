@@ -32,19 +32,21 @@ Before using these scripts, ensure the following:
 6. **🛡️ Retrieve-Elevated-ADForestInfo.ps1**  
    Gathers information on elevated accounts and groups across the AD forest to help monitor privileged users and ensure security compliance.
 
-7. **🌐 Retrieve-Empty-DNSReverseLookupZone.ps1**  
+   DNSReverseLookup
+
+8. **🌐 Retrieve-Empty-DNSReverseLookupZone.ps1**  
    Detects empty DNS reverse lookup zones to aid in DNS cleanup and ensure proper zone configuration.
 
-8. **📋 Retrieve-InstalledSoftwareList.ps1**  
+9. **📋 Retrieve-InstalledSoftwareList.ps1**  
    Audits installed software across AD computers, generating a report to check compliance with software usage policies.
 
-9. **💽 Retrieve-ServersDiskSpace.ps1**  
+10. **💽 Retrieve-ServersDiskSpace.ps1**  
    Collects disk space usage data from multiple AD servers, providing insights into system health and storage compliance.
 
-10. **🔑 Retrieve-Windows-ProductKey.ps1**  
+11. **🔑 Retrieve-Windows-ProductKey.ps1**  
     Retrieves Windows product keys from the registry, ensuring systems are properly licensed and compliant with licensing policies.
 
-11. **✂️ Shorten-LongFileNames-Tool.ps1**  
+12. **✂️ Shorten-LongFileNames-Tool.ps1**  
     Automatically shortens file names that exceed a specified length, preventing file system errors and ensuring compliance with naming standards.
 
 ## 🚀 How to Use
