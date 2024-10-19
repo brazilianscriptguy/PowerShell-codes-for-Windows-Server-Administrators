@@ -68,5 +68,3 @@ Stay tuned for more **BlueTeam-Tools** scripts, designed to provide even more in
 - **Icons**: Added icons for better readability and to visually enhance the documentation.
 - **Folder Structure**: Provided a more detailed explanation of each subfolder, emphasizing the specific focus of the tools in each category.
 - **Uniformity**: Ensured formatting is consistent for improved user experience.
-
-This revised `README.md` is now more engaging, user-friendly, and better suited to guide professionals through the usage of your **BlueTeam-Tools** repository. Let me know if you need further revisions!
