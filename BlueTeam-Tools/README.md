@@ -60,11 +60,3 @@ Stay tuned for more **BlueTeam-Tools** scripts, designed to provide even more in
 ## ❓ Additional Assistance
 
 *All scripts can be edited and customized to suit your specific needs and requirements. For further help or detailed information regarding prerequisites and environment setup, please refer to this `README.md` file.*
-
----
-
-### Final Enhancements:
-
-- **Icons**: Added icons for better readability and to visually enhance the documentation.
-- **Folder Structure**: Provided a more detailed explanation of each subfolder, emphasizing the specific focus of the tools in each category.
-- **Uniformity**: Ensured formatting is consistent for improved user experience.
