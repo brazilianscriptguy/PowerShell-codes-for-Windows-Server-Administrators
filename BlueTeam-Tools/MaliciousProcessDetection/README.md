@@ -14,9 +14,6 @@ To use these scripts effectively, ensure the following:
 
 ## 📄 Script Descriptions
 
-1. **🔍 Decipher-EML-MailMessages.ps1**  
-   - Applies multiple decoding methods to suspicious characters in email messages, including offset subtraction, encoding conversions, ROT13, and Caesar cipher brute force. This script helps in analyzing potentially harmful email content.
-
 2. **🛡️ Remove-Softwares-NonCompliance-Tool.ps1**  
    - Uninstalls multiple software applications based on a list of software names provided in a `.TXT` file. It logs all actions, handles errors gracefully, and allows users to execute, cancel, or close the uninstallation process with ease.
 
@@ -30,12 +27,6 @@ To use these scripts effectively, ensure the following:
    - Provides a user-friendly GUI for selecting and uninstalling applications from workstations. This tool is particularly useful for detecting and removing unwanted or malicious software. The process is automated, minimizing manual intervention and ensuring effective removal.
 
 ## 🚀 How to Use
-
-### 1. **🔍 Decipher-EML-MailMessages.ps1**  
-   - **Step 1:** Open the **Decipher-EML-MailMessages.ps1** script with administrative privileges.
-   - **Step 2:** Specify the email message or suspicious string to be analyzed. The script will attempt multiple decoding methods (offset subtraction, encoding conversions, ROT13, Caesar cipher brute force) on the provided message.
-   - **Step 3:** Review the output, which will display decoded results in a readable format. This helps to identify potential malicious content hidden within the message.
-   - **Step 4:** Log files will be generated, documenting the decoding process and the results for further analysis.
 
 ### 2. **🛡️ Remove-Softwares-NonCompliance-Tool.ps1**  
    - **Step 1:** Open the **📝 Softwares-NonCompliance-List.txt** file and list the names of the software you want to uninstall. Ensure each software name is on a separate line.
