@@ -1,6 +1,18 @@
-# PowerShell Script for Removing Old Certification Authority Certificates with GUI
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 9, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Selective Removal of Expired Certificate Authorities (CAs).
+
+.DESCRIPTION
+    This script automates the selective removal of expired Certificate Authorities (CAs) 
+    to reduce security risks associated with outdated and insecure certificates. It ensures 
+    that only valid certificates remain in the system.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
