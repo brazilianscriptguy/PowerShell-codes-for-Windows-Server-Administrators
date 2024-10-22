@@ -1,6 +1,17 @@
-# PowerShell Script to Generate Report of Forest Member Servers with Enhanced GUI
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 06, 2024.
+<#
+.SYNOPSIS
+    PowerShell Script for Generating Reports on AD Member Servers.
+
+.DESCRIPTION
+    This script provides detailed reports on member servers within an Active Directory domain, 
+    simplifying server management and oversight for administrators.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide PowerShell console window
 Add-Type @"
