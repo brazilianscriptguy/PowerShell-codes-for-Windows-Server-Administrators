@@ -1,6 +1,17 @@
-# PowerShell Script to Enforce AD User Passwords to Immediately Expire in a Specified OU and Mark Account Users to Change Passwords at Next Logon
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Enforcing Password Expiration in AD Users.
+
+.DESCRIPTION
+    This script forces password expiration for users within a specified Organizational Unit (OU), 
+    ensuring compliance with security policies by requiring regular password updates.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
