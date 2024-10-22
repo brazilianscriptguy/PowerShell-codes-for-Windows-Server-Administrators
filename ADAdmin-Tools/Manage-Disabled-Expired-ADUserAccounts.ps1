@@ -1,6 +1,17 @@
-# PowerShell Script to Manage Expired and Disabled AD User Accounts
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 14, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Managing Disabled and Expired AD User Accounts.
+
+.DESCRIPTION
+    This script automates the process of disabling expired Active Directory user accounts, 
+    ensuring compliance with organizational security policies and improving user account management.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
