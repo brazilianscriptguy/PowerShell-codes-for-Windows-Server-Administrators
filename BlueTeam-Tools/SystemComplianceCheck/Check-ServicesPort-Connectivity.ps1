@@ -1,6 +1,18 @@
-# PowerShell Script to Check Services Ports Connectivity
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 2, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Verifying Service Port Connectivity in Real-Time.
+
+.DESCRIPTION
+    This script checks the connectivity of specific service ports in real-time, ensuring 
+    that critical network services are reachable and configured correctly. It helps to 
+    maintain service availability and troubleshooting connectivity issues.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
