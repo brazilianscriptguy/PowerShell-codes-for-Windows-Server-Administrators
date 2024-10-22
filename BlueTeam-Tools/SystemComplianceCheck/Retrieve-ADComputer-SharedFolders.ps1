@@ -1,6 +1,18 @@
-# PowerShell script to gather all workstations from an AD Domain to find any local drive, folder, and printer sharing
-# Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: July 12, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Retrieving Shared Folders from AD Computers.
+
+.DESCRIPTION
+    This script scans Active Directory computers for shared folders, logging the results 
+    to ensure that only authorized shares are in place. It aids in monitoring shared 
+    resources across the domain.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
