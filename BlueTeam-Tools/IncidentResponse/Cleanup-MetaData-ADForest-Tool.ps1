@@ -1,6 +1,19 @@
-# PowerShell Script to Clean Up Orphaned and Outdated Domains, Including Metadata and Residual Data
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Last Updated: August 14, 2024
+<#
+.SYNOPSIS
+    PowerShell Tool for Cleaning Up Metadata in Active Directory Forest.
+
+.DESCRIPTION
+    This user-friendly tool is designed to clean up your AD forest by removing orphaned 
+    objects, synchronizing Domain Controllers, and managing unnecessary CNs. It helps 
+    maintain a secure and optimized AD environment, particularly after incidents or 
+    maintenance activities.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window for a cleaner UI
 Add-Type @"
