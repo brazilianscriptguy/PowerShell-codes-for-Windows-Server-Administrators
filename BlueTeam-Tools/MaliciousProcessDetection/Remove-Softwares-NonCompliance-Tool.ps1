@@ -1,6 +1,19 @@
-# PowerShell Script to Uninstall Software Applications gathered from a .TXT criteria list
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 5, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Uninstalling Non-Compliant Software from Workstations.
+
+.DESCRIPTION
+    This script uninstalls multiple software applications based on a list provided in a 
+    .TXT file. It logs all actions, handles errors gracefully, and allows users to execute, 
+    cancel, or close the uninstallation process. It ensures software compliance across 
+    workstations by removing unauthorized applications.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 try {
