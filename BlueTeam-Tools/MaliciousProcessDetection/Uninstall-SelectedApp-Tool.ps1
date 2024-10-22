@@ -1,6 +1,19 @@
-# PowerShell Script for facilitating the uninstallation of software applications on Windows systems
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Uninstalling Selected Applications from Workstations.
+
+.DESCRIPTION
+    This script provides a user-friendly graphical interface for selecting and uninstalling 
+    applications from workstations. It automates the detection and removal of unwanted or 
+    potentially malicious software, ensuring effective uninstallation with minimal manual 
+    intervention.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
