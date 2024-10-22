@@ -1,6 +1,18 @@
-# PowerShell Script to Count Events IDs in an EVTX File
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024.
+<#
+.SYNOPSIS
+    PowerShell Script for Counting EventID Occurrences in EVTX Files.
+
+.DESCRIPTION
+    This script counts occurrences of each EventID in specified EVTX files and exports 
+    the results to a CSV file. It is useful for analyzing event logs and identifying patterns 
+    or trends in system and security events.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
