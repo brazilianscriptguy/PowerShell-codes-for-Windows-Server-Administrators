@@ -1,19 +1,18 @@
 <#
 .SYNOPSIS
-    PowerShell Script to Analyze EML Files for Suspicious Content and Decoding Hidden Messages.
+    PowerShell Script for Decoding Suspicious Characters in Email Messages.
 
 .DESCRIPTION
-    This script provides a GUI tool for analyzing email (.eml) files. It allows users to select an EML file,
-    specify the language for analysis, and perform various decoding methods to uncover hidden messages.
-    The script analyzes suspicious Unicode characters, decodes Quoted-Printable and Base64 content,
-    and attempts multiple decoding techniques on suspicious characters found in the message body.
-    It includes enhanced logging, error handling, and a clean user interface by hiding the PowerShell console window.
+    This script applies various decoding methods, such as offset subtraction, encoding 
+    conversions, ROT13, and Caesar cipher brute force, to analyze suspicious characters 
+    in email messages. It helps identify hidden threats and analyze potentially harmful 
+    content within emails.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 18, 2023
+    Last Updated: October 22, 2024
 #>
 
 # Hide the PowerShell console window for a cleaner UI unless requested to show the console
