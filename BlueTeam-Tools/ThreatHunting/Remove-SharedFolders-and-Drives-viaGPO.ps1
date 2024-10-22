@@ -1,6 +1,18 @@
-# PowerShell Script to Manage Shares on Workstations
-# Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: July 12, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Removing Unauthorized Shared Folders and Drives via Group Policy.
+
+.DESCRIPTION
+    This script automates the removal of unauthorized shared folders and drives using Group 
+    Policy, ensuring compliance with organizational data-sharing policies and mitigating 
+    the risk of data breaches or leaks.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Determine the script name and configure the log path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
