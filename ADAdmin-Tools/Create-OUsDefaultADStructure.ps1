@@ -1,6 +1,17 @@
-# PowerShell Script to Create Organizational Units (OUs) in Active Directory Structure
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 9, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Creating a Default AD OU Structure.
+
+.DESCRIPTION
+    This script helps to create a standardized AD infrastructure by defining predefined Organizational Units (OUs), 
+    streamlining domain setup or reorganization within Active Directory.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
