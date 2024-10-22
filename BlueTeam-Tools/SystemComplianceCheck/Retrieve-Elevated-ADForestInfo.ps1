@@ -1,6 +1,18 @@
-# PowerShell Script to Gather Elevated Active Directory (AD) Groups and Users
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Last Updated: September 25, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Gathering Elevated Account Information in AD Forest.
+
+.DESCRIPTION
+    This script gathers information on elevated accounts and privileged groups across 
+    the AD forest to assist in monitoring privileged users and maintaining security 
+    compliance.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window for a cleaner UI
 Add-Type @"
