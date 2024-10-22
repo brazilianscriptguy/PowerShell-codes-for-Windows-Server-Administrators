@@ -1,6 +1,17 @@
-# PowerShell Script to Add New DHCP Reservations into the Free Scope Range
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 15, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Creating New DHCP Reservations.
+
+.DESCRIPTION
+    This script streamlines the process of adding new DHCP reservations, allowing users to select domains, 
+    DHCP scopes, and choose available IP addresses from the free range within a scope.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window for a cleaner UI
 Add-Type @"
