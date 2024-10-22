@@ -1,6 +1,17 @@
-# PowerShell Script for Processing Windows Event Log Files - Event ID 4648 (Logon Using Explicit Credentials)
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Logging Explicit Credential Usage via Event ID 4648.
+
+.DESCRIPTION
+    This script logs explicit credential usage (Event ID 4648) and generates a CSV report, 
+    helping to detect unauthorized use of credentials and ensure secure access management.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 Param(
     [Bool]$AutoOpen = $false
