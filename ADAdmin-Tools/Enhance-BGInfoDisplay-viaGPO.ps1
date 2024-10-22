@@ -1,6 +1,17 @@
-# PowerShell script to display BGInfo (PsTools - Sysinternals) on the Servers Desktop with improvements - using with GPO
-# Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: May 28, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Integrating BGInfo Display with GPO.
+
+.DESCRIPTION
+    This script integrates BGInfo with Group Policy (GPO) to enrich server desktop displays 
+    with critical system information, aiding IT administrators in monitoring system health.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
