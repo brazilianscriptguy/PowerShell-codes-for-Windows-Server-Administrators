@@ -1,6 +1,17 @@
-# PowerShell Script for Processing Windows Event Log Files - Event ID 4771 (Kerberos Pre-Authentication Failed)
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Identifying Kerberos Pre-Authentication Failures via Event ID 4771.
+
+.DESCRIPTION
+    This script identifies Kerberos pre-authentication failures (Event ID 4771) and outputs 
+    findings to a CSV report, helping to diagnose authentication issues in the Kerberos protocol.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 Param(
     [Bool]$AutoOpen = $false
