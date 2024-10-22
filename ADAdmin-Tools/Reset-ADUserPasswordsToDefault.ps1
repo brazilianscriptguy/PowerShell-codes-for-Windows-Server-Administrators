@@ -1,6 +1,17 @@
-# PowerShell Script to Reset AD User Passwords in Active Directory
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 9, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Resetting AD User Passwords to a Default Value.
+
+.DESCRIPTION
+    This script resets the passwords for a group of Active Directory (AD) users to a default value, 
+    providing an efficient way to manage password policies and quickly reset multiple user accounts.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
