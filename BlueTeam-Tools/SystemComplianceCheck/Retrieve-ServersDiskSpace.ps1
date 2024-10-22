@@ -1,6 +1,17 @@
-# PowerShell Script to Monitor Disk Space with GUI and Improved Error Handling
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 22, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Retrieving Disk Space Usage Data from Servers.
+
+.DESCRIPTION
+    This script collects disk space usage data from multiple AD servers, providing insights 
+    into system health and ensuring compliance with storage capacity policies.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
