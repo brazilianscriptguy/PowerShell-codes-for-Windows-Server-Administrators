@@ -1,6 +1,17 @@
-# PowerShell Script with GUI for Moving Computers between OUs, with Logging and Input Validation
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 06, 2024.
+<#
+.SYNOPSIS
+    PowerShell Script for Moving AD Computer Accounts Between OUs.
+
+.DESCRIPTION
+    This script allows administrators to relocate Active Directory (AD) computer accounts 
+    between Organizational Units (OUs), simplifying organizational structure adjustments.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide PowerShell console window
 Add-Type @"
