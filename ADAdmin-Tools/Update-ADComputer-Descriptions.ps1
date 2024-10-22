@@ -1,6 +1,17 @@
-# PowerShell Script to Update Workstation Descriptions and Site Information with Enhanced GUI
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 04, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Updating AD Computer Descriptions via GUI.
+
+.DESCRIPTION
+    This script allows administrators to update Active Directory computer descriptions via a GUI, 
+    simplifying the management of workstation information and improving accuracy in directory records.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
