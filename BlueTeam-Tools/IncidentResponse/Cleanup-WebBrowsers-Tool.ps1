@@ -1,6 +1,19 @@
-# PowerShell Script to Delete Cookies, Cache, History, and Other Data for Firefox, Chrome, Edge, Internet Explorer, WhatsApp, and Perform General System Cleanup
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 05, 2024
+<#
+.SYNOPSIS
+    PowerShell Tool for Cleaning Web Browsers and System Residual Files.
+
+.DESCRIPTION
+    This script thoroughly removes cookies, cache, session data, history, and other 
+    residual files from web browsers (Mozilla Firefox, Google Chrome, Microsoft Edge, 
+    Internet Explorer) and WhatsApp. It also performs general system cleanup tasks 
+    across all user profiles on a Windows system, improving performance and privacy.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
