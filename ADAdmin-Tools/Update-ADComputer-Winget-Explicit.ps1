@@ -1,6 +1,17 @@
-# PowerShell Script to Automate Software Updates on Windows OS with GUI, Progress Display, and Enhanced Logging
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Updating Software on AD Computers via Winget.
+
+.DESCRIPTION
+    This script uses the winget tool to explicitly update software on workstations, 
+    improving software management and ensuring that systems have the latest versions installed.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
