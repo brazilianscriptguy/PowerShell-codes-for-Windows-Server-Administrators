@@ -1,9 +1,11 @@
 <#
 .SYNOPSIS
-    PowerShell Script to Clean Up Orphaned and Outdated Domains, Including Metadata and Residual Data.
+    PowerShell Script Template for Building Structured PowerShell Projects.
 
 .DESCRIPTION
-    This script provides a xxxxxxxxxx.
+    This script provides a reusable template for building PowerShell scripts, complete with 
+    essential features such as standardized headers, logging mechanisms, and module imports. 
+    It serves as the core framework for creating structured, maintainable PowerShell projects.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -11,6 +13,7 @@
 .VERSION
     Last Updated: October 22, 2024
 #>
+
 param(
     [switch]$ShowConsole = $false
 )
