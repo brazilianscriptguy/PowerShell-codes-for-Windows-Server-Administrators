@@ -1,6 +1,6 @@
 # Complete PowerShell Toolset for Windows Server Administration and Efficient Workstation Management with VBScript for ITSM Compliance on Windows 10 and 11
 
-Welcome to the PowerShell ToolSet for Windows Server Administration and VBScript Repository—a meticulously curated collection of scripts tailored for advanced Windows Server and Windows 10/11 workstation management. Developed by `@brazilianscriptguy`, this repository offers a comprehensive suite of tools designed to streamline Windows Server administration while optimizing workstation management, configuration, and ITSM compliance.
+Welcome to the **PowerShell ToolSet for Windows Server Administration and VBScript Repository**—a meticulously curated collection of scripts tailored for advanced Windows Server and Windows 10/11 workstation management. Developed by `@brazilianscriptguy`, this repository offers a comprehensive suite of tools designed to streamline Windows Server administration while optimizing workstation management, configuration, and ITSM compliance.
 
 > ✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script generates detailed `.log` files for operational tracking and **exports results to `.csv` files** for easy integration with reporting tools, making server and workstation management more intuitive, efficient, and user-friendly.
 
@@ -40,17 +40,17 @@ The repository is divided into core sections, each with its own suite of scripts
 ### 1. **ADAdmin-Tools**
    - Automate tasks related to **Active Directory** (AD) management, such as user, group, and organizational unit (OU) administration.
    - Includes tools for managing **DNS**, **DHCP**, **Sites and Services**, and system synchronization, providing comprehensive solutions for Windows Server environments.
-   - These tools are especially useful for streamlining routine **Active Directory** operations, ensuring consistency, security, and compliance within server environments.
+   - These tools streamline routine **Active Directory** operations, ensuring consistency, security, and compliance within server environments.
 
 ### 2. **BlueTeam-Tools**
-   - Focused on forensic analysis and system monitoring, with tools designed to help Blue Teams quickly detect, analyze, and resolve potential security threats.
-   - **Integration with Log Parser Utility** allows for complex log querying and in-depth data analysis. This integration helps enhance security audits, threat detection, and forensic investigations.
-   - The tools in this folder also include modules for **incident response**, enabling administrators to gather crucial information during and after a security breach to minimize risk and damage.
+   - Focused on forensic analysis and system monitoring, with tools designed to help Blue Teams detect, analyze, and resolve potential security threats quickly.
+   - **Integration with Log Parser Utility** allows for complex log querying and in-depth data analysis, enhancing security audits, threat detection, and forensic investigations.
+   - Includes modules for **incident response**, enabling administrators to gather crucial information during and after a security breach to minimize risk and damage.
 
 ### 3. **Core-ScriptLibrary**
    - A set of essential PowerShell scripts focused on creating and managing **custom script libraries** with a focus on dynamic user interfaces, core functionality, and automation.
-   - These tools are ideal for building more complex **PowerShell-based solutions**, offering foundational scripts that can be customized or extended to meet specific IT administrative needs.
-   - The scripts in this section are designed to be adaptable and provide templates for automating routine administrative tasks, making script development faster and more efficient.
+   - Ideal for building more complex **PowerShell-based solutions**, offering foundational scripts that can be customized or extended to meet specific IT administrative needs.
+   - These scripts provide templates for automating routine administrative tasks, making script development faster and more efficient.
 
 ### 4. **ITSM-Templates**
    - Contains templates and scripts specifically tailored for **IT Service Management (ITSM)**, emphasizing workstation hardening, configuration, compliance, and automation.
@@ -118,4 +118,4 @@ For the latest updates and releases, visit the [SysAdminToolSet Release](https:/
 
 ---
 
-*Thank you for choosing the PowerShell ToolSet for Windows Server Administration, BlueTeam Tools and VBScript Repository for Workstation Management.* We hope these tools enhance your workflow and system efficiency.
+*Thank you for choosing the PowerShell ToolSet for Windows Server Administration, BlueTeam Tools, and VBScript Repository for Workstation Management.* We hope these tools enhance your workflow and system efficiency.
