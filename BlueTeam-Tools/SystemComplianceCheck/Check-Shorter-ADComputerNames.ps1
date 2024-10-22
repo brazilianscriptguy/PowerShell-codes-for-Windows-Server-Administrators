@@ -1,6 +1,17 @@
-# PowerShell script to search Active Directory for workstation computers with names shorter than 15 characters
-# Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: August 21, 2024
+<#
+.SYNOPSIS
+    PowerShell Script to Identify Short Active Directory Computer Names.
+
+.DESCRIPTION
+    This script identifies AD computer names that are shorter than a specified length, 
+    helping ensure adherence to organizational naming conventions and policies.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
