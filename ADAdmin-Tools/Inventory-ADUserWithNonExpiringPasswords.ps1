@@ -1,6 +1,17 @@
-# PowerShell Script to Export List of AD Users with Non-Expiring Passwords to CSV with GUI
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 06, 2024.
+<#
+.SYNOPSIS
+    PowerShell Script for Listing AD Users with Non-Expiring Passwords.
+
+.DESCRIPTION
+    This script lists Active Directory users with non-expiring passwords, helping administrators 
+    enforce password expiration policies and improve security.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide PowerShell console window
 Add-Type @"
