@@ -17,18 +17,18 @@ Before running the scripts, ensure the following prerequisites are in place:
 
 ## 📄 Script Descriptions
 
-1. **📋 Create-Default-ScriptHeader.ps1**  
-   - Generates standardized headers for new PowerShell scripts, including details like author, version, and description. This ensures consistency across your PowerShell scripts.
-
-2. **📝 Create-Script-Automatic-MenuGUI.ps1**  
+1. **📝 Create-Script-AutomaticMenuGUI.ps1**  
    - Automatically generates a dynamic, categorized GUI interface for discovering and executing PowerShell scripts stored in subdirectories. This tool is ideal for organizing and managing large script collections through an intuitive user-friendly interface.
 
-3. **🛠️ Create-Script-MainCore.ps1**  
-   - Provides a reusable template for building PowerShell scripts, complete with essential features such as standardized headers, logging mechanisms, and module imports. This script serves as the core framework for creating structured and maintainable PowerShell projects.
+2. **📋 Create-Script-DefaulttHeader.ps1**  
+   - Generates standardized headers for new PowerShell scripts, including details like author, version, and description. This ensures consistency across your PowerShell scripts.
 
-4. **📊 Create-Script-LoggingMethod.ps1**  
+3. **📊 Create-Script-LoggingMethod.ps1**  
    - Implements a standardized logging method across PowerShell scripts, ensuring uniform and consistent logging for improved traceability and debugging.
-
+   
+4. **🛠️ Create-Script-MainCore.ps1**  
+   - Provides a reusable template for building PowerShell scripts, complete with essential features such as standardized headers, logging mechanisms, and module imports. This script serves as the core framework for creating structured and maintainable PowerShell projects.
+  
 5. **💻 Create-Script-MainGUI.ps1**  
    - A customizable template for generating graphical user interfaces (GUIs) within PowerShell scripts. This enables developers to incorporate interactive GUI elements into their scripts, making them more user-friendly and accessible to users of varying technical expertise.
 
