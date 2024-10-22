@@ -124,7 +124,8 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
     Automates the synchronization of all Domain Controllers across an AD forest, ensuring up-to-date replication.
 
 39. **Transfer-DHCPScope.ps1**
-    
+    Provides functionality to export and import DHCP scopes between servers within a specified domain, with error handling and logging 
+    to track operations.
 
 39. **Unjoin-ADComputer-and-Cleanup.ps1**  
     Safely removes a computer from an AD domain and cleans up any residual data, ensuring a clean disconnection.
