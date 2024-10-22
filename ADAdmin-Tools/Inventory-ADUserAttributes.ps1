@@ -1,6 +1,17 @@
-# PowerShell Script for Exporting AD User Attributes with GUI
-# Author: Luiz Hamilton Silva
-# Update: July 19, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Retrieving Active Directory User Attributes.
+
+.DESCRIPTION
+    This script retrieves detailed user attributes from Active Directory, helping administrators 
+    manage user data more effectively and ensuring accurate reporting.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
