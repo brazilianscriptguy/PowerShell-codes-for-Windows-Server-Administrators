@@ -1,6 +1,18 @@
-# PowerShell Script Template to create a Menu to Execute PowerShell Scripts
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: September 25, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Generating a Dynamic Script Execution Menu GUI.
+
+.DESCRIPTION
+    This script automatically generates a dynamic, categorized GUI interface for discovering 
+    and executing PowerShell scripts stored in subdirectories. It is ideal for organizing 
+    and managing large script collections through an intuitive user-friendly interface.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
