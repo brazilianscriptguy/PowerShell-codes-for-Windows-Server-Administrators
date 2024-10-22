@@ -1,6 +1,17 @@
-# PowerShell Script to Update All Locally Installed Software on Windows Workstations - Deploy by GPO
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Updating Software via Winget Using GPO.
+
+.DESCRIPTION
+    This script automates software updates across workstations using the winget tool, with 
+    deployment managed through Group Policy (GPO), ensuring consistent software management across the domain.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Log file path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
