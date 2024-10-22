@@ -1,6 +1,18 @@
-# PowerShell Script for Monitoring Event IDs 1074, 6006, 6008, 6013 - System Restarts
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 15, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Tracking System Restarts and Shutdowns via Event IDs 1074, 6006, 6008, and 6013.
+
+.DESCRIPTION
+    This script retrieves details on system restarts and unexpected shutdowns based on Event IDs 
+    1074, 6006, 6008, and 6013, and exports the results to a CSV file. It helps diagnose system issues 
+    and monitor uptime.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 Param(
     [Bool]$AutoOpen = $true
