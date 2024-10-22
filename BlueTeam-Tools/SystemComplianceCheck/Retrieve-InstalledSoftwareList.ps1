@@ -1,6 +1,18 @@
-# PowerShell Script to Retrieve Installed Software x86 and x64 with GUID and Enhanced GUI
-# Author: Luiz Hamilton Silva
-# Updated: July 12, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Auditing Installed Software Across AD Computers.
+
+.DESCRIPTION
+    This script audits the software installed on Active Directory computers, generating 
+    a report to verify compliance with software usage policies and helping maintain 
+    license integrity.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
