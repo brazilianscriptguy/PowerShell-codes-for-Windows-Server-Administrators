@@ -1,6 +1,17 @@
-# PowerShell Script for Processing Windows Event Log Files - Event ID 4625 (Failed AD Logon Attempts)
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Compiling Failed Logon Attempts via Event ID 4625.
+
+.DESCRIPTION
+    This script compiles failed logon attempts (Event ID 4625) into a CSV report, helping 
+    to identify potential security breaches and analyze failed login patterns.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 Param(
     [Bool]$AutoOpen = $false
