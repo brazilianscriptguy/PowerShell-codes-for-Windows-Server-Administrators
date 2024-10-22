@@ -1,6 +1,17 @@
-﻿# PowerShell Script to Restart the Network card
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 23, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Restarting Network Adapters via GUI.
+
+.DESCRIPTION
+    This script provides a quick and user-friendly way to restart network adapters through a GUI, 
+    helping maintain network connectivity without requiring manual intervention.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
