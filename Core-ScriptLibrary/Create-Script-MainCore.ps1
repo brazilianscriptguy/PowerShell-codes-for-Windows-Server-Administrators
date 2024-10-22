@@ -1,7 +1,16 @@
-# Generalized Main Core PowerShell Script to be used with other scripts
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Last Updated: October 02, 2024
+<#
+.SYNOPSIS
+    PowerShell Script to Clean Up Orphaned and Outdated Domains, Including Metadata and Residual Data.
 
+.DESCRIPTION
+    This script provides a xxxxxxxxxx.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 param(
     [switch]$ShowConsole = $false
 )
