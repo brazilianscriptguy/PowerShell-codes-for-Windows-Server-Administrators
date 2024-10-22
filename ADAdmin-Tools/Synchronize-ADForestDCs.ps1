@@ -1,6 +1,17 @@
-# PowerShell script to Synchronize all DCs in the Forest across All Sites
-# Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: September 5, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Synchronizing Domain Controllers Across an AD Forest.
+
+.DESCRIPTION
+    This script automates the synchronization of all Domain Controllers (DCs) across an Active Directory 
+    (AD) forest, ensuring that all changes are properly replicated and up-to-date.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
