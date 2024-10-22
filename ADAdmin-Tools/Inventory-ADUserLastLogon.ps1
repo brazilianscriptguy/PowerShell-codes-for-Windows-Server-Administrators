@@ -1,6 +1,17 @@
-# PowerShell Script to Generate Report of User Accounts by Last Logon in Active Directory with Enhanced GUI
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 07, 2024.
+<#
+.SYNOPSIS
+    PowerShell Script for Retrieving Last Logon Times of AD Users.
+
+.DESCRIPTION
+    This script provides insights into the last logon times of Active Directory users, 
+    aiding in identifying potentially inactive accounts and improving resource management.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
