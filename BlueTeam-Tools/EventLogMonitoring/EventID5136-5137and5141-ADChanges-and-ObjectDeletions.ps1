@@ -1,6 +1,17 @@
-# PowerShell Script for Processing Windows Event Log Files - Events ID 5136, 5137, and 5141 (AD Changes and Object Deletions)
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Analyzing AD Object Changes via Event IDs 5136, 5137, and 5141.
+
+.DESCRIPTION
+    This script analyzes Active Directory object changes and deletions based on Event IDs 5136, 
+    5137, and 5141, generating a CSV report for auditing AD modifications and tracking security changes.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 Param(
     [Bool]$AutoOpen = $false
