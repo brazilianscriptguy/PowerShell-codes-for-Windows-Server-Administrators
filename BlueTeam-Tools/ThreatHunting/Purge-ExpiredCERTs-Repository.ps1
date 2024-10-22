@@ -1,6 +1,18 @@
-# PowerShell Script to Search and Remove Expired Certificate Files Stored as a repository 
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 14, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Purging Expired Certificates from the Repository.
+
+.DESCRIPTION
+    This script detects and removes expired certificates from the certificate repository, 
+    maintaining a secure and up-to-date certificate infrastructure to minimize security 
+    vulnerabilities.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
