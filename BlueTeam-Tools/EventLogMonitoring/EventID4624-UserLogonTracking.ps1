@@ -1,6 +1,17 @@
-# PowerShell Script to Search Security.evtx Files for Specific Users' Logon Events (EventID 4624)
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Tracking User Logon Activities via Event ID 4624.
+
+.DESCRIPTION
+    This script tracks user logon activities (Event ID 4624) and generates a CSV report, 
+    enabling administrators to audit logons for security and compliance purposes.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
