@@ -1,6 +1,17 @@
-# PowerShell Script to Retrieve AD Groups from a Specific Domain in the Forest
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Retrieving Information on AD Groups and Their Members.
+
+.DESCRIPTION
+    This script retrieves detailed information about Active Directory (AD) groups and their members, 
+    assisting administrators in auditing and compliance reporting.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
