@@ -1,6 +1,17 @@
-# PowerShell Script for Displaying a Warning Message at User Logon on Workstations - via Group Policy Objects (GPO)
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 2, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Broadcasting Logon Messages via GPO.
+
+.DESCRIPTION
+    This script displays customizable warning messages to users upon login via Group Policy, 
+    enabling broad communication in managed environments and enhancing organizational messaging.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Enhanced error handling
 $ErrorActionPreference = "SilentlyContinue"
