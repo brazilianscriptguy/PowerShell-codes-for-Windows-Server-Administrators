@@ -1,6 +1,17 @@
-﻿# PowerShell Script to Change Disks Volumes Names to corresponding the C:\Hostname and D:\Personal-Files
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 6, 2024.
+<#
+.SYNOPSIS
+    PowerShell Script for Renaming Disk Volumes via GPO.
+
+.DESCRIPTION
+    This script renames disk volumes uniformly across workstations using Group Policy (GPO), 
+    simplifying disk management and improving consistency across the network.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Determines the script name and sets up the log path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
