@@ -1,6 +1,17 @@
-# PowerShell Script for Multiple RDP Access with GUI
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Initiating Multiple RDP Sessions Simultaneously.
+
+.DESCRIPTION
+    This script enables the initiation of multiple Remote Desktop Protocol (RDP) sessions 
+    to different servers simultaneously, improving remote management capabilities for IT administrators.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
