@@ -1,6 +1,17 @@
-# PowerShell script to Retrieve Windows Product Key
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: July 29, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Retrieving Windows Product Keys from the Registry.
+
+.DESCRIPTION
+    This script retrieves Windows product keys from the registry to ensure systems are 
+    properly licensed and compliant with organizational licensing policies.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
