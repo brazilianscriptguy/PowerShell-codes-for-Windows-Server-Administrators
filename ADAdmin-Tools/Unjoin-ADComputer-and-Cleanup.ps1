@@ -1,6 +1,17 @@
-# PowerShell Script for Unjoining a Domain and Cleaning up Afterward
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Unjoining AD Computers and Cleaning Up Residual Data.
+
+.DESCRIPTION
+    This script safely removes a computer from an Active Directory (AD) domain and cleans up any 
+    residual data, ensuring a clean disconnection from the domain.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
