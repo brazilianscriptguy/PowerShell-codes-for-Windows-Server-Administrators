@@ -1,6 +1,17 @@
-# PowerShell Script to Search for Files with Long Names and Shorten Them
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 9, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Automatically Shortening Long File Names.
+
+.DESCRIPTION
+    This script shortens file names that exceed a specified length, preventing file 
+    system errors and ensuring compliance with file naming standards in the organization.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
