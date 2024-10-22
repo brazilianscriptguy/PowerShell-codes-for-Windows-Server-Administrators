@@ -1,6 +1,18 @@
-# PowerShell Script to Add Workstations into specfied OUs and Grant Join Permissions
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 06, 2024.
+<#
+.SYNOPSIS
+    PowerShell Script for Adding Workstations to AD OUs and Granting Permissions.
+
+.DESCRIPTION
+    This script automates the process of adding workstations to specific Organizational Units (OUs) 
+    in Active Directory and assigns the necessary permissions for workstations to join the domain, 
+    streamlining domain management.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
