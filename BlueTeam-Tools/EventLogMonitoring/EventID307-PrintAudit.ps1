@@ -1,6 +1,17 @@
-# PowerShell Script for Processing Windows Event Log Files - Event Microsoft-Windows-PrintService/Operational
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Auditing Print Activities via Event ID 307.
+
+.DESCRIPTION
+    This script audits print activities by analyzing Event ID 307 from the Microsoft-Windows-PrintService/Operational 
+    log. It generates a detailed report of print jobs, providing insights into user print activities.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
