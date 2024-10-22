@@ -114,31 +114,34 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 34. **Restart-NetworkAdapter.ps1**  
     Provides a quick way to restart network adapters via a GUI, maintaining network connectivity without manual intervention.
 
-35. **Synchronize-ADComputerTime.ps1**  
+35. **Restart-SpoolerPoolServices.ps1**
+    Restarts the Spooler services and its dependences..... 
+
+37. **Synchronize-ADComputerTime.ps1**  
     Synchronizes time settings on AD computers, ensuring accurate time across different time zones.
 
-36. **Synchronize-ADForestDCs.ps1**  
+38. **Synchronize-ADForestDCs.ps1**  
     Automates the synchronization of all Domain Controllers across an AD forest, ensuring up-to-date replication.
 
-37. **Unjoin-ADComputer-and-Cleanup.ps1**  
+39. **Unjoin-ADComputer-and-Cleanup.ps1**  
     Safely removes a computer from an AD domain and cleans up any residual data, ensuring a clean disconnection.
 
-38. **Unlock-SMBShareADUserAccess.ps1**  
+40. **Unlock-SMBShareADUserAccess.ps1**  
     Resolves issues with SMB share access, restoring user access to shared resources.
 
-39. **Update-ADComputer-Descriptions.ps1**  
+41. **Update-ADComputer-Descriptions.ps1**  
     Updates AD computer descriptions via a GUI, simplifying the management of workstation information.
 
-40. **Update-ADComputer-Winget-Explicit.ps1**  
+42. **Update-ADComputer-Winget-Explicit.ps1**  
     Uses the `winget` tool to explicitly update software on workstations, improving software management.
 
-41. **Update-ADComputer-Winget-viaGPO.ps1**  
+43. **Update-ADComputer-Winget-viaGPO.ps1**  
     Automates software updates across workstations using the `winget` tool, with deployment managed through GPO.
 
-42. **Update-ADUserDisplayName.ps1**  
+44. **Update-ADUserDisplayName.ps1**  
     Updates user display names based on their email address, standardizing naming conventions across the organization.
 
-43. **Update-DNS-n-Sites-Services.ps1**  
+45. **Update-DNS-n-Sites-Services.ps1**  
     Automates the update of DNS zones and Active Directory Sites and Services subnets based on DHCP data.
 
 ## ❓ Additional Assistance
