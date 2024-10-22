@@ -244,13 +244,13 @@ function Import-DhcpScope {
         # Check if the scope exists before import
         $existingScope = Get-DhcpServerv4Scope -ComputerName $Server | Where-Object { $_.ScopeId -eq $ScopeId }
         if ($existingScope) {
-            Handle-Error "AVISO: O escopo $ScopeId existe no servidor $Server. Este escopo não será importado."
+            Handle-Error "WARNING: Scope $ScopeId exists on server $Server. This scope will not be imported."
             return $false
         }
 
         # Execute import cmdlet
         try {
-            Import-DhcpServer -ComputerName $Server -File $ImportFilePath -Leases -BackupPath "C:\Backup" -ScopeId $ScopeId -ErrorAction Stop
+            Import-DhcpServer -ComputerName $Server -File $ImportFilePath -Leases -BackupPath "C:\Logs-TEMP\Backup" -ScopeId $ScopeId -ErrorAction Stop
             Log-Message -Message "Import completed for Scope '$ScopeId' from file '$ImportFilePath' on Server '$Server'." -MessageType "INFO"
         } catch {
             $errorMsg = $_.Exception.Message
@@ -599,4 +599,4 @@ Log-Message -Message "Script started" -MessageType "INFO"
 # Execute the GUI creation function
 Create-GUI
 
-# End of script
+#End of script
