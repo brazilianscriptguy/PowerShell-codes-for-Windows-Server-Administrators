@@ -1,6 +1,17 @@
-# PowerShell script to Install Kaspersky AV and Network Agent, configure Server Address, and verify service
-# Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: June 14, 2024. 
+<#
+.SYNOPSIS
+    PowerShell Script for Deploying Kaspersky Antivirus via GPO.
+
+.DESCRIPTION
+    This script automates the installation and configuration of Kaspersky Antivirus across 
+    workstations using Group Policy (GPO), ensuring consistent protection across enterprise environments.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 param (
     [string]$KESInstallerPath = "\\forest-domain\netlogon\kes-antivirus-install\pkg_2\exec\kes_win.msi",
