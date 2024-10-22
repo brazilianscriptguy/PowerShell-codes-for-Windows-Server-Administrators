@@ -1,6 +1,17 @@
-# PowerShell Script to Locate and Remove Old AD Workstations Accounts from Domain
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 21, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Cleaning Up Inactive AD Computer Accounts.
+
+.DESCRIPTION
+    This script identifies and removes inactive workstation accounts in Active Directory, 
+    enhancing security by ensuring that outdated or unused accounts are properly managed and removed.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
