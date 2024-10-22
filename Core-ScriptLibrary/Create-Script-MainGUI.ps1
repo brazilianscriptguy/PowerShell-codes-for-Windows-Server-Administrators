@@ -1,6 +1,19 @@
-# Generalized PowerShell Script Core for GUI-based Tools
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Last Updated: October 02, 2024
+<#
+.SYNOPSIS
+    PowerShell Script Template for Creating Customizable GUIs.
+
+.DESCRIPTION
+    This script serves as a customizable template for generating graphical user interfaces (GUIs) 
+    within PowerShell scripts. It enables developers to incorporate interactive GUI elements into 
+    their scripts, making them more user-friendly and accessible to users with varying technical 
+    expertise.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Function to create the Default GUI for New Scripts
 function Create-GUI {
