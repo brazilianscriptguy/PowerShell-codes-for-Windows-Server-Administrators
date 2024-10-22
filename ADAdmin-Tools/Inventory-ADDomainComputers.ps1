@@ -1,6 +1,17 @@
-# PowerShell Script to Generate Report of Computers in a Specified Domain
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Generating an Inventory of AD Domain Computers.
+
+.DESCRIPTION
+    This script generates an inventory of all computers within a specified Active Directory 
+    (AD) domain, aiding in asset management and tracking.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
