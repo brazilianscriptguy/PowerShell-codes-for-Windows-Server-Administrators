@@ -1,6 +1,18 @@
-﻿# PowerShell script to Uninstall Non-Compliant Software by Name via GPO
-# Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: August 22, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Removing Non-Compliant Software via Group Policy.
+
+.DESCRIPTION
+    This script enforces software compliance by removing non-compliant or unauthorized 
+    software via Group Policy (GPO). It helps to reduce vulnerabilities by automatically 
+    uninstalling unauthorized applications across multiple machines within the domain.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 param (
     [string[]]$SoftwareNames = @(
