@@ -1,6 +1,17 @@
-# PowerShell Script to Identify and Manage Empty DNS Reverse Lookup Zones
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: August 08, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Detecting Empty DNS Reverse Lookup Zones.
+
+.DESCRIPTION
+    This script detects and identifies empty DNS reverse lookup zones, assisting in DNS 
+    cleanup and ensuring proper zone configuration for efficient network operation.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
