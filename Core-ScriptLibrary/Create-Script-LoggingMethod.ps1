@@ -1,6 +1,17 @@
-# PowerShell core default to  logging function; error handling function; script name and set up file paths; Set log path
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 15, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Implementing a Standardized Logging Method.
+
+.DESCRIPTION
+    This script implements a standardized logging method across PowerShell scripts, ensuring 
+    uniform and consistent logging for improved traceability, debugging, and auditing.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Enhanced logging function with error handling and validation, refactored as a reusable method
 function Log-Message {
