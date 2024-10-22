@@ -1,6 +1,17 @@
-# PowerShell Script to Update Workstation Descriptions with Enhanced GUI
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: July 19, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Updating AD User Display Names Based on Email Address.
+
+.DESCRIPTION
+    This script updates user display names in Active Directory based on their email address, 
+    standardizing naming conventions across the organization and ensuring consistency.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
