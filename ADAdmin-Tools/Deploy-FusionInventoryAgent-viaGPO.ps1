@@ -1,6 +1,17 @@
-# PowerShell Script to Installing the 2.6(1) Fusioninventory Agent via GPOs
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: September 30, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Deploying FusionInventory Agent via GPO.
+
+.DESCRIPTION
+    This script deploys the FusionInventory Agent on workstations via Group Policy (GPO), 
+    optimizing inventory management and reporting in enterprise environments.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 param (
     [string]$FusionInventoryURL = "http://you-GLPI-web-location.com/plugins/fusioninventory/clients/2.6.1/fusioninventory-agent_windows-x64_2.6.1.exe",
