@@ -123,6 +123,9 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 38. **Synchronize-ADForestDCs.ps1**  
     Automates the synchronization of all Domain Controllers across an AD forest, ensuring up-to-date replication.
 
+39. **Transfer-DHCPScope.ps1**
+    
+
 39. **Unjoin-ADComputer-and-Cleanup.ps1**  
     Safely removes a computer from an AD domain and cleans up any residual data, ensuring a clean disconnection.
 
