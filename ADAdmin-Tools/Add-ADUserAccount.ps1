@@ -1,6 +1,18 @@
-# PowerShell Script to Add Users into specified OUs and Groups
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 02, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Creating New AD User Accounts.
+
+.DESCRIPTION
+    This script facilitates the creation of new Active Directory user accounts within specified OUs. 
+    It allows operators to search for and select the target domain and OU, providing an intuitive 
+    interface for entering user details.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide PowerShell console window
 Add-Type @"
