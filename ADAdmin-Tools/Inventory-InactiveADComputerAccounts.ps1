@@ -1,6 +1,17 @@
-# PowerShell Script to Generate Report of Inactive Computer Accounts in Active Directory
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Identifying Inactive AD Computer Accounts.
+
+.DESCRIPTION
+    This script identifies inactive computer accounts within Active Directory, helping administrators 
+    maintain a clean and secure directory by removing outdated accounts.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
