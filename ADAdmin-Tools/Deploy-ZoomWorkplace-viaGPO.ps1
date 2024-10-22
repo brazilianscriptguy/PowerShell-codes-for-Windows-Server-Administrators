@@ -1,6 +1,17 @@
-# PowerShell script to Install Zoom Workplace MSI package on workstations
-# Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: July 16, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Deploying Zoom Workplace via GPO.
+
+.DESCRIPTION
+    This script automates the deployment of Zoom software through Group Policy (GPO), 
+    facilitating seamless collaboration and communication across enterprise environments.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 param (
     [string]$ZoomMSIPath = "\\forest-logonserver-name\netlogon\zoom-msi-folder\AutoDeployment-ZoomWorkplace.msi",
