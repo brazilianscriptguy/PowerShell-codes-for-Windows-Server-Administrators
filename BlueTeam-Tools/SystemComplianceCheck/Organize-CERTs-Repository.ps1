@@ -1,6 +1,18 @@
-# PowerShell Script to Organize Certificate Files by Issuer with GUI
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 14, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Organizing SSL/TLS Certificates in the Repository.
+
+.DESCRIPTION
+    This script organizes SSL/TLS certificates within the repository by issuer, improving 
+    the management of certificates and ensuring compliance with security standards. It 
+    helps to maintain a clean and structured certificate repository.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide PowerShell console window
 Add-Type @"
