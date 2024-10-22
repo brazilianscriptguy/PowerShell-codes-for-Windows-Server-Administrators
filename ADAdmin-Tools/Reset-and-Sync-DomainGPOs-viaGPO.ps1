@@ -1,6 +1,17 @@
-# PowerShell Script to Reset Domain GPOs from Workstation and Resync - Integration into a GPO onto Scheduled Task Execution
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Resetting and Synchronizing Domain GPOs.
+
+.DESCRIPTION
+    This script resets and re-synchronizes all domain Group Policy Objects (GPOs), ensuring 
+    compliance and consistent application of policies across workstations.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
