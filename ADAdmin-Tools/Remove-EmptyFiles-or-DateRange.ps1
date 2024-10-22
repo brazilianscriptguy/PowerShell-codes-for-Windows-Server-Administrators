@@ -1,6 +1,17 @@
-# PowerShell Script to Find and Delete Empty Files or Delete Files by Date Range with Enhanced GUI
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 13, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Removing Empty Files or Files by Date Range.
+
+.DESCRIPTION
+    This script detects and removes empty files or files within a specified date range, 
+    optimizing file storage and improving system organization.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
