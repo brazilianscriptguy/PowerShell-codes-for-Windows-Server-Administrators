@@ -1,6 +1,17 @@
-﻿# PowerShell Script to Update and Sync Workstation Local Time
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: March, 04, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Synchronizing AD Computer Time Settings.
+
+.DESCRIPTION
+    This script synchronizes time settings across Active Directory (AD) computers, ensuring accurate 
+    time configurations across different time zones and maintaining consistency in network time.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide PowerShell console window
 Add-Type @"
