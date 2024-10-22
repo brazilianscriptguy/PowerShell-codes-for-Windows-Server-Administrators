@@ -1,15 +1,15 @@
 <#
 .SYNOPSIS
-    PowerShell Script to Clean Up Orphaned and Outdated Domains, Including Metadata and Residual Data.
+    PowerShell Script for Generating Standardized Headers for PowerShell Scripts.
 
 .DESCRIPTION
-    This script provides a GUI tool for managing Active Directory (AD) domains and domain controllers (DCs). 
-    It allows administrators to clean up orphaned domains, remove specific distinguished names (CNs), 
-    synchronize all DCs, and view detailed logs of operations performed.
+    This script generates standardized headers for new PowerShell scripts, including 
+    essential details like author, version, and description. It ensures consistency 
+    and best practices across all PowerShell scripts within your environment.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: August 14, 2024
+    Last Updated: October 22, 2024
 #>
