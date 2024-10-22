@@ -1,6 +1,19 @@
-# PowerShell Script to Restart Spooler and LPD Services with Enhanced GUI, Logging, and Debug Information
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 16, 2024
+<#
+.SYNOPSIS
+    PowerShell Script to Restart Spooler and LPD Services with Enhanced GUI, Logging, and Debug Information.
+
+.DESCRIPTION
+    This script provides a user-friendly GUI to restart both the Spooler and LPD (Line Printer Daemon) 
+    services. It includes enhanced logging for auditing purposes and detailed debug information 
+    for troubleshooting. The script ensures smooth management of printing services while tracking 
+    actions taken during its execution.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 16, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
