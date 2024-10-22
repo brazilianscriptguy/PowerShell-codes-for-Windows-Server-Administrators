@@ -1,6 +1,17 @@
-# PowerShell Script to Copy and Sync Folder onto AD Computers
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: July 5, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Synchronizing Folders to AD Computers via GPO.
+
+.DESCRIPTION
+    This script synchronizes folders from a network location to AD computers, ensuring that only new 
+    or updated files are copied while outdated files are removed. It also includes full logging of the operation.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
