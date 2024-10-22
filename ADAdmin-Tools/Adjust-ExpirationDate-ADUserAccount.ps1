@@ -1,6 +1,17 @@
-# PowerShell Script to Search and Update Expiration AD Users Account by Description
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 2, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Adjusting Expiration Dates of AD User Accounts.
+
+.DESCRIPTION
+    This script provides a GUI for searching Active Directory users by account description and updating 
+    their expiration dates, streamlining user account management and ensuring compliance with expiration policies.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
