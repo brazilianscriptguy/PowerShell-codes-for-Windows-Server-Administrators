@@ -1,7 +1,18 @@
-# PowerShell Script for Removing Old Certification Authority Certificates
-# Implemented via GPO (Group Policy Object)
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 28, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Removing Expired Certificate Authorities (CAs) via Group Policy.
+
+.DESCRIPTION
+    This script automates the removal of expired Certificate Authorities (CAs) through 
+    Group Policy, ensuring consistent certificate management across multiple domain 
+    machines. It enhances security by keeping the certificate infrastructure up to date.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
