@@ -1,6 +1,19 @@
-# PowerShell Script to Search and Delete Files with Specific Extensions with Integrated Logging
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Update: May 9, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Bulk Deleting Files Based on Extension.
+
+.DESCRIPTION
+    This script performs a bulk deletion of files based on specified extensions, helping 
+    to remove unwanted or potentially harmful files during post-incident cleanup or 
+    routine maintenance. It offers a fast and efficient way to target specific file 
+    types across multiple directories.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
