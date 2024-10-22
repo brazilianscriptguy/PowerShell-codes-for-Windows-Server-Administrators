@@ -1,6 +1,17 @@
-# PowerShell Script to Add InetOrgPerson into specified OUs and Groups
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 02, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Creating InetOrgPerson Entries in Active Directory.
+
+.DESCRIPTION
+    This script simplifies the creation of new InetOrgPerson entries in Active Directory, 
+    allowing operators to input detailed account information, including organizational attributes.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide PowerShell console window
 Add-Type @"
