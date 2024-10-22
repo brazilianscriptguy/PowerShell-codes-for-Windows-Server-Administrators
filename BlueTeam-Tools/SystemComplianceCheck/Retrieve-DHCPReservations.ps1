@@ -1,6 +1,17 @@
-# PowerShell Script to Retrieve DHCP reservations and allows filtering by hostname(s) and/or description(s).
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 02, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Retrieving DHCP Reservations.
+
+.DESCRIPTION
+    This script retrieves DHCP reservations from servers and allows filtering by hostname 
+    or description, ensuring accurate documentation and management of network resources.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 param(
     [switch]$ShowConsole = $false
