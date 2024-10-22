@@ -1,6 +1,17 @@
-# PowerShell Script to Gather DHCP Scopes for Updating DNS Reverse Zones and Sites and Services Subnets
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: October 02, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Updating DNS Zones and AD Sites and Services Subnets.
+
+.DESCRIPTION
+    This script automates the update of DNS zones and Active Directory Sites and Services 
+    subnets based on DHCP data, ensuring that all network information is properly configured and up-to-date.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
