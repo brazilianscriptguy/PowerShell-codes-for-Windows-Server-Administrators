@@ -1,6 +1,17 @@
-# PowerShell Script for Processing Windows Event Log Files - Event ID 4800 and 4801 (Locked and Unlocked Workstation)
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Monitoring Workstation Lock and Unlock Events via Event IDs 4800 and 4801.
+
+.DESCRIPTION
+    This script tracks workstation locking and unlocking events (Event IDs 4800 and 4801) 
+    and generates a CSV report, helping to monitor workstation security and user activity.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 Param(
     [Bool]$AutoOpen = $true
