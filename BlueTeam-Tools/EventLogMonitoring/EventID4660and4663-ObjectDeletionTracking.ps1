@@ -1,6 +1,17 @@
-# PowerShell Script for Processing Windows Event Log Files - Events ID 4660 and 4663 (Track Object Deletion Actions)
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Tracking Object Deletions via Event IDs 4660 and 4663.
+
+.DESCRIPTION
+    This script tracks object deletion events (Event IDs 4660 and 4663) and organizes 
+    the data into a CSV report. It aids in auditing security changes and monitoring object deletions.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 Param(
     [Bool]$AutoOpen = $true
