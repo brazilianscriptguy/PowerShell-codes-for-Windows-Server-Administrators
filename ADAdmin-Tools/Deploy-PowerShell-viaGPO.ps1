@@ -1,6 +1,17 @@
-# PowerShell script to deploy PowerShell MSI package via GPO
-# Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Update: July 16, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Installing PowerShell via GPO.
+
+.DESCRIPTION
+    This script simplifies the installation of PowerShell on workstations and servers via 
+    Group Policy (GPO), enhancing system administration efficiency across the network.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 param (
     [string]$PowerShellMSIPath = "\\forest-logonserver-name\netlogon\powershell-msi-folder\AutoDeployment-PowerShell.msi",
