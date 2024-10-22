@@ -1,6 +1,17 @@
-# PowerShell Script to Move Event Log Default Paths with GUI and Improved Error Handling
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 14, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Managing and Migrating Windows Event Log Files.
+
+.DESCRIPTION
+    This script manages Windows Server Event Log files, allowing administrators to reorganize, 
+    move, and resize log files to optimize storage usage and improve accessibility.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
