@@ -1,6 +1,17 @@
-# PowerShell Script to Manage DFS Permissions and Unlock Users
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: September 23, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Restoring SMB Share Access for AD Users.
+
+.DESCRIPTION
+    This script resolves issues with SMB share access for Active Directory (AD) users, 
+    restoring access to shared resources and ensuring proper permissions are applied.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
