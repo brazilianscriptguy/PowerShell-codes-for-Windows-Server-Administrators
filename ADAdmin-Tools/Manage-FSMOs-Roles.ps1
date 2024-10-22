@@ -1,6 +1,17 @@
-# PowerShell script to Manage FSMO Roles with GUI
-# Author: Luiz Hamilton Silva - luizhamilton.lhr@gmail.com
-# Updated: July 18, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Managing and Transferring FSMO Roles.
+
+.DESCRIPTION
+    This script facilitates the management and transfer of Flexible Single Master Operation (FSMO) 
+    roles within an Active Directory forest, ensuring proper domain functionality and stability.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Hide the PowerShell console window
 Add-Type @"
