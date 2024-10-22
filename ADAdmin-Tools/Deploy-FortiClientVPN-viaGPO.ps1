@@ -1,6 +1,17 @@
-# PowerShell Script to Install FortiClient VPN and configure Custom VPN Tunnels
-# Author: Luiz Hamilton Silva
-# Updated: August 26, 2024
+<#
+.SYNOPSIS
+    PowerShell Script for Deploying FortiClient VPN via GPO.
+
+.DESCRIPTION
+    This script automates the installation, configuration, and tunnel setup for FortiClient VPN across 
+    workstations using Group Policy (GPO), ensuring secure and consistent remote access.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 # Initial parameters for setting paths and registry keys.
 param (
