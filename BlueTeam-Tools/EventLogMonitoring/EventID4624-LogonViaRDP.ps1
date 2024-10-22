@@ -1,6 +1,17 @@
-# PowerShell Script for Processing Windows Event Log Security.evtx file for Event ID 4624 (Report Logons via RDP)
-# Author: Luiz Hamilton Silva - @brazilianscriptguy
-# Updated: May 8, 2024.
+<#
+.SYNOPSIS
+    PowerShell Script for Monitoring RDP Logon Activities via Event ID 4624.
+
+.DESCRIPTION
+    This script generates a CSV report detailing Remote Desktop Protocol (RDP) logon activities based 
+    on Event ID 4624. It helps monitor remote access and detect potential security risks.
+
+.AUTHOR
+    Luiz Hamilton Silva - @brazilianscriptguy
+
+.VERSION
+    Last Updated: October 22, 2024
+#>
 
 Param(
     [Bool]$AutoOpen = $false
