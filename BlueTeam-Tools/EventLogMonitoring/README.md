@@ -58,9 +58,6 @@ This folder contains a suite of PowerShell scripts crafted to process **Windows 
 12. **Migrate-WinEvtStructure-Tool.ps1**  
     Moves Windows Event Log files to a new directory, updating registry paths; stops and restarts the Event Log service to move .evtx files; requires administrative privileges.
     
-### COMING SOON:
-New EventID analysis scripts will be added, bringing innovative tools to enhance system administration and event log management.
-
 ## ❓ Additional Assistance
 
 *All script codes can be customized to suit your specific needs. For further assistance or detailed information on prerequisites and setup, please refer to the `README.md` in the main root folder.*
