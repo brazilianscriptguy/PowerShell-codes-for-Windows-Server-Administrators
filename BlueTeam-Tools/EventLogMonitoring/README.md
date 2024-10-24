@@ -55,9 +55,9 @@ This folder contains a suite of PowerShell scripts crafted to process **Windows 
 11. **EventIDs1074-6006-6008-6013-SystemRestarts.ps1**  
     Retrieves details on system restarts and unexpected shutdowns (Event ID 6008), outputting results in a CSV to diagnose system issues.
 
-12. **Migrate-WinEvtStructure-Tool.ps1**  
-   Migrates Windows Event Log files to a new directory `WinEvt`. It stops the Event Log service, moves the .evtx files, updates registry paths, and restarts the service. The script provides progress updates and logging, requiring administrative privileges to run.
-
+12. **Migrate-WinEvt-Tool.ps1**  
+    Moves Windows Event Log files to a new directory, updating registry paths; stops and restarts the Event Log service to move .evtx files; requires administrative privileges.
+    
 ### COMING SOON:
 New EventID analysis scripts will be added, bringing innovative tools to enhance system administration and event log management.
 
