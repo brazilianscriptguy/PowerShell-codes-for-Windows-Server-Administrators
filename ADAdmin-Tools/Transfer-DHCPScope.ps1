@@ -1,17 +1,21 @@
 <#
 .SYNOPSIS
-    PowerShell Script for DHCP Scope Transfer with GUI.
-    
+    PowerShell script for transferring DHCP scopes with a GUI.
+
 .DESCRIPTION
-    This script provides functionality to export and import DHCP scopes 
-    between servers within a specified domain, with error handling and logging 
-    to track operations.
+    This script facilitates the export and import of DHCP scopes between servers 
+    in a specified domain. It features error handling, logging for tracking operations, 
+    and a graphical user interface (GUI) for simplified management. 
+
+    The script provides options to either inactivate or exclude the DHCP scope 
+    from the source server during export. Additionally, it supports asynchronous 
+    tasks with progress indicators for exporting and importing scopes.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: October 24, 2024
 #>
 
 param(
@@ -84,22 +88,25 @@ function Handle-Error {
 
 # Function to initialize script name and file paths
 function Initialize-ScriptPaths {
-    param (
-        [string]$defaultLogDir = 'C:\Logs-TEMP'
-    )
+    # Use $MyInvocation.ScriptName to get the full path of the script, fallback to "Script" if it doesn't exist
+    $scriptName = if ($MyInvocation.ScriptName) {
+        [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.ScriptName)
+    } else {
+        "Script"  # Fallback if no name is available
+    }
 
-    # Determine script name and set up file paths dynamically
-    $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Path)
+    # Define the log directory and file name with timestamp
+    $logDir = 'C:\Logs-TEMP'
     $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
-
-    # Set log path allowing dynamic configuration or fallback to defaults
-    $logDir = if ($env:LOG_PATH -and $env:LOG_PATH -ne "") { $env:LOG_PATH } else { $defaultLogDir }
     $logFileName = "${scriptName}_${timestamp}.log"
     $logPath = Join-Path $logDir $logFileName
 
-    # Log the name of the log file created
-    Log-Message -Message "Log file created: $logFileName" -MessageType "INFO"
+    # Ensure the log directory exists, create it if necessary
+    if (-not (Test-Path $logDir)) {
+        New-Item -Path $logDir -ItemType Directory -Force | Out-Null
+    }
 
+    # Return paths for use in logging
     return @{
         LogDir = $logDir
         LogPath = $logPath
@@ -193,7 +200,14 @@ function Export-DhcpScope {
 
         # Handle ExcludeScope option if needed
         if ($ExcludeScope) {
-            Log-Message -Message "Excluded Scope '$ScopeId' as per user selection." -MessageType "INFO"
+            Log-Message -Message "Excluding Scope '$ScopeId' from Server '$Server'." -MessageType "INFO"
+            try {
+                Remove-DhcpServerv4Scope -ComputerName $Server -ScopeId $ScopeId -Force -ErrorAction Stop
+                Log-Message -Message "Scope '$ScopeId' successfully excluded from Server '$Server'." -MessageType "INFO"
+            } catch {
+                Handle-Error "Failed to exclude DHCP scope '$ScopeId' from server '$Server'. Error: $_"
+                return $false
+            }
         }
 
         # Handle InactivateScope option
@@ -250,7 +264,7 @@ function Import-DhcpScope {
 
         # Execute import cmdlet
         try {
-            Import-DhcpServer -ComputerName $Server -File $ImportFilePath -Leases -BackupPath "C:\Logs-TEMP\Backup" -ScopeId $ScopeId -ErrorAction Stop
+            Import-DhcpServer -ComputerName $Server -File $ImportFilePath -Leases -BackupPath "C:\Logs-TEMP\DHCP-Backup" -ScopeId $ScopeId -ErrorAction Stop
             Log-Message -Message "Import completed for Scope '$ScopeId' from file '$ImportFilePath' on Server '$Server'." -MessageType "INFO"
         } catch {
             $errorMsg = $_.Exception.Message
@@ -364,7 +378,7 @@ function Create-GUI {
     $exportTab.Controls.Add($lblBackupPath)
 
     $txtBackupPath = New-Object System.Windows.Forms.TextBox
-    $txtBackupPath.Text = "C:\Logs-TEMP\DhcpScopeConfig.xml"
+    $txtBackupPath.Text = "C:\Logs-TEMP\DHCP-Export\DhcpScopeConfig.xml"
     $txtBackupPath.Location = New-Object System.Drawing.Point(150, 220)
     $txtBackupPath.Size = New-Object System.Drawing.Size(400, 20)
     $txtBackupPath.ReadOnly = $true
@@ -427,7 +441,7 @@ function Create-GUI {
     $importTab.Controls.Add($lblImportFile)
 
     $txtImportFile = New-Object System.Windows.Forms.TextBox
-    $txtImportFile.Text = "C:\Logs-TEMP\DhcpScopeConfig.xml"
+    $txtImportFile.Text = "C:\Logs-TEMP\DHCP-Export\DhcpScopeConfig.xml"
     $txtImportFile.Location = New-Object System.Drawing.Point(150, 60)
     $txtImportFile.Size = New-Object System.Drawing.Size(400, 20)
     $importTab.Controls.Add($txtImportFile)
@@ -576,6 +590,7 @@ try {
     if (-not (Test-Path $global:logDir)) {
         New-Item -Path $global:logDir -ItemType Directory -Force | Out-Null
     }
+    # Create the log file if it doesn't exist
     if (-not (Test-Path $global:logPath)) {
         New-Item -Path $global:logPath -ItemType File -Force | Out-Null
     }
@@ -599,4 +614,4 @@ Log-Message -Message "Script started" -MessageType "INFO"
 # Execute the GUI creation function
 Create-GUI
 
-#End of script
+# End of script
