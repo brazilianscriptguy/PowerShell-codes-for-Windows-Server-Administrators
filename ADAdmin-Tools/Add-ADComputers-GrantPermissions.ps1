@@ -331,7 +331,7 @@ $lblSupportGroup.Text = "Ingress Account:"
 $txtSupportGroup = New-Object System.Windows.Forms.TextBox
 $txtSupportGroup.Location = New-Object System.Drawing.Point(10, 190)
 $txtSupportGroup.Size = New-Object System.Drawing.Size(380, 20)
-$txtSupportGroup.Text = "ingdomain@SEDE.TJAP"  # Default Support Group
+$txtSupportGroup.Text = "ingdomain@SEDE.TJAP"  # Default Support Group or Default Support InetOrgPerson Account
 $txtSupportGroup.ForeColor = [System.Drawing.Color]::Black
 $txtSupportGroup.ReadOnly = $true
 
