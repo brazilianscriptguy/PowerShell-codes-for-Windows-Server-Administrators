@@ -103,7 +103,8 @@ Download-File -url $FusionInventoryURL -destinationPath $fusionInventorySetup
 
 # Run the installer
 Log-Message "Running installer: $fusionInventorySetup"
-$installArgs = "/S /acceptlicense /no-start-menu /runnow /server='http://cas.tjap.jus.br/plugins/fusioninventory/' /add-firewall-exception /installtasks=Full /execmode=Service /httpd-trust='127.0.0.1,10.0.0.0/8' /tag=%userdomain% /delaytime=3600"
+$userDomain = [System.Environment]::GetEnvironmentVariable("USERDOMAIN")
+$installArgs = "/S /acceptlicense /no-start-menu /runnow /server='http://cas.tjap.jus.br/plugins/fusioninventory/' /add-firewall-exception /installtasks=Full /execmode=Service /httpd-trust='127.0.0.1,10.10.0.28/24' /tag='$userDomain'"
 try {
     Start-Process -FilePath $fusionInventorySetup -ArgumentList $installArgs -Wait -NoNewWindow -ErrorAction Stop
     Log-Message "FusionInventory installation completed successfully."
