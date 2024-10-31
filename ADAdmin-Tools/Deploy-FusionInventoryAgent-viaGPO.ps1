@@ -16,12 +16,13 @@
 param (
     [string]$FusionInventoryURL = "http://cas.tjap.jus.br/plugins/fusioninventory/clients/2.6.1/fusioninventory-agent_windows-x64_2.6.1.exe",
     [string]$FusionInventoryLogDir = "C:\Scripts-LOGS",
-    [string]$ExpectedVersion = "2.6"  # Expected version
+    [string]$ExpectedVersion = "2.6",  # Expected version
+    [bool]$ReinstallIfSameVersion = $false  # Allows reinstall if the version is already installed
 )
 
 $ErrorActionPreference = "Stop"
 
-# Log file name configuration without timestamp
+# Configure the log file name without timestamp
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $FusionInventoryLogDir $logFileName
@@ -45,7 +46,7 @@ function Log-Message {
     }
 }
 
-# Ensures the log directory exists
+# Ensure the log directory exists
 try {
     if (-not (Test-Path $FusionInventoryLogDir)) {
         New-Item -Path $FusionInventoryLogDir -ItemType Directory -ErrorAction Stop | Out-Null
@@ -55,7 +56,7 @@ try {
     Log-Message "WARNING: Failed to create log directory at $FusionInventoryLogDir." -Warning
 }
 
-# Function to detect installed FusionInventory version
+# Function to detect the installed FusionInventory version
 function Get-InstalledVersion {
     param (
         [string]$RegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\FusionInventory-Agent"
@@ -69,11 +70,13 @@ function Get-InstalledVersion {
     return $null
 }
 
-# Check installed version
+# Check the installed version
 $installedVersion = Get-InstalledVersion
-if ($installedVersion -eq $ExpectedVersion) {
-    Log-Message "FusionInventory version $ExpectedVersion is already installed. No action needed."
+if ($installedVersion -eq $ExpectedVersion -and -not $ReinstallIfSameVersion) {
+    Log-Message "FusionInventory version $ExpectedVersion is already installed, and reinstall is not allowed. No action needed."
     exit 0
+} elseif ($installedVersion -eq $ExpectedVersion -and $ReinstallIfSameVersion) {
+    Log-Message "FusionInventory version $ExpectedVersion is already installed, but reinstall is allowed. Proceeding with reinstallation."
 } else {
     Log-Message "Installing the new FusionInventory version: $ExpectedVersion."
 }
