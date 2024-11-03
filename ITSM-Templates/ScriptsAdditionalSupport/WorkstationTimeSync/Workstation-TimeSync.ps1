@@ -41,7 +41,7 @@ Add-Type -AssemblyName System.Drawing
 
 # Set up log path and global variables
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$logDir = 'C:\Logs-TEMP'
+$logDir = 'C:\ITSM-Logs'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 
