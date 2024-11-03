@@ -4,8 +4,8 @@
 
 .DESCRIPTION
     This script renames the disk volumes for drives C: and D:. The C: drive is renamed to the hostname of the machine,
-    and the D: drive is assigned a custom label, "Personal-Files". The script includes logging functionality to track
-    the renaming process and any errors encountered.
+    and the D: drive is assigned a user-specified custom label, defaulting to "Personal-Files". The script includes logging 
+    functionality to track the renaming process and any errors encountered.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -22,6 +22,7 @@ public class Window {
     [DllImport("kernel32.dll", SetLastError = true)]
     static extern IntPtr GetConsoleWindow();
     [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     public static void Hide() {
         var handle = GetConsoleWindow();
@@ -31,12 +32,7 @@ public class Window {
 "@
 [Window]::Hide()
 
-# Suppress unwanted messages for a cleaner execution environment
-$WarningPreference = 'SilentlyContinue'
-$VerbosePreference = 'SilentlyContinue'
-$DebugPreference = 'SilentlyContinue'
-
-# Load necessary .NET assemblies for GUI components
+# Import necessary libraries for GUI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
@@ -111,17 +107,62 @@ function Rename-Volume {
 }
 
 # Main Execution
-Write-Log -Message "Starting Disk Volume Renaming Script." -MessageType "INFO"
+Write-Log -Message "Starting Disk Volume Renaming Tool." -MessageType "INFO"
 
-# Define new names for volumes C: and D:
+# Define new name for volume C: as the hostname
 $NewNameC = $env:COMPUTERNAME
-$NewNameD = "Personal-Files"
 
-# Execute volume renaming
-Rename-Volume -VolumePath "C" -NewName $NewNameC
-Rename-Volume -VolumePath "D" -NewName $NewNameD
+# Initialize form components for the GUI
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'Disk Volume Renaming Tool'
+$form.Size = New-Object System.Drawing.Size(400, 220)
+$form.StartPosition = 'CenterScreen'
 
-Write-Log -Message "Disk Volume Renaming Script execution completed." -MessageType "INFO"
-[System.Windows.Forms.MessageBox]::Show("Disk Volume Renaming Script execution completed successfully.", "Completion", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+# Label to show the current hostname for Drive C:
+$labelHostname = New-Object System.Windows.Forms.Label
+$labelHostname.Text = "Drive C: will be named as the hostname: $NewNameC"
+$labelHostname.Location = New-Object System.Drawing.Point(30, 20)
+$labelHostname.Size = New-Object System.Drawing.Size(340, 20)
+$form.Controls.Add($labelHostname)
+
+# Label and text box for custom name of D: drive
+$labelCustomNameD = New-Object System.Windows.Forms.Label
+$labelCustomNameD.Text = "Enter Custom Name for D: Drive (default: 'Personal-Files'):"
+$labelCustomNameD.Location = New-Object System.Drawing.Point(30, 50)
+$labelCustomNameD.Size = New-Object System.Drawing.Size(300, 20)
+$form.Controls.Add($labelCustomNameD)
+
+$textBoxCustomNameD = New-Object System.Windows.Forms.TextBox
+$textBoxCustomNameD.Location = New-Object System.Drawing.Point(30, 80)
+$textBoxCustomNameD.Size = New-Object System.Drawing.Size(300, 20)
+$textBoxCustomNameD.Text = "Personal-Files"  # Default value for Drive D:
+$form.Controls.Add($textBoxCustomNameD)
+
+# Button to apply renaming to both drives C: and D:
+$buttonRenameVolumes = New-Object System.Windows.Forms.Button
+$buttonRenameVolumes.Text = "Apply Changes"
+$buttonRenameVolumes.Size = New-Object System.Drawing.Size(120, 40)
+$buttonRenameVolumes.Location = New-Object System.Drawing.Point(130, 120)
+$buttonRenameVolumes.Add_Click({
+    # Set the custom name for drive D:
+    $NewNameD = $textBoxCustomNameD.Text
+    if ([string]::IsNullOrWhiteSpace($NewNameD)) {
+        [System.Windows.Forms.MessageBox]::Show("Please enter a valid name for the D: drive.", "Input Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+        return
+    }
+
+    # Execute volume renaming for both C: and D:
+    Rename-Volume -VolumePath "C" -NewName $NewNameC
+    Rename-Volume -VolumePath "D" -NewName $NewNameD
+
+    [System.Windows.Forms.MessageBox]::Show("Disk volume renaming completed successfully.", "Completion", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+})
+$form.Controls.Add($buttonRenameVolumes)
+
+# Show the form
+$form.Add_Shown({ $form.Activate() })
+$form.ShowDialog()
+
+Write-Log -Message "Disk Volume Renaming Tool session ended." -MessageType "INFO"
 
 # End of script
