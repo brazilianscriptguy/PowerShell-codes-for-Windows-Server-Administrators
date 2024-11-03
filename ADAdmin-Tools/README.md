@@ -67,87 +67,90 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
     Enables initiating multiple RDP sessions to different servers simultaneously, enhancing remote management capabilities.
 
 19. **Install-KMSLicensingServer-Tol-tool.ps1**  
-    Installs and configures a KMS (Key Management Service) Licensing server on Windows Server, with a preliminary check for existing KMS servers within the Active Directory forest.
+    Installs and configures a KMS (Key Management Service) Licensing server on Windows Server, with a preliminary check for existing KMS Licensing servers within the Active Directory forest.
 
-20. **Inventory-ADDomainComputers.ps1**  
+20. **Install-RDSLicensingServer-Tool.ps1**
+Installs and configures a Remote Desktop Licensing (RDS CALs) Licensing server on Windows Server, with a preliminary check for existing RDS Licensing servers within the Active Directory forest.
+
+21. **Inventory-ADDomainComputers.ps1**  
     Generates an inventory of all computers in a specified AD domain, aiding in asset management and tracking.
 
-21. **Inventory-ADGroups-their-Members.ps1**  
+22. **Inventory-ADGroups-their-Members.ps1**  
     Retrieves detailed information on AD groups and their members, assisting in auditing and compliance reporting.
 
-22. **Inventory-ADMemberServers.ps1**  
+23. **Inventory-ADMemberServers.ps1**  
     Provides detailed reports on member servers within an AD domain, simplifying server management and oversight.
 
-23. **Inventory-ADUserAttributes.ps1**  
+24. **Inventory-ADUserAttributes.ps1**  
     Retrieves user attributes from AD, helping administrators manage user data more effectively and ensuring accurate reporting.
 
-24. **Inventory-ADUserLastLogon.ps1**  
+25. **Inventory-ADUserLastLogon.ps1**  
     Offers insights into the last logon times of AD users, identifying potentially inactive accounts for better resource management.
 
-25. **Inventory-ADUserWithNonExpiringPasswords.ps1**  
+26. **Inventory-ADUserWithNonExpiringPasswords.ps1**  
     Lists users with non-expiring passwords, helping administrators enforce password expiration policies.
 
-26. **Inventory-InactiveADComputerAccounts.ps1**  
+27. **Inventory-InactiveADComputerAccounts.ps1**  
     Identifies inactive computer accounts within AD, helping administrators maintain a clean and secure directory.
 
-27. **Manage-Disabled-Expired-ADUserAccounts.ps1**  
+28. **Manage-Disabled-Expired-ADUserAccounts.ps1**  
     Automates the process of disabling expired AD user accounts, ensuring compliance with organizational security policies.
 
-28. **Manage-FSMOs-Roles.ps1**  
+29. **Manage-FSMOs-Roles.ps1**  
     Facilitates management and transfer of FSMO roles within an AD forest, ensuring proper domain functionality and stability.
 
-29. **Move-ADComputer-betweenOUs.ps1**  
+30. **Move-ADComputer-betweenOUs.ps1**  
     Allows the relocation of AD computer accounts between OUs, simplifying organizational structure adjustments.
 
-30. **Move-ADUser-betweenOUs.ps1**  
+31. **Move-ADUser-betweenOUs.ps1**  
     Streamlines the process of moving user accounts between OUs in AD, aiding in organizational structure changes.
 
-31. **Remove-EmptyFiles-or-DateRange.ps1**  
+32. **Remove-EmptyFiles-or-DateRange.ps1**  
     Detects and removes empty files or files within a specified date range, optimizing file storage and system organization.
 
-32. **Rename-DiskVolumes-viaGPO.ps1**  
+33. **Rename-DiskVolumes-viaGPO.ps1**  
     Renames disk volumes uniformly across workstations using GPO, simplifying disk management.
 
-33. **Reset-ADUserPasswordsToDefault.ps1**  
+34. **Reset-ADUserPasswordsToDefault.ps1**  
     Resets passwords for a group of AD users to a default value, providing an efficient way to manage password policies.
 
-34. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**  
+35. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**  
     Resets and re-synchronizes all domain GPOs, ensuring policy compliance across workstations.
 
-35. **Restart-NetworkAdapter.ps1**  
+36. **Restart-NetworkAdapter.ps1**  
     Provides a quick way to restart network adapters via a GUI, maintaining network connectivity without manual intervention.
 
-36. **Restart-SpoolerPoolServices.ps1**  
+37. **Restart-SpoolerPoolServices.ps1**  
     Restarts both the Spooler and LPD (Line Printer Daemon) services. It includes enhanced logging for auditing purposes and detailed debug information for troubleshooting.
 
-37. **Synchronize-ADComputerTime.ps1**  
+38. **Synchronize-ADComputerTime.ps1**  
     Synchronizes time settings on AD computers, ensuring accurate time across different time zones.
 
-38. **Synchronize-ADForestDCs.ps1**  
+39. **Synchronize-ADForestDCs.ps1**  
     Automates the synchronization of all Domain Controllers across an AD forest, ensuring up-to-date replication.
 
-39. **Transfer-DHCPScopes.ps1**  
+40. **Transfer-DHCPScopes.ps1**  
     Provides functionality to export and import DHCP scopes between servers within a specified domain, with error handling and logging to track operations.
 
-40. **Unjoin-ADComputer-and-Cleanup.ps1**  
+41. **Unjoin-ADComputer-and-Cleanup.ps1**  
     Safely removes a computer from an AD domain and cleans up any residual data, ensuring a clean disconnection.
 
-41. **Unlock-SMBShareADUserAccess.ps1**  
+42. **Unlock-SMBShareADUserAccess.ps1**  
     Resolves issues with SMB share access, restoring user access to shared resources.
 
-42. **Update-ADComputer-Descriptions.ps1**  
+43. **Update-ADComputer-Descriptions.ps1**  
     Updates AD computer descriptions via a GUI, simplifying the management of workstation information.
 
-43. **Update-ADComputer-Winget-Explicit.ps1**  
+44. **Update-ADComputer-Winget-Explicit.ps1**  
     Uses the `winget` tool to explicitly update software on workstations, improving software management.
 
-44. **Update-ADComputer-Winget-viaGPO.ps1**  
+45. **Update-ADComputer-Winget-viaGPO.ps1**  
     Automates software updates across workstations using the `winget` tool, with deployment managed through GPO.
 
-45. **Update-ADUserDisplayName.ps1**  
+46. **Update-ADUserDisplayName.ps1**  
     Updates user display names based on their email address, standardizing naming conventions across the organization.
 
-46. **Update-DNS-n-Sites-Services.ps1**  
+47. **Update-DNS-n-Sites-Services.ps1**  
     Automates the update of DNS zones and Active Directory Sites and Services subnets based on DHCP data.
 
 ## ❓ Additional Assistance
