@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    PowerShell Tool for Installing and Configuring KMS Server on Windows Server 2019.
+    PowerShell Tool for Installing and Configuring KMS Licensing Server on Windows Server 2019.
 
 .DESCRIPTION
-    This script installs the Volume Activation Services role and configures the KMS Server if no other KMS server exists within the AD forest.
+    This script installs the Volume Activation Services role and configures the KMS Licensing Server if no other KMS server exists within the AD forest.
     The tool includes a graphical user interface (GUI) and standardized logging for ease of use.
 
 .AUTHOR
