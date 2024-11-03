@@ -66,8 +66,8 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 18. **Initiate-MultipleRDPSessions.ps1**  
     Enables initiating multiple RDP sessions to different servers simultaneously, enhancing remote management capabilities.
 
-19. **Install-KMSServer-tool.ps1**  
-    Installs and configures a KMS (Key Management Service) server on Windows Server, with a preliminary check for existing KMS servers within the Active Directory forest.
+19. **Install-KMSLicensingServer-Tol-tool.ps1**  
+    Installs and configures a KMS (Key Management Service) Licensing server on Windows Server, with a preliminary check for existing KMS servers within the Active Directory forest.
 
 20. **Inventory-ADDomainComputers.ps1**  
     Generates an inventory of all computers in a specified AD domain, aiding in asset management and tracking.
