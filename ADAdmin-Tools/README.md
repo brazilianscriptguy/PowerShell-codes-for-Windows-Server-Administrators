@@ -70,7 +70,7 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
     Installs and configures a KMS (Key Management Service) Licensing server on Windows Server, with a preliminary check for existing KMS Licensing servers within the Active Directory forest.
 
 20. **Install-RDSLicensingServer-Tool.ps1**
-Installs and configures a Remote Desktop Licensing (RDS CALs) Licensing server on Windows Server, with a preliminary check for existing RDS Licensing servers within the Active Directory forest.
+    Installs and configures a Remote Desktop Licensing (RDS CALs) Licensing server on Windows Server, with a preliminary check for existing RDS Licensing servers within the Active Directory forest.
 
 21. **Inventory-ADDomainComputers.ps1**  
     Generates an inventory of all computers in a specified AD domain, aiding in asset management and tracking.
