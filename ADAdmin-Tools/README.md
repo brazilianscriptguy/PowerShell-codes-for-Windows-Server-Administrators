@@ -13,19 +13,19 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
 1. **Add-ADComputers-GrantPermissions.ps1**  
-   Automates adding workstations to specific Organizational Units (OUs) in Active Directory and assigns the necessary permissions for workstations to join the domain.
+   Automates the process of adding workstations to specific Organizational Units (OUs) in Active Directory and assigns the necessary permissions for domain joining.
 
 2. **Add-ADInetOrgPerson.ps1**  
-   Simplifies the creation of new `InetOrgPerson` entries in Active Directory, allowing operators to input detailed account information, including organizational attributes.
+   Simplifies creating new `InetOrgPerson` entries in Active Directory, enabling operators to input detailed account information, including organizational attributes.
 
 3. **Add-ADUserAccount.ps1**  
-   Facilitates the creation of new Active Directory user accounts within specified OUs, allowing operators to search for and select the target domain and OU while providing the necessary user details.
+   Facilitates the creation of new Active Directory user accounts within specified OUs, allowing operators to search for and select the target domain and OU while entering user details.
 
 4. **Adjust-ExpirationDate-ADUserAccount.ps1**  
-   Provides a GUI for searching Active Directory users by account description and updating their expiration dates, streamlining user account management.
+   Provides a GUI for searching Active Directory users by account description and updating expiration dates, streamlining user account management.
 
 5. **Broadcast-ADUserLogonMessage-viaGPO.ps1 / Broadcast-ADUserLogonMessage-viaGPO.hta**  
-   Displays customizable warning messages to users upon login via GPO, enabling broad communication in managed environments.
+   Displays customizable messages to users upon login via GPO, supporting broad communication in managed environments.
 
 6. **Cleanup-Inactive-ADComputerAccounts.ps1**  
    Identifies and removes inactive workstation accounts in Active Directory, enhancing security and organizational efficiency.
@@ -34,10 +34,10 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
    Resets domain GPOs via a user-friendly GUI and re-synchronizes policies to ensure accurate application across the domain.
 
 8. **Copy-and-Sync-Folder-to-ADComputers-viaGPO.ps1**  
-   Synchronizes folders from a network location to AD computers, ensuring that only new or updated files are copied while outdated files are removed, with full logging.
+   Synchronizes folders from a network location to AD computers, ensuring that only new or updated files are copied and outdated files are removed, with full logging.
 
 9. **Create-NewDHCPReservations.ps1**  
-   Streamlines the process of adding new DHCP reservations by allowing users to select domains, DHCP scopes, and choose available IP addresses from the free range within a scope.
+   Streamlines adding new DHCP reservations by allowing users to select domains, DHCP scopes, and choose available IP addresses from the free range within a scope.
 
 10. **Create-OUsDefaultADStructure.ps1**  
     Helps create a standardized AD infrastructure by defining predefined OUs, streamlining domain setup or reorganization.
@@ -46,16 +46,16 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
     Automates the installation, configuration, and tunnel setup for FortiClient VPN across workstations using GPO, ensuring secure and consistent remote access.
 
 12. **Deploy-FusionInventoryAgent-viaGPO.ps1**  
-    Deploys FusionInventory Agent on workstations via GPO, optimizing inventory management and reporting in enterprise environments.
+    Deploys FusionInventory Agent on workstations via GPO, optimizing inventory management and reporting within enterprise environments.
 
 13. **Deploy-KasperskyAV-viaGPO.ps1**  
-    Automates the installation and configuration of Kaspersky Antivirus across workstations using GPO, ensuring consistent protection in enterprise environments.
+    Automates the installation and configuration of Kaspersky Antivirus across workstations using GPO, ensuring consistent protection within enterprise environments.
 
 14. **Deploy-PowerShell-viaGPO.ps1**  
     Simplifies the installation of PowerShell on workstations and servers via GPO, enhancing system administration efficiency.
 
 15. **Deploy-ZoomWorkplace-viaGPO.ps1**  
-    Automates the deployment of Zoom software through GPO, facilitating seamless collaboration and communication in enterprise environments.
+    Automates the deployment of Zoom software through GPO, facilitating seamless collaboration and communication within enterprise environments.
 
 16. **Enforce-Expiration-ADUserPasswords.ps1**  
     Forces password expiration for users within a specified OU, enforcing security policies by requiring regular password updates.
@@ -64,13 +64,13 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
     Integrates BGInfo with GPO to enrich server desktop displays with critical system information, making it easier for IT administrators to monitor system health.
 
 18. **Initiate-MultipleRDPSessions.ps1**  
-    Enables initiating multiple RDP sessions to different servers simultaneously, enhancing remote management capabilities.
+    Enables multiple RDP sessions to different servers simultaneously, enhancing remote management capabilities.
 
-19. **Install-KMSLicensingServer-Tol-tool.ps1**  
+19. **Install-KMSLicensingServer-Tool.ps1**  
     Installs and configures a KMS (Key Management Service) Licensing server on Windows Server, with a preliminary check for existing KMS Licensing servers within the Active Directory forest.
 
-20. **Install-RDSLicensingServer-Tool.ps1**
-    Installs and configures a Remote Desktop Licensing (RDS CALs) Licensing server on Windows Server, with a preliminary check for existing RDS Licensing servers within the Active Directory forest.
+20. **Install-RDSLicensingServer-Tool.ps1**  
+    Installs and configures a Remote Desktop Licensing (RDS CALs) server on Windows Server, with a preliminary check for existing RDS Licensing servers within the Active Directory forest.
 
 21. **Inventory-ADDomainComputers.ps1**  
     Generates an inventory of all computers in a specified AD domain, aiding in asset management and tracking.
@@ -103,7 +103,7 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
     Allows the relocation of AD computer accounts between OUs, simplifying organizational structure adjustments.
 
 31. **Move-ADUser-betweenOUs.ps1**  
-    Streamlines the process of moving user accounts between OUs in AD, aiding in organizational structure changes.
+    Streamlines moving user accounts between OUs in AD, aiding in organizational structure changes.
 
 32. **Remove-EmptyFiles-or-DateRange.ps1**  
     Detects and removes empty files or files within a specified date range, optimizing file storage and system organization.
@@ -121,13 +121,13 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
     Provides a quick way to restart network adapters via a GUI, maintaining network connectivity without manual intervention.
 
 37. **Restart-SpoolerPoolServices.ps1**  
-    Restarts both the Spooler and LPD (Line Printer Daemon) services. It includes enhanced logging for auditing purposes and detailed debug information for troubleshooting.
+    Restarts both the Spooler and LPD (Line Printer Daemon) services, with enhanced logging for auditing and detailed debug information for troubleshooting.
 
 38. **Synchronize-ADComputerTime.ps1**  
     Synchronizes time settings on AD computers, ensuring accurate time across different time zones.
 
 39. **Synchronize-ADForestDCs.ps1**  
-    Automates the synchronization of all Domain Controllers across an AD forest, ensuring up-to-date replication.
+    Automates synchronization of all Domain Controllers across an AD forest, ensuring up-to-date replication.
 
 40. **Transfer-DHCPScopes.ps1**  
     Provides functionality to export and import DHCP scopes between servers within a specified domain, with error handling and logging to track operations.
@@ -155,4 +155,4 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 
 ## ❓ Additional Assistance
 
-*All script codes can be edited and customized to suit your preferences and requirements. For further help or detailed information regarding prerequisites and environment setup, please consult the `README.md` file in the main root folder.*
+*Each script can be edited and customized to suit your specific needs. For further assistance or detailed information on prerequisites and environment setup, please refer to the `README.md` file in the main root folder.*
