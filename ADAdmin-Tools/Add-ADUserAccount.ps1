@@ -332,22 +332,22 @@ function Show-Form {
             $cmbDescription.DropDownStyle = 'DropDownList'
             $form.Controls.Add($cmbDescription)
 
-            # Predefined descriptions
-            $descriptions = @(
-                "Analista Judiciario",
-                "Assessor de Gabinete",
-                "Chefe de Gabinete",
-                "Chefe de Secretaria",
-                "Colaborador Eventual",
-                "Colaborador Terceirizado",
-                "Coordenador de Setor ou Unidade",
-                "Diretor de Secretaria ou Unidade",
-                "Estagiario Nivel Superior",
-                "Juiz de Direito",
-                "Residente Juridico",
-                "Servidor a Disposicao",
-                "Tecnico Judiciario"
-            )
+           # Predefined descriptions
+           $descriptions = @(
+               "Legal Analyst",
+               "Mayor's Office Advisor",
+               "Chief of Mayor's Office",
+               "Secretary Chief",
+               "Temporary Staff",
+               "Contracted Staff",
+               "Division or Unit Coordinator",
+               "Director of Division or Unit",
+               "Graduate Fellow",
+               "Municipal Judge",
+               "Legal Associate",
+               "Assigned Employee",
+               "Municipal Technician"
+           )
 
             $descriptions | Sort-Object | ForEach-Object { $cmbDescription.Items.Add($_) }
             if ($cmbDescription.Items.Count -gt 0) {
