@@ -53,7 +53,7 @@ This folder contains a suite of PowerShell scripts crafted to process **Windows 
     Analyzes Active Directory object changes and deletions (Event IDs 5136, 5137, and 5141), producing a CSV report for auditing AD modifications.
 
 11. **EventID6005-6006-6008-6009-6013-1074-1076-SystemRestarts.ps1**  
-    Retrieves details of system restarts and shutdown events (Event IDs 6005, 6006, 6008, 6009, 6013, 1074, and 1076) from the System log using `Get-EventLog`.
+    Retrieves details of system restarts and shutdown events (Event IDs 6005, 6006, 6008, 6009, 6013, 1074, and 1076) from the System log using `Get-EventLog`,  and exports the results to a CSV file.
 
 12. **Migrate-WinEvtStructure-Tool.ps1**  
     Moves Windows Event Log files to a new directory, updating registry paths; stops and restarts the Event Log service to move `.evtx` files; requires administrative privileges.
