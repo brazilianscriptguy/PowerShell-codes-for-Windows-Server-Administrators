@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     This script retrieves details on system restarts and unexpected shutdowns based on Event IDs 
-    6005, 6006, 6008, 6009, 6013, 1074, and 1076 using Get-EventLog, and exports the results to a CSV file. 
+    6005, 6006, 6008, 6009, 6013, 1074, and 1076 using Get-EventLog, and exports the results to a CSV file.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
