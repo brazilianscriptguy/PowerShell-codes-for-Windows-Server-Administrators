@@ -12,13 +12,13 @@ To effectively use the scripts in this folder, ensure the following prerequisite
    - **Installation:** Necessary on Windows 10/11 workstations to fully leverage scripts that use the `Import-Module ActiveDirectory` command.  
    - **Usage:** Enables Active Directory and other remote server role management.
 
-You can also run scripts that process `.evtx` files directly from a Windows 10 or 11 workstation.
+*Scripts that process `.evtx` files can also be run directly from a Windows 10 or 11 workstation.*
 
 ## 📄 Description
 
-This folder contains a suite of PowerShell scripts crafted to process **Windows Event Log files (.evtx)**. These tools extract key data from event logs and generate outputs in `.CSV` format, enabling easy analysis and reporting.
+This folder contains a suite of PowerShell scripts crafted to process **Windows Event Log files (.evtx)**. These tools extract key data from event logs and generate outputs in `.CSV` format, facilitating easy analysis and reporting.
 
-> **✨ Each script comes with a graphical user interface (GUI), enhancing user interaction. They also generate `.log` files and export results to `.csv`, simplifying server and workstation management.**
+> **✨ Each script includes a graphical user interface (GUI) for enhanced user interaction. Scripts also generate `.log` files and export results to `.csv`, streamlining server and workstation management.**
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
@@ -52,12 +52,12 @@ This folder contains a suite of PowerShell scripts crafted to process **Windows 
 10. **EventID5136-5137-5141-ADObjectChanges.ps1**  
     Analyzes Active Directory object changes and deletions (Event IDs 5136, 5137, and 5141), producing a CSV report for auditing AD modifications.
 
-11. **EventIDs6005-6006-6008-6009-6013-1074-1076-SystemRestarts.ps1**
-    Retrieves details of system restarts and shutdown events (Event IDs 6005, 6006, 6008, 6009, 6013, 1074, and 1076) from the System log using `Get-EventLog`. 
+11. **EventID6005-6006-6008-6009-6013-1074-1076-SystemRestarts.ps1**  
+    Retrieves details of system restarts and shutdown events (Event IDs 6005, 6006, 6008, 6009, 6013, 1074, and 1076) from the System log using `Get-EventLog`.
 
 12. **Migrate-WinEvtStructure-Tool.ps1**  
-    Moves Windows Event Log files to a new directory, updating registry paths; stops and restarts the Event Log service to move .evtx files; requires administrative privileges.
-    
+    Moves Windows Event Log files to a new directory, updating registry paths; stops and restarts the Event Log service to move `.evtx` files; requires administrative privileges.
+
 ## ❓ Additional Assistance
 
 *All script codes can be customized to suit your specific needs. For further assistance or detailed information on prerequisites and setup, please refer to the `README.md` in the main root folder.*
