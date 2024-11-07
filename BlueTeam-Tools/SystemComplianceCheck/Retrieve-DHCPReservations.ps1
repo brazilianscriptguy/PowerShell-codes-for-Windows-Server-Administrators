@@ -10,14 +10,14 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: October 24, 2024
 #>
 
 param(
     [switch]$ShowConsole = $false
 )
 
-# Hide the PowerShell console window for a cleaner UI unless the user requests otherwise
+# Hide the PowerShell console window for a cleaner UI unless requested to show the console
 if (-not $ShowConsole) {
     Add-Type @"
     using System;
@@ -41,6 +41,10 @@ if (-not $ShowConsole) {
     [Window]::Hide()
 }
 
+# Load Windows Forms Assemblies
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
 # Enhanced logging function with error handling and validation
 function Log-Message {
     param (
@@ -55,11 +59,10 @@ function Log-Message {
     $logEntry = "[$timestamp] [$MessageType] $Message"
 
     try {
-        # Ensure the log path exists
-        if (-not (Test-Path $logPath)) {
-            throw "Log path '$logPath' does not exist."
+        # Ensure the log path exists, create if necessary
+        if (-not (Test-Path $logDir)) {
+            New-Item -Path $logDir -ItemType Directory -Force | Out-Null
         }
-
         # Attempt to write to the log file
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
@@ -69,7 +72,7 @@ function Log-Message {
     }
 }
 
-# Unified error handling function
+# Unified error handling function refactored as a reusable method
 function Handle-Error {
     param (
         [Parameter(Mandatory = $true)][string]$ErrorMessage
@@ -78,230 +81,150 @@ function Handle-Error {
     [System.Windows.Forms.MessageBox]::Show($ErrorMessage, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
 }
 
-# Import necessary modules (customize based on your needs)
-function Import-RequiredModule {
+# Function to initialize script name and file paths
+function Initialize-ScriptPaths {
+    # Use $MyInvocation.ScriptName to get the full path of the script, fallback to "Script" if it doesn't exist
+    $scriptName = if ($MyInvocation.ScriptName) {
+        [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.ScriptName)
+    } else {
+        "Script"  # Fallback if no name is available
+    }
+
+    # Define the log directory and file name with timestamp
+    $logDir = 'C:\Logs-TEMP'
+    $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+    $logFileName = "${scriptName}_${timestamp}.log"
+    $logPath = Join-Path $logDir $logFileName
+
+    # Ensure the log directory exists, create it if necessary
+    if (-not (Test-Path $logDir)) {
+        New-Item -Path $logDir -ItemType Directory -Force | Out-Null
+    }
+
+    # Return paths for use in logging
+    return @{
+        LogDir = $logDir
+        LogPath = $logPath
+        ScriptName = $scriptName
+    }
+}
+
+# Function to retrieve forest domains (from TransferDHCPScope.ps1)
+function Get-ForestDomains {
+    try {
+        $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
+        return $forest.Domains | Select-Object -ExpandProperty Name
+    } catch {
+        Handle-Error "Failed to retrieve forest domains. Error: $_"
+        return @()
+    }
+}
+
+# Function to retrieve DHCP servers from the domain (from TransferDHCPScope.ps1)
+function Get-DHCPServerFromDomain {
     param (
-        [string]$ModuleName
+        [string]$domain
     )
-    if (-not (Get-Module -Name $ModuleName)) {
-        try {
-            if (Get-Module -ListAvailable -Name $ModuleName) {
-                Import-Module -Name $ModuleName -ErrorAction Stop
-            } else {
-                [System.Windows.Forms.MessageBox]::Show("Module $ModuleName is not available. Please install the module.", "Module Import Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-                exit
+    try {
+        $dhcpServers = Get-DhcpServerInDC -ErrorAction Stop
+        $domainDhcpServers = @()
+        if ($dhcpServers -and $dhcpServers.Count -gt 0) {
+            foreach ($server in $dhcpServers) {
+                if ($server.DNSName -like "*.$domain") {
+                    $domainDhcpServers += $server.DNSName
+                }
             }
-        } catch {
-            Handle-Error "Failed to import $ModuleName module. Ensure it's installed and you have the necessary permissions."
-            exit
+            if ($domainDhcpServers.Count -gt 0) {
+                return $domainDhcpServers  # Return all matching DHCP servers for the domain
+            } else {
+                Handle-Error "No authorized DHCP servers found for the domain '${domain}'."
+                return @()
+            }
+        } else {
+            Handle-Error "No authorized DHCP servers found in Active Directory."
+            return @()
+        }
+    } catch {
+        Handle-Error "Error retrieving DHCP servers for domain '${domain}': $_"
+        return @()
+    }
+}
+
+# Function to retrieve DHCP scopes from a server (from TransferDHCPScope.ps1)
+function Get-DhcpScopesFromServer {
+    param (
+        [string]$dhcpServer
+    )
+    try {
+        $scopes = Get-DhcpServerv4Scope -ComputerName $dhcpServer -ErrorAction Stop
+        if ($scopes) {
+            return $scopes
+        } else {
+            Log-Message -Message "No scopes found on DHCP server $dhcpServer" -MessageType "WARNING"
+            return @()
+        }
+    } catch {
+        Handle-Error "Error retrieving scopes from DHCP server '$dhcpServer'. Error: $_"
+        return @()
+    }
+}
+
+# Function to execute the retrieval of DHCP reservations (adapted from Export-DhcpScope)
+function Retrieve-DhcpReservations {
+    param (
+        [string[]]$Servers,
+        [string]$NameFilter,
+        [string]$DescriptionFilter
+    )
+
+    $global:allReservations = @()
+    $global:filteredReservations = @()
+
+    foreach ($dhcpServer in $Servers) {
+        Log-Message -Message "Processing DHCP server: $dhcpServer" -MessageType "INFO"
+
+        # Get all DHCP scopes on the specified server
+        $scopes = Get-DhcpScopesFromServer -dhcpServer $dhcpServer
+
+        if ($scopes) {
+            Log-Message -Message "Found $($scopes.Count) scopes on DHCP server $dhcpServer" -MessageType "INFO"
+
+            # Loop through each scope to get reservations
+            foreach ($scope in $scopes) {
+                $reservations = Get-DhcpServerv4Reservation -ComputerName $dhcpServer -ScopeId $scope.ScopeId -ErrorAction SilentlyContinue
+                if ($reservations) {
+                    # Add the DHCPServer property to each reservation
+                    foreach ($reservation in $reservations) {
+                        $reservation | Add-Member -NotePropertyName "DHCPServer" -NotePropertyValue $dhcpServer -Force
+                    }
+                    $global:allReservations += $reservations
+                    Log-Message -Message "Retrieved $($reservations.Count) reservations from scope $($scope.ScopeId) on server $dhcpServer" -MessageType "INFO"
+                } else {
+                    Log-Message -Message "No reservations found in scope $($scope.ScopeId) on server $dhcpServer" -MessageType "WARNING"
+                }
+            }
+        } else {
+            Log-Message -Message "No scopes found on DHCP server $dhcpServer" -MessageType "WARNING"
         }
     }
-}
-Import-RequiredModule -ModuleName 'DhcpServer'
 
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
-
-# Determine script name and set up file paths dynamically
-$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
-
-# Set log and CSV paths, allow dynamic configuration or fallback to defaults
-$logDir = if ($env:LOG_PATH -and $env:LOG_PATH -ne "") { $env:LOG_PATH } else { 'C:\Logs-TEMP' }
-$logFileName = "${scriptName}.log"
-$logPath = Join-Path $logDir $logFileName
-$csvPath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "${scriptName}-$timestamp.csv"
-
-# Ensure the log directory exists, create if needed
-if (-not (Test-Path $logDir)) {
-    try {
-        $null = New-Item -Path $logDir -ItemType Directory -ErrorAction Stop
-    } catch {
-        [System.Windows.Forms.MessageBox]::Show("Failed to create log directory at $logDir. Logging will not be possible.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        $logDir = $null
-    }
-}
-
-# Global Variables Initialization
-$global:logBox = New-Object System.Windows.Forms.ListBox
-$global:results = @{}  # Initialize a hashtable to store results
-
-# Get the FQDN of the current machine
-function Get-MachineFQDN {
-    try {
-        return ([System.Net.Dns]::GetHostEntry($env:COMPUTERNAME)).HostName
-    } catch {
-        Log-Message -Message "Could not determine FQDN. Using COMPUTERNAME: $($env:COMPUTERNAME)" -MessageType "WARNING"
-        return $env:COMPUTERNAME
-    }
-}
-
-# Helper function to create labels
-function Create-Label {
-    param (
-        [string]$Text,
-        [int]$X,
-        [int]$Y,
-        [int]$Width = 110,
-        [int]$Height = 20
-    )
-    $label = New-Object System.Windows.Forms.Label
-    $label.Text = $Text
-    $label.Location = New-Object System.Drawing.Point($X, $Y)
-    $label.Size = New-Object System.Drawing.Size($Width, $Height)
-    return $label
-}
-
-# Helper function to create textboxes
-function Create-Textbox {
-    param (
-        [int]$X,
-        [int]$Y,
-        [int]$Width = 390,
-        [int]$Height = 20,
-        [string]$DefaultText = ""
-    )
-    $textbox = New-Object System.Windows.Forms.TextBox
-    $textbox.Location = New-Object System.Drawing.Point($X, $Y)
-    $textbox.Size = New-Object System.Drawing.Size($Width, $Height)
-    if ($DefaultText) {
-        $textbox.Text = $DefaultText
-    }
-    return $textbox
-}
-
-# Create the form
-$form = New-Object System.Windows.Forms.Form
-$form.Text = "DHCP Reservations Viewer"
-$form.Size = New-Object System.Drawing.Size(850, 560)
-$form.StartPosition = "CenterScreen"
-
-# Create controls using helper functions
-$labelDhcpServer = Create-Label -Text "DHCP Server:" -X 10 -Y 20
-$textDhcpServer = Create-Textbox -X 130 -Y 20 -DefaultText (Get-MachineFQDN)
-
-$labelNameFilter = Create-Label -Text "Filter by Name:" -X 10 -Y 50
-$textNameFilter = Create-Textbox -X 130 -Y 50
-
-$labelDescriptionFilter = Create-Label -Text "Filter by Description:" -X 10 -Y 80
-$textDescriptionFilter = Create-Textbox -X 130 -Y 80
-
-# ToolTip for Name filter textbox
-$toolTip = New-Object System.Windows.Forms.ToolTip
-$toolTip.SetToolTip($textNameFilter, "Enter hostnames separated by commas (e.g. PRT,WKS,SRV)")
-
-# Create buttons
-$buttonGetReservations = New-Object System.Windows.Forms.Button
-$buttonGetReservations.Location = New-Object System.Drawing.Point(550, 18)
-$buttonGetReservations.Size = New-Object System.Drawing.Size(120, 25)
-$buttonGetReservations.Text = "Get Reservations"
-
-$buttonExportCSV = New-Object System.Windows.Forms.Button
-$buttonExportCSV.Location = New-Object System.Drawing.Point(680, 18)
-$buttonExportCSV.Size = New-Object System.Drawing.Size(120, 25)
-$buttonExportCSV.Text = "Export to CSV"
-$buttonExportCSV.Enabled = $false  # Initially disabled
-
-# Create a DataGridView to display the reservations
-$dataGridView = New-Object System.Windows.Forms.DataGridView
-$dataGridView.Location = New-Object System.Drawing.Point(10, 100)
-$dataGridView.Size = New-Object System.Drawing.Size(810, 410)
-$dataGridView.AutoSizeColumnsMode = 'Fill'
-$dataGridView.ReadOnly = $true
-
-# Add controls to the form
-$form.Controls.AddRange(@(
-    $labelDhcpServer, $textDhcpServer,
-    $labelNameFilter, $textNameFilter,
-    $labelDescriptionFilter, $textDescriptionFilter,
-    $buttonGetReservations, $buttonExportCSV,
-    $dataGridView
-))
-
-# Variables to store the retrieved data (use script scope)
-$script:allReservations = @()
-$script:filteredReservations = @()
-
-# Define the button click event for Get Reservations
-$buttonGetReservations.Add_Click({
-    # Clear previous data
-    $dataGridView.Rows.Clear()
-    $dataGridView.Columns.Clear()
-    $script:allReservations = @()
-    $script:filteredReservations = @()
-    $buttonExportCSV.Enabled = $false  # Disable export button until data is loaded
-
-    # Get the DHCP server name from the textbox
-    $dhcpServer = $textDhcpServer.Text.Trim()
-    if ([string]::IsNullOrEmpty($dhcpServer)) {
-        Handle-Error "Please enter a DHCP server name or IP address."
+    if ($global:allReservations.Count -eq 0) {
+        Handle-Error "No reservations found on the selected DHCP servers."
         return
     }
 
-    # Import the DHCP Server module
-    Import-RequiredModule -ModuleName 'DhcpServer'
+    # Apply filters (hostname and description)
+    $global:filteredReservations = Apply-Filters -Reservations $global:allReservations -NameFilter $NameFilter -DescriptionFilter $DescriptionFilter
 
-    try {
-        Log-Message -Message "Attempting to retrieve DHCP scopes from server: $dhcpServer" -MessageType "INFO"
-
-        # Get all DHCP scopes on the specified server
-        $scopes = Get-DhcpServerv4Scope -ComputerName $dhcpServer -ErrorAction Stop
-
-        Log-Message -Message "Found $($scopes.Count) scopes on DHCP server $dhcpServer" -MessageType "INFO"
-
-        # Loop through each scope to get reservations
-        foreach ($scope in $scopes) {
-            $reservations = Get-DhcpServerv4Reservation -ComputerName $dhcpServer -ScopeId $scope.ScopeId -ErrorAction SilentlyContinue
-            if ($reservations) {
-                $script:allReservations += $reservations
-                Log-Message -Message "Retrieved $($reservations.Count) reservations from scope $($scope.ScopeId)" -MessageType "INFO"
-            } else {
-                Log-Message -Message "No reservations found in scope $($scope.ScopeId)" -MessageType "WARNING"
-            }
-        }
-
-        if ($script:allReservations.Count -eq 0) {
-            Handle-Error "No reservations found on the specified DHCP server."
-            return
-        }
-
-        # Apply filters (hostname and description)
-        $filterTextName = $textNameFilter.Text.Trim()
-        $filterTextDescription = $textDescriptionFilter.Text.Trim()
-
-        # Filter logic (hostname and/or description)
-        $script:filteredReservations = Apply-Filters -Reservations $script:allReservations -NameFilter $filterTextName -DescriptionFilter $filterTextDescription
-
-        if ($script:filteredReservations.Count -eq 0) {
-            Handle-Error "No reservations match the specified filter."
-            return
-        }
-
-        # Prepare the DataGridView columns
-        $columns = @("ScopeId", "IPAddress", "ClientId", "Description", "Name")
-        foreach ($col in $columns) {
-            $dataGridView.Columns.Add($col, $col)
-        }
-
-        # Populate the DataGridView with reservation data
-        foreach ($reservation in $script:filteredReservations) {
-            $row = $dataGridView.Rows.Add()
-            $dataGridView.Rows[$row].Cells["ScopeId"].Value = $reservation.ScopeId
-            $dataGridView.Rows[$row].Cells["IPAddress"].Value = $reservation.IPAddress
-            $dataGridView.Rows[$row].Cells["ClientId"].Value = $reservation.ClientId
-            $dataGridView.Rows[$row].Cells["Description"].Value = $reservation.Description
-            $dataGridView.Rows[$row].Cells["Name"].Value = $reservation.Name
-        }
-
-        $buttonExportCSV.Enabled = $true  # Enable export button now that data is loaded
-
-        Log-Message -Message "Successfully retrieved and displayed reservations." -MessageType "INFO"
-    } catch {
-        Handle-Error "An error occurred while retrieving reservations: $($_.Exception.Message)"
+    if ($global:filteredReservations.Count -eq 0) {
+        Handle-Error "No reservations match the specified filter."
+        return
     }
-})
 
-# Define filter application logic
+    return $global:filteredReservations
+}
+
+# Define filter application logic (from previous code)
 function Apply-Filters {
     param (
         [array]$Reservations,
@@ -324,44 +247,251 @@ function Apply-Filters {
     return $Reservations # Return all if no filters are applied
 }
 
-# Define the button click event for Export to CSV
-$buttonExportCSV.Add_Click({
+# Function to execute the export of reservations to CSV (adapted from Export-DhcpScope)
+function Export-ReservationsToCSV {
+    param (
+        [array]$Reservations,
+        [string]$FilePath
+    )
+
     try {
-        # Get the DHCP server name from the textbox
-        $dhcpServer = $textDhcpServer.Text.Trim()
-        # Sanitize the DHCP server name for use in filename
-        $dhcpServerFileName = $dhcpServer -replace '[\\/:*?"<>|]', '_'
+        if ($Reservations.Count -gt 0) {
+            # Export the filtered reservations to CSV
+            $Reservations | Select-Object DHCPServer, ScopeId, IPAddress, ClientId, Description, Name | Export-Csv -Path $FilePath -NoTypeInformation -Encoding UTF8
 
-        # Create a SaveFileDialog
-        $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
-        $saveFileDialog.Filter = "CSV Files (*.csv)|*.csv"
-        $saveFileDialog.Title = "Save DHCP Reservations"
-        $saveFileDialog.InitialDirectory = [Environment]::GetFolderPath("Desktop")
-        $saveFileDialog.FileName = "DhcpReservations_${dhcpServerFileName}_$timestamp.csv"
-
-        if ($saveFileDialog.ShowDialog() -eq 'OK') {
-            $csvPath = $saveFileDialog.FileName
-
-            # Log the number of reservations to export
-            Log-Message -Message "Number of reservations to export: $($script:filteredReservations.Count)" -MessageType "INFO"
-
-            if ($script:filteredReservations.Count -gt 0) {
-                # Export the filtered reservations to CSV
-                $script:filteredReservations | Select-Object ScopeId, IPAddress, ClientId, Description, Name | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
-
-                # Log success message
-                Log-Message -Message "Reservations exported successfully to $csvPath" -MessageType "INFO"
-                [System.Windows.Forms.MessageBox]::Show("Reservations exported successfully to $csvPath", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-            } else {
-                Handle-Error "No reservations to export."
-            }
+            # Log success message
+            Log-Message -Message "Reservations exported successfully to $FilePath" -MessageType "INFO"
+            [System.Windows.Forms.MessageBox]::Show("Reservations exported successfully to $FilePath", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        } else {
+            Handle-Error "No reservations to export."
         }
     } catch {
         Handle-Error "An error occurred during export: $($_.Exception.Message)"
     }
-})
+}
 
-# Run the form
-[void]$form.ShowDialog()
+# Function to create the GUI (adapted from Create-GUI)
+function Create-GUI {
+    # Create the form
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "DHCP Reservations Viewer"
+    $form.Size = New-Object System.Drawing.Size(850, 650)
+    $form.StartPosition = "CenterScreen"
+
+    # Create controls
+    $labelDomain = New-Object System.Windows.Forms.Label
+    $labelDomain.Text = "Domain:"
+    $labelDomain.Location = New-Object System.Drawing.Point(10, 20)
+    $labelDomain.Size = New-Object System.Drawing.Size(110, 20)
+    $form.Controls.Add($labelDomain)
+
+    $comboBoxDomain = New-Object System.Windows.Forms.ComboBox
+    $comboBoxDomain.Location = New-Object System.Drawing.Point(130, 20)
+    $comboBoxDomain.Size = New-Object System.Drawing.Size(390, 20)
+    $comboBoxDomain.DropDownStyle = 'DropDownList'
+    $form.Controls.Add($comboBoxDomain)
+
+    $labelDhcpServer = New-Object System.Windows.Forms.Label
+    $labelDhcpServer.Text = "DHCP Servers:"
+    $labelDhcpServer.Location = New-Object System.Drawing.Point(10, 50)
+    $labelDhcpServer.Size = New-Object System.Drawing.Size(110, 20)
+    $form.Controls.Add($labelDhcpServer)
+
+    # CheckedListBox to display the DHCP servers
+    $checkedListDhcpServers = New-Object System.Windows.Forms.CheckedListBox
+    $checkedListDhcpServers.Location = New-Object System.Drawing.Point(130, 50)
+    $checkedListDhcpServers.Size = New-Object System.Drawing.Size(390, 100)
+    $checkedListDhcpServers.CheckOnClick = $true
+    $form.Controls.Add($checkedListDhcpServers)
+
+    $labelNameFilter = New-Object System.Windows.Forms.Label
+    $labelNameFilter.Text = "Filter by Name:"
+    $labelNameFilter.Location = New-Object System.Drawing.Point(10, 160)
+    $labelNameFilter.Size = New-Object System.Drawing.Size(110, 20)
+    $form.Controls.Add($labelNameFilter)
+
+    $textNameFilter = New-Object System.Windows.Forms.TextBox
+    $textNameFilter.Location = New-Object System.Drawing.Point(130, 160)
+    $textNameFilter.Size = New-Object System.Drawing.Size(390, 20)
+    $form.Controls.Add($textNameFilter)
+
+    $labelDescriptionFilter = New-Object System.Windows.Forms.Label
+    $labelDescriptionFilter.Text = "Filter by Description:"
+    $labelDescriptionFilter.Location = New-Object System.Drawing.Point(10, 190)
+    $labelDescriptionFilter.Size = New-Object System.Drawing.Size(110, 20)
+    $form.Controls.Add($labelDescriptionFilter)
+
+    $textDescriptionFilter = New-Object System.Windows.Forms.TextBox
+    $textDescriptionFilter.Location = New-Object System.Drawing.Point(130, 190)
+    $textDescriptionFilter.Size = New-Object System.Drawing.Size(390, 20)
+    $form.Controls.Add($textDescriptionFilter)
+
+    # ToolTip for Name filter textbox
+    $toolTip = New-Object System.Windows.Forms.ToolTip
+    $toolTip.SetToolTip($textNameFilter, "Enter hostnames separated by commas (e.g. PRT,WKS,SRV)")
+
+    # Create buttons
+    $buttonGetReservations = New-Object System.Windows.Forms.Button
+    $buttonGetReservations.Location = New-Object System.Drawing.Point(550, 18)
+    $buttonGetReservations.Size = New-Object System.Drawing.Size(120, 25)
+    $buttonGetReservations.Text = "Get Reservations"
+    $form.Controls.Add($buttonGetReservations)
+
+    $buttonExportCSV = New-Object System.Windows.Forms.Button
+    $buttonExportCSV.Location = New-Object System.Drawing.Point(680, 18)
+    $buttonExportCSV.Size = New-Object System.Drawing.Size(120, 25)
+    $buttonExportCSV.Text = "Export to CSV"
+    $buttonExportCSV.Enabled = $false  # Initially disabled
+    $form.Controls.Add($buttonExportCSV)
+
+    # Create a DataGridView to display the reservations
+    $dataGridView = New-Object System.Windows.Forms.DataGridView
+    $dataGridView.Location = New-Object System.Drawing.Point(10, 230)
+    $dataGridView.Size = New-Object System.Drawing.Size(810, 370)
+    $dataGridView.AutoSizeColumnsMode = 'Fill'
+    $dataGridView.ReadOnly = $true
+    $form.Controls.Add($dataGridView)
+
+    # Populate domain ComboBox
+    $domains = Get-ForestDomains
+    if ($domains.Count -gt 0) {
+        $comboBoxDomain.Items.AddRange($domains)
+    } else {
+        Handle-Error "No domains found in the forest."
+    }
+
+    # Event handler for when a domain is selected
+    $comboBoxDomain.Add_SelectedIndexChanged({
+        $selectedDomain = $comboBoxDomain.SelectedItem
+        if ($selectedDomain) {
+            $checkedListDhcpServers.Items.Clear()
+            $dhcpServersList = Get-DHCPServerFromDomain -domain $selectedDomain
+            if ($dhcpServersList.Count -gt 0) {
+                foreach ($server in $dhcpServersList) {
+                    [void]$checkedListDhcpServers.Items.Add($server)
+                }
+                Log-Message -Message "DHCP servers for domain '$selectedDomain' loaded." -MessageType "INFO"
+            } else {
+                Handle-Error "No DHCP servers found for domain '$selectedDomain'."
+            }
+        }
+    })
+
+    # Define the button click event for Get Reservations
+    $buttonGetReservations.Add_Click({
+        # Clear previous data
+        $dataGridView.Rows.Clear()
+        $dataGridView.Columns.Clear()
+        $global:allReservations = @()
+        $global:filteredReservations = @()
+        $buttonExportCSV.Enabled = $false  # Disable export button until data is loaded
+
+        try {
+            # Get the selected DHCP servers from the CheckedListBox
+            $checkedItems = $checkedListDhcpServers.CheckedItems
+            if ($checkedItems.Count -eq 0) {
+                Handle-Error "Please select at least one DHCP server."
+                return
+            } else {
+                $dhcpServers = $checkedItems
+                Log-Message -Message "Using selected DHCP servers: $($dhcpServers -join ', ')" -MessageType "INFO"
+            }
+
+            # Get filters
+            $filterTextName = $textNameFilter.Text.Trim()
+            $filterTextDescription = $textDescriptionFilter.Text.Trim()
+
+            # Retrieve reservations
+            $reservations = Retrieve-DhcpReservations -Servers $dhcpServers -NameFilter $filterTextName -DescriptionFilter $filterTextDescription
+
+            if ($reservations) {
+                # Prepare the DataGridView columns
+                $columns = @("DHCPServer", "ScopeId", "IPAddress", "ClientId", "Description", "Name")
+                foreach ($col in $columns) {
+                    $dataGridView.Columns.Add($col, $col)
+                }
+
+                # Populate the DataGridView with reservation data
+                foreach ($reservation in $reservations) {
+                    $row = $dataGridView.Rows.Add()
+                    $dataGridView.Rows[$row].Cells["DHCPServer"].Value = $reservation.DHCPServer
+                    $dataGridView.Rows[$row].Cells["ScopeId"].Value = $reservation.ScopeId
+                    $dataGridView.Rows[$row].Cells["IPAddress"].Value = $reservation.IPAddress
+                    $dataGridView.Rows[$row].Cells["ClientId"].Value = $reservation.ClientId
+                    $dataGridView.Rows[$row].Cells["Description"].Value = $reservation.Description
+                    $dataGridView.Rows[$row].Cells["Name"].Value = $reservation.Name
+                }
+
+                $buttonExportCSV.Enabled = $true  # Enable export button now that data is loaded
+
+                Log-Message -Message "Successfully retrieved and displayed reservations." -MessageType "INFO"
+            }
+        } catch {
+            Handle-Error "An error occurred while retrieving reservations: $($_.Exception.Message)"
+        }
+    })
+
+    # Define the button click event for Export to CSV
+    $buttonExportCSV.Add_Click({
+        try {
+            # Create a SaveFileDialog
+            $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+            $saveFileDialog.Filter = "CSV Files (*.csv)|*.csv"
+            $saveFileDialog.Title = "Save DHCP Reservations"
+            $saveFileDialog.InitialDirectory = [Environment]::GetFolderPath("Desktop")
+            $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+            $saveFileDialog.FileName = "DhcpReservations_$timestamp.csv"
+
+            if ($saveFileDialog.ShowDialog() -eq 'OK') {
+                $csvPath = $saveFileDialog.FileName
+
+                # Export reservations to CSV
+                Export-ReservationsToCSV -Reservations $global:filteredReservations -FilePath $csvPath
+            }
+        } catch {
+            Handle-Error "An error occurred during export: $($_.Exception.Message)"
+        }
+    })
+
+    # Run the form
+    [void]$form.ShowDialog()
+}
+
+# Initialize Script Paths and Logging
+$paths = Initialize-ScriptPaths
+$global:logDir = $paths.LogDir
+$global:logPath = $paths.LogPath
+
+# Ensure the log directory and file exist
+try {
+    if (-not (Test-Path $global:logDir)) {
+        New-Item -Path $global:logDir -ItemType Directory -Force | Out-Null
+    }
+    # Create the log file if it doesn't exist
+    if (-not (Test-Path $global:logPath)) {
+        New-Item -Path $global:logPath -ItemType File -Force | Out-Null
+    }
+} catch {
+    Handle-Error "Failed to initialize logging."
+    exit
+}
+
+# Import Necessary Modules with Error Handling
+function Import-Modules {
+    try {
+        Import-Module DHCPServer -ErrorAction Stop
+        Import-Module ActiveDirectory -ErrorAction Stop
+    } catch {
+        Handle-Error "Failed to import necessary modules."
+        exit
+    }
+}
+Import-Modules
+
+# Log that the script has started
+Log-Message -Message "Script started" -MessageType "INFO"
+
+# Execute the GUI creation function
+Create-GUI
 
 # End of script
