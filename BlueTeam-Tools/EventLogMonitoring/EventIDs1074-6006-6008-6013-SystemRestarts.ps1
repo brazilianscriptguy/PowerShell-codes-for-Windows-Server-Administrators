@@ -1,17 +1,16 @@
 <#
 .SYNOPSIS
-    PowerShell Script for Tracking System Restarts and Shutdowns via Event IDs 1074, 6006, 6008, and 6013.
+    PowerShell Script for Tracking System Restarts and Shutdowns via Get-EventLog and Event IDs 6005, 6006, 6008, 6009, 6013, 1074, and 1076.
 
 .DESCRIPTION
     This script retrieves details on system restarts and unexpected shutdowns based on Event IDs 
-    1074, 6006, 6008, and 6013, and exports the results to a CSV file. It helps diagnose system issues 
-    and monitor uptime.
+    6005, 6006, 6008, 6009, 6013, 1074, and 1076 using Get-EventLog, and exports the results to a CSV file. 
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: November 7, 2024
 #>
 
 Param(
@@ -93,50 +92,31 @@ $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
 
-# Create a label for the folder selection
-$labelFolder = New-Object System.Windows.Forms.Label
-$labelFolder.Text = "Inform the System.evtx file folder:"
-$labelFolder.AutoSize = $true
-$labelFolder.Location = New-Object System.Drawing.Point @(20, 20)
-$form.Controls.Add($labelFolder)
-
-# Create a text box to display the selected folder
-$textBoxFolder = New-Object System.Windows.Forms.TextBox
-$textBoxFolder.Size = New-Object System.Drawing.Size @(340, 20)
-$textBoxFolder.Location = New-Object System.Drawing.Point @(20, 50)
-$form.Controls.Add($textBoxFolder)
-
-# Create a button to browse for the folder
-$buttonBrowse = New-Object System.Windows.Forms.Button
-$buttonBrowse.Text = "Browse..."
-$buttonBrowse.Location = New-Object System.Drawing.Point @(370, 48)
-$form.Controls.Add($buttonBrowse)
-
 # Create a label for the number of days input
 $labelDays = New-Object System.Windows.Forms.Label
 $labelDays.Text = "Last days to process including today:"
 $labelDays.AutoSize = $true
-$labelDays.Location = New-Object System.Drawing.Point @(20, 90)
+$labelDays.Location = New-Object System.Drawing.Point @(20, 20)
 $form.Controls.Add($labelDays)
 
 # Create a text box for entering the number of days
 $textBoxDays = New-Object System.Windows.Forms.TextBox
 $textBoxDays.Size = New-Object System.Drawing.Size @(50, 20)
-$textBoxDays.Location = New-Object System.Drawing.Point @(20, 120)
+$textBoxDays.Location = New-Object System.Drawing.Point @(20, 50)
 $form.Controls.Add($textBoxDays)
 
 # Create the Start Analysis button
 $buttonStartAnalysis = New-Object System.Windows.Forms.Button
 $buttonStartAnalysis.Text = "Start Analysis"
 $buttonStartAnalysis.Size = New-Object System.Drawing.Size @(120, 30)
-$buttonStartAnalysis.Location = New-Object System.Drawing.Point @(20, 160)
+$buttonStartAnalysis.Location = New-Object System.Drawing.Point @(20, 90)
 $form.Controls.Add($buttonStartAnalysis)
 
 # Create a progress bar
 $progressBar = New-Object System.Windows.Forms.ProgressBar
 $progressBar.Minimum = 0
 $progressBar.Maximum = 100
-$progressBar.Location = New-Object System.Drawing.Point @(20, 210)
+$progressBar.Location = New-Object System.Drawing.Point @(20, 130)
 $progressBar.Size = New-Object System.Drawing.Size @(450, 20)
 $form.Controls.Add($progressBar)
 
@@ -144,18 +124,17 @@ $form.Controls.Add($progressBar)
 $statusLabel = New-Object System.Windows.Forms.Label
 $statusLabel.Text = ""
 $statusLabel.AutoSize = $true
-$statusLabel.Location = New-Object System.Drawing.Point @(20, 240)
+$statusLabel.Location = New-Object System.Drawing.Point @(20, 160)
 $form.Controls.Add($statusLabel)
 
-# Function to process the .evtx files in the selected folder
+# Function to process the events using Get-EventLog
 function Process-LogFiles {
     param (
         [Bool]$AutoOpen,
-        [string]$logFolder,
         [int]$daysToProcess
     )
 
-    Log-Message "Starting to process Event IDs 1074, 6006, 6008, 6013 in the selected .evtx files"
+    Log-Message "Starting to process Event IDs 6005, 6006, 6008, 6009, 6013, 1074, and 1076 in System log"
     try {
         $progressBar.Value = 25
         $statusLabel.Text = "Processing the log files..."
@@ -165,61 +144,37 @@ function Process-LogFiles {
         $timestamp = Get-Date -Format "yyyyMMddHHmmss"
         $Destination = Join-Path $DefaultFolder "${scriptName}_${timestamp}.csv"
 
-        # Initialize an empty array to store all events
-        $allEvents = @()
-
         # Get the date threshold for filtering
         $dateThreshold = (Get-Date).AddDays(-$daysToProcess)
 
-        # Process all .evtx files in the selected folder
-        $evtxFiles = Get-ChildItem -Path $logFolder -Filter *.evtx
-
-        foreach ($file in $evtxFiles) {
-            Log-Message "Processing file: $($file.FullName)"
-            foreach ($id in @(1074, 6006, 6008, 6013)) {
-                $events = Get-WinEvent -Path $file.FullName | Where-Object {
-                    $_.Id -eq $id -and $_.TimeCreated -ge $dateThreshold
-                }
-                $allEvents += $events
-            }
+        # Retrieve and filter events directly from System log
+        $allEvents = Get-EventLog -LogName System | Where-Object {
+            $_.EventID -in 6005, 6006, 6008, 6009, 6013, 1074, 1076 -and $_.TimeGenerated -ge $dateThreshold
         }
 
         $progressBar.Value = 50
 
-        # Extract relevant information and filter redundant Event ID 6013
-        $groupedEvents = $allEvents | Group-Object -Property { $_.TimeCreated.Date, $_.Id } | ForEach-Object {
-            if ($_.Group[0].Id -eq 6013) {
-                # Filter only the first and last Event ID 6013 per day
-                $_.Group | Select-Object -First 1, -Last 1
-            } else {
-                $_.Group
-            }
-        }
-
-        $eventDetails = $groupedEvents | Select-Object @{
+        $eventDetails = $allEvents | Select-Object @{
             Name = 'Date'
-            Expression = { $_.TimeCreated.ToString("yyyy-MM-dd") }
+            Expression = { $_.TimeGenerated.ToString("yyyy-MM-dd") }
         }, @{
             Name = 'Hour'
-            Expression = { $_.TimeCreated.ToString("HH:mm:ss") }
-        }, @{
-            Name = 'EventRecordID'
-            Expression = { $_.RecordId }
+            Expression = { $_.TimeGenerated.ToString("HH:mm:ss") }
         }, @{
             Name = 'EventID'
-            Expression = { $_.Id }
+            Expression = { $_.EventID }
         }, @{
-            Name = 'ComputerName'
+            Name = 'MachineName'
             Expression = { $_.MachineName }
         }, @{
-            Name = 'EventLevel'
-            Expression = { $_.LevelDisplayName }
+            Name = 'UserName'
+            Expression = { $_.UserName }
         }, @{
-            Name = 'ErrorMessage'
+            Name = 'Message'
             Expression = { $_.Message }
         }, @{
             Name = 'Uptime (hh:mm:ss)'
-            Expression = { if ($_.Id -eq 6013) { Convert-SecondsToTime($_.Message -replace "\D", "") } else { "" } }
+            Expression = { if ($_.EventID -eq 6013) { Convert-SecondsToTime($_.Message -replace "\D", "") } else { "" } }
         }
 
         # Export to CSV
@@ -236,7 +191,7 @@ function Process-LogFiles {
         [System.Windows.Forms.MessageBox]::Show("Event counts exported to $Destination", 'Report Generated', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
         $progressBar.Value = 100
     } catch {
-        $errorMsg = "Error processing Event IDs 1074, 6006, 6008, 6013: $($_.Exception.Message)"
+        $errorMsg = "Error processing Event IDs 6005, 6006, 6008, 6009, 6013, 1074, and 1076: $($_.Exception.Message)"
         [System.Windows.Forms.MessageBox]::Show($errorMsg, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         Log-Message $errorMsg
         $progressBar.Value = 0
@@ -246,23 +201,8 @@ function Process-LogFiles {
     }
 }
 
-# Browse button click event
-$buttonBrowse.Add_Click({
-    [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
-    $FolderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
-    $FolderBrowser.Description = "Select the folder containing System.evtx file"
-    $FolderBrowser.ShowDialog() | Out-Null
-    $textBoxFolder.Text = $FolderBrowser.SelectedPath
-})
-
 # Start Analysis button click event
 $buttonStartAnalysis.Add_Click({
-    $logFolder = $textBoxFolder.Text
-    if (-not (Test-Path $logFolder)) {
-        [System.Windows.Forms.MessageBox]::Show("Please select a valid folder containing .evtx files.", 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        return
-    }
-
     $daysToProcess = $textBoxDays.Text
     $daysToProcessInt = 0
     if (-not [int]::TryParse($daysToProcess, [ref]$daysToProcessInt)) {
@@ -270,13 +210,13 @@ $buttonStartAnalysis.Add_Click({
         return
     }
 
-    Log-Message "Starting analysis of System log for Event IDs 1074, 6006, 6008, 6013"
+    Log-Message "Starting analysis of System log for Event IDs 6005, 6006, 6008, 6009, 6013, 1074, and 1076"
     $statusLabel.Text = "Processing..."
     $progressBar.Value = 0
     $form.Refresh()
 
     # Process the log files
-    Process-LogFiles -AutoOpen $AutoOpen -logFolder $logFolder -daysToProcess $daysToProcessInt
+    Process-LogFiles -AutoOpen $AutoOpen -daysToProcess $daysToProcessInt
 
     # Reset progress bar
     $progressBar.Value = 0
@@ -286,4 +226,4 @@ $buttonStartAnalysis.Add_Click({
 $form.Add_Shown({ $form.Activate() })
 [void]$form.ShowDialog()
 
-# End of script
+#End of script
