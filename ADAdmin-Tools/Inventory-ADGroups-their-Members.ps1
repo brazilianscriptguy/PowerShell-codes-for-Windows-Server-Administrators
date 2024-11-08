@@ -256,3 +256,5 @@ $buttonSearch.Add_Click({
 })
 
 [void]$form.ShowDialog()
+
+# End of script
