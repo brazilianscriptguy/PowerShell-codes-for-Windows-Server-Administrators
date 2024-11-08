@@ -14,7 +14,7 @@
 #>
 
 param (
-    [string]$FusionInventoryURL = "http://cas.tjap.jus.br/plugins/fusioninventory/clients/2.6.1/fusioninventory-agent_windows-x64_2.6.1.exe",
+    [string]$FusionInventoryURL = "http://glpi.contoso.com/plugins/fusioninventory/clients/2.6.1/fusioninventory-agent_windows-x64_2.6.1.exe",
     [string]$FusionInventoryLogDir = "C:\Scripts-LOGS",
     [string]$ExpectedVersion = "2.6",
     [bool]$ReinstallIfSameVersion = $true
@@ -108,7 +108,7 @@ if (-not $userDomain) {
     Log-Message "WARNING: USERDOMAIN variable not defined. Check environment settings." -Warning
     $userDomain = "UNKNOWN_DOMAIN"
 }
-$installArgs = "/S /acceptlicense /no-start-menu /runnow /server='http://cas.tjap.jus.br/plugins/fusioninventory/' /add-firewall-exception /installtasks=Full /execmode=Service /httpd-trust='127.0.0.1,10.10.0.0/8' /tag='$userDomain' /delaytime=3600"
+$installArgs = "/S /acceptlicense /no-start-menu /runnow /server='http://glpi.contoso.com/plugins/fusioninventory/' /add-firewall-exception /installtasks=Full /execmode=Service /httpd-trust='127.0.0.1,10.10.0.0/8' /tag='$userDomain' /delaytime=3600"
 try {
     Start-Process -FilePath $fusionInventorySetup -ArgumentList $installArgs -Wait -NoNewWindow -ErrorAction Stop
     Log-Message "FusionInventory installation completed successfully."
