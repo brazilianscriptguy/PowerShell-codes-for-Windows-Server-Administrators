@@ -10,86 +10,175 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: November 8, 2024
 #>
 
-# Hide PowerShell console window
-Add-Type @"
-using System;
-using System.Runtime.InteropServices;
-public class Window {
-    [DllImport("kernel32.dll", SetLastError = true)]
-    static extern IntPtr GetConsoleWindow();
-    [DllImport("user32.dll", SetLastError = true)]
-    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-    public static void Hide() {
-        var handle = GetConsoleWindow();
-        ShowWindow(handle, 0); // 0 = SW_HIDE
+# Check if the type 'Window' already exists to avoid redefinition errors
+if (-not ([System.Management.Automation.PSTypeName]'Window').Type) {
+    Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+    public class Window {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetConsoleWindow();
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        public static void Hide() {
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, 0); // 0 = SW_HIDE
+        }
+        public static void Show() {
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, 5); // 5 = SW_SHOW
+        }
     }
-}
 "@
+}
 [Window]::Hide()
 
 # Import Necessary Modules
 Add-Type -AssemblyName System.Windows.Forms
-Import-Module ActiveDirectory
+Import-Module ActiveDirectory -ErrorAction Stop
 
 # Check if the Active Directory module is available
 if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
-    [System.Windows.Forms.MessageBox]::Show("Active Directory module is not available.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    [System.Windows.Forms.MessageBox]::Show(
+        "Active Directory module is not available.",
+        "Error",
+        [System.Windows.Forms.MessageBoxButtons]::OK,
+        [System.Windows.Forms.MessageBoxIcon]::Error
+    )
     return
 }
 
-# Determine the script name and set up the path for the CSV export
+# Define script variables
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+$logDir = 'C:\Logs-TEMP'
+$logPath = Join-Path $logDir "${scriptName}.log"
 
-# Create main form
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+}
+
+# Enhanced logging function
+function Log-Message {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("INFO", "WARNING", "ERROR")]
+        [string]$MessageType = "INFO"
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
+    try {
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    } catch {
+        Write-Host "Failed to write to log: $_"
+    }
+}
+
+# Function to retrieve all domain FQDNs in the forest
+function Get-AllDomainFQDNs {
+    try {
+        $forest = Get-ADForest
+        return $forest.Domains
+    } catch {
+        Log-Message -Message "Failed to retrieve domain FQDNs: $_" -MessageType "ERROR"
+        return @()
+    }
+}
+
+# GUI setup
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Export AD Users with Non-Expiring Passwords'
-$form.Size = New-Object System.Drawing.Size(400, 200)
-$form.StartPosition = 'CenterScreen'
+$form.Text = "Export AD Users with Non-Expiring Passwords"
+$form.Size = New-Object System.Drawing.Size(400, 300)
+$form.StartPosition = "CenterScreen"
 
-# Domain FQDN label and textbox
+# Domain FQDN dropdown
 $labelDomain = New-Object System.Windows.Forms.Label
 $labelDomain.Location = New-Object System.Drawing.Point(10, 20)
 $labelDomain.Size = New-Object System.Drawing.Size(380, 20)
-$labelDomain.Text = 'Enter the FQDN of the Domain:'
+$labelDomain.Text = "Select the Domain FQDN:"
 $form.Controls.Add($labelDomain)
 
-$textboxDomain = New-Object System.Windows.Forms.TextBox
-$textboxDomain.Location = New-Object System.Drawing.Point(10, 40)
-$textboxDomain.Size = New-Object System.Drawing.Size(360, 20)
-$form.Controls.Add($textboxDomain)
+$comboBoxDomain = New-Object System.Windows.Forms.ComboBox
+$comboBoxDomain.Location = New-Object System.Drawing.Point(10, 50)
+$comboBoxDomain.Size = New-Object System.Drawing.Size(360, 20)
+$comboBoxDomain.DropDownStyle = 'DropDownList'
+$domains = Get-AllDomainFQDNs
+if ($domains.Count -gt 0) {
+    $comboBoxDomain.Items.AddRange($domains)
+    $comboBoxDomain.SelectedIndex = 0
+}
+$form.Controls.Add($comboBoxDomain)
 
 # Export button
 $exportButton = New-Object System.Windows.Forms.Button
-$exportButton.Location = New-Object System.Drawing.Point(10, 80)
+$exportButton.Location = New-Object System.Drawing.Point(10, 100)
 $exportButton.Size = New-Object System.Drawing.Size(360, 30)
-$exportButton.Text = 'Export to CSV'
+$exportButton.Text = "Export to CSV"
 $exportButton.Add_Click({
-    $domainFQDN = $textboxDomain.Text
+    $domainFQDN = $comboBoxDomain.SelectedItem
     if (![string]::IsNullOrWhiteSpace($domainFQDN)) {
         try {
-            $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-            $csvPath = [Environment]::GetFolderPath('MyDocuments') + "\${scriptName}-${domainFQDN}-${timestamp}.csv"
-            
+            $csvPath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "${scriptName}-${domainFQDN}-${timestamp}.csv"
+
             $neverExpireUsers = Get-ADUser -Filter { PasswordNeverExpires -eq $true } -Properties PasswordNeverExpires -Server $domainFQDN |
                                 Select-Object Name, SamAccountName, DistinguishedName
+
             if ($neverExpireUsers.Count -gt 0) {
-                $neverExpireUsers | Export-Csv -Path $csvPath -NoTypeInformation
-                [System.Windows.Forms.MessageBox]::Show("Report exported to: `n$csvPath", "Export Successful", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+                $neverExpireUsers | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+                Log-Message -Message "Report exported to: $csvPath" -MessageType "INFO"
+                [System.Windows.Forms.MessageBox]::Show(
+                    "Report exported to:`n$csvPath",
+                    "Export Successful",
+                    [System.Windows.Forms.MessageBoxButtons]::OK,
+                    [System.Windows.Forms.MessageBoxIcon]::Information
+                )
             } else {
-                [System.Windows.Forms.MessageBox]::Show("No users with 'Password Never Expires' found in $domainFQDN.", "No Data Found", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+                Log-Message -Message "No users with 'Password Never Expires' found in $domainFQDN." -MessageType "INFO"
+                [System.Windows.Forms.MessageBox]::Show(
+                    "No users with 'Password Never Expires' found in $domainFQDN.",
+                    "No Data Found",
+                    [System.Windows.Forms.MessageBoxButtons]::OK,
+                    [System.Windows.Forms.MessageBoxIcon]::Information
+                )
             }
         } catch {
-            [System.Windows.Forms.MessageBox]::Show("An error occurred: $_", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            Log-Message -Message "An error occurred during export: $_" -MessageType "ERROR"
+            [System.Windows.Forms.MessageBox]::Show(
+                "An error occurred: $_",
+                "Error",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Error
+            )
         }
     } else {
-        [System.Windows.Forms.MessageBox]::Show('Please enter a valid FQDN of the Domain.', 'Input Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+        Log-Message -Message "Input Error: Domain FQDN is empty or invalid." -MessageType "WARNING"
+        [System.Windows.Forms.MessageBox]::Show(
+            "Please select a valid domain FQDN.",
+            "Input Error",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
     }
 })
 $form.Controls.Add($exportButton)
 
-$form.ShowDialog()
+# Close button
+$closeButton = New-Object System.Windows.Forms.Button
+$closeButton.Location = New-Object System.Drawing.Point(10, 150)
+$closeButton.Size = New-Object System.Drawing.Size(360, 30)
+$closeButton.Text = "Close"
+$closeButton.Add_Click({
+    $form.Close()
+})
+$form.Controls.Add($closeButton)
+
+# Show the GUI
+[void]$form.ShowDialog()
 
 # End of script
