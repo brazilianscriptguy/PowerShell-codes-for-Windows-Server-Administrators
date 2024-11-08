@@ -16,18 +16,18 @@
 param (
     [string]$FusionInventoryURL = "http://cas.tjap.jus.br/plugins/fusioninventory/clients/2.6.1/fusioninventory-agent_windows-x64_2.6.1.exe",
     [string]$FusionInventoryLogDir = "C:\Scripts-LOGS",
-    [string]$ExpectedVersion = "2.6",  # Expected version
-    [bool]$ReinstallIfSameVersion = $false  # Allows reinstall if the version is already installed
+    [string]$ExpectedVersion = "2.6",
+    [bool]$ReinstallIfSameVersion = $true
 )
 
 $ErrorActionPreference = "Stop"
 
-# Configure the log file name without timestamp
+# Configuration for the log file name without a timestamp
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $FusionInventoryLogDir $logFileName
 
-# Log function with error handling and warning popup
+# Function for logging messages
 function Log-Message {
     param (
         [Parameter(Mandatory = $true)]
@@ -38,11 +38,8 @@ function Log-Message {
     $logEntry = "[$timestamp] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
-        if ($Warning) {
-            [System.Windows.Forms.MessageBox]::Show($Message, "Warning", 'OK', 'Warning')
-        }
     } catch {
-        Write-Error "Failed to log to $logPath. Error: $_"
+        Write-Error "Failed to write to log file at $logPath. Error: $_"
     }
 }
 
@@ -56,7 +53,7 @@ try {
     Log-Message "WARNING: Failed to create log directory at $FusionInventoryLogDir." -Warning
 }
 
-# Function to detect the installed FusionInventory version
+# Function to detect the installed version of FusionInventory
 function Get-InstalledVersion {
     param (
         [string]$RegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\FusionInventory-Agent"
@@ -73,19 +70,19 @@ function Get-InstalledVersion {
 # Check the installed version
 $installedVersion = Get-InstalledVersion
 if ($installedVersion -eq $ExpectedVersion -and -not $ReinstallIfSameVersion) {
-    Log-Message "FusionInventory version $ExpectedVersion is already installed, and reinstall is not allowed. No action needed."
+    Log-Message "Version $ExpectedVersion of FusionInventory is already installed, and reinstallation is not allowed. No action required."
     exit 0
 } elseif ($installedVersion -eq $ExpectedVersion -and $ReinstallIfSameVersion) {
-    Log-Message "FusionInventory version $ExpectedVersion is already installed, but reinstall is allowed. Proceeding with reinstallation."
+    Log-Message "Version $ExpectedVersion is already installed, but reinstallation is allowed. Proceeding with reinstallation."
 } else {
-    Log-Message "Installing the new FusionInventory version: $ExpectedVersion."
+    Log-Message "Installing the new version of FusionInventory: $ExpectedVersion."
 }
 
 # Temporary path for download
 $tempDir = [System.IO.Path]::GetTempPath()
 $fusionInventorySetup = Join-Path $tempDir "fusioninventory-agent.exe"
 
-# Function for downloading the installer
+# Function to download the installer
 function Download-File {
     param (
         [string]$url,
@@ -104,10 +101,14 @@ function Download-File {
 # Download the installer
 Download-File -url $FusionInventoryURL -destinationPath $fusionInventorySetup
 
-# Run the installer
-Log-Message "Running installer: $fusionInventorySetup"
-$userDomain = [System.Environment]::GetEnvironmentVariable("USERDOMAIN")
-$installArgs = "/S /acceptlicense /no-start-menu /runnow /server='http://cas.tjap.jus.br/plugins/fusioninventory/' /add-firewall-exception /installtasks=Full /execmode=Service /httpd-trust='127.0.0.1,10.10.0.28/24' /tag='$userDomain'"
+# Execute the installer
+Log-Message "Executing the installer: $fusionInventorySetup"
+$userDomain = $env:USERDOMAIN
+if (-not $userDomain) {
+    Log-Message "WARNING: USERDOMAIN variable not defined. Check environment settings." -Warning
+    $userDomain = "UNKNOWN_DOMAIN"
+}
+$installArgs = "/S /acceptlicense /no-start-menu /runnow /server='http://cas.tjap.jus.br/plugins/fusioninventory/' /add-firewall-exception /installtasks=Full /execmode=Service /httpd-trust='127.0.0.1,10.10.0.0/8' /tag='$userDomain' /delaytime=3600"
 try {
     Start-Process -FilePath $fusionInventorySetup -ArgumentList $installArgs -Wait -NoNewWindow -ErrorAction Stop
     Log-Message "FusionInventory installation completed successfully."
