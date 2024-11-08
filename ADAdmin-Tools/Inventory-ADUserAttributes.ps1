@@ -10,7 +10,7 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: November 8, 2024
 #>
 
 # Hide the PowerShell console window
@@ -42,171 +42,165 @@ Import-Module ActiveDirectory
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Determine the script name for logging and exporting
+# Determine script name and file paths
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+$logDir = 'C:\Logs-TEMP'
+$logFileName = "${scriptName}.log"
+$logPath = Join-Path $logDir $logFileName
 
-# Define the AD user attributes you want to export
-$attributes = @("samAccountName", "Name", "GivenName", "Surname", "DisplayName", "Mail", "Department", "Title")
+# Ensure the log directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
+}
 
-# Enhanced logging function with error handling
+# Logging function
 function Log-Message {
     param (
         [Parameter(Mandatory=$true)]
         [string]$Message,
-        [Parameter(Mandatory=$false)]
+        [ValidateSet("INFO", "WARNING", "ERROR", "DEBUG")]
         [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = "[$timestamp] [$MessageType] $Message"
     try {
-        Add-Content -Path $logPath -Value "$logEntry`r`n" -ErrorAction Stop
-        $global:logBox.Items.Add($logEntry)
-        $global:logBox.TopIndex = $global:logBox.Items.Count - 1
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
-        Write-Error "Failed to write to log: $_"
+        Write-Host "Failed to write to log: $_"
     }
 }
 
-function Get-DomainControllerFQDN {
+# Function to retrieve all domain FQDNs in the forest
+function Get-AllDomainFQDNs {
     try {
-        $domainController = (Get-ADDomainController -Discover -Service "PrimaryDC").HostName
-        return $domainController
+        $forest = Get-ADForest
+        return $forest.Domains
     } catch {
-        Log-Message -Message "Error retrieving the FQDN of the Domain Controller: $_" -MessageType "ERROR"
-        return ""
+        Log-Message -Message "Failed to retrieve domain FQDNs: $_" -MessageType "ERROR"
+        return @()
     }
 }
 
+# GUI utility functions
+function Show-InfoMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message -Message "$message" -MessageType "INFO"
+}
+
+function Show-ErrorMessage {
+    param ([string]$message)
+    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message -Message "$message" -MessageType "ERROR"
+}
+
+# Function to export AD user attributes
+function Export-ADUserAttributes {
+    param (
+        [string[]]$Attributes,
+        [string]$DomainFQDN,
+        [string]$OutputPath
+    )
+    try {
+        $users = Get-ADUser -Filter * -Properties $Attributes -Server $DomainFQDN
+        if ($users.Count -eq 0) {
+            throw "No users found in the specified domain."
+        }
+
+        $users | ForEach-Object {
+            $_ | Select-Object -Property $Attributes
+        } | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding UTF8
+        return $true
+    } catch {
+        Log-Message -Message "Error exporting user attributes: $_" -MessageType "ERROR"
+        return $false
+    }
+}
+
+# Main GUI setup
 function Show-ExportForm {
-    # Create the main form
     $form = New-Object System.Windows.Forms.Form
     $form.Text = 'Export AD User Attributes'
-    $form.Size = New-Object System.Drawing.Size(400, 520)
+    $form.Size = New-Object System.Drawing.Size(420, 500)
     $form.StartPosition = 'CenterScreen'
 
-    # Label for attributes selection
-    $labelAttributes = New-Object System.Windows.Forms.Label
-    $labelAttributes.Location = New-Object System.Drawing.Point(10, 10)
-    $labelAttributes.Size = New-Object System.Drawing.Size(280, 20)
-    $labelAttributes.Text = 'Select AD User Attributes:'
-    $form.Controls.Add($labelAttributes)
-
-    # CheckedListBox for attributes
-    $listBox = New-Object System.Windows.Forms.CheckedListBox
-    $listBox.Location = New-Object System.Drawing.Point(10, 40)
-    $listBox.Size = New-Object System.Drawing.Size(360, 200)
-    foreach ($attribute in $attributes) {
-        $listBox.Items.Add($attribute, $false)
-    }
-    $form.Controls.Add($listBox)
-
-    # Domain name label and textbox
+    # Domain selection
     $labelDomain = New-Object System.Windows.Forms.Label
-    $labelDomain.Location = New-Object System.Drawing.Point(10, 250)
-    $labelDomain.Size = New-Object System.Drawing.Size(280, 20)
-    $labelDomain.Text = 'Enter FQDN of the Domain Controller:'
+    $labelDomain.Text = 'Select Domain FQDN:'
+    $labelDomain.Location = New-Object System.Drawing.Point(10, 20)
+    $labelDomain.AutoSize = $true
     $form.Controls.Add($labelDomain)
 
-    $textBoxDomain = New-Object System.Windows.Forms.TextBox
-    $textBoxDomain.Location = New-Object System.Drawing.Point(10, 270)
-    $textBoxDomain.Size = New-Object System.Drawing.Size(360, 20)
-    $textBoxDomain.Text = Get-DomainControllerFQDN
-    $form.Controls.Add($textBoxDomain)
+    $comboBoxDomain = New-Object System.Windows.Forms.ComboBox
+    $comboBoxDomain.Location = New-Object System.Drawing.Point(10, 50)
+    $comboBoxDomain.Size = New-Object System.Drawing.Size(380, 20)
+    $comboBoxDomain.DropDownStyle = 'DropDownList'
+    $comboBoxDomain.Items.AddRange((Get-AllDomainFQDNs))
+    if ($comboBoxDomain.Items.Count -gt 0) {
+        $comboBoxDomain.SelectedIndex = 0
+    }
+    $form.Controls.Add($comboBoxDomain)
+
+    # Attributes selection
+    $labelAttributes = New-Object System.Windows.Forms.Label
+    $labelAttributes.Text = 'Select AD User Attributes:'
+    $labelAttributes.Location = New-Object System.Drawing.Point(10, 80)
+    $labelAttributes.AutoSize = $true
+    $form.Controls.Add($labelAttributes)
+
+    $listBoxAttributes = New-Object System.Windows.Forms.CheckedListBox
+    $listBoxAttributes.Location = New-Object System.Drawing.Point(10, 110)
+    $listBoxAttributes.Size = New-Object System.Drawing.Size(380, 150)
+    $listBoxAttributes.Items.AddRange(@("samAccountName", "Name", "GivenName", "Surname", "DisplayName", "Mail", "Department", "Title"))
+    $form.Controls.Add($listBoxAttributes)
 
     # Progress bar
     $progressBar = New-Object System.Windows.Forms.ProgressBar
-    $progressBar.Location = New-Object System.Drawing.Point(10, 300)
-    $progressBar.Size = New-Object System.Drawing.Size(360, 20)
+    $progressBar.Location = New-Object System.Drawing.Point(10, 270)
+    $progressBar.Size = New-Object System.Drawing.Size(380, 20)
     $form.Controls.Add($progressBar)
 
-    # Log box for displaying log messages
-    $global:logBox = New-Object System.Windows.Forms.ListBox
-    $global:logBox.Location = New-Object System.Drawing.Point(10, 330)
-    $global:logBox.Size = New-Object System.Drawing.Size(360, 100)
-    $form.Controls.Add($global:logBox)
+    # Buttons
+    $buttonExport = New-Object System.Windows.Forms.Button
+    $buttonExport.Text = 'Export'
+    $buttonExport.Location = New-Object System.Drawing.Point(10, 300)
+    $buttonExport.Size = New-Object System.Drawing.Size(180, 30)
+    $buttonExport.Add_Click({
+        $selectedAttributes = $listBoxAttributes.CheckedItems
+        $domainFQDN = $comboBoxDomain.SelectedItem
+        $outputPath = "$([Environment]::GetFolderPath('MyDocuments'))\${scriptName}_${domainFQDN}_${timestamp}.csv"
 
-    # Submit button
-    $submitButton = New-Object System.Windows.Forms.Button
-    $submitButton.Location = New-Object System.Drawing.Point(10, 450)
-    $submitButton.Size = New-Object System.Drawing.Size(75, 23)
-    $submitButton.Text = 'Submit'
-    $form.Controls.Add($submitButton)
-
-    # Submit button click event
-    $submitButton.Add_Click({
-        $selectedAttributes = $listBox.CheckedItems -join ','
-        $domainName = $textBoxDomain.Text
-        $csvPath = [System.IO.Path]::Combine([Environment]::GetFolderPath('MyDocuments'), "${domainName}-${scriptName}-${timestamp}.csv")
-
-        if (-not $selectedAttributes -or [string]::IsNullOrWhiteSpace($domainName)) {
-            [System.Windows.Forms.MessageBox]::Show("No attributes selected or domain name entered.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-            Log-Message -Message "No attributes selected or domain name entered." -MessageType "ERROR"
+        if ($selectedAttributes.Count -eq 0 -or [string]::IsNullOrWhiteSpace($domainFQDN)) {
+            Show-ErrorMessage 'Please select at least one attribute and a valid domain.'
             return
         }
 
-        $selectedAttributes = $selectedAttributes -split ','
+        $progressBar.Value = 50
+        $exported = Export-ADUserAttributes -Attributes $selectedAttributes -DomainFQDN $domainFQDN -OutputPath $outputPath
 
-        try {
-            $users = Get-ADUser -Filter * -Properties $selectedAttributes -Server $domainName
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show("Error retrieving users from the specified domain. See log for details.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-            Log-Message -Message "Error retrieving users from the specified domain: $_" -MessageType "ERROR"
-            return
+        if ($exported) {
+            $progressBar.Value = 100
+            Show-InfoMessage "Export completed successfully. File saved at:`n$outputPath"
+        } else {
+            Show-ErrorMessage 'An error occurred during export. Check the logs for details.'
         }
-
-        if ($users.Count -eq 0) {
-            [System.Windows.Forms.MessageBox]::Show("No users found in the specified domain.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-            Log-Message -Message "No users found in the specified domain." -MessageType "ERROR"
-            return
-        }
-
-        $totalUsers = $users.Count
-        $progress = 0
-
-        # Show progress bar
         $progressBar.Value = 0
-        $progressBar.Maximum = $totalUsers
-
-        # Initialize CSV export with headers
-        $headers = $selectedAttributes -join ','
-        $headerLine = "$headers`r`n"
-        try {
-            [System.IO.File]::WriteAllText($csvPath, $headerLine)
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show("Error writing to CSV file. See log for details.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-            Log-Message -Message "Error writing to CSV file: $_" -MessageType "ERROR"
-            return
-        }
-
-        # Export AD user attributes
-        $users | ForEach-Object {
-            $progress++
-            $progressBar.Value = $progress
-            try {
-                $_ | Select-Object $selectedAttributes | Export-Csv -Path $csvPath -NoTypeInformation -Append
-                Log-Message -Message "Exported user $($_.samAccountName)"
-            } catch {
-                Log-Message -Message "Error exporting user $($_.samAccountName): $_" -MessageType "ERROR"
-            }
-        }
-
-        # Reset progress bar
-        $progressBar.Value = 0
-
-        # Show completion message
-        [System.Windows.Forms.MessageBox]::Show("Export completed. File saved at $csvPath", "Export Complete", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-        Log-Message -Message "Export completed. File saved at $csvPath"
     })
+    $form.Controls.Add($buttonExport)
 
-    # Show the form
-    $form.ShowDialog() | Out-Null
+    $buttonClose = New-Object System.Windows.Forms.Button
+    $buttonClose.Text = 'Close'
+    $buttonClose.Location = New-Object System.Drawing.Point(210, 300)
+    $buttonClose.Size = New-Object System.Drawing.Size(180, 30)
+    $buttonClose.Add_Click({ $form.Close() })
+    $form.Controls.Add($buttonClose)
+
+    $form.Add_Shown({ $form.Activate() })
+    [void]$form.ShowDialog()
 }
 
-# Set up logging path
-$logPath = [System.IO.Path]::Combine([Environment]::GetFolderPath('MyDocuments'), "${scriptName}.log")
-
-# Execute the function to show the export form
+# Show the GUI form
 Show-ExportForm
 
 # End of script
