@@ -10,58 +10,61 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: November 8, 2024
 #>
 
-# Hide the PowerShell console window
-Add-Type @"
-using System;
-using System.Runtime.InteropServices;
-public class Window {
-    [DllImport("kernel32.dll", SetLastError = true)]
-    static extern IntPtr GetConsoleWindow();
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-    public static void Hide() {
-        var handle = GetConsoleWindow();
-        ShowWindow(handle, 0); // 0 = SW_HIDE
+# Avoid duplicate type definition
+if (-not ([System.Management.Automation.PSTypeName]'Window').Type) {
+    Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+    public class Window {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetConsoleWindow();
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        public static void Hide() {
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, 0); // 0 = SW_HIDE
+        }
     }
-    public static void Show() {
-        var handle = GetConsoleWindow();
-        ShowWindow(handle, 5); // 5 = SW_SHOW
-    }
-}
 "@
-
+}
 [Window]::Hide()
 
-# Load required assemblies and modules
+# Import necessary modules and assemblies
 Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
-Import-Module ActiveDirectory
+Import-Module ActiveDirectory -ErrorAction Stop
 
-# Determine the script name and set up logging path
+# Check if the Active Directory module is available
+if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
+    [System.Windows.Forms.MessageBox]::Show(
+        "Active Directory module is not available.",
+        "Error",
+        [System.Windows.Forms.MessageBoxButtons]::OK,
+        [System.Windows.Forms.MessageBoxIcon]::Error
+    )
+    return
+}
+
+# Set up script variables
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $logDir = 'C:\Logs-TEMP'
-$logFileName = "${scriptName}.log"
-$logPath = Join-Path $logDir $logFileName
+$logPath = Join-Path $logDir "${scriptName}.log"
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
-    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
-    if (-not (Test-Path $logDir)) {
-        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
-        return
-    }
+    New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
 }
 
-# Enhanced logging function with error handling
+# Logging function
 function Log-Message {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$Message,
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("INFO", "WARNING", "ERROR")]
         [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -69,74 +72,54 @@ function Log-Message {
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
-        Write-Error "Failed to write to log: $_"
+        Write-Host "Failed to write to log: $_"
     }
 }
 
-# Function to display error messages
-function Show-ErrorMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    Log-Message "Error: $message" -MessageType "ERROR"
-}
-
-# Function to display warning messages
-function Show-WarningMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Warning', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
-    Log-Message "Warning: $message" -MessageType "WARNING"
-}
-
-# Function to display information messages
-function Show-InfoMessage {
-    param ([string]$message)
-    [System.Windows.Forms.MessageBox]::Show($message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    Log-Message "Info: $message" -MessageType "INFO"
-}
-
-# Function to get the FQDN of the domain name
-function Get-DomainFQDN {
+# Function to retrieve all domain FQDNs in the forest
+function Get-AllDomainFQDNs {
     try {
-        $ComputerSystem = Get-WmiObject Win32_ComputerSystem
-        $Domain = $ComputerSystem.Domain
-        return $Domain
+        $forest = Get-ADForest
+        return $forest.Domains
     } catch {
-        Show-WarningMessage "Unable to fetch FQDN automatically."
-        return "YourDomainHere"
+        Log-Message -Message "Failed to retrieve domain FQDNs: $_" -MessageType "ERROR"
+        return @()
     }
 }
-
-# Retrieve the FQDN of the current domain
-$currentDomainFQDN = Get-DomainFQDN
 
 # GUI setup
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Report Inactive Computer Accounts'
-$form.Size = New-Object System.Drawing.Size(400, 280)
-$form.StartPosition = 'CenterScreen'
+$form.Text = "Report Inactive Computer Accounts"
+$form.Size = New-Object System.Drawing.Size(420, 300)
+$form.StartPosition = "CenterScreen"
 
-# Domain FQDN label and textbox
+# Domain selection dropdown
 $labelDomain = New-Object System.Windows.Forms.Label
 $labelDomain.Location = New-Object System.Drawing.Point(10, 20)
 $labelDomain.Size = New-Object System.Drawing.Size(380, 20)
-$labelDomain.Text = 'FQDN Domain:'
+$labelDomain.Text = "Select Domain FQDN:"
 $form.Controls.Add($labelDomain)
 
-$textboxDomain = New-Object System.Windows.Forms.TextBox
-$textboxDomain.Location = New-Object System.Drawing.Point(10, 40)
-$textboxDomain.Size = New-Object System.Drawing.Size(360, 20)
-$textboxDomain.Text = $currentDomainFQDN
-$form.Controls.Add($textboxDomain)
+$comboBoxDomain = New-Object System.Windows.Forms.ComboBox
+$comboBoxDomain.Location = New-Object System.Drawing.Point(10, 50)
+$comboBoxDomain.Size = New-Object System.Drawing.Size(360, 20)
+$comboBoxDomain.DropDownStyle = 'DropDownList'
+$domains = Get-AllDomainFQDNs
+if ($domains.Count -gt 0) {
+    $comboBoxDomain.Items.AddRange($domains)
+    $comboBoxDomain.SelectedIndex = 0
+}
+$form.Controls.Add($comboBoxDomain)
 
-# Days since last logon label and textbox
+# Days input
 $labelDays = New-Object System.Windows.Forms.Label
-$labelDays.Location = New-Object System.Drawing.Point(10, 70)
+$labelDays.Location = New-Object System.Drawing.Point(10, 80)
 $labelDays.Size = New-Object System.Drawing.Size(380, 20)
-$labelDays.Text = 'Enter the number of inactivity days:'
+$labelDays.Text = "Enter number of inactivity days:"
 $form.Controls.Add($labelDays)
 
 $textboxDays = New-Object System.Windows.Forms.TextBox
-$textboxDays.Location = New-Object System.Drawing.Point(10, 90)
+$textboxDays.Location = New-Object System.Drawing.Point(10, 110)
 $textboxDays.Size = New-Object System.Drawing.Size(360, 20)
 $form.Controls.Add($textboxDays)
 
@@ -146,66 +129,66 @@ $progressBar.Location = New-Object System.Drawing.Point(10, 140)
 $progressBar.Size = New-Object System.Drawing.Size(360, 20)
 $form.Controls.Add($progressBar)
 
-# Status label
-$statusLabel = New-Object System.Windows.Forms.Label
-$statusLabel.Location = New-Object System.Drawing.Point(10, 170)
-$statusLabel.Size = New-Object System.Drawing.Size(380, 20)
-$statusLabel.Text = ''
-$form.Controls.Add($statusLabel)
-
 # Generate report button
-$buttonGenerate = New-Object System.Windows.Forms.Button
-$buttonGenerate.Location = New-Object System.Drawing.Point(10, 200)
-$buttonGenerate.Size = New-Object System.Drawing.Size(360, 30)
-$buttonGenerate.Text = 'Generate Report'
-$buttonGenerate.Add_Click({
-    $domainFQDN = $textboxDomain.Text
+$generateButton = New-Object System.Windows.Forms.Button
+$generateButton.Location = New-Object System.Drawing.Point(10, 180)
+$generateButton.Size = New-Object System.Drawing.Size(360, 30)
+$generateButton.Text = "Generate Report"
+$generateButton.Add_Click({
+    $domainFQDN = $comboBoxDomain.SelectedItem
     $days = $null
     $isValidDays = [int]::TryParse($textboxDays.Text, [ref]$days)
 
     if (![string]::IsNullOrWhiteSpace($domainFQDN) -and $isValidDays -and $days -gt 0) {
-        $statusLabel.Text = 'Generating report...'
         $progressBar.Value = 10
         $form.Refresh()
 
         $currentDateTime = Get-Date -Format "yyyyMMdd_HHmmss"
-        $myDocuments = [Environment]::GetFolderPath('MyDocuments')
-        $exportPath = Join-Path -Path $myDocuments -ChildPath "${scriptName}_$domainFQDN-${days}_$currentDateTime.csv"
+        $exportPath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "${scriptName}_$domainFQDN-${days}_$currentDateTime.csv"
 
         try {
             $inactiveComputers = Search-ADAccount -ComputersOnly -AccountInactive -TimeSpan ([timespan]::FromDays($days)) -Server $domainFQDN
             $progressBar.Value = 60
-            $inactiveComputers | Select-Object Name, DNSHostName, LastLogonDate | Export-Csv -Path $exportPath -NoTypeInformation
+            $inactiveComputers | Select-Object Name, DNSHostName, LastLogonDate | Export-Csv -Path $exportPath -NoTypeInformation -Encoding UTF8
             $progressBar.Value = 100
 
-            # Show result in a message box
-            Show-InfoMessage "Report generated successfully:`n$exportPath"
-            $statusLabel.Text = "Report generated successfully."
-            Log-Message "Report generated successfully: $exportPath"
+            Log-Message -Message "Report generated successfully: $exportPath" -MessageType "INFO"
+            [System.Windows.Forms.MessageBox]::Show(
+                "Report generated successfully:`n$exportPath",
+                "Report Successful",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Information
+            )
         } catch {
-            Show-ErrorMessage "An error occurred: $($_.Exception.Message)"
-            $statusLabel.Text = "An error occurred."
-            Log-Message "Error generating report: $($_.Exception.Message)" -MessageType "ERROR"
-            $progressBar.Value = 0
+            Log-Message -Message "Error generating report: $_" -MessageType "ERROR"
+            [System.Windows.Forms.MessageBox]::Show(
+                "An error occurred: $_",
+                "Error",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Error
+            )
         }
     } else {
-        Show-ErrorMessage 'Please enter valid domain FQDN and number of inactivity days.'
-        $statusLabel.Text = 'Input Error.'
-        Log-Message "Input Error: Invalid FQDN or inactivity days."
+        Log-Message -Message "Input Error: Invalid domain FQDN or inactivity days." -MessageType "WARNING"
+        [System.Windows.Forms.MessageBox]::Show(
+            "Please select a valid domain and number of inactivity days.",
+            "Input Error",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
     }
 })
-$form.Controls.Add($buttonGenerate)
+$form.Controls.Add($generateButton)
 
 # Close button
 $closeButton = New-Object System.Windows.Forms.Button
-$closeButton.Location = New-Object System.Drawing.Point(300, 240)
-$closeButton.Size = New-Object System.Drawing.Size(75, 23)
-$closeButton.Text = 'Close'
+$closeButton.Location = New-Object System.Drawing.Point(10, 220)
+$closeButton.Size = New-Object System.Drawing.Size(360, 30)
+$closeButton.Text = "Close"
 $closeButton.Add_Click({ $form.Close() })
 $form.Controls.Add($closeButton)
 
-$form.Add_Shown({ $form.Activate() })
-
+# Show the form
 [void]$form.ShowDialog()
 
 # End of script
