@@ -16,7 +16,7 @@
 param (
     [string]$FusionInventoryURL = "http://glpi.contoso.com/plugins/fusioninventory/clients/2.6.1/fusioninventory-agent_windows-x64_2.6.1.exe",
     [string]$FusionInventoryLogDir = "C:\Logs-TEMP",
-    [string]$ExpectedVersion = "2.6",
+    [string]$ExpectedVersion = "2.6", # Target version of FusionInventory Agent to install
     [bool]$ReinstallIfSameVersion = $true
 )
 
