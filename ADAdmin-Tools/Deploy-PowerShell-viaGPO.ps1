@@ -14,7 +14,7 @@
 #>
 
 param (
-    [string]$PowerShellMSIPath = "\\forest-logonserver-name\netlogon\powershell-msi-folder\AutoDeployment-PowerShell.msi",
+    [string]$PowerShellMSIPath = ""\\forest-domain\netlogon\powershell-msi-folder\AutoDeployment-PowerShell.msi",
     [string]$MsiVersion = "7.4.6.0" # Target version of PowerShell to install
 )
 
