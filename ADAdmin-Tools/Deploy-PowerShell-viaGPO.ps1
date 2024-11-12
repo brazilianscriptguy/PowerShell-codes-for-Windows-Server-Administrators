@@ -3,37 +3,38 @@
     PowerShell Script for Installing PowerShell via GPO.
 
 .DESCRIPTION
-    This script simplifies the installation of PowerShell on workstations and servers via 
-    Group Policy (GPO), enhancing system administration efficiency across the network.
+    This script simplifies the deployment of PowerShell to workstations and servers via Group Policy (GPO).
+    It validates the MSI version, checks for existing installations, and updates or installs PowerShell as needed.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: November 12, 2024
 #>
 
 param (
     [string]$PowerShellMSIPath = "\\forest-logonserver-name\netlogon\powershell-msi-folder\AutoDeployment-PowerShell.msi",
-    [string]$UninstallRegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{046D50AC-89E4-4694-8701-5120BF24BA4C}" # GUID for version 7.4.3.0
+    [string]$MsiVersion = "7.4.6.0" # Target version of PowerShell to install
 )
 
 $ErrorActionPreference = "Stop"
 
-# Configure the log file path and name based on the script name
+# Configure log file path and name
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 
-# Enhanced function for logging messages with error handling
+# Function to log messages
 function Log-Message {
     param (
         [Parameter(Mandatory = $true)]
-        [string]$Message
+        [string]$Message,
+        [string]$Severity = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$Severity] [$timestamp] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
@@ -41,95 +42,93 @@ function Log-Message {
     }
 }
 
+# Function to retrieve installed programs
+function Get-InstalledPrograms {
+    $registryPaths = @(
+        'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+        'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+    )
+    $installedPrograms = $registryPaths | ForEach-Object {
+        Get-ItemProperty -Path $_ |
+        Where-Object { $_.DisplayName -and $_.DisplayName -match "PowerShell" } |
+        Select-Object DisplayName, DisplayVersion,
+                      @{Name="UninstallString"; Expression={ $_.UninstallString }},
+                      @{Name="Architecture"; Expression={ if ($_.PSPath -match 'WOW6432Node') {'32-bit'} else {'64-bit'} }}
+    }
+    return $installedPrograms
+}
+
+# Function to compare versions
+function Compare-Version {
+    param (
+        [string]$installed,
+        [string]$target
+    )
+    $installedParts = $installed -split '[.-]' | ForEach-Object { [int]$_ }
+    $targetParts = $target -split '[.-]' | ForEach-Object { [int]$_ }
+    for ($i = 0; $i -lt $targetParts.Length; $i++) {
+        if ($installedParts[$i] -lt $targetParts[$i]) { return $true }
+        if ($installedParts[$i] -gt $targetParts[$i]) { return $false }
+    }
+    return $false
+}
+
+# Function to uninstall an application
+function Uninstall-Application {
+    param ([string]$UninstallString)
+    try {
+        Start-Process -FilePath "msiexec.exe" -ArgumentList "/quiet /x `"$UninstallString`" REBOOT=ReallySuppress" -Wait -ErrorAction Stop
+        Log-Message "Application uninstalled successfully using: $UninstallString"
+    } catch {
+        Log-Message "Error uninstalling the application: $_" -Severity "ERROR"
+        throw
+    }
+}
+
 try {
-    # Ensure the log directory exists
+    # Ensure log directory exists
     if (-not (Test-Path $logDir)) {
-        New-Item -Path $logDir -ItemType Directory -ErrorAction Stop | Out-Null
+        New-Item -Path $logDir -ItemType Directory -Force | Out-Null
         Log-Message "Log directory $logDir created."
     }
 
-    # Function to get the MSI version
-    function Get-MsiVersion {
-        param (
-            [string]$MsiPath
-        )
-        $msi = New-Object -ComObject WindowsInstaller.Installer
-        $db = $msi.GetType().InvokeMember("OpenDatabase", "InvokeMethod", $null, $msi, @($MsiPath, 0))
-        $view = $db.GetType().InvokeMember("OpenView", "InvokeMethod", $null, $db, @("SELECT `Value` FROM `Property` WHERE `Property`='ProductVersion'"))
-        $view.GetType().InvokeMember("Execute", "InvokeMethod", $null, $view, $null)
-        $record = $view.GetType().InvokeMember("Fetch", "InvokeMethod", $null, $view, $null)
-        $version = $record.GetType().InvokeMember("StringData", "GetProperty", $null, $record, 1)
-        return $version
-    }
-
-    # Function to get the installed version of an application
-    function Get-InstalledVersion {
-        param (
-            [string]$RegistryKey
-        )
-        $item = Get-ItemProperty -Path $RegistryKey -ErrorAction SilentlyContinue
-        if ($item) {
-            $version = $item.DisplayVersion
-            if ($version -is [System.Array]) {
-                $version = $version[0]
-            }
-            return $version
-        }
-        return $null
-    }
-
-    # Manually compare versions as strings
-    function Compare-Version {
-        param (
-            [string]$installed,
-            [string]$msi
-        )
-        $installedParts = $installed -split '[.-]'
-        $msiParts = $msi -split '[.-]'
-        for ($i = 0; $i -lt $installedParts.Length; $i++) {
-            if ([int]$msiParts[$i] -gt [int]$installedParts[$i]) {
-                return $true
-            } elseif ([int]$msiParts[$i] -lt [int]$installedParts[$i]) {
-                return $false
-            }
-        }
-        return $false
-    }
-
-    # Get the MSI version
-    $msiVersion = Get-MsiVersion -MsiPath $PowerShellMSIPath
-
-    # Check the installed version of PowerShell
-    $installedVersion = Get-InstalledVersion -RegistryKey $UninstallRegistryKey
-    if ($installedVersion) {
-        Log-Message "Installed version of PowerShell: $installedVersion"
-        if (Compare-Version -installed $installedVersion -msi $msiVersion) {
-            # Uninstall the previous version
-            $uninstallString = (Get-ItemProperty -Path $UninstallRegistryKey).UninstallString
-            Uninstall-Application -UninstallString $uninstallString
-        } else {
-            Log-Message "PowerShell is already installed in version $installedVersion, which is equal to or newer than the MSI version $msiVersion. No action needed."
-            exit
-        }
-    }
-
-    # Verify access to the MSI file before installation
+    # Verify the MSI file exists
     if (-not (Test-Path $PowerShellMSIPath)) {
-        Log-Message "Error: PowerShell installation file not found at '$PowerShellMSIPath'."
-        exit
+        Log-Message "ERROR: PowerShell MSI file not found at '$PowerShellMSIPath'. Please verify the path." -Severity "ERROR"
+        exit 1
     }
 
-    # Install PowerShell using the MSI package
-    try {
-        $installArgs = "/quiet /i `"$PowerShellMSIPath`" ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL=1 ENABLE_PSREMOTING=1 REGISTER_MANIFEST=1 USE_MU=1 ENABLE_MU=1 ADD_PATH=1 /log `"$logPath`""
-        Start-Process -FilePath "msiexec.exe" -ArgumentList $installArgs -Wait -ErrorAction Stop
-        Log-Message "PowerShell successfully installed."
-    } catch {
-        Log-Message "Installation error: $_"
-        exit
+    Log-Message "Target PowerShell MSI version: $MsiVersion"
+
+    # Retrieve installed PowerShell programs
+    $installedPrograms = Get-InstalledPrograms
+    if ($installedPrograms.Count -eq 0) {
+        Log-Message "No version of PowerShell found. Proceeding with installation."
+    } else {
+        foreach ($program in $installedPrograms) {
+            Log-Message "Found: $($program.DisplayName) - Version: $($program.DisplayVersion) - Architecture: $($program.Architecture)"
+            if (Compare-Version -installed $program.DisplayVersion -target $MsiVersion) {
+                Log-Message "Installed version ($($program.DisplayVersion)) is earlier than target version ($MsiVersion). Update required."
+                Uninstall-Application -UninstallString $program.UninstallString
+            } else {
+                Log-Message "Installed version ($($program.DisplayVersion)) is up-to-date. No action needed."
+                return
+            }
+        }
     }
+
+    # Proceed with PowerShell installation
+    Log-Message "Starting PowerShell installation."
+    $installArgs = "/quiet /i `"$PowerShellMSIPath`" ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL=1 ENABLE_PSREMOTING=1 REGISTER_MANIFEST=1 USE_MU=1 ENABLE_MU=1 ADD_PATH=1 /log `"$logPath`""
+    Start-Process -FilePath "msiexec.exe" -ArgumentList $installArgs -Wait -ErrorAction Stop
+    Log-Message "PowerShell successfully installed."
+
 } catch {
-    Log-Message "An error occurred: $_"
+    Log-Message "An error occurred: $_" -Severity "ERROR"
+    exit 1
 }
+
+Log-Message "Script completed successfully."
+exit 0
 
 # End of script
