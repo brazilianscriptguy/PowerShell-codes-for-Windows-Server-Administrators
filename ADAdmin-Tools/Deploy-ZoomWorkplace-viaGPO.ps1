@@ -10,149 +10,113 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: November 12, 2024
 #>
 
 param (
-    [string]$ZoomMSIPath = "\\forest-logonserver-name\netlogon\zoom-msi-folder\AutoDeployment-ZoomWorkplace.msi",
-    [string]$UninstallRegistryKey32 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{A8B0C26F-362F-45F8-A368-E2D4708B9EFD}", # Zoom Workplace 32-bit Version: 6.1.1 (41705)
-    [string]$UninstallRegistryKey64 = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{A8B0C26F-362F-45F8-A368-E2D4708B9EFD}" # Zoom Workplace 64-bit Version: 6.1.1 (41705)
+    [string]$ZoomMSIPath = "\\sede.tjap\NETLOGON\zoom-workplace-install\zoom-workplace-install.msi",  # Path to the MSI file on the network
+    [string]$MsiVersion = "6.2.49583"  # You must verify waht version of the MSI to be installed
 )
 
 $ErrorActionPreference = "Stop"
 
-# Configure the log file path and name based on the script name
+# Log configuration
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$logDir = 'C:\Logs-TEMP'
+$logDir = 'C:\Scripts-LOGS'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 
-# Enhanced function for logging messages with error handling
+# Function to log messages
 function Log-Message {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$Message
-    )
+    param ([string]$Message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = "[$timestamp] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
-        Write-Error "Failed to write to log at $logPath. Error: $_"
+        Write-Error "Failed to log the message at $logPath. Error: $_"
+    }
+}
+
+# Function to retrieve installed programs
+function Get-InstalledPrograms {
+    $registryPaths = @(
+        'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+        'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+    )
+    $installedPrograms = $registryPaths | ForEach-Object {
+        Get-ItemProperty -Path $_ |
+        Where-Object { $_.DisplayName -and $_.DisplayName -match "Zoom" } |
+        Select-Object DisplayName, DisplayVersion,
+                      @{Name="UninstallString"; Expression={ $_.UninstallString }},
+                      @{Name="Architecture"; Expression={ if ($_.PSPath -match 'WOW6432Node') {'32-bit'} else {'64-bit'} }}
+    }
+    return $installedPrograms
+}
+
+# Function to compare versions (returns True if 'installed' is earlier than 'target')
+function Compare-Version {
+    param ([string]$installed, [string]$target)
+    $installedParts = $installed -split '[.-]' | ForEach-Object { [int]$_ }
+    $targetParts = $target -split '[.-]' | ForEach-Object { [int]$_ }
+    for ($i = 0; $i -lt $targetParts.Length; $i++) {
+        if ($installedParts[$i] -lt $targetParts[$i]) { return $true }
+        if ($installedParts[$i] -gt $targetParts[$i]) { return $false }
+    }
+    return $false
+}
+
+# Function to uninstall an application
+function Uninstall-Application {
+    param ([string]$UninstallString)
+    try {
+        Start-Process -FilePath "msiexec.exe" -ArgumentList "/qn /x `"$UninstallString`" REBOOT=ReallySuppress" -Wait -ErrorAction Stop
+        Log-Message "Application uninstalled successfully using: $UninstallString"
+    } catch {
+        Log-Message "Error uninstalling the application: $_"
+        throw
     }
 }
 
 try {
     # Ensure the log directory exists
     if (-not (Test-Path $logDir)) {
-        New-Item -Path $logDir -ItemType Directory -ErrorAction Stop | Out-Null
-        
-        # Check and log the status of log directory creation
-        if (-not (Test-Path $logDir)) {
-            Log-Message "WARNING: Failed to create log directory at $logDir. Logging may not work correctly."
-        } else {
-            Log-Message "Log directory $logDir created."
-        }
+        New-Item -Path $logDir -ItemType Directory -Force | Out-Null
+        Log-Message "Log directory $logDir created."
     }
 
-    # Function to get the MSI version
-    function Get-MsiVersion {
-        param (
-            [string]$MsiPath
-        )
-        $msi = New-Object -ComObject WindowsInstaller.Installer
-        $db = $msi.GetType().InvokeMember("OpenDatabase", "InvokeMethod", $null, $msi, @($MsiPath, 0))
-        $view = $db.GetType().InvokeMember("OpenView", "InvokeMethod", $null, $db, @("SELECT `Value` FROM `Property` WHERE `Property`='ProductVersion'"))
-        $view.GetType().InvokeMember("Execute", "InvokeMethod", $null, $view, $null)
-        $record = $view.GetType().InvokeMember("Fetch", "InvokeMethod", $null, $view, $null)
-        $version = $record.GetType().InvokeMember("StringData", "GetProperty", $null, $record, 1)
-        return $version
+    # Verify MSI file exists
+    if (-not (Test-Path $ZoomMSIPath)) {
+        Log-Message "ERROR: The MSI file was not found at $ZoomMSIPath. Please verify the path and try again."
+        throw "MSI file not found."
     }
 
-    # Function to uninstall an application via MSI
-    function Uninstall-Application {
-        param (
-            [string]$UninstallString
-        )
-        try {
-            Start-Process -FilePath "msiexec.exe" -ArgumentList "/qn /x `"$UninstallString`" REBOOT=ReallySuppress" -Wait -ErrorAction Stop
-            Log-Message "Application successfully uninstalled using: $UninstallString"
-        } catch {
-            Log-Message "Error uninstalling the application: $_"
-        }
-    }
+    # Log the MSI version
+    Log-Message "MSI version to be installed: $MsiVersion"
 
-    # Get the MSI version
-    $msiVersion = Get-MsiVersion -MsiPath $ZoomMSIPath
-
-    # Function to get the installed version of an application
-    function Get-InstalledVersion {
-        param (
-            [string]$RegistryKey
-        )
-        $item = Get-ItemProperty -Path $RegistryKey -ErrorAction SilentlyContinue
-        if ($item) {
-            $version = $item.DisplayVersion
-            if ($version -is [System.Array]) {
-                $version = $version[0]
-            }
-            return $version
-        }
-        return $null
-    }
-
-    # Manually compare versions as strings
-    function Compare-Version {
-        param (
-            [string]$installed,
-            [string]$msi
-        )
-        $installedParts = $installed -split '[.-]'
-        $msiParts = $msi -split '[.-]'
-        for ($i = 0; $i -lt $installedParts.Length; $i++) {
-            if ([int]$msiParts[$i] -gt [int]$installedParts[$i]) {
-                return $true
-            } elseif ([int]$msiParts[$i] -lt [int]$installedParts[$i]) {
-                return $false
-            }
-        }
-        return $false
-    }
-
-    # Check and uninstall installed versions
-    $installedVersion32 = Get-InstalledVersion -RegistryKey $UninstallRegistryKey32
-    $installedVersion64 = Get-InstalledVersion -RegistryKey $UninstallRegistryKey64
-
-    if ($installedVersion32) {
-        Log-Message "Installed 32-bit version of Zoom Workplace: $installedVersion32"
-        if (Compare-Version -installed $installedVersion32 -msi $msiVersion) {
-            Uninstall-Application -UninstallString (Get-ItemProperty -Path $UninstallRegistryKey32).UninstallString
-        }
-    }
-
-    if ($installedVersion64) {
-        Log-Message "Installed 64-bit version of Zoom Workplace: $installedVersion64"
-        if (Compare-Version -installed $installedVersion64 -msi $msiVersion) {
-            Uninstall-Application -UninstallString (Get-ItemProperty -Path $UninstallRegistryKey64).UninstallString
-        }
-    }
-
-    if (-not $installedVersion32 -and -not $installedVersion64) {
-        Log-Message "No previous version of Zoom Workplace found."
-    }
-
-    # Verify again if any previous version was removed
-    $installedVersion32 = Get-InstalledVersion -RegistryKey $UninstallRegistryKey32
-    $installedVersion64 = Get-InstalledVersion -RegistryKey $UninstallRegistryKey64
-
-    if (-not $installedVersion32 -and -not $installedVersion64) {
-        # Install Zoom
-        $installArgs = "/qn /i `"$ZoomMSIPath`" REBOOT=ReallySuppress /log `"$logPath`""
-        Start-Process -FilePath "msiexec.exe" -ArgumentList $installArgs -Wait -ErrorAction Stop
-        Log-Message "Zoom Workplace successfully installed."
+    # Check installed programs
+    $installedPrograms = Get-InstalledPrograms
+    if ($installedPrograms.Count -eq 0) {
+        Log-Message "No version of Zoom was found. Proceeding with installation."
     } else {
-        Log-Message "A version of Zoom Workplace is still installed and could not be removed."
+        foreach ($program in $installedPrograms) {
+            Log-Message "Found: $($program.DisplayName) - Version: $($program.DisplayVersion) - Architecture: $($program.Architecture)"
+            if (Compare-Version -installed $program.DisplayVersion -target $MsiVersion) {
+                Log-Message "Installed version ($($program.DisplayVersion)) is earlier than the MSI version ($MsiVersion). Update required."
+                Uninstall-Application -UninstallString $program.UninstallString
+            } else {
+                Log-Message "The installed version ($($program.DisplayVersion)) is up-to-date. No action needed."
+                return
+            }
+        }
     }
+
+    # Proceed with installation
+    Log-Message "No updated version found. Starting installation."
+    $installArgs = "/qn /i `"$ZoomMSIPath`" REBOOT=ReallySuppress /log `"$logPath`""
+    Start-Process -FilePath "msiexec.exe" -ArgumentList $installArgs -Wait -ErrorAction Stop
+    Log-Message "Zoom Workplace installed successfully."
+
 } catch {
     Log-Message "An error occurred: $_"
 }
