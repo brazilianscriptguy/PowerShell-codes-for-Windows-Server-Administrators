@@ -15,7 +15,7 @@
 #>
 
 param (
-    [string]$ZoomMSIPath = "\\sede.tjap\NETLOGON\zoom-workplace-install\zoom-workplace-install.msi",
+    [string]$ZoomMSIPath = "\\forest-domain\netlogon\zoom-workplace-install\zoom-workplace-install.msi",
     [string]$MsiVersion = "6.2.49583" # Target version of Zoom Workplace to install.
 )
 
