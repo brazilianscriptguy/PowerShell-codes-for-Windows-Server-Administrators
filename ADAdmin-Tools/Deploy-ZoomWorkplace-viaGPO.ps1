@@ -16,7 +16,7 @@
 
 param (
     [string]$ZoomMSIPath = "\\sede.tjap\NETLOGON\zoom-workplace-install\zoom-workplace-install.msi",
-    [string]$MsiVersion = "6.2.49583" # You should check your Template Workstation for the updated version of Zoom.
+    [string]$MsiVersion = "6.2.49583" # Target version of Zoom Workplace to install.
 )
 
 $ErrorActionPreference = "Stop"
