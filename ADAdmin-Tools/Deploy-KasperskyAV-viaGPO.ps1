@@ -1,157 +1,153 @@
 <#
 .SYNOPSIS
-    PowerShell Script for Deploying Kaspersky Antivirus via GPO.
+    PowerShell Script for Deploying Kaspersky Antivirus and Network Agent via GPO.
 
 .DESCRIPTION
-    This script automates the installation and configuration of Kaspersky Antivirus across 
-    workstations using Group Policy (GPO), ensuring consistent protection across enterprise environments.
+    This script automates the installation and configuration of Kaspersky Endpoint Security and Kaspersky Network Agent
+    across workstations using Group Policy (GPO), ensuring consistent protection and central management.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: November 12, 2024
 #>
 
 param (
     [string]$KESInstallerPath = "\\forest-domain\netlogon\kes-antivirus-install\pkg_2\exec\kes_win.msi",
     [string]$NetworkAgentInstallerPath = "\\forest-domain\netlogon\kes-antivirus-install\pkg_1\exec\Kaspersky Network Agent.msi",
-    [string]$KESUninstallRegistryKey = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{27534751-4A40-48BD-B393-BC3BF28C876E}", # GUID refers to version 12.4.0.467
-    [string]$NetworkAgentUninstallRegistryKey = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{0F05E4E5-5A89-482C-9A62-47CC58643788}", # GUID for version 14.0.0.10902
+    [string]$TargetKESVersion = "12.6.0.438", # Target version for Kaspersky Endpoint Security
+    [string]$TargetAgentVersion = "14.0.0.10902", # Target version for Kaspersky Network Agent
     [string]$KLMoverServerAddress = "kes-server.domain.local",
     [string]$NetworkAgentDirectory = "C:\Program Files (x86)\Kaspersky Lab\NetworkAgent\"
 )
 
-$ErrorActionPreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
 
-# Configure the log file name based on the script name
+# Configure log file path and name
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$logDirectory = 'C:\Logs-TEMP'
+$logDir = 'C:\Logs-TEMP'
 $logFileName = "${scriptName}.log"
-$logFilePath = Join-Path $logDirectory $logFileName
+$logPath = Join-Path $logDir $logFileName
 
-# Enhanced function to log messages with error handling
+# Function for logging messages
 function Log-Message {
     param (
-        [Parameter(Mandatory = $true)]
-        [string]$Message
+        [string]$Message,
+        [string]$Severity = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$Severity] [$timestamp] $Message"
     try {
-        Add-Content -Path $logFilePath -Value $logEntry -ErrorAction Stop
+        Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
-        Write-Error "Failed to log to $logFilePath. Error: $_"
+        Write-Error "Failed to log to $logPath. Error: $_"
     }
 }
 
-# Function to execute a command and capture its output
-function Execute-Command {
-    param (
-        [string]$Command,
-        [string]$Arguments
+# Function to retrieve installed programs
+function Get-InstalledPrograms {
+    $registryPaths = @(
+        'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+        'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
     )
-    $outputFile = [System.IO.Path]::GetTempFileName()
+    $installedPrograms = $registryPaths | ForEach-Object {
+        Get-ItemProperty -Path $_ |
+        Where-Object { $_.DisplayName -and ($_.DisplayName -match "Kaspersky Endpoint" -or $_.DisplayName -match "Kaspersky Network Agent") } |
+        Select-Object DisplayName, DisplayVersion,
+                      @{Name="UninstallString"; Expression={ $_.UninstallString }}
+    }
+    return $installedPrograms
+}
+
+# Function to compare versions
+function Compare-Version {
+    param (
+        [string]$installed,
+        [string]$target
+    )
+    $installedParts = $installed -split '[.-]' | ForEach-Object { [int]$_ }
+    $targetParts = $target -split '[.-]' | ForEach-Object { [int]$_ }
+    for ($i = 0; $i -lt $targetParts.Length; $i++) {
+        if ($installedParts[$i] -lt $targetParts[$i]) { return $true }
+        if ($installedParts[$i] -gt $targetParts[$i]) { return $false }
+    }
+    return $false
+}
+
+# Function to uninstall an application
+function Uninstall-Application {
+    param ([string]$UninstallString)
     try {
-        $process = Start-Process -FilePath $Command -ArgumentList $Arguments -NoNewWindow -Wait -RedirectStandardOutput $outputFile -RedirectStandardError $outputFile
-        $output = Get-Content $outputFile | Out-String
-        Remove-Item $outputFile
-        return $output
+        Start-Process -FilePath "msiexec.exe" -ArgumentList "/quiet /x `"$UninstallString`" REBOOT=ReallySuppress" -Wait -ErrorAction Stop
+        Log-Message "Successfully uninstalled application using: $UninstallString"
     } catch {
-        Log-Message "Error executing command ${Command}: $_"
-        if (Test-Path $outputFile) { Remove-Item $outputFile }
-        return $null
+        Log-Message "Error uninstalling the application: $_" -Severity "ERROR"
+        throw
     }
 }
 
-# Ensure the log directory exists
-if (-not (Test-Path $logDirectory)) {
-    New-Item -Path $logDirectory -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
-    
-    # Check and log the status of log directory creation
-    if (-not (Test-Path $logDirectory)) {
-        Log-Message "WARNING: Failed to create log directory at $logDirectory. Logging may not work properly."
+try {
+    # Ensure log directory exists
+    if (-not (Test-Path $logDir)) {
+        New-Item -Path $logDir -ItemType Directory -Force | Out-Null
+        Log-Message "Log directory $logDir created."
+    }
+
+    # Retrieve installed Kaspersky programs
+    $installedPrograms = Get-InstalledPrograms
+
+    # Check and manage Kaspersky Endpoint Security
+    $kesProgram = $installedPrograms | Where-Object { $_.DisplayName -match "Kaspersky Endpoint Security" }
+    if ($kesProgram) {
+        Log-Message "Found Kaspersky Endpoint Security version $($kesProgram.DisplayVersion)."
+        if (Compare-Version -installed $kesProgram.DisplayVersion -target $TargetKESVersion) {
+            Log-Message "Installed version ($($kesProgram.DisplayVersion)) is outdated. Updating to $TargetKESVersion."
+            Uninstall-Application -UninstallString $kesProgram.UninstallString
+        } else {
+            Log-Message "Kaspersky Endpoint Security is up-to-date. No action needed."
+        }
     } else {
-        Log-Message "Log directory $logDirectory created."
+        Log-Message "No Kaspersky Endpoint Security installation found. Proceeding with installation."
     }
-}
 
-# Log script start information
-Log-Message "Starting script execution for KES and Kaspersky Network Agent installation and configuration."
+    # Install Kaspersky Endpoint Security
+    Start-Process -FilePath "msiexec.exe" -ArgumentList "/quiet /i `"$KESInstallerPath`" EULA=1 PRIVACYPOLICY=1 /log `"$logPath`"" -Wait -ErrorAction Stop
+    Log-Message "Kaspersky Endpoint Security installed successfully."
 
-# Check KES installation
-if (-not (Get-ItemProperty -Path $KESUninstallRegistryKey -ErrorAction SilentlyContinue)) {
-    # Log KES installation information
-    Log-Message "Starting KES installation with MSI: $KESInstallerPath (Package name: $(Split-Path $KESInstallerPath -Leaf))"
-    $kesInstallStartTime = Get-Date
-
-    try {
-        Start-Process -FilePath "msiexec.exe" -ArgumentList "/qn /i `"$KESInstallerPath`" EULA=1 PRIVACYPOLICY=1 /log `"$logFilePath`"" -Wait -ErrorAction Stop
-        Log-Message "KES installed successfully."
-    } catch {
-        Log-Message "KES installation error: $_"
-    } finally {
-        $kesInstallEndTime = Get-Date
-        $kesInstallDuration = $kesInstallEndTime - $kesInstallStartTime
-        Log-Message "KES installation completed. Duration: $kesInstallDuration"
+    # Check and manage Kaspersky Network Agent
+    $agentProgram = $installedPrograms | Where-Object { $_.DisplayName -match "Kaspersky Network Agent" }
+    if ($agentProgram) {
+        Log-Message "Found Kaspersky Network Agent version $($agentProgram.DisplayVersion)."
+        if (Compare-Version -installed $agentProgram.DisplayVersion -target $TargetAgentVersion) {
+            Log-Message "Installed version ($($agentProgram.DisplayVersion)) is outdated. Updating to $TargetAgentVersion."
+            Uninstall-Application -UninstallString $agentProgram.UninstallString
+        } else {
+            Log-Message "Kaspersky Network Agent is up-to-date. No action needed."
+        }
+    } else {
+        Log-Message "No Kaspersky Network Agent installation found. Proceeding with installation."
     }
-} else {
-    Log-Message "KES is already installed."
-}
 
-# Check Kaspersky Network Agent installation
-if (-not (Get-ItemProperty -Path $NetworkAgentUninstallRegistryKey -ErrorAction SilentlyContinue)) {
-    # Log Network Agent installation information
-    Log-Message "Starting Kaspersky Network Agent installation with MSI: $NetworkAgentInstallerPath (Package name: $(Split-Path $NetworkAgentInstallerPath -Leaf))"
+    # Install Kaspersky Network Agent
+    Start-Process -FilePath "msiexec.exe" -ArgumentList "/quiet /i `"$NetworkAgentInstallerPath`" EULA=1 PRIVACYPOLICY=1 /log `"$logPath`"" -Wait -ErrorAction Stop
+    Log-Message "Kaspersky Network Agent installed successfully."
 
-    try {
-        Log-Message "Executing Kaspersky Network Agent installation..."
-        Start-Process -FilePath "msiexec.exe" -ArgumentList "/qn /i `"$NetworkAgentInstallerPath`" EULA=1 PRIVACYPOLICY=1 /log `"$logFilePath`"" -Wait -ErrorAction Stop
-        Log-Message "Kaspersky Network Agent installed successfully."
-    } catch {
-        Log-Message "Kaspersky Network Agent installation error: $_"
-    }
-} else {
-    Log-Message "Kaspersky Network Agent is already installed."
-}
-
-# Network Agent configuration after installation
-Log-Message "Starting Kaspersky Network Agent configuration."
-
-# Check if Kaspersky Agent directory exists
-if (Test-Path $NetworkAgentDirectory) {
+    # Configure Kaspersky Network Agent
     $klmoverPath = Join-Path $NetworkAgentDirectory "klmover.exe"
-    $klnagchkPath = Join-Path $NetworkAgentDirectory "klnagchk.exe"
-
-    if (Test-Path $klmoverPath -and Test-Path $klnagchkPath) {
-        # Log Network Agent configuration information
-        Log-Message "Executing klmover.exe to change server address to: $KLMoverServerAddress"
-        $klmoverOutput = Execute-Command -Command $klmoverPath -Arguments "-address $KLMoverServerAddress"
-        if ($klmoverOutput) {
-            Log-Message "Server address changed to $KLMoverServerAddress."
-            Log-Message "klmover command output: $klmoverOutput"
-        }
-
-        # Check network agent status
-        Log-Message "Executing klnagchk.exe to check network agent status."
-        $klnagchkOutput = Execute-Command -Command $klnagchkPath -Arguments ""
-        if ($klnagchkOutput) {
-            Log-Message "Network agent status verified."
-            Log-Message "klnagchk command output: $klnagchkOutput"
-        }
+    if (Test-Path $klmoverPath) {
+        Log-Message "Configuring Kaspersky Network Agent with server address $KLMoverServerAddress."
+        Start-Process -FilePath $klmoverPath -ArgumentList "-address $KLMoverServerAddress" -Wait -ErrorAction Stop
+        Log-Message "Kaspersky Network Agent configured successfully."
     } else {
-        if (-not (Test-Path $klmoverPath)) {
-            Log-Message "klmover.exe not found at: $klmoverPath"
-        }
-        if (-not (Test-Path $klnagchkPath)) {
-            Log-Message "klnagchk.exe not found at: $klnagchkPath"
-        }
+        Log-Message "ERROR: klmover.exe not found in $NetworkAgentDirectory." -Severity "ERROR"
     }
-} else {
-    Log-Message "Kaspersky Agent directory not found: $NetworkAgentDirectory"
+} catch {
+    Log-Message "An error occurred: $_" -Severity "ERROR"
+    exit 1
 }
 
-# Log script end information
-Log-Message "Script execution for KES and Kaspersky Network Agent installation and configuration completed."
+Log-Message "Script execution completed successfully."
+exit 0
 
 # End of script
