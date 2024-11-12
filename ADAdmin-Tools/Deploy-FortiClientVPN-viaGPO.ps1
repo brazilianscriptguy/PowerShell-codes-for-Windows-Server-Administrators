@@ -16,7 +16,7 @@
 
 param (
     [string]$FortiClientMSIPath = "\\server\share\forticlient-vpn-install\forticlient-vpn-install.msi",
-    [string]$MsiVersion = "7.4.0.1658" # You should check your Template Workstation for the updated version of FortiClient VPN.
+    [string]$MsiVersion = "7.4.0.1658" # Target version of FortiClient VPN to install.
 )
 
 $ErrorActionPreference = "Stop"
