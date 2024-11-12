@@ -4,30 +4,30 @@
 
 .DESCRIPTION
     This script deploys the FusionInventory Agent on workstations via Group Policy (GPO), 
-    optimizing inventory management and reporting in enterprise environments.
+    ensuring seamless inventory management and reporting in enterprise environments.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: November 12, 2024
 #>
 
 param (
     [string]$FusionInventoryURL = "http://glpi.contoso.com/plugins/fusioninventory/clients/2.6.1/fusioninventory-agent_windows-x64_2.6.1.exe",
-    [string]$FusionInventoryLogDir = "C:\Scripts-LOGS",
+    [string]$FusionInventoryLogDir = "C:\Logs-TEMP",
     [string]$ExpectedVersion = "2.6",
     [bool]$ReinstallIfSameVersion = $true
 )
 
 $ErrorActionPreference = "Stop"
 
-# Configuration for the log file name without a timestamp
+# Log configuration
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $FusionInventoryLogDir $logFileName
 
-# Function for logging messages
+# Logging function
 function Log-Message {
     param (
         [Parameter(Mandatory = $true)]
@@ -46,14 +46,14 @@ function Log-Message {
 # Ensure the log directory exists
 try {
     if (-not (Test-Path $FusionInventoryLogDir)) {
-        New-Item -Path $FusionInventoryLogDir -ItemType Directory -ErrorAction Stop | Out-Null
+        New-Item -Path $FusionInventoryLogDir -ItemType Directory -Force | Out-Null
         Log-Message "Log directory $FusionInventoryLogDir created."
     }
 } catch {
     Log-Message "WARNING: Failed to create log directory at $FusionInventoryLogDir." -Warning
 }
 
-# Function to detect the installed version of FusionInventory
+# Retrieve the installed version of FusionInventory
 function Get-InstalledVersion {
     param (
         [string]$RegistryKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\FusionInventory-Agent"
@@ -62,7 +62,7 @@ function Get-InstalledVersion {
         $key = Get-ItemProperty -Path $RegistryKey -ErrorAction SilentlyContinue
         if ($key) { return $key.DisplayVersion }
     } catch {
-        Log-Message "Error accessing registry: $_"
+        Log-Message "Error accessing registry: $_" -Warning
     }
     return $null
 }
@@ -82,7 +82,7 @@ if ($installedVersion -eq $ExpectedVersion -and -not $ReinstallIfSameVersion) {
 $tempDir = [System.IO.Path]::GetTempPath()
 $fusionInventorySetup = Join-Path $tempDir "fusioninventory-agent.exe"
 
-# Function to download the installer
+# Download the installer
 function Download-File {
     param (
         [string]$url,
@@ -98,7 +98,6 @@ function Download-File {
     }
 }
 
-# Download the installer
 Download-File -url $FusionInventoryURL -destinationPath $fusionInventorySetup
 
 # Execute the installer
@@ -124,5 +123,9 @@ try {
 } catch {
     Log-Message "Error removing temporary installer: $_" -Warning
 }
+
+# Log script completion
+Log-Message "Script execution completed successfully."
+exit 0
 
 # End of script
