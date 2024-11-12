@@ -3,8 +3,9 @@
     PowerShell Script for Deploying Zoom Workplace via GPO.
 
 .DESCRIPTION
-    This script automates the deployment of Zoom software through Group Policy (GPO), 
-    facilitating seamless collaboration and communication across enterprise environments.
+    This script automates the deployment of Zoom software through Group Policy (GPO). 
+    It validates the presence of the MSI file, checks the installed Zoom version,
+    uninstalls outdated versions, and installs the latest specified version.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -14,23 +15,25 @@
 #>
 
 param (
-    [string]$ZoomMSIPath = "\\sede.tjap\NETLOGON\zoom-workplace-install\zoom-workplace-install.msi",  # Path to the MSI file on the network
-    [string]$MsiVersion = "6.2.49583"  # You must verify waht version of the MSI to be installed
+    [string]$ZoomMSIPath = "\\sede.tjap\NETLOGON\zoom-workplace-install\zoom-workplace-install.msi",
+    [string]$MsiVersion = "6.2.49583" You should check your Template Workstation for the updated version of Zoom.
 )
 
 $ErrorActionPreference = "Stop"
 
-# Log configuration
+# Log Configuration
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Scripts-LOGS'
 $logFileName = "${scriptName}.log"
 $logPath = Join-Path $logDir $logFileName
 
-# Function to log messages
 function Log-Message {
-    param ([string]$Message)
+    param (
+        [string]$Message,
+        [string]$Severity = "INFO"
+    )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$Severity] [$timestamp] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
@@ -38,7 +41,6 @@ function Log-Message {
     }
 }
 
-# Function to retrieve installed programs
 function Get-InstalledPrograms {
     $registryPaths = @(
         'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
@@ -54,7 +56,6 @@ function Get-InstalledPrograms {
     return $installedPrograms
 }
 
-# Function to compare versions (returns True if 'installed' is earlier than 'target')
 function Compare-Version {
     param ([string]$installed, [string]$target)
     $installedParts = $installed -split '[.-]' | ForEach-Object { [int]$_ }
@@ -66,35 +67,30 @@ function Compare-Version {
     return $false
 }
 
-# Function to uninstall an application
 function Uninstall-Application {
     param ([string]$UninstallString)
     try {
         Start-Process -FilePath "msiexec.exe" -ArgumentList "/qn /x `"$UninstallString`" REBOOT=ReallySuppress" -Wait -ErrorAction Stop
         Log-Message "Application uninstalled successfully using: $UninstallString"
     } catch {
-        Log-Message "Error uninstalling the application: $_"
+        Log-Message "Error uninstalling the application: $_" -Severity "ERROR"
         throw
     }
 }
 
 try {
-    # Ensure the log directory exists
     if (-not (Test-Path $logDir)) {
         New-Item -Path $logDir -ItemType Directory -Force | Out-Null
         Log-Message "Log directory $logDir created."
     }
 
-    # Verify MSI file exists
     if (-not (Test-Path $ZoomMSIPath)) {
-        Log-Message "ERROR: The MSI file was not found at $ZoomMSIPath. Please verify the path and try again."
-        throw "MSI file not found."
+        Log-Message "ERROR: The MSI file was not found at $ZoomMSIPath. Please verify the path and try again." -Severity "ERROR"
+        exit 1
     }
 
-    # Log the MSI version
     Log-Message "MSI version to be installed: $MsiVersion"
 
-    # Check installed programs
     $installedPrograms = Get-InstalledPrograms
     if ($installedPrograms.Count -eq 0) {
         Log-Message "No version of Zoom was found. Proceeding with installation."
@@ -111,14 +107,18 @@ try {
         }
     }
 
-    # Proceed with installation
     Log-Message "No updated version found. Starting installation."
     $installArgs = "/qn /i `"$ZoomMSIPath`" REBOOT=ReallySuppress /log `"$logPath`""
     Start-Process -FilePath "msiexec.exe" -ArgumentList $installArgs -Wait -ErrorAction Stop
     Log-Message "Zoom Workplace installed successfully."
 
 } catch {
-    Log-Message "An error occurred: $_"
+    Log-Message "An error occurred: $_" -Severity "ERROR"
+    exit 1
 }
 
+Log-Message "Script completed successfully."
+exit 0
+
 # End of script
+
