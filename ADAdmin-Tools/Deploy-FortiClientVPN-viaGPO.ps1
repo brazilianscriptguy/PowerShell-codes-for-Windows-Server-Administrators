@@ -15,7 +15,7 @@
 #>
 
 param (
-    [string]$FortiClientMSIPath = "\\server\share\forticlient-vpn-install\forticlient-vpn-install.msi",
+    [string]$FortiClientMSIPath = "\\forest-domain\netlogon\forticlient-vpn-install\forticlient-vpn-install.msi",
     [string]$MsiVersion = "7.4.0.1658" # Target version of FortiClient VPN to install.
 )
 
