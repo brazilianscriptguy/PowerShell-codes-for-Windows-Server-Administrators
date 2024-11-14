@@ -10,7 +10,7 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: November 12, 2024
+    Last Updated: November 14, 2024
 #>
 
 param (
@@ -33,6 +33,7 @@ $logPath = Join-Path $logDir $logFileName
 # Function for logging messages
 function Log-Message {
     param (
+        [Parameter(Mandatory = $true)]
         [string]$Message,
         [string]$Severity = "INFO"
     )
@@ -66,13 +67,35 @@ function Compare-Version {
         [string]$installed,
         [string]$target
     )
-    $installedParts = $installed -split '[.-]' | ForEach-Object { [int]$_ }
-    $targetParts = $target -split '[.-]' | ForEach-Object { [int]$_ }
-    for ($i = 0; $i -lt $targetParts.Length; $i++) {
-        if ($installedParts[$i] -lt $targetParts[$i]) { return $true }
-        if ($installedParts[$i] -gt $targetParts[$i]) { return $false }
+    try {
+        # Sanitize versions to ensure consistent format
+        $installed = $installed -replace '\s+', '.'  # Replace spaces with dots
+        $target = $target -replace '\s+', '.'
+
+        $installedParts = $installed -split '[.-]' | ForEach-Object { 
+            if ($_ -match '^\d+$') { 
+                [int]$_ 
+            } else { 
+                throw "Invalid value in installed version: $_" 
+            } 
+        }
+        $targetParts = $target -split '[.-]' | ForEach-Object { 
+            if ($_ -match '^\d+$') { 
+                [int]$_ 
+            } else { 
+                throw "Invalid value in target version: $_" 
+            } 
+        }
+
+        for ($i = 0; $i -lt $targetParts.Length; $i++) {
+            if ($installedParts[$i] -lt $targetParts[$i]) { return $true }
+            if ($installedParts[$i] -gt $targetParts[$i]) { return $false }
+        }
+        return $false
+    } catch {
+        Log-Message "Error comparing versions: $_" -Severity "ERROR"
+        throw
     }
-    return $false
 }
 
 # Function to uninstall an application
@@ -100,9 +123,12 @@ try {
     # Check and manage Kaspersky Endpoint Security
     $kesProgram = $installedPrograms | Where-Object { $_.DisplayName -match "Kaspersky Endpoint Security" }
     if ($kesProgram) {
-        Log-Message "Found Kaspersky Endpoint Security version $($kesProgram.DisplayVersion)."
-        if (Compare-Version -installed $kesProgram.DisplayVersion -target $TargetKESVersion) {
-            Log-Message "Installed version ($($kesProgram.DisplayVersion)) is outdated. Updating to $TargetKESVersion."
+        # Remove unnecessary spaces and validate version format
+        $kesVersion = $kesProgram.DisplayVersion.Trim() -replace '\s+', '.'
+        Log-Message "Found Kaspersky Endpoint Security version $kesVersion."
+
+        if (Compare-Version -installed $kesVersion -target $TargetKESVersion) {
+            Log-Message "Installed version ($kesVersion) is outdated. Updating to $TargetKESVersion."
             Uninstall-Application -UninstallString $kesProgram.UninstallString
         } else {
             Log-Message "Kaspersky Endpoint Security is up-to-date. No action needed."
@@ -118,9 +144,12 @@ try {
     # Check and manage Kaspersky Network Agent
     $agentProgram = $installedPrograms | Where-Object { $_.DisplayName -match "Kaspersky Network Agent" }
     if ($agentProgram) {
-        Log-Message "Found Kaspersky Network Agent version $($agentProgram.DisplayVersion)."
-        if (Compare-Version -installed $agentProgram.DisplayVersion -target $TargetAgentVersion) {
-            Log-Message "Installed version ($($agentProgram.DisplayVersion)) is outdated. Updating to $TargetAgentVersion."
+        # Remove unnecessary spaces and validate version format
+        $agentVersion = $agentProgram.DisplayVersion.Trim() -replace '\s+', '.'
+        Log-Message "Found Kaspersky Network Agent version $agentVersion."
+
+        if (Compare-Version -installed $agentVersion -target $TargetAgentVersion) {
+            Log-Message "Installed version ($agentVersion) is outdated. Updating to $TargetAgentVersion."
             Uninstall-Application -UninstallString $agentProgram.UninstallString
         } else {
             Log-Message "Kaspersky Network Agent is up-to-date. No action needed."
