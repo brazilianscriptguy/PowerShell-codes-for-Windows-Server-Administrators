@@ -122,7 +122,7 @@ function Export-ADUserAttributes {
 function Show-ExportForm {
     $form = New-Object System.Windows.Forms.Form
     $form.Text = 'Export AD User Attributes'
-    $form.Size = New-Object System.Drawing.Size(420, 500)
+    $form.Size = New-Object System.Drawing.Size(420, 420)
     $form.StartPosition = 'CenterScreen'
 
     # Domain selection
