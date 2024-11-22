@@ -29,7 +29,7 @@ This folder contains a suite of PowerShell scripts crafted to process **Windows 
    Audits print activities by analyzing Event ID 307 from the Microsoft-Windows-PrintService/Operational log, generating detailed tracking reports that include user actions, printer usage, and job specifics.
 
    **PrintService-Operational-EventLogs.reg**
-   Before initiating the print activity audits, merge these registry configurations into Windows Print Servers. This ensures the necessary logging is enabled for capturing detailed print activity data.
+   Before initiating print activity audits, you must first customize and merge these registry configurations into the Windows Print Servers. This step ensures that the necessary logging is enabled to capture detailed print activity data effectively.
 
 4. **EventID4624-LogonViaRDP.ps1**  
    Generates a CSV report on RDP logon activities (Event ID 4624) to monitor remote access and identify potential security risks.
