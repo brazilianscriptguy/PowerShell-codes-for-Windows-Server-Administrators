@@ -88,7 +88,7 @@ function Show-InfoMessage {
     Log-Message "Info: $message" -MessageType "INFO"
 }
 
-# Load and refresh the OUs list, filtered by "Usuarios*"
+# Load and refresh the OUs list, filtered by "Users*"
 function Load-OUs {
     $global:allOUs = Get-ADOrganizationalUnit -Filter 'Name -like "Usuarios*"' | Select-Object -ExpandProperty DistinguishedName
     $cmbOUs.Items.Clear()
