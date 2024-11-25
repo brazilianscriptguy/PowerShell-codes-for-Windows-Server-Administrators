@@ -10,7 +10,7 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: November 25, 2024
 #>
 
 # Hide PowerShell console window
@@ -21,6 +21,7 @@ public class Window {
     [DllImport("kernel32.dll", SetLastError = true)]
     static extern IntPtr GetConsoleWindow();
     [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     public static void Hide() {
         var handle = GetConsoleWindow();
@@ -31,245 +32,336 @@ public class Window {
 [Window]::Hide()
 
 # Import required modules
-Add-Type -AssemblyName System.Windows.Forms
-Import-Module ActiveDirectory -ErrorAction SilentlyContinue
+try {
+    Add-Type -AssemblyName System.Windows.Forms
+} catch {
+    [System.Windows.Forms.MessageBox]::Show("Failed to load System.Windows.Forms assembly. $_", "Initialization Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    exit
+}
+
+try {
+    Import-Module ActiveDirectory -ErrorAction Stop
+} catch {
+    [System.Windows.Forms.MessageBox]::Show("Failed to import ActiveDirectory module. Please ensure it is installed.", "Module Import Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    exit
+}
 
 # Determine the script name and set up logging path
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
 $logDir = 'C:\Logs-TEMP'
-$logFileName = "${scriptName}.log"
-$logPath = Join-Path $logDir $logFileName
+$logPath = Join-Path $logDir "${scriptName}.log"
 
 # Ensure the log directory exists
 if (-not (Test-Path $logDir)) {
-    $null = New-Item -Path $logDir -ItemType Directory -ErrorAction SilentlyContinue
-    if (-not (Test-Path $logDir)) {
-        Write-Error "Failed to create log directory at $logDir. Logging will not be possible."
-        return
+    try {
+        New-Item -Path $logDir -ItemType Directory -Force | Out-Null
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Failed to create log directory at $logDir. Logging will not be possible.", "Logging Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     }
 }
 
 # Enhanced logging function with error handling
 function Log-Message {
     param (
-        [Parameter(Mandatory=$true)]
-        [string]$Message
+        [Parameter(Mandatory = $true)][string]$Message,
+        [Parameter(Mandatory = $false)][ValidateSet("INFO", "WARN", "ERROR")][string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$timestamp] [$MessageType] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
-        Write-Error "Failed to write to log: $_"
+        [System.Windows.Forms.MessageBox]::Show("Failed to write to log: $_", "Logging Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     }
 }
 
-# Function to get the FQDN of the domain name and forest name
-function Get-DomainFQDN {
+# Function to display informational messages
+function Show-InfoMessage {
+    param ([string]$Message)
+    [System.Windows.Forms.MessageBox]::Show($Message, 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Log-Message $Message -MessageType "INFO"
+}
+
+# Function to display error messages
+function Show-ErrorMessage {
+    param ([string]$Message)
+    [System.Windows.Forms.MessageBox]::Show($Message, 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    Log-Message $Message -MessageType "ERROR"
+}
+
+# Function to retrieve all domains in the forest
+function Get-AllDomainFQDNs {
     try {
-        $ComputerSystem = Get-WmiObject Win32_ComputerSystem
-        $Domain = $ComputerSystem.Domain
-        return $Domain
+        $forest = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
+        return $forest.Domains | ForEach-Object { $_.Name }
     } catch {
-        Write-Warning "Unable to fetch FQDN automatically."
-        return "YourDomainHere"
+        Log-Message "Failed to retrieve domains: $_" -MessageType "ERROR"
+        Show-ErrorMessage "Failed to retrieve domains. Check the log for details."
+        return @()
     }
 }
 
-# Retrieve and store all OUs initially
-$allOUs = Get-ADOrganizationalUnit -Filter * | Select-Object -ExpandProperty DistinguishedName
+# Function to retrieve OUs for a specific domain
+function Get-OUsForDomain {
+    param (
+        [Parameter(Mandatory = $true)][string]$DomainFQDN
+    )
+    try {
+        return Get-ADOrganizationalUnit -Filter * -Server $DomainFQDN | Select-Object -ExpandProperty DistinguishedName
+    } catch {
+        Log-Message "Failed to retrieve OUs for domain ${DomainFQDN}: $_" -MessageType "ERROR"
+        Show-ErrorMessage "Failed to retrieve OUs for domain $DomainFQDN. Check the log for details."
+        return @()
+    }
+}
 
-# Function to update ComboBox based on search for Target OU
-function UpdateTargetOUComboBox {
-    $cmbTargetOU.Items.Clear()
-    $searchText = $txtTargetOUSearch.Text
-    $filteredOUs = $allOUs | Where-Object { $_ -like "*$searchText*" }
+# Function to update ComboBox items based on search text and available OUs
+function Update-OUComboBox {
+    param (
+        [string]$SearchText,
+        [System.Windows.Forms.ComboBox]$ComboBox,
+        [array]$OUs
+    )
+    $ComboBox.Items.Clear()
+    $filteredOUs = $OUs | Where-Object { $_ -like "*$SearchText*" }
     foreach ($ou in $filteredOUs) {
-        $cmbTargetOU.Items.Add($ou)
+        $ComboBox.Items.Add($ou)
     }
-    if ($cmbTargetOU.Items.Count -gt 0) {
-        $cmbTargetOU.SelectedIndex = 0
+    if ($ComboBox.Items.Count -gt 0) {
+        $ComboBox.SelectedIndex = 0
+    } else {
+        $ComboBox.Text = 'No matching OU found'
     }
-}
-
-# Function to update ComboBox based on search for Source OU
-function UpdateSourceOUComboBox {
-    $cmbSourceOU.Items.Clear()
-    $searchText = $txtSourceOUSearch.Text
-    $filteredOUs = $allOUs | Where-Object { $_ -like "*$searchText*" }
-    foreach ($ou in $filteredOUs) {
-        $cmbSourceOU.Items.Add($ou)
-    }
-    if ($cmbSourceOU.Items.Count -gt 0) {
-        $cmbSourceOU.SelectedIndex = 0
-    }
-}
-
-# Function to create and show the form
-function Show-Form {
-    $form = New-Object System.Windows.Forms.Form
-    $form.Text = "Move Computers Between OUs"
-    $form.Width = 480
-    $form.Height = 450
-    $form.StartPosition = "CenterScreen"
-
-    # Get the default FQDN for the domain controller
-    $defaultDomainFQDN = Get-DomainFQDN
-
-    # Create labels and textboxes
-    $labelsText = @("Search Target OU:", "Search Source OU:", "Domain Controller (FQDN):", "Computer .TXT list name:")
-    $positions = @(20, 100, 180, 260)
-
-    # Target OU search field
-    $labelSearchTargetOU = New-Object System.Windows.Forms.Label
-    $labelSearchTargetOU.Text = $labelsText[0]
-    $labelSearchTargetOU.Location = New-Object System.Drawing.Point(10, $positions[0])
-    $labelSearchTargetOU.AutoSize = $true
-    $form.Controls.Add($labelSearchTargetOU)
-
-    $txtTargetOUSearch = New-Object System.Windows.Forms.TextBox
-    $txtTargetOUSearch.Location = New-Object System.Drawing.Point(160, $positions[0])
-    $txtTargetOUSearch.Size = New-Object System.Drawing.Size(260, 20)
-    $form.Controls.Add($txtTargetOUSearch)
-
-    # ComboBox for Target OU selection
-    $cmbTargetOU = New-Object System.Windows.Forms.ComboBox
-    $cmbTargetOU.Location = New-Object System.Drawing.Point(160, 60)
-    $cmbTargetOU.Size = New-Object System.Drawing.Size(260, 20)
-    $cmbTargetOU.DropDownStyle = 'DropDownList'
-    $form.Controls.Add($cmbTargetOU)
-
-    # Source OU search field
-    $labelSearchSourceOU = New-Object System.Windows.Forms.Label
-    $labelSearchSourceOU.Text = $labelsText[1]
-    $labelSearchSourceOU.Location = New-Object System.Drawing.Point(10, $positions[1])
-    $labelSearchSourceOU.AutoSize = $true
-    $form.Controls.Add($labelSearchSourceOU)
-
-    $txtSourceOUSearch = New-Object System.Windows.Forms.TextBox
-    $txtSourceOUSearch.Location = New-Object System.Drawing.Point(160, $positions[1])
-    $txtSourceOUSearch.Size = New-Object System.Drawing.Size(260, 20)
-    $form.Controls.Add($txtSourceOUSearch)
-
-    # ComboBox for Source OU selection
-    $cmbSourceOU = New-Object System.Windows.Forms.ComboBox
-    $cmbSourceOU.Location = New-Object System.Drawing.Point(160, 140)
-    $cmbSourceOU.Size = New-Object System.Drawing.Size(260, 20)
-    $cmbSourceOU.DropDownStyle = 'DropDownList'
-    $form.Controls.Add($cmbSourceOU)
-
-    # Domain Controller and .TXT file fields
-    $labelsText2 = @("Domain Controller (FQDN):", "Computer .TXT list name:")
-    $textBoxes = @()
-
-    foreach ($i in 2..3) {
-        $label = New-Object System.Windows.Forms.Label
-        $label.Text = $labelsText2[$i - 2]
-        $label.Location = New-Object System.Drawing.Point(10, $positions[$i])
-        $label.AutoSize = $true
-        $form.Controls.Add($label)
-
-        $textBox = New-Object System.Windows.Forms.TextBox
-        $textBox.Location = New-Object System.Drawing.Point(160, $positions[$i])
-        $textBox.Size = New-Object System.Drawing.Size(260, 20)
-
-        # Prefill the domain controller textbox with the default domain FQDN
-        if ($i -eq 2) {
-            $textBox.Text = $defaultDomainFQDN
-        }
-
-        $textBoxes += $textBox
-        $form.Controls.Add($textBox)
-    }
-
-    # Initially populate ComboBoxes
-    UpdateTargetOUComboBox
-    UpdateSourceOUComboBox
-
-    # Search TextBox change events
-    $txtTargetOUSearch.Add_TextChanged({
-        UpdateTargetOUComboBox
-    })
-    $txtSourceOUSearch.Add_TextChanged({
-        UpdateSourceOUComboBox
-    })
-
-    # Create a button
-    $button = New-Object System.Windows.Forms.Button
-    $button.Text = "Move Computers"
-    $button.Location = New-Object System.Drawing.Point(160, 300)
-    $button.Size = New-Object System.Drawing.Size(200, 30)
-    $form.Controls.Add($button)
-
-    # Create a progress bar
-    $progressBar = New-Object System.Windows.Forms.ProgressBar
-    $progressBar.Location = New-Object System.Drawing.Point(10, 340)
-    $progressBar.Size = New-Object System.Drawing.Size(410, 30)
-    $form.Controls.Add($progressBar)
-
-    # Button click event with validation
-    $button.Add_Click({
-        $isValidInput = $true
-        foreach ($textBox in $textBoxes) {
-            if ([string]::IsNullOrWhiteSpace($textBox.Text)) {
-                [System.Windows.Forms.MessageBox]::Show("Please fill in all fields.", "Input Required", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
-                $isValidInput = $false
-                break
-            }
-        }
-
-        if ($isValidInput) {
-            Log-Message "Starting to move computers from $($cmbSourceOU.SelectedItem) to $($cmbTargetOU.SelectedItem)"
-            Process-Computers $cmbTargetOU.SelectedItem $cmbSourceOU.SelectedItem $textBoxes[0].Text $textBoxes[1].Text $progressBar
-            $form.Close()
-        } else {
-            Log-Message "Input validation failed: One or more fields were empty."
-        }
-    })
-
-    # Show the form
-    $form.ShowDialog()
 }
 
 # Function to process the computers
-function Process-Computers {
+function Move-Computers {
     param (
-        [string]$targetOU,
-        [string]$searchBase,
-        [string]$fqdnDomainController,
-        [string]$computerListFile,
-        [System.Windows.Forms.ProgressBar]$progressBar
+        [Parameter(Mandatory = $true)][string]$TargetOU,
+        [Parameter(Mandatory = $true)][string]$SearchBase,
+        [Parameter(Mandatory = $true)][string]$DomainFQDN,
+        [Parameter(Mandatory = $true)][string]$ComputerListFile,
+        [System.Windows.Forms.ProgressBar]$ProgressBar
     )
 
-    if (Test-Path $computerListFile) {
-        $computers = Get-Content $computerListFile
+    if (-not (Test-Path $ComputerListFile)) {
+        Show-ErrorMessage "Computer list file not found: $ComputerListFile"
+        Log-Message "Computer list file not found: $ComputerListFile" -MessageType "ERROR"
+        return
+    }
+
+    try {
+        $computers = Get-Content -Path $ComputerListFile -ErrorAction Stop
         $totalComputers = $computers.Count
+        if ($totalComputers -eq 0) {
+            Show-InfoMessage "Computer list file is empty."
+            Log-Message "Computer list file is empty: $ComputerListFile" -MessageType "WARN"
+            return
+        }
+
+        $ProgressBar.Minimum = 0
+        $ProgressBar.Maximum = $totalComputers
         $completedComputers = 0
+
         Log-Message "Starting to move computers. Total count: $totalComputers"
 
         foreach ($computerName in $computers) {
+            $computerName = $computerName.Trim()
+            if ([string]::IsNullOrWhiteSpace($computerName)) {
+                continue
+            }
+
             try {
-                $computer = Get-ADComputer -Filter {Name -eq $computerName} -SearchBase $searchBase -Server $fqdnDomainController -ErrorAction SilentlyContinue
+                $computer = Get-ADComputer -Filter { Name -eq $computerName } -SearchBase $SearchBase -Server $DomainFQDN -ErrorAction Stop
                 if ($computer) {
-                    Move-ADObject -Identity $computer.DistinguishedName -TargetPath $targetOU -ErrorAction SilentlyContinue
-                    Log-Message "Moved computer ${computerName} to ${targetOU}"
-                    $completedComputers++
-                    $progressBar.Value = [math]::Round(($completedComputers / $totalComputers) * 100)
+                    Move-ADObject -Identity $computer.DistinguishedName -TargetPath $TargetOU -Server $DomainFQDN -ErrorAction Stop
+                    Log-Message "Moved computer '$computerName' to '$TargetOU'"
                 } else {
-                    Log-Message "Computer ${computerName} not found in ${searchBase}"
+                    Log-Message "Computer '$computerName' not found in '$SearchBase'" -MessageType "WARN"
                 }
             } catch {
-                Log-Message "Error moving computer ${computerName} to ${targetOU}: $_"
+                Log-Message "Error moving computer '$computerName' to '$TargetOU': $_" -MessageType "ERROR"
             }
+            $completedComputers++
+            $ProgressBar.Value = $completedComputers
+            [System.Windows.Forms.Application]::DoEvents()
         }
+
         Log-Message "Completed moving computers"
-    } else {
-        Log-Message "Computer list file not found: ${computerListFile}"
-        [System.Windows.Forms.MessageBox]::Show("Computer list file not found: ${computerListFile}", "File Not Found", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        Show-InfoMessage "Computers moved successfully."
+    } catch {
+        Log-Message "Error processing computer list: $_" -MessageType "ERROR"
+        Show-ErrorMessage "An error occurred while processing the computer list. Check the log for details."
     }
 }
 
-# Call the function to show the form
-Show-Form
+# Function to show the main form
+function Show-MoveComputersForm {
+    # Initialize the form
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Move Computers Between OUs"
+    $form.Size = New-Object System.Drawing.Size(500, 550)
+    $form.StartPosition = "CenterScreen"
+
+    # Label for Domain selection
+    $labelDomain = New-Object System.Windows.Forms.Label
+    $labelDomain.Text = "Select Domain FQDN:"
+    $labelDomain.Location = New-Object System.Drawing.Point(10, 20)
+    $labelDomain.AutoSize = $true
+    $form.Controls.Add($labelDomain)
+
+    # ComboBox for Domain selection
+    $comboBoxDomain = New-Object System.Windows.Forms.ComboBox
+    $comboBoxDomain.Location = New-Object System.Drawing.Point(10, 45)
+    $comboBoxDomain.Size = New-Object System.Drawing.Size(460, 25)
+    $comboBoxDomain.DropDownStyle = 'DropDownList'
+    $form.Controls.Add($comboBoxDomain)
+
+    # Label and TextBox for Source OU search
+    $labelSourceOUSearch = New-Object System.Windows.Forms.Label
+    $labelSourceOUSearch.Text = "Search Source OU:"
+    $labelSourceOUSearch.Location = New-Object System.Drawing.Point(10, 80)
+    $labelSourceOUSearch.AutoSize = $true
+    $form.Controls.Add($labelSourceOUSearch)
+
+    $textBoxSourceOUSearch = New-Object System.Windows.Forms.TextBox
+    $textBoxSourceOUSearch.Location = New-Object System.Drawing.Point(10, 105)
+    $textBoxSourceOUSearch.Size = New-Object System.Drawing.Size(460, 20)
+    $form.Controls.Add($textBoxSourceOUSearch)
+
+    # ComboBox for Source OU selection
+    $comboBoxSourceOU = New-Object System.Windows.Forms.ComboBox
+    $comboBoxSourceOU.Location = New-Object System.Drawing.Point(10, 130)
+    $comboBoxSourceOU.Size = New-Object System.Drawing.Size(460, 25)
+    $comboBoxSourceOU.DropDownStyle = 'DropDownList'
+    $form.Controls.Add($comboBoxSourceOU)
+
+    # Label and TextBox for Target OU search
+    $labelTargetOUSearch = New-Object System.Windows.Forms.Label
+    $labelTargetOUSearch.Text = "Search Target OU:"
+    $labelTargetOUSearch.Location = New-Object System.Drawing.Point(10, 170)
+    $labelTargetOUSearch.AutoSize = $true
+    $form.Controls.Add($labelTargetOUSearch)
+
+    $textBoxTargetOUSearch = New-Object System.Windows.Forms.TextBox
+    $textBoxTargetOUSearch.Location = New-Object System.Drawing.Point(10, 195)
+    $textBoxTargetOUSearch.Size = New-Object System.Drawing.Size(460, 20)
+    $form.Controls.Add($textBoxTargetOUSearch)
+
+    # ComboBox for Target OU selection
+    $comboBoxTargetOU = New-Object System.Windows.Forms.ComboBox
+    $comboBoxTargetOU.Location = New-Object System.Drawing.Point(10, 220)
+    $comboBoxTargetOU.Size = New-Object System.Drawing.Size(460, 25)
+    $comboBoxTargetOU.DropDownStyle = 'DropDownList'
+    $form.Controls.Add($comboBoxTargetOU)
+
+    # Label and TextBox for Computer List File path
+    $labelComputerList = New-Object System.Windows.Forms.Label
+    $labelComputerList.Text = "Path to Computer List File:"
+    $labelComputerList.Location = New-Object System.Drawing.Point(10, 260)
+    $labelComputerList.AutoSize = $true
+    $form.Controls.Add($labelComputerList)
+
+    $textBoxComputerList = New-Object System.Windows.Forms.TextBox
+    $textBoxComputerList.Location = New-Object System.Drawing.Point(10, 285)
+    $textBoxComputerList.Size = New-Object System.Drawing.Size(460, 20)
+    $form.Controls.Add($textBoxComputerList)
+
+    # Button to browse for Computer List File
+    $buttonBrowse = New-Object System.Windows.Forms.Button
+    $buttonBrowse.Text = "Browse"
+    $buttonBrowse.Location = New-Object System.Drawing.Point(400, 310)
+    $buttonBrowse.Size = New-Object System.Drawing.Size(70, 25)
+    $buttonBrowse.Add_Click({
+        $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+        $openFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
+        if ($openFileDialog.ShowDialog() -eq 'OK') {
+            $textBoxComputerList.Text = $openFileDialog.FileName
+        }
+    })
+    $form.Controls.Add($buttonBrowse)
+
+    # Progress bar
+    $progressBar = New-Object System.Windows.Forms.ProgressBar
+    $progressBar.Location = New-Object System.Drawing.Point(10, 350)
+    $progressBar.Size = New-Object System.Drawing.Size(460, 25)
+    $form.Controls.Add($progressBar)
+
+    # Button to execute the move
+    $buttonExecute = New-Object System.Windows.Forms.Button
+    $buttonExecute.Text = "Move Computers"
+    $buttonExecute.Location = New-Object System.Drawing.Point(10, 390)
+    $buttonExecute.Size = New-Object System.Drawing.Size(460, 30)
+    $buttonExecute.Add_Click({
+        $domain = $comboBoxDomain.SelectedItem
+        $sourceOU = $comboBoxSourceOU.SelectedItem
+        $targetOU = $comboBoxTargetOU.SelectedItem
+        $filePath = $textBoxComputerList.Text
+
+        if ([string]::IsNullOrWhiteSpace($domain) -or [string]::IsNullOrWhiteSpace($sourceOU) -or [string]::IsNullOrWhiteSpace($targetOU) -or [string]::IsNullOrWhiteSpace($filePath)) {
+            Show-ErrorMessage "Please provide all required inputs."
+            return
+        }
+
+        if (-not (Test-Path $filePath)) {
+            Show-ErrorMessage "Computer list file not found: $filePath"
+            return
+        }
+
+        # Confirm action
+        $confirmResult = [System.Windows.Forms.MessageBox]::Show("Are you sure you want to move the specified computers from the source OU to the target OU?", "Confirm Move", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
+        if ($confirmResult -eq [System.Windows.Forms.DialogResult]::No) {
+            Log-Message "Move operation cancelled by user."
+            return
+        }
+
+        Log-Message "Starting move operation from '$sourceOU' to '$targetOU' in domain '$domain'."
+
+        # Disable the execute button to prevent multiple clicks
+        $buttonExecute.Enabled = $false
+
+        Move-Computers -TargetOU $targetOU -SearchBase $sourceOU -DomainFQDN $domain -ComputerListFile $filePath -ProgressBar $progressBar
+
+        # Re-enable the execute button
+        $buttonExecute.Enabled = $true
+    })
+    $form.Controls.Add($buttonExecute)
+
+    # Variables to store OUs
+    $script:allOUs = @()
+
+    # Load domains into the ComboBox
+    $script:allDomains = Get-AllDomainFQDNs
+    $comboBoxDomain.Items.AddRange($script:allDomains)
+    if ($comboBoxDomain.Items.Count -gt 0) {
+        $comboBoxDomain.SelectedIndex = 0
+    }
+
+    # Event handler for domain selection change
+    $comboBoxDomain.Add_SelectedIndexChanged({
+        $selectedDomain = $comboBoxDomain.SelectedItem
+        if ($null -ne $selectedDomain) {
+            $script:allOUs = Get-OUsForDomain -DomainFQDN $selectedDomain
+            Update-OUComboBox -SearchText $textBoxSourceOUSearch.Text -ComboBox $comboBoxSourceOU -OUs $script:allOUs
+            Update-OUComboBox -SearchText $textBoxTargetOUSearch.Text -ComboBox $comboBoxTargetOU -OUs $script:allOUs
+        }
+    })
+
+    # Real-time OU filtering for Source OU
+    $textBoxSourceOUSearch.Add_TextChanged({
+        Update-OUComboBox -SearchText $textBoxSourceOUSearch.Text -ComboBox $comboBoxSourceOU -OUs $script:allOUs
+    })
+
+    # Real-time OU filtering for Target OU
+    $textBoxTargetOUSearch.Add_TextChanged({
+        Update-OUComboBox -SearchText $textBoxTargetOUSearch.Text -ComboBox $comboBoxTargetOU -OUs $script:allOUs
+    })
+
+    # Show the form
+    [void]$form.ShowDialog()
+}
+
+# Execute the function to show the form
+Show-MoveComputersForm
 
 # End of script
