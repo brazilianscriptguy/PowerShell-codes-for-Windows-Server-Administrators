@@ -91,7 +91,7 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
     Lists users with non-expiring passwords, helping administrators enforce password expiration policies.
 
 27. **Inventory-InactiveADComputerAccounts.ps1**
-   Identifies inactive computer accounts within AD, helping administrators maintain a clean and secure directory.
+    Identifies inactive computer accounts within AD, helping administrators maintain a clean and secure directory.
 
 28. **Inventory-WSUSConfigs-Tool.ps1**
     Gathers WSUS server details, update statistics, computer group information, and log sizes, assisting administrators in monitoring and managing the WSUS environment, especially when planning migrations to Azure Update Manager.
