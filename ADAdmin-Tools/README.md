@@ -90,67 +90,70 @@ This section features a comprehensive suite of PowerShell and Visual Basic scrip
 26. **Inventory-ADUserWithNonExpiringPasswords.ps1**  
     Lists users with non-expiring passwords, helping administrators enforce password expiration policies.
 
-27. **Inventory-InactiveADComputerAccounts.ps1**  
-    Identifies inactive computer accounts within AD, helping administrators maintain a clean and secure directory.
+27. **Inventory-InactiveADComputerAccounts.ps1**
+   Identifies inactive computer accounts within AD, helping administrators maintain a clean and secure directory.
 
-28. **Manage-Disabled-Expired-ADUserAccounts.ps1**  
+28. **Inventory-WSUSConfigs-Tool.ps1**
+    Gathers WSUS server details, update statistics, computer group information, and log sizes, assisting administrators in monitoring and managing the WSUS environment, especially when planning migrations to Azure Update Manager.
+
+29. **Manage-Disabled-Expired-ADUserAccounts.ps1**  
     Automates the process of disabling expired AD user accounts, ensuring compliance with organizational security policies.
 
-29. **Manage-FSMOs-Roles.ps1**  
+30. **Manage-FSMOs-Roles.ps1**  
     Facilitates management and transfer of FSMO roles within an AD forest, ensuring proper domain functionality and stability.
 
-30. **Move-ADComputer-betweenOUs.ps1**  
+31. **Move-ADComputer-betweenOUs.ps1**  
     Allows the relocation of AD computer accounts between OUs, simplifying organizational structure adjustments.
 
-31. **Move-ADUser-betweenOUs.ps1**  
+32. **Move-ADUser-betweenOUs.ps1**  
     Streamlines moving user accounts between OUs in AD, aiding in organizational structure changes.
 
-32. **Remove-EmptyFiles-or-DateRange.ps1**  
+33. **Remove-EmptyFiles-or-DateRange.ps1**  
     Detects and removes empty files or files within a specified date range, optimizing file storage and system organization.
 
-33. **Rename-DiskVolumes-viaGPO.ps1**  
+34. **Rename-DiskVolumes-viaGPO.ps1**  
     Renames disk volumes uniformly across workstations using GPO, simplifying disk management.
 
-34. **Reset-ADUserPasswordsToDefault.ps1**  
+35. **Reset-ADUserPasswordsToDefault.ps1**  
     Resets passwords for a group of AD users to a default value, providing an efficient way to manage password policies.
 
-35. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**  
+36. **Reset-and-Sync-DomainGPOs-viaGPO.ps1**  
     Resets and re-synchronizes all domain GPOs, ensuring policy compliance across workstations.
 
-36. **Restart-NetworkAdapter.ps1**  
+37. **Restart-NetworkAdapter.ps1**  
     Provides a quick way to restart network adapters via a GUI, maintaining network connectivity without manual intervention.
 
-37. **Restart-SpoolerPoolServices.ps1**  
+38. **Restart-SpoolerPoolServices.ps1**  
     Restarts both the Spooler and LPD (Line Printer Daemon) services, with enhanced logging for auditing and detailed debug information for troubleshooting.
 
-38. **Synchronize-ADComputerTime.ps1**  
+39. **Synchronize-ADComputerTime.ps1**  
     Synchronizes time settings on AD computers, ensuring accurate time across different time zones.
 
-39. **Synchronize-ADForestDCs.ps1**  
+40. **Synchronize-ADForestDCs.ps1**  
     Automates synchronization of all Domain Controllers across an AD forest, ensuring up-to-date replication.
 
-40. **Transfer-DHCPScopes.ps1**  
+41. **Transfer-DHCPScopes.ps1**  
     Provides functionality to export and import DHCP scopes between servers within a specified domain, with error handling and logging to track operations.
 
-41. **Unjoin-ADComputer-and-Cleanup.ps1**  
+42. **Unjoin-ADComputer-and-Cleanup.ps1**  
     Safely removes a computer from an AD domain and cleans up any residual data, ensuring a clean disconnection.
 
-42. **Unlock-SMBShareADUserAccess.ps1**  
+43. **Unlock-SMBShareADUserAccess.ps1**  
     Resolves issues with SMB share access, restoring user access to shared resources.
 
-43. **Update-ADComputer-Descriptions.ps1**  
+44. **Update-ADComputer-Descriptions.ps1**  
     Updates AD computer descriptions via a GUI, simplifying the management of workstation information.
 
-44. **Update-ADComputer-Winget-Explicit.ps1**  
+45. **Update-ADComputer-Winget-Explicit.ps1**  
     Uses the `winget` tool to explicitly update software on workstations, improving software management.
 
-45. **Update-ADComputer-Winget-viaGPO.ps1**  
+46. **Update-ADComputer-Winget-viaGPO.ps1**  
     Automates software updates across workstations using the `winget` tool, with deployment managed through GPO.
 
-46. **Update-ADUserDisplayName.ps1**  
+47. **Update-ADUserDisplayName.ps1**  
     Updates user display names based on their email address, standardizing naming conventions across the organization.
 
-47. **Update-DNS-n-Sites-Services.ps1**  
+48. **Update-DNS-n-Sites-Services.ps1**  
     Automates the update of DNS zones and Active Directory Sites and Services subnets based on DHCP data.
 
 ## ❓ Additional Assistance
