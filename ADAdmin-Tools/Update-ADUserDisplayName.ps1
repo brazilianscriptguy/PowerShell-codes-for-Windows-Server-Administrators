@@ -101,7 +101,7 @@ function Get-AllDomains {
 }
 
 # Function to preview display name changes
-function Preview-Changes {
+function script:Preview-Changes {
     param (
         [string]$TargetDomainOrDC,
         [string]$EmailFilter
@@ -109,11 +109,30 @@ function Preview-Changes {
 
     $previewResults = @()
     try {
-        $users = Get-ADUser -Server $TargetDomainOrDC -Filter "mail -like '$EmailFilter'" -Properties mail, DisplayName
+        # Ensure the EmailFilter includes wildcards
+        if (-not $EmailFilter.StartsWith("*")) {
+            $EmailFilter = "*" + $EmailFilter
+        }
+        if (-not $EmailFilter.EndsWith("*")) {
+            $EmailFilter = $EmailFilter + "*"
+        }
+
+        # Construct the filter string
+        $filter = "mail -like '$EmailFilter'"
+        Log-Message "Using Domain Controller: $TargetDomainOrDC" -MessageType "INFO"
+        Log-Message "Using Filter: $filter" -MessageType "INFO"
+
+        # Execute the Get-ADUser command
+        $users = Get-ADUser -Server $TargetDomainOrDC -Filter $filter -Properties mail, DisplayName
+
+        Log-Message "Get-ADUser returned $($users.Count) users." -MessageType "INFO"
+
         if ($users.Count -eq 0) {
             Show-InfoMessage "No users found matching the filter '$EmailFilter'."
+            Log-Message "No users found with filter '$EmailFilter' on server '$TargetDomainOrDC'." -MessageType "INFO"
             return $previewResults
         }
+
         foreach ($user in $users) {
             if ($user.mail) {
                 $nameParts = $user.mail.Split('@')[0].Split('.')
@@ -127,8 +146,14 @@ function Preview-Changes {
                 } else {
                     Log-Message "Email format unexpected for user $($user.SamAccountName): $($user.mail)" -MessageType "WARN"
                 }
+            } else {
+                Log-Message "User $($user.SamAccountName) does not have a mail attribute." -MessageType "WARN"
             }
         }
+
+        # Sort the preview results by NewDisplayName
+        $previewResults = $previewResults | Sort-Object -Property NewDisplayName
+
     } catch {
         Log-Message "Error during preview: $_" -MessageType "ERROR"
     }
@@ -176,6 +201,7 @@ function Export-Results {
     try {
         $Results | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8 -Force
         Show-InfoMessage "Results exported to $csvPath"
+        Log-Message "Exported results to $csvPath." -MessageType "INFO"
     } catch {
         Log-Message "Error exporting results to CSV: $_" -MessageType "ERROR"
     }
@@ -206,7 +232,7 @@ function Show-UpdateForm {
     # Create the main form
     $form = New-Object System.Windows.Forms.Form
     $form.Text = 'Update AD User DisplayName'
-    $form.Size = New-Object System.Drawing.Size(500, 600)
+    $form.Size = New-Object System.Drawing.Size(500, 550)  # Adjusted size for better layout
     $form.StartPosition = 'CenterScreen'
 
     # Domain Controller label and dropdown
@@ -226,57 +252,106 @@ function Show-UpdateForm {
 
     # Email filter label and textbox
     $emailLabel = New-Object System.Windows.Forms.Label
-    $emailLabel.Location = New-Object System.Drawing.Point(10, 70)
+    $emailLabel.Location = New-Object System.Drawing.Point(10, 60)
     $emailLabel.Size = New-Object System.Drawing.Size(460, 20)
     $emailLabel.Text = 'Enter Email Address Filter (e.g., *@maildomain.com):'
     $form.Controls.Add($emailLabel)
 
     $emailTextbox = New-Object System.Windows.Forms.TextBox
-    $emailTextbox.Location = New-Object System.Drawing.Point(10, 90)
+    $emailTextbox.Location = New-Object System.Drawing.Point(10, 80)
     $emailTextbox.Size = New-Object System.Drawing.Size(460, 20)
+    $emailTextbox.Text = "*@maildomain.com" # Default value or placeholder
     $form.Controls.Add($emailTextbox)
 
     # Log box for displaying log messages
     $global:logBox = New-Object System.Windows.Forms.ListBox
-    $global:logBox.Location = New-Object System.Drawing.Point(10, 130)
+    $global:logBox.Location = New-Object System.Drawing.Point(10, 120)
     $global:logBox.Size = New-Object System.Drawing.Size(460, 280)
     $form.Controls.Add($global:logBox)
 
+    # ProgressBar
+    $progressBar = New-Object System.Windows.Forms.ProgressBar
+    $progressBar.Location = New-Object System.Drawing.Point(10, 420)
+    $progressBar.Size = New-Object System.Drawing.Size(460, 20)
+    $progressBar.Minimum = 0
+    $progressBar.Maximum = 100
+    $progressBar.Value = 0
+    $progressBar.Style = 'Continuous'
+    $form.Controls.Add($progressBar)
+
     # Buttons
     $previewButton = New-Object System.Windows.Forms.Button
-    $previewButton.Location = New-Object System.Drawing.Point(10, 420)
-    $previewButton.Size = New-Object System.Drawing.Size(100, 23)
+    $previewButton.Location = New-Object System.Drawing.Point(10, 450)
+    $previewButton.Size = New-Object System.Drawing.Size(100, 30)
     $previewButton.Text = 'Preview'
     $form.Controls.Add($previewButton)
 
     $undoButton = New-Object System.Windows.Forms.Button
-    $undoButton.Location = New-Object System.Drawing.Point(120, 420)
-    $undoButton.Size = New-Object System.Drawing.Size(100, 23)
+    $undoButton.Location = New-Object System.Drawing.Point(120, 450)
+    $undoButton.Size = New-Object System.Drawing.Size(100, 30)
     $undoButton.Text = 'Undo'
     $form.Controls.Add($undoButton)
 
     $applyButton = New-Object System.Windows.Forms.Button
-    $applyButton.Location = New-Object System.Drawing.Point(230, 420)
-    $applyButton.Size = New-Object System.Drawing.Size(100, 23)
+    $applyButton.Location = New-Object System.Drawing.Point(230, 450)
+    $applyButton.Size = New-Object System.Drawing.Size(100, 30)
     $applyButton.Text = 'Apply Changes'
     $form.Controls.Add($applyButton)
 
     $exportButton = New-Object System.Windows.Forms.Button
-    $exportButton.Location = New-Object System.Drawing.Point(340, 420)
-    $exportButton.Size = New-Object System.Drawing.Size(100, 23)
+    $exportButton.Location = New-Object System.Drawing.Point(340, 450)
+    $exportButton.Size = New-Object System.Drawing.Size(100, 30)
     $exportButton.Text = 'Export CSV'
     $form.Controls.Add($exportButton)
 
     # Event Handlers
     $previewButton.Add_Click({
-        $global:previewResults = Preview-Changes -TargetDomainOrDC $comboBoxDomain.SelectedItem -EmailFilter $emailTextbox.Text
+        # Validate email filter input
+        if ([string]::IsNullOrWhiteSpace($emailTextbox.Text)) {
+            Show-InfoMessage "Please enter a valid email filter."
+            return
+        }
+
+        # Clear previous log entries
         $global:logBox.Items.Clear()
-        if ($global:previewResults.Count -eq 0) {
-            $global:logBox.Items.Add("No changes to display.")
-        } else {
-            foreach ($result in $global:previewResults) {
-                $global:logBox.Items.Add("$($result.SamAccountName): $($result.OldDisplayName) -> $($result.NewDisplayName)")
+
+        # Reset ProgressBar
+        $progressBar.Value = 0
+
+        # Disable buttons during processing
+        $previewButton.Enabled = $false
+        $applyButton.Enabled = $false
+        $undoButton.Enabled = $false
+        $exportButton.Enabled = $false
+
+        # Run Preview-Changes in the script scope
+        try {
+            $results = script:Preview-Changes -TargetDomainOrDC $comboBoxDomain.SelectedItem -EmailFilter $emailTextbox.Text
+
+            $global:previewResults = $results
+
+            # Update LogBox with results
+            if ($global:previewResults.Count -eq 0) {
+                $global:logBox.Items.Add("No changes to display.")
+            } else {
+                foreach ($result in $global:previewResults) {
+                    $global:logBox.Items.Add("$($result.SamAccountName): $($result.OldDisplayName) -> $($result.NewDisplayName)")
+                }
             }
+
+            # Update ProgressBar to indicate completion
+            $progressBar.Value = 100
+
+            Log-Message "Preview completed: Displaying $($global:previewResults.Count) changes." -MessageType "INFO"
+        } catch {
+            Log-Message "Error during preview: $_" -MessageType "ERROR"
+            Show-InfoMessage "An error occurred during the preview operation. Check the log for details."
+        } finally {
+            # Re-enable buttons after processing
+            $previewButton.Enabled = $true
+            $applyButton.Enabled = $true
+            $undoButton.Enabled = $true
+            $exportButton.Enabled = $true
         }
     })
 
@@ -289,6 +364,7 @@ function Show-UpdateForm {
             Show-InfoMessage "No preview results available to apply."
         } else {
             Apply-Changes -Changes $global:previewResults -TargetDomainOrDC $comboBoxDomain.SelectedItem
+            Show-InfoMessage "Changes have been applied successfully."
         }
     })
 
