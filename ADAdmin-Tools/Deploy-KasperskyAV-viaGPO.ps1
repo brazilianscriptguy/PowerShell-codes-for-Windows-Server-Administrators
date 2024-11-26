@@ -15,11 +15,11 @@
 #>
 
 param (
-    [string]$KESInstallerPath = "\\sede.tjap\NETLOGON\kes-antivirus-install\pkg_2\exec\kes_win.msi", # Path to KES installer
-    [string]$NetworkAgentInstallerPath = "\\sede.tjap\NETLOGON\kes-antivirus-install\pkg_1\exec\Kaspersky Network Agent.msi", # Path to Network Agent installer
+    [string]$KESInstallerPath = "\\forest-domain\netlogon\kes-antivirus-install\pkg_2\exec\kes_win.msi", # Path to KES installer
+    [string]$NetworkAgentInstallerPath = "\\forest-domain\netlogon\kes-antivirus-install\pkg_1\exec\Kaspersky Network Agent.msi", # Path to Network Agent installer
     [string]$TargetKESVersion = "12.6.0.438", # Target version of Kaspersky Endpoint Security
     [string]$TargetAgentVersion = "14.0.0.10902", # Target version of Kaspersky Network Agent
-    [string]$KLMoverServerAddress = "kes01-tjap.sede.tjap", # KES server address
+    [string]$KLMoverServerAddress = "kes01-svr.contoso.com", # KES server address
     [string]$NetworkAgentDirectory = "C:\Program Files (x86)\Kaspersky Lab\NetworkAgent\" # Network Agent directory
 )
 
