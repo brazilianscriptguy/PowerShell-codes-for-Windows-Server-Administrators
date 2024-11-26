@@ -20,7 +20,7 @@ Windows Registry Editor Version 5.00
 ;     - Apply this .reg file with administrative privileges to ensure successful registry modifications.
 ; =============================================================
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\EventLog\Microsoft-Windows-PrintService\Operational]
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\EventLog\Microsoft-Windows-PrintService/Operational]
 "AutoBackupLogFiles"=dword:00000001
 "Flags"=dword:00000001
 "File"="L:\\Microsoft-Windows-PrintService-Operational\\Microsoft-Windows-PrintService-Operational.evtx"
