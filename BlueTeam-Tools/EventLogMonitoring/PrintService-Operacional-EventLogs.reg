@@ -9,7 +9,7 @@ Windows Registry Editor Version 5.00
 ;     It sets parameters such as AutoBackupLogFiles, Flags, log file location, maximum log size, and retention policy.
 ;
 ; .AUTHOR
-;     [Your Name or Organization]
+;     Luiz Hamilton Silva - @brazilianscriptguy
 ;
 ; .VERSION
 ;     Last Updated: November 26, 2024
