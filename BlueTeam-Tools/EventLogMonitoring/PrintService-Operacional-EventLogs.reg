@@ -8,6 +8,9 @@ Windows Registry Editor Version 5.00
 ;     This registry file automates the configuration of the Windows Event Log for the PrintService Operational channel.
 ;     It sets parameters such as AutoBackupLogFiles, Flags, log file location, maximum log size, and retention policy.
 ;
+;     **Important:** Before applying these registry configurations, please refer to the following file for detailed instructions and best practices:
+;     - `PrintService-Operational-EventLogs.md`
+;
 ; .AUTHOR
 ;     Luiz Hamilton Silva - @brazilianscriptguy
 ;
