@@ -133,19 +133,3 @@ Check the log file location (`L:\Microsoft-Windows-PrintService-Operational\`) t
 By incorporating this well-documented `.reg` file into your deployment strategy, you ensure consistent and efficient configuration of the PrintService Operational event logs across all target machines in your network.
 
 ---
-
-# License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-# Contact
-
-For any questions or support, please contact [Your Name](mailto:your.email@example.com).
-
-# Acknowledgments
-
-- Inspired by [Your Reference or Inspiration].
-
-# Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
