@@ -1,16 +1,28 @@
 <#
 .SYNOPSIS
-    PowerShell Script for Auditing Print Activities via Event ID 307.
+    Configures Windows Event Log settings for the PrintService Operational log.
 
 .DESCRIPTION
-    This script audits print activities by analyzing Event ID 307 from the Microsoft-Windows-PrintService/Operational 
-    log. It generates a detailed report of print jobs, providing insights into user print activities.
+    This PowerShell script automates the configuration of the Windows Event Log for the PrintService Operational channel.
+    It sets parameters such as `AutoBackupLogFiles`, `Flags`, log file location, maximum log size, and retention policy.
+    
+    **Important:** Before running this script, please refer to the following files for detailed instructions and necessary configurations:
+    - `PrintService-Operational-EventLogs.md`
+    - `PrintService-Operational-EventLogs.reg`
+    These documents provide essential guidelines to ensure that the registry settings are correctly applied and that logging is properly enabled.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: November 26, 2024
+
+.NOTES
+    - Ensure that the specified log file path (`"File"`) exists and is accessible.
+    - This configuration is essential for maintaining and managing print service logs efficiently.
+    - Apply this `PrintService-Operational-EventLogs.reg` file with administrative privileges to ensure successful registry modifications.
+    - It is recommended to back up the registry before making any changes.
+    - Test the script in a controlled environment prior to deploying it in a production setting.
 #>
 
 # Hide the PowerShell console window
