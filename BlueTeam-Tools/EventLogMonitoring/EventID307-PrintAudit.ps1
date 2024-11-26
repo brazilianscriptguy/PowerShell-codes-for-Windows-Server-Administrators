@@ -16,7 +16,6 @@
 
 .VERSION
     Last Updated: November 26, 2024
-
 #>
 
 # Hide the PowerShell console window
