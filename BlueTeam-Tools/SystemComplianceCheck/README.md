@@ -1,4 +1,4 @@
-# 🔵 BlueTeam Tools - System Compliance Check
+# 🔵 BlueTeam-Tools - System Compliance Check Folder
 
 ## 📝 Overview
 
@@ -6,11 +6,18 @@ This folder contains scripts designed to ensure **system compliance** by auditin
 
 ## 🛠️ Prerequisites
 
-Before using these scripts, make sure the following prerequisites are met:
+Before using the scripts in this folder, ensure the following prerequisites are met:
 
-- **PowerShell** is enabled on your system.
-- **Administrative privileges** are required for most scripts.
-- Some scripts may require **Remote Server Administration Tools (RSAT)** to interact with AD or network services.
+1. **⚙️ PowerShell**
+   - **Requirement:** PowerShell must be enabled on your system.
+   - **Module:** Import the **Active Directory** module if necessary.
+
+2. **🔑 Administrator Privileges**
+   - **Note:** Some scripts require elevated permissions to uninstall applications and access certain system information.
+
+3. **🖥️ Remote Server Administration Tools (RSAT)**
+   - **Installation:** Ensure RSAT is installed on your Windows 10/11 workstation to enable remote administration of Windows Servers.
+   - **Usage:** Facilitates the management of Active Directory and other remote server roles.
 
 ## 📄 Script Descriptions
 
@@ -52,38 +59,61 @@ Before using these scripts, make sure the following prerequisites are met:
 ### Script Usage Instructions:
 
 1. **Check-ServicesPort-Connectivity.ps1**  
-   - Run the script, input the service ports, and view real-time results. Logs are generated for later review.
+   - **Step 1:** Run the script.
+   - **Step 2:** Input the service ports you wish to verify.
+   - **Step 3:** View real-time results. Logs are generated for later review.
 
 2. **Check-Shorter-ADComputerNames.ps1**  
-   - Execute the script to generate a report of AD computer names shorter than the specified length, ensuring compliance with naming conventions.
+   - **Step 1:** Execute the script.
+   - **Step 2:** The script will generate a report of AD computer names shorter than the specified length.
+   - **Step 3:** Review the report to ensure compliance with naming conventions.
 
 3. **Organize-CERTs-Repository.ps1**  
-   - Use this script to organize SSL/TLS certificates by issuer, ensuring your certificate repository is compliant and well-structured.
+   - **Step 1:** Run the script.
+   - **Step 2:** The script will organize SSL/TLS certificates by issuer.
+   - **Step 3:** Verify that your certificate repository is compliant and well-structured.
 
 4. **Retrieve-ADComputer-SharedFolders.ps1**  
-   - Run the script to scan shared folders on AD computers, ensuring that only authorized shares are maintained.
+   - **Step 1:** Execute the script.
+   - **Step 2:** The script will scan shared folders on AD computers.
+   - **Step 3:** Review the logged results to ensure only authorized shares are maintained.
 
 5. **Retrieve-DHCPReservations.ps1**  
-   - Execute the script to retrieve and filter DHCP reservations, providing comprehensive documentation of network allocations.
+   - **Step 1:** Run the script.
+   - **Step 2:** The script will retrieve and filter DHCP reservations.
+   - **Step 3:** Review the comprehensive documentation of network allocations.
 
 6. **Retrieve-Elevated-ADForestInfo.ps1**  
-   - Use this script to gather information on elevated accounts across the AD forest, assisting in the management of privileged accounts.
+   - **Step 1:** Execute the script.
+   - **Step 2:** The script will gather information on elevated accounts across the AD forest.
+   - **Step 3:** Use the gathered data to manage privileged accounts effectively.
 
 7. **Retrieve-Empty-DNSReverseLookupZone.ps1**  
-   - Run this script to detect and clean up empty DNS reverse lookup zones, improving overall DNS configuration.
+   - **Step 1:** Run the script.
+   - **Step 2:** The script will detect empty DNS reverse lookup zones.
+   - **Step 3:** Clean up identified zones to improve overall DNS configuration.
 
 8. **Retrieve-InstalledSoftwareList.ps1**  
-   - Run the script to compile an inventory of installed software across AD computers, supporting compliance audits.
+   - **Step 1:** Execute the script.
+   - **Step 2:** The script will compile an inventory of installed software across AD computers.
+   - **Step 3:** Use the report to support compliance audits.
 
 9. **Retrieve-ServersDiskSpace.ps1**  
-   - Execute the script to collect disk space data from multiple servers, ensuring storage compliance and monitoring.
+   - **Step 1:** Run the script.
+   - **Step 2:** The script will collect disk space data from multiple servers.
+   - **Step 3:** Review the data to ensure storage compliance and monitoring.
 
 10. **Retrieve-Windows-ProductKey.ps1**  
-    - Run the script to retrieve and log Windows product keys, helping to manage software licensing compliance.
+    - **Step 1:** Execute the script.
+    - **Step 2:** The script will retrieve and log Windows product keys.
+    - **Step 3:** Use the logs to manage software licensing compliance.
 
 11. **Shorten-LongFileNames-Tool.ps1**  
-    - Use this script to automatically shorten long file names, preventing file system errors and ensuring compliance with organizational naming policies.
+    - **Step 1:** Run the script.
+    - **Step 2:** The script will automatically shorten long file names.
+    - **Step 3:** Ensure compliance with organizational naming policies by preventing file system errors.
 
 ## 📝 Logging and Output
 
-Each script generates logs in `.LOG` format and outputs results in `.CSV` files, providing detailed documentation of actions taken. These logs can be used for audits and compliance reviews, ensuring transparency and accountability in system management.
+- 📄 **Logging:** Each script generates detailed logs in `.LOG` format, documenting every step of the process, from uninstalling software to handling errors.
+- 📊 **Export Functionality:** Results are exported in `.CSV` format, providing easy-to-analyze data for auditing and reporting purposes.
