@@ -44,7 +44,7 @@ To effectively utilize the scripts in this repository for administering **Active
 
 This folder contains a suite of PowerShell scripts designed to streamline the administration of **Active Directory (AD)** and **Windows Server Roles** like **DNS**, **DHCP**, **Printing Server**, **WSUS**, and **AD Sites and Services**. These tools automate various administrative tasks involving AD objects such as users, groups, and organizational units (OUs), as well as managing server functions related to DNS, DHCP, printing services, software updates, and site management within Active Directory.
 
-✨ **All scripts are equipped with a graphical user interface (GUI)** to enhance user interaction, making them more accessible and user-friendly for managing Active Directory environments and associated Windows Server roles.
+> ✨ **All scripts are equipped with a graphical user interface (GUI)** to enhance user interaction, making them more accessible and user-friendly for managing Active Directory environments and associated Windows Server roles.
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
