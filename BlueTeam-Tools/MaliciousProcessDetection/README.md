@@ -23,7 +23,7 @@ Before using the scripts in this folder, ensure the following prerequisites are 
 
 This folder contains a suite of PowerShell scripts crafted to detect and remove **malicious processes** and unwanted applications within Windows environments. These tools automate and simplify the uninstallation of unauthorized software, enhancing system security and maintaining organizational compliance.
 
-> **✨ Each script includes a graphical user interface (GUI) for enhanced user interaction. Scripts also generate `.log` files and export results to `.csv` files, streamlining server and workstation management processes.**
+✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and Workstation management more intuitive, efficient, and user-friendly.
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
