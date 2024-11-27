@@ -19,10 +19,6 @@ Before running these scripts, ensure the following prerequisites are met:
    - **Installation:** Ensure RSAT is installed on your Windows 10/11 workstation to enable remote administration of Windows Servers.
    - **Usage:** Facilitates the management of Active Directory and other remote server roles.
 
-4. **Microsoft Log Parser Utility**
-   - **Installation:** Required on Windows Server machines or Windows 10/11 workstations where these scripts will be executed.
-   - **Usage:** Enables advanced querying and analysis of various log formats.
-
 *Scripts that process `.evtx` files can also be run directly from a Windows 10 or 11 workstation.*
 
 ## 📄 Description
