@@ -4,33 +4,36 @@
 
 This repository provides a carefully curated collection of `.VBS` and PowerShell scripts designed to streamline the management and configuration of Windows 10 and 11 workstations within an IT Service Management (ITSM) framework. These scripts automate various administrative tasks, enabling IT professionals to optimize workflows and maintain consistent configurations across workstations.
 
-> **✨ Each script in this repository **features a graphical user interface** `(GUI)`, **enhances user interaction**, and includes functionalities for **generating operational** `.log` files, making workstation management more intuitive and user-friendly.**
+> **✨ Each script in this repository features a graphical user interface (GUI), enhancing user interaction, and includes functionalities for generating operational `.log` files, making workstation management more intuitive and user-friendly.**
 
----
+## 🛠️ Prerequisites
 
-## Installation and Setup
+Before using the scripts in this folder, ensure the following prerequisites are met:
 
-### Requirements
+1. **⚙️ PowerShell**
+   - **Requirement:** PowerShell must be enabled on your system.
+   - **Module:** Import the **Active Directory** module if necessary.
 
-To effectively run these scripts on Windows 10 and 11 workstations, ensure the following prerequisites are met:
+2. **🔑 Administrator Privileges**
+   - **Note:** Some scripts require elevated permissions to uninstall applications and access certain system information.
 
-1. **Windows PowerShell 5.1 or Newer**: Make sure your workstation is equipped with PowerShell version 5.1 or later for effective script execution.
-
-2. **Administrative Rights**: Ensure you have administrative privileges to run the scripts, as they may require system-level changes.
-
-3. **Script Execution Policy**: Adjust the script execution policy on your workstation to permit the running of `.VBS` scripts. This may require modifications to align with your organization's security policies.
-
-4. **Required Dependencies**: Verify that all necessary dependencies are in place. This includes additional scripts, files, or software components essential for the successful execution of the `.VBS` scripts.
+3. **🖥️ Remote Server Administration Tools (RSAT)**
+   - **Installation:** Ensure RSAT is installed on your Windows 10/11 workstation to enable remote administration of Windows Servers.
+   - **Usage:** Facilitates the management of Active Directory and other remote server roles.
 
 ## 📋 Steps to Use ITSM-Templates Scripts
 
-1. **Clone the Repository**: Clone the entire `ITSM-Templates` folder to your Definitive Media Library (DML) network path. This will serve as your central repository for the scripts.
+1. **Clone the Repository**  
+   Clone the entire `ITSM-Templates` folder to your Definitive Media Library (DML) network path. This will serve as your central repository for the scripts.
 
-2. **Follow the Checklist**: Refer to the `APRIL-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf` located in the root of the `ITSM-Templates` folder for detailed instructions.
+2. **Follow the Checklist**  
+   Refer to the `APRIL-21-2024-Check-List to apply ITSM-Templates on Windows 10x11 Workstations.pdf` located in the root of the `ITSM-Templates` folder for detailed instructions.
 
-3. **Customize Scripts**: Review and customize each `.VBS` and `.REG` file according to your specific needs.
+3. **Customize Scripts**  
+   Review and customize each `.VBS` and `.REG` file according to your specific needs.
 
-4. **Personalize Workstation Appearance**: Customize workstation themes by reviewing and updating files in the `ITSM-Templates\CustomImages` folder.
+4. **Personalize Workstation Appearance**  
+   Customize workstation themes by reviewing and updating files in the `ITSM-Templates\CustomImages` folder.
 
 ## 🛠️ Script Descriptions
 
@@ -38,7 +41,7 @@ To effectively run these scripts on Windows 10 and 11 workstations, ensure the f
 
 #### ITSM-DefaultVBSing.vbs
 
-This script, located in `C:\ITSM-Templates\UniqueScripts\`, performs ten distinct configurations on Windows workstations as part of the ITSM process. The script configurations include:
+Located in `C:\ITSM-Templates\UniqueScripts\`, this script performs ten distinct configurations on Windows workstations as part of the ITSM process:
 
 1. **All-Certificates-Install.vbs**: Installs essential certificates for secure connections.
 2. **CopyDefaultFolders.vbs**: Standardizes desktop folders and XML profiles.
@@ -53,7 +56,7 @@ This script, located in `C:\ITSM-Templates\UniqueScripts\`, performs ten distinc
 
 #### ITSM-ModifyREGing.vbs
 
-This script, located in `C:\ITSM-Templates\UniqueScripts\`, performs ten registry modifications as part of the ITSM process, including:
+Located in `C:\ITSM-Templates\UniqueScripts\`, this script performs ten registry modifications as part of the ITSM process:
 
 1. **AddStartPageADM.reg**: Configures the browser homepage.
 2. **DisableUAC-LUA.reg**: Disables User Account Control (UAC).
@@ -85,6 +88,7 @@ The `ScriptsAdditionalSupport` folder includes supplementary scripts for address
 
 Stay tuned for new scripts addressing evolving ITSM needs, offering more innovative and efficient tools to enhance IT service delivery.
 
-## ❓ Additional Assistance
+## 📝 Logging and Output
 
-*All script codes are customizable to fit your preferences and requirements. For more detailed information on prerequisites and environment setup, refer to the `README.md` file in the root directory.*
+- 📄 **Logging:** Each script generates detailed logs in `.LOG` format, documenting every step of the process, from uninstalling software to handling errors.
+- 📊 **Export Functionality:** Results are exported in `.CSV` format, providing easy-to-analyze data for auditing and reporting purposes.
