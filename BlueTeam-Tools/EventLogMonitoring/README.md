@@ -1,4 +1,4 @@
-# 📂 EventLogMonitoring Folder
+# 📂 BlueTeam-Tools - EventLogMonitoring Folder
 
 ## 🛠️ Prerequisites
 
@@ -12,13 +12,23 @@ To effectively use the scripts in this folder, ensure the following prerequisite
    - **Installation:** Necessary on Windows 10/11 workstations to fully leverage scripts that use the `Import-Module ActiveDirectory` command.  
    - **Usage:** Enables Active Directory and other remote server role management.
 
+3. **PowerShell Version**  
+   - **Recommendation:** PowerShell 5.1 or later.  
+   - **Check Version:** Run the following command to verify your PowerShell version:
+     ```powershell
+     $PSVersionTable.PSVersion
+     ```
+
+4. **Administrator Privileges**  
+   - **Note:** Some scripts require elevated permissions to access certain system information and logs.
+
 *Scripts that process `.evtx` files can also be run directly from a Windows 10 or 11 workstation.*
 
 ## 📄 Description
 
 This folder contains a suite of PowerShell scripts crafted to process **Windows Event Log files (.evtx)**. These tools extract key data from event logs and generate outputs in `.CSV` format, facilitating easy analysis and reporting.
 
-> **✨ Each script includes a graphical user interface (GUI) for enhanced user interaction. Scripts also generate `.log` files and export results to `.csv`, streamlining server and workstation management.**
+> **✨ Each script includes a graphical user interface (GUI) for enhanced user interaction. Scripts also generate `.LOG` files and export results to `.CSV`, streamlining server and workstation management.**
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
@@ -63,6 +73,44 @@ This folder contains a suite of PowerShell scripts crafted to process **Windows 
 12. **Migrate-WinEvtStructure-Tool.ps1**  
     - **Purpose:** Moves Windows Event Log files to a new directory, updates registry paths, stops and restarts the Event Log service to move `.evtx` files. **Note:** Requires administrative privileges.
 
-## ❓ Additional Assistance
+## 🚀 How to Use
 
-*All script codes can be customized to suit your specific needs. For further assistance or detailed information on prerequisites and setup, please refer to the `README.md` file in the main root folder.*
+1. **EventID-Count-AllEvtx-Events.ps1**  
+   - **Instructions:** Run the script with administrative privileges to count EventIDs in `.evtx` files. The GUI will guide you through selecting log files and exporting the count to a `.CSV`.
+
+2. **EventID307-PrintAudit.ps1**  
+   - **Instructions:** Execute this script to audit print activities. Ensure that the `PrintService-Operational-EventLogs.reg` and `PrintService-Operational-EventLogs.md` files are correctly configured and merged into your Windows Print Servers before running the script.
+
+3. **EventID4624-LogonViaRDP.ps1**  
+   - **Instructions:** Use this script to generate a report on RDP logon activities. Run the script with administrative privileges to access and analyze relevant Event IDs.
+
+4. **EventID4624-UserLogonTracking.ps1**  
+   - **Instructions:** Execute this script to track user logon activities. The GUI will assist in selecting the appropriate logs and exporting the data to a `.CSV` for auditing purposes.
+
+5. **EventID4625-LogonAccountFailed.ps1**  
+   - **Instructions:** Run the script to compile failed logon attempts. Review the generated `.CSV` to identify potential security threats or breaches.
+
+6. **EventID4648-ExplicitCredentialsLogon.ps1**  
+   - **Instructions:** Use this script to log and review explicit credential usage. The GUI will help you filter and export relevant Event IDs to a `.CSV` for analysis.
+
+7. **EventID4660and4663-ObjectDeletionTracking.ps1**  
+   - **Instructions:** Execute this script to track and audit object deletion events. The generated `.CSV` will provide detailed information on security and access changes.
+
+8. **EventID4771-KerberosPreAuthFailed.ps1**  
+   - **Instructions:** Run the script to identify and analyze Kerberos pre-authentication failures. Review the `.CSV` report to address authentication issues.
+
+9. **EventID4800and4801-WorkstationLockStatus.ps1**  
+   - **Instructions:** Use this script to monitor workstation locking and unlocking events. The GUI will facilitate the generation of a `.CSV` report for security monitoring.
+
+10. **EventID5136-5137-5141-ADObjectChanges.ps1**  
+    - **Instructions:** Execute this script to analyze Active Directory object changes and deletions. The GUI will assist in selecting the relevant Event IDs and exporting the data to a `.CSV` for auditing.
+
+11. **EventID6005-6006-6008-6009-6013-1074-1076-SystemRestarts.ps1**  
+    - **Instructions:** Run this script to retrieve and export system restart and shutdown event details. The `.CSV` output will help in monitoring system uptime and stability.
+
+12. **Migrate-WinEvtStructure-Tool.ps1**  
+    - **Instructions:** Use this script to migrate Windows Event Log files to a new directory. Ensure you have administrative privileges before running the script, as it modifies registry paths and restarts the Event Log service.
+
+## 📝 Logging and Output
+
+Each script generates logs in `.LOG` format and exports results in `.CSV` files, providing detailed records of the actions taken. These logs and reports facilitate easy analysis and documentation of administrative actions and outcomes.
