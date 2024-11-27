@@ -6,7 +6,7 @@ Configures Windows Event Log settings for the PrintService Operational log.
 
 ## .DESCRIPTION
 
-This registry file automates the configuration of the Windows Event Log for the PrintService Operational channel. It sets parameters such as `AutoBackupLogFiles`, `Flags`, log file location, maximum log size, and retention policy.
+This registry file automates the configuration of the Windows Event Log for the PrintService Operational channel. It sets parameters such as `AutoBackupLogFiles`, `Flags`, log file location, maximum log size, and retention policy to ensure efficient logging and management of print services.
 
 ## .AUTHOR
 
@@ -20,31 +20,17 @@ Last Updated: November 26, 2024
 
 - Ensure that the specified log file path (`"File"`) exists and is accessible.
 - This configuration is essential for maintaining and managing print service logs efficiently.
-- Apply this `.reg` file with administrative privileges to ensure successful registry modifications.
-
-## Registry Configuration
-
-```reg
-Windows Registry Editor Version 5.00
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\EventLog\Microsoft-Windows-PrintService\Operational]
-"AutoBackupLogFiles"=dword:00000001
-"Flags"=dword:00000001
-"File"="L:\\Microsoft-Windows-PrintService-Operational\\Microsoft-Windows-PrintService-Operational.evtx"
-"MaxSize"=dword:09270000
-"MaxSizeUpper"=dword:00000000
-"Retention"=dword:ffffffff
-```
+- Apply the `PrintService-Operacional-EventLogs.reg` file with administrative privileges to ensure successful registry modifications.
 
 ## Deployment Instructions
 
-### 1. Save the `.reg` File
+### 1. Save the `PrintService-Operacional-EventLogs.reg` File
 
-Save the above content into a file named, for example, `Configure-PrintService-Operational.reg`.
+Save the registry configurations provided above into a file named `PrintService-Operacional-EventLogs.reg`.
 
 ### 2. Store the `.reg` File Securely
 
-Place the `.reg` file in a **shared network location** that is accessible by all target machines. Ensure that the share permissions allow **read access** for the **Authenticated Users** group or the specific accounts that will apply the registry settings.
+Place the `PrintService-Operacional-EventLogs.reg` file in a **shared network location** accessible by all target machines. Ensure that the share permissions allow **read access** for the **Authenticated Users** group or the specific accounts that will apply the registry settings.
 
 ### 3. Deploy via Group Policy Object (GPO)
 
@@ -63,7 +49,7 @@ Place the `.reg` file in a **shared network location** that is accessible by all
 
 #### d. Create New Registry Items
 
-For each registry value defined in the `.reg` file, create a corresponding registry item in the GPO:
+For each registry value defined in the `PrintService-Operacional-EventLogs.reg` file, create a corresponding registry item in the GPO:
 
 1. **Right-click** on **Registry** and select **"New"** → **"Registry Item"**.
 
@@ -71,7 +57,7 @@ For each registry value defined in the `.reg` file, create a corresponding regis
 
    - **Action**: Select **"Update"**.
    - **Hive**: Select **"HKEY_LOCAL_MACHINE"**.
-   - **Key Path**: Enter `SYSTEM\ControlSet001\Services\EventLog\Microsoft-Windows-PrintService\Operational`.
+   - **Key Path**: Enter `SYSTEM\ControlSet001\Services\EventLog\Microsoft-Windows-PrintService/Operational`.
    - **Value Name and Type**:
      - **AutoBackupLogFiles**: `DWORD` = `1`
      - **Flags**: `DWORD` = `1`
@@ -84,11 +70,11 @@ For each registry value defined in the `.reg` file, create a corresponding regis
 
 #### e. Apply and Close
 
-After configuring all registry values, click **"OK"** to save the settings. Click **"Apply"** and **"OK"** to close the GPO editor.
+After configuring all registry values, click **"OK"** to save the settings. Then, click **"Apply"** and **"OK"** to close the GPO editor.
 
 ### 4. Force Group Policy Update
 
-On target machines, you can expedite the policy application by running:
+On target machines, expedite the policy application by running:
 
 ```powershell
 gpupdate /force
@@ -101,7 +87,7 @@ Alternatively, restart the machines to allow GPO to apply the settings during st
 After deployment, on a target machine, open **Registry Editor** (`regedit`) and navigate to:
 
 ```
-HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\EventLog\Microsoft-Windows-PrintService\Operational
+HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\EventLog\Microsoft-Windows-PrintService/Operational
 ```
 
 Ensure that all the specified values are correctly set.
@@ -130,6 +116,6 @@ Check the log file location (`L:\Microsoft-Windows-PrintService-Operational\`) t
 - **Security Considerations**:
   - Ensure that the network share containing the log files is secured and accessible only by authorized users to prevent unauthorized access or tampering.
 
-By incorporating this well-documented `.reg` file into your deployment strategy, you ensure consistent and efficient configuration of the PrintService Operational event logs across all target machines in your network.
-
 ---
+
+*By incorporating this well-documented `PrintService-Operacional-EventLogs.reg` file into your deployment strategy, you ensure consistent and efficient configuration of the PrintService Operational event logs across all target machines in your network.* 
