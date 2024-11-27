@@ -4,6 +4,8 @@
 
 This folder contains scripts designed to ensure **system compliance** by auditing and managing key aspects of **Active Directory (AD)** environments, **Windows servers**, and network resources. These tools assist administrators in maintaining a secure and compliant infrastructure by automating essential checks and generating detailed reports.
 
+✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and Workstation management more intuitive, efficient, and user-friendly.
+
 ## 🛠️ Prerequisites
 
 Before using the scripts in this folder, ensure the following prerequisites are met:
