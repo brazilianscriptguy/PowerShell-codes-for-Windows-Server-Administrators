@@ -28,7 +28,7 @@ Before using the scripts in this repository, ensure the following prerequisites 
 
 This repository contains a comprehensive suite of PowerShell scripts specifically designed to streamline forensic investigations and enhance Blue Team operations. These tools enable the extraction and analysis of key information from Windows Event Logs, system configurations, running processes, and more.
 
-> ✨ **All scripts are equipped with a graphical user interface (GUI)** to enhance user interaction, making them more accessible and user-friendly for managing Active Directory environments and associated Windows Server roles.**
+> ✨ **All scripts are equipped with a graphical user interface (GUI)** to enhance user interaction, making them more accessible and user-friendly for managing Active Directory environments and associated Windows Server roles.
 
 ## 📁 Folder Structure
 
