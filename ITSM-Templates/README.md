@@ -21,6 +21,12 @@ Before using the scripts in this folder, ensure the following prerequisites are 
    - **Installation:** Ensure RSAT is installed on your Windows 10/11 workstation to enable remote administration of Windows Servers.
    - **Usage:** Facilitates the management of Active Directory and other remote server roles.
 
+4. **🔧 Script Execution Policy**
+   - **Requirement:** Adjust the script execution policy on your workstation to permit the running of `.VBS` scripts. This may require modifications to align with your organization's security policies.
+
+5. **📦 Required Dependencies**
+   - **Requirement:** Verify that all necessary dependencies are in place, including additional scripts, files, or software components essential for the successful execution of the `.VBS` scripts.
+
 ## 📋 Steps to Use ITSM-Templates Scripts
 
 1. **Clone the Repository**  
