@@ -1,8 +1,8 @@
-# 🌐 ADAdmin-Tools
+# 🌐 ADAdmin-Tools Folder
 
 ## 🛠️ Prerequisites
 
-To effectively utilize the scripts in this repository for administering **Active Directory (AD)** and **Windows Server Roles** such as **DNS**, **DHCP**, **Printing Server**, **WSUS**, and **AD Sites and Services**, ensure the following prerequisites are met:
+To effectively utilize the scripts in this repository for administering **Active Directory (AD)** and **Windows Server Roles** such as **DNS**, **DHCP**, **Printing Server**, **software updates (WSUS)**, and **AD Sites and Services**, ensure the following prerequisites are met:
 
 1. **🖥️ Remote Server Administration Tools (RSAT)**
    - **Installation:**
@@ -42,7 +42,7 @@ To effectively utilize the scripts in this repository for administering **Active
 
 ## 📄 Description
 
-This section features a comprehensive suite of PowerShell and Visual Basic scripts designed to streamline the administration of **Active Directory (AD)** and **Windows Server Roles** such as **DNS**, **DHCP**, **Printing Server**, **WSUS**, and **AD Sites and Services**. These tools automate and simplify a broad spectrum of administrative tasks involving AD objects such as users, groups, and organizational units (OUs), as well as managing server functions and configurations related to DNS, DHCP, printing services, software updates (WSUS), and site management within Active Directory.
+This Folders features a comprehensive suite of PowerShell and Visual Basic scripts designed to streamline the administration of **Active Directory (AD)** and **Windows Server Roles** such as **DNS**, **DHCP**, **Printing Server**, **WSUS**, and **AD Sites and Services**. These tools automate and simplify a broad spectrum of administrative tasks involving AD objects such as users, groups, and organizational units (OUs), as well as managing server functions and configurations related to DNS, DHCP, printing services, software updates (WSUS), and site management within Active Directory.
 
 **✨ All scripts in this repository are equipped with a graphical user interface (GUI), enhancing user interaction and making them more accessible and user-friendly for managing both Active Directory environments and associated Windows Server roles.
 
