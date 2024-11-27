@@ -4,6 +4,8 @@
 
 This folder contains a collection of PowerShell scripts designed for **threat hunting** and removing potential security risks within a Windows network. These scripts automate critical tasks such as purging expired certificates, cleaning up non-compliant software, and removing unauthorized shared folders and drives. They help administrators secure the network environment and maintain compliance with organizational policies.
 
+✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and Workstation management more intuitive, efficient, and user-friendly.
+
 ## 🛠️ Prerequisites
 
 Before using the scripts in this folder, ensure the following prerequisites are met:
