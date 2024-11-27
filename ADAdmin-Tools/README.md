@@ -1,14 +1,17 @@
-# ADAdmin-Tools
+# 🌐 ADAdmin-Tools
 
 ## 🛠️ Prerequisites
 
-To effectively utilize the scripts in this folder, especially when executing them from a Windows 10 or 11 workstation for administering **Active Directory (AD)** and **Windows Server Roles** such as DNS, DHCP, Printing Server, WSUS, and AD Sites and Services, it is essential to have the capability to run **PowerShell scripts (.ps1)** that incorporate the `Import-Module ActiveDirectory` command. For this purpose, the installation of **Remote Server Administration Tools (RSAT)** is required on the workstation. In **Windows Server** environments, all necessary modules are natively supported, eliminating the need for additional installations.
+To effectively utilize the scripts in this folder, especially when executing them from a Windows 10 or 11 workstation for administering **Active Directory (AD)** and **Windows Server Roles** such as DNS, DHCP, Printing Server, WSUS, and AD Sites and Services, it is essential to have the capability to run **PowerShell scripts (.ps1)** that incorporate all the `Import-Module ActiveDirectory` and `Import-Module DHCPServer` commands.
+   - For this purpose, the installation of **Remote Server Administration Tools (RSAT)** is required when operanting the scripts codes on the workstation 10 or 11.
+   - In **Windows Server** environments, all necessary modules are natively supported, eliminating the need for additional installations.
+
 ## 🛠️ Prerequisites
 
 Before using the scripts in this repository, ensure the following prerequisites are met:
 
 1. **🖥️ Remote Server Administration Tools (RSAT)**
-   - **Installation:** Necessary on Windows 10 or 11 workstations to fully leverage scripts that include the `Import-Module ActiveDirectory` command.
+   - **Installation:** Necessary on Windows 10 or 11 workstations to fully leverage scripts that include all the `Import-Module ActiveDirectory` and `Import-Module DHCPServer` commands.
    - **Usage:** Facilitates the management of Active Directory and other remote server roles.
 
 2. **⚙️ PowerShell Version**
