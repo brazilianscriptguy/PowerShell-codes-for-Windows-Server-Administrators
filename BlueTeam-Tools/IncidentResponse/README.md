@@ -23,7 +23,7 @@ Before running these scripts, ensure the following prerequisites are met:
 
 This subfolder includes a comprehensive suite of PowerShell scripts designed to streamline **Active Directory (AD)** and **Windows Server** environment management during incident response. These tools automate and simplify a wide range of administrative tasks involving AD objects such as users, groups, and organizational units (OUs), as well as managing server functions and configurations.
 
-> **✨ Each script includes a graphical user interface (GUI) for enhanced user interaction. Scripts also generate `.log` files and export results to `.csv` files, streamlining server and workstation management processes.**
+✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and Workstation management more intuitive, efficient, and user-friendly.
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
