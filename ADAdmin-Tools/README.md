@@ -2,17 +2,24 @@
 
 ## 🛠️ Prerequisites
 
-To effectively utilize the scripts in this folder, especially when executing them from a Windows 10 or 11 workstation for administering **Active Directory (AD)** and **Windows Server Roles** such as DNS, DHCP, Printing Server, WSUS, and AD Sites and Services, it is essential to have the capability to run **PowerShell scripts (.ps1)** that incorporate all the `Import-Module ActiveDirectory` and `Import-Module DHCPServer` commands.
-   - For this purpose, the installation of **Remote Server Administration Tools (RSAT)** is required when operanting the scripts codes on the workstation 10 or 11.
-   - In **Windows Server** environments, all necessary modules are natively supported, eliminating the need for additional installations.
-
-## 🛠️ Prerequisites
-
-Before using the scripts in this repository, ensure the following prerequisites are met:
+To effectively utilize the scripts in this repository for administering **Active Directory (AD)** and **Windows Server Roles** such as **DNS**, **DHCP**, **Printing Server**, **WSUS**, and **AD Sites and Services**, ensure the following prerequisites are met:
 
 1. **🖥️ Remote Server Administration Tools (RSAT)**
-   - **Installation:** Necessary on Windows 10 or 11 workstations to fully leverage scripts that include all the `Import-Module ActiveDirectory` and `Import-Module DHCPServer` commands.
-   - **Usage:** Facilitates the management of Active Directory and other remote server roles.
+   - **Installation:**
+     - **Windows 10/11:**
+       - **Via Settings:**
+         1. Navigate to **Settings** > **Apps** > **Optional Features**.
+         2. Click on **Add a feature**.
+         3. Search for **RSAT** and install the necessary components.
+       - **Via PowerShell:**
+         ```powershell
+         Get-WindowsCapability -Name RSAT* -Online | Add-WindowsCapability -Online
+         ```
+     - **Windows Server:**
+       - RSAT is typically installed by default. If not, use **Server Manager** to add the required roles and features.
+   - **Usage:**
+     - Facilitates the management of **Active Directory**, **DNS**, **DHCP**, **WSUS**, and other remote server roles.
+     - Required for running **PowerShell scripts (.ps1)** that incorporate the `Import-Module ActiveDirectory` and `Import-Module DHCPServer` commands.
 
 2. **⚙️ PowerShell Version**
    - **Recommendation:** PowerShell 5.1 or later.
@@ -20,19 +27,24 @@ Before using the scripts in this repository, ensure the following prerequisites 
      ```powershell
      $PSVersionTable.PSVersion
      ```
+
 3. **🔑 Administrator Privileges**
-   - **Note:** Some scripts require elevated permissions to access certain system information and logs.
+   - **Note:** Some scripts require elevated permissions to access certain system information and logs, as well as to modify Active Directory settings and manage Windows Server roles.
 
 4. **🔧 PowerShell Execution Policy**
-   - **Note:** Set the PowerShell execution policy to allow script execution. You can set it temporarily for the current session using:
+   - **Requirement:** Set the PowerShell execution policy to allow script execution. You can set it temporarily for the current session using:
      ```powershell
      Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
      ```
+
+5. **📦 Required Dependencies**
+   - **Requirement:** Verify that all necessary dependencies are in place, including additional scripts, files, or software components essential for the successful execution of the PowerShell scripts.
+
 ## 📄 Description
 
-This section features a comprehensive suite of PowerShell and Visual Basic scripts designed to streamline the administration of **Active Directory (AD)** and **Windows Server Roles** such as DNS, DHCP, Printing Server, WSUS, and AD Sites and Services. These tools automate and simplify a broad spectrum of administrative tasks involving AD objects such as users, groups, and organizational units (OUs), as well as managing server functions and configurations related to DNS, DHCP, printing services, software updates (WSUS), and site management within Active Directory.
+This section features a comprehensive suite of PowerShell and Visual Basic scripts designed to streamline the administration of **Active Directory (AD)** and **Windows Server Roles** such as **DNS**, **DHCP**, **Printing Server**, **WSUS**, and **AD Sites and Services**. These tools automate and simplify a broad spectrum of administrative tasks involving AD objects such as users, groups, and organizational units (OUs), as well as managing server functions and configurations related to DNS, DHCP, printing services, software updates (WSUS), and site management within Active Directory.
 
-> **✨ All scripts in this repository are equipped with a graphical user interface (GUI), enhancing user interaction and making them more accessible and user-friendly for managing both Active Directory environments and associated Windows Server roles.** Each script is designed to generate `.log` files and `.csv` output results, facilitating easy analysis and documentation of administrative actions and outcomes.
+**✨ All scripts in this repository are equipped with a graphical user interface (GUI), enhancing user interaction and making them more accessible and user-friendly for managing both Active Directory environments and associated Windows Server roles.
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
