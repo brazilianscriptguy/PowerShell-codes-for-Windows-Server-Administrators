@@ -29,7 +29,7 @@ To effectively use the scripts in this folder, ensure the following prerequisite
 
 This folder contains a suite of PowerShell scripts crafted to process **Windows Event Log files (.evtx)**. These tools extract key data from event logs and generate outputs in `.CSV` format, facilitating easy analysis and reporting.
 
-> ✨ **All scripts are equipped with a graphical user interface (GUI)** to enhance user interaction, making them more accessible and user-friendly for managing Active Directory environments and associated Windows Server roles.
+✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and Workstation management more intuitive, efficient, and user-friendly.
 
 ### 📜 Script Descriptions (Alphabetically Ordered)
 
