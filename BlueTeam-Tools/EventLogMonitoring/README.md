@@ -1,4 +1,4 @@
-# 📂 BlueTeam-Tools - EventLogMonitoring Folder
+# 🔵 BlueTeam-Tools - EventLogMonitoring Folder
 
 ## 🛠️ Prerequisites
 
@@ -113,4 +113,5 @@ This folder contains a suite of PowerShell scripts crafted to process **Windows 
 
 ## 📝 Logging and Output
 
-Each script generates logs in `.LOG` format and exports results in `.CSV` files, providing detailed records of the actions taken. These logs and reports facilitate easy analysis and documentation of administrative actions and outcomes.
+- 📄 **Logging:** Each script generates detailed logs in `.LOG` format, documenting every step of the process, from uninstalling software to handling errors.
+- 📊 **Export Functionality:** Results are exported in `.CSV` format, providing easy-to-analyze data for auditing and reporting purposes.
