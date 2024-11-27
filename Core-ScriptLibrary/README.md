@@ -1,6 +1,8 @@
 # 📂 Core-ScriptLibrary
 
-Welcome to the **Core-ScriptLibrary**! This folder contains essential PowerShell scripts designed to create and manage custom script libraries, focusing on dynamic user interfaces, core functionality, and automation. These tools provide a strong foundation for building more complex and efficient PowerShell-based solutions.
+Welcome to the **Core-ScriptLibrary**! This folder contains essential PowerShell scripts designed to create and manage custom script libraries, focusing on dynamic user interfaces, core functionality, and automation. These tools provide a strong foundation for building more complex and efficient PowerShell-based solutions
+
+✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and Workstation management more intuitive, efficient, and user-friendly.
 
 ## 🛠️ Prerequisites
 
