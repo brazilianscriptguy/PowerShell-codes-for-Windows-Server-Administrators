@@ -23,7 +23,7 @@ To effectively use the scripts in this folder, ensure the following prerequisite
 5. **Administrator Privileges**  
    - **Note:** Some scripts require elevated permissions to access certain system information and logs.
 
-*Scripts that process `.evtx` files can also be run directly from a Windows 10 or 11 workstation.*
+*Scripts that process .evtx files can also be run directly from a Windows 10 or 11 workstation for local event analysis.*
 
 ## 📄 Description
 
