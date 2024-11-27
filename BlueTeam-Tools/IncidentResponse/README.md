@@ -1,4 +1,4 @@
-# 🔵 BlueTeam-Tools - Incident Response Folder
+# 🔵 BlueTeam-Tools - IncidentResponse Folder
 
 ## 📝 Overview
 
