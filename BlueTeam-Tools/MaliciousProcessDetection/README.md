@@ -19,8 +19,6 @@ Before using the scripts in this folder, ensure the following prerequisites are 
    - **Installation:** Ensure RSAT is installed on your Windows 10/11 workstation to enable remote administration of Windows Servers.
    - **Usage:** Facilitates the management of Active Directory and other remote server roles.
 
-*Scripts that process `.evtx` files can also be run directly from a Windows 10 or 11 workstation.*
-
 ## 📄 Description
 
 This folder contains a suite of PowerShell scripts crafted to detect and remove **malicious processes** and unwanted applications within Windows environments. These tools automate and simplify the uninstallation of unauthorized software, enhancing system security and maintaining organizational compliance.
