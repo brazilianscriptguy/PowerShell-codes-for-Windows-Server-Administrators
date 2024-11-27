@@ -4,7 +4,7 @@
 
 This repository provides a carefully curated collection of `.VBS` and PowerShell scripts designed to streamline the management and configuration of Windows 10 and 11 workstations within an IT Service Management (ITSM) framework. These scripts automate various administrative tasks, enabling IT professionals to optimize workflows and maintain consistent configurations across workstations.
 
-> **✨ Each script in this repository features a graphical user interface (GUI), enhancing user interaction, and includes functionalities for generating operational `.log` files, making workstation management more intuitive and user-friendly.**
+✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and Workstation management more intuitive, efficient, and user-friendly.
 
 ## 🛠️ Prerequisites
 
