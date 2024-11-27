@@ -26,7 +26,7 @@ Before using the scripts in this repository, ensure the following prerequisites 
 
 ## 📄 Description
 
-This repository contains a comprehensive suite of PowerShell scripts specifically designed to streamline forensic investigations and enhance Blue Team operations. These tools allow for the extraction and analysis of key information from Windows Event Logs, system configurations, running processes, and more. Key features include:
+This repository contains a comprehensive suite of PowerShell scripts specifically designed to streamline forensic investigations and enhance Blue Team operations. These tools enable the extraction and analysis of key information from Windows Event Logs, system configurations, running processes, and more. Key features include:
 
 - **💻 Graphical User Interface (GUI):** Each script includes an intuitive GUI to enhance user interaction.
 - **📝 Logging:** Generates `.LOG` files to maintain audit trails of script executions.
@@ -42,10 +42,10 @@ The repository is organized into the following subfolders, each containing speci
    Scripts for processing and analyzing Windows Event Logs, providing detailed insights into key event activities. Ideal for monitoring and auditing logs to detect anomalies.
 
 2. **🛡️ IncidentResponse**  
-   Tools designed to gather comprehensive system data and assist with incident response efforts. These scripts help rapidly gather and analyze critical information during a security incident.
+   Tools designed to gather comprehensive system data and assist with incident response efforts. These scripts help rapidly collect and analyze critical information during a security incident.
 
 3. **🔍 MaliciousProcessDetection**  
-   Scripts that identify and report suspicious or malicious processes running on your systems, providing a fast way to detect and respond to active threats.
+   Scripts that identify and report suspicious or malicious processes running on your systems, providing a quick way to detect and respond to active threats.
 
 4. **⚙️ SystemComplianceCheck**  
    Tools to ensure that system configurations meet security and compliance standards by identifying non-compliant settings, helping to maintain a secure environment.
@@ -59,4 +59,4 @@ Stay tuned for more **BlueTeam-Tools** scripts, designed to provide even more in
 
 ## ❓ Additional Assistance
 
-*All scripts can be edited and customized to suit your specific needs and requirements. For further help or detailed information regarding prerequisites and environment setup, please refer to this `README.md` file.*
+*All scripts can be edited and customized to suit your specific needs and requirements. For further assistance or detailed information regarding prerequisites and environment setup, please refer to this `README.md` file.*
