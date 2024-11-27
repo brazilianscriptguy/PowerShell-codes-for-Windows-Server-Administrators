@@ -4,16 +4,18 @@ Welcome to the **Core-ScriptLibrary**! This folder contains essential PowerShell
 
 ## 🛠️ Prerequisites
 
-Before running the scripts, ensure the following prerequisites are in place:
+Before using the scripts in this folder, ensure the following prerequisites are met:
 
-1. **💻 PowerShell 5.1 or Later**  
-   It is recommended to use PowerShell 5.1 or newer for full compatibility with these scripts. You can check your PowerShell version by running the following command:  
-   ```powershell
-   $PSVersionTable.PSVersion
-   ```
+1. **⚙️ PowerShell**
+   - **Requirement:** PowerShell must be enabled on your system.
+   - **Module:** Import the **Active Directory** module if necessary.
 
-2. **🔒 Administrative Privileges**  
-   Some scripts may require administrative privileges to access system resources or modify configurations.
+2. **🔑 Administrator Privileges**
+   - **Note:** Some scripts require elevated permissions to uninstall applications and access certain system information.
+
+3. **🖥️ Remote Server Administration Tools (RSAT)**
+   - **Installation:** Ensure RSAT is installed on your Windows 10/11 workstation to enable remote administration of Windows Servers.
+   - **Usage:** Facilitates the management of Active Directory and other remote server roles.
 
 ## 📄 Script Descriptions
 
