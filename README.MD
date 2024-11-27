@@ -1,6 +1,6 @@
 # Complete PowerShell and VBScript Toolkit for Managing Windows Servers and Workstations with ITSM Compliance on Windows 10 and 11
 
-Welcome to the **PowerShell ToolSet for Windows Server Administration and VBScript Repository**—a meticulously curated collection of scripts tailored for advanced Windows Server and Windows 10/11 workstation management. Developed by `@brazilianscriptguy`, this repository offers a comprehensive suite of tools designed to streamline Windows Server administration while optimizing workstation management, configuration, and ITSM compliance.
+Welcome to the **PowerShell Toolset for Windows Server Administration and VBScript Repository**—a meticulously curated collection of scripts tailored for advanced Windows Server and Windows 10/11 workstation management. Developed by `@brazilianscriptguy`, this repository offers a comprehensive suite of tools designed to **streamline Windows Server administration, including Active Directory functions**, while optimizing workstation management, configuration, and ITSM compliance.
 
 > ✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script generates detailed `.log` files for operational tracking and **exports results to `.csv` files** for easy integration with reporting tools, making server and workstation management more intuitive, efficient, and user-friendly.
 
@@ -31,7 +31,7 @@ Welcome to the **PowerShell ToolSet for Windows Server Administration and VBScri
 
 ## 🛠️ Introduction
 
-This repository is a comprehensive source of tools and scripts specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10 and 11 workstations. Whether you’re focused on optimizing system performance, boosting security, or streamlining administrative workflows, the tools in the **ADAdmin-Tools**, **BlueTeam-Tools**, **Core-ScriptLibrary**, and **ITSM-Templates** folders are here to help.
+This repository is a comprehensive source of tools and scripts specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10/11 workstations. Whether you’re focused on optimizing system performance, boosting security, or streamlining administrative workflows, the tools in the **ADAdmin-Tools**, **BlueTeam-Tools**, **Core-ScriptLibrary**, and **ITSM-Templates** folders are here to help.
 
 ## 🚀 Features
 
@@ -77,7 +77,7 @@ To begin using the tools in this repository:
 
 4. **Run the Scripts**:
    - **PowerShell Scripts (`.ps1`)**: Right-click the script and select `Run with PowerShell`.
-   - **VBScript Files (`.vbs`)**: Right-click the file and choose `Run with command prompt`.
+   - **VBScript Files (`.vbs`)**: Right-click the file and choose `Run with Command Prompt`.
 
 ## 🛠️ Prerequisites
 
@@ -118,4 +118,4 @@ For the latest updates and releases, visit the [SysAdminToolSet Release](https:/
 
 ---
 
-*Thank you for choosing the PowerShell ToolSet for Windows Server Administration, BlueTeam Tools, and VBScript Repository for Workstation Management.* We hope these tools enhance your workflow and system efficiency.
+*Thank you for choosing the PowerShell Toolset for Windows Server Administration, BlueTeam Tools, and VBScript Repository for Workstation Management.* We hope these tools enhance your workflow and system efficiency.
