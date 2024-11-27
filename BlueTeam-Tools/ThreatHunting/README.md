@@ -1,4 +1,4 @@
-# 🔵 BlueTeam-Tools - Threat Hunting
+# 🔵 BlueTeam-Tools - ThreatHunting Folder
 
 ## 📝 Overview
 
