@@ -1,4 +1,4 @@
-# 🔵 BlueTeam-Tools - Malicious Process Detection Folder
+# 🔵 BlueTeam-Tools - MaliciousProcessDetection Folder
 
 ## 📝 Overview
 
@@ -61,5 +61,5 @@ This folder contains a suite of PowerShell scripts crafted to detect and remove 
 
 ## 📝 Logging and Output
 
-- 📄 **Logging:** Each script generates detailed logs in `.LOG` format, documenting every step of the process, including successful uninstallations and any errors encountered.
+- 📄 **Logging:** Each script generates detailed logs in `.LOG` format, documenting every step of the process, from uninstalling software to handling errors.
 - 📊 **Export Functionality:** Results are exported in `.CSV` format, providing easy-to-analyze data for auditing and reporting purposes.
