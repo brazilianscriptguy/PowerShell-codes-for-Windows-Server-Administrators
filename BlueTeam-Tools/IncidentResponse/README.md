@@ -19,8 +19,6 @@ Before running these scripts, ensure the following prerequisites are met:
    - **Installation:** Ensure RSAT is installed on your Windows 10/11 workstation to enable remote administration of Windows Servers.
    - **Usage:** Facilitates the management of Active Directory and other remote server roles.
 
-*Scripts that process `.evtx` files can also be run directly from a Windows 10 or 11 workstation.*
-
 ## 📄 Description
 
 This subfolder includes a comprehensive suite of PowerShell scripts designed to streamline **Active Directory (AD)** and **Windows Server** environment management during incident response. These tools automate and simplify a wide range of administrative tasks involving AD objects such as users, groups, and organizational units (OUs), as well as managing server functions and configurations.
