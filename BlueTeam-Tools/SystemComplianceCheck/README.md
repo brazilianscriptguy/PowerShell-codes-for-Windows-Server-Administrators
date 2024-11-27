@@ -1,4 +1,4 @@
-# 🔵 BlueTeam-Tools - System Compliance Check Folder
+# 🔵 BlueTeam-Tools - SystemComplianceCheck Folder
 
 ## 📝 Overview
 
