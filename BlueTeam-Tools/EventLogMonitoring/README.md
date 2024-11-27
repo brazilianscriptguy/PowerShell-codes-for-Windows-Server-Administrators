@@ -5,21 +5,22 @@
 To effectively use the scripts in this folder, ensure the following prerequisites are met:
 
 1. **Microsoft Log Parser Utility**  
+   - **Download**: Visit the [Log Parser 2.2 page](https://www.microsoft.com/en-us/download/details.aspx?id=24659) and download LogParser.msi.
    - **Installation:** Required on Windows Server machines or Windows 10/11 workstations.  
    - **Usage:** Facilitates advanced querying and analysis of various log formats.
 
-2. **Remote Server Administration Tools (RSAT)**  
+3. **Remote Server Administration Tools (RSAT)**  
    - **Installation:** Necessary on Windows 10/11 workstations to fully leverage scripts that use the `Import-Module ActiveDirectory` command.  
    - **Usage:** Enables Active Directory and other remote server role management.
 
-3. **PowerShell Version**  
+4. **PowerShell Version**  
    - **Recommendation:** PowerShell 5.1 or later.  
    - **Check Version:** Run the following command to verify your PowerShell version:
      ```powershell
      $PSVersionTable.PSVersion
      ```
 
-4. **Administrator Privileges**  
+5. **Administrator Privileges**  
    - **Note:** Some scripts require elevated permissions to access certain system information and logs.
 
 *Scripts that process `.evtx` files can also be run directly from a Windows 10 or 11 workstation.*
