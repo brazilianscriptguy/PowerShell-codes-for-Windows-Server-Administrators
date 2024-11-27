@@ -1,4 +1,4 @@
-# 📂 BlueTeam-Tools
+# 🔵 BlueTeam-Tools
 
 Welcome to the **BlueTeam-Tools** repository! This collection of PowerShell scripts is designed to assist Forensics and Blue Team professionals in effectively monitoring, detecting, and responding to security threats. Each tool extracts crucial information from logs, system configurations, and other sources, generating outputs in `.CSV` format for easy analysis and reporting.
 
