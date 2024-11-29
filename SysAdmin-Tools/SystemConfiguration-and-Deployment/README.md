@@ -7,7 +7,7 @@ This folder includes scripts for deploying and configuring software, group polic
 
 ## 📜 Script List and Descriptions
 
-1. **Broadcast-ADUser-LogonMessage-viaGPO.ps1**  
+1. **Broadcast-ADUser-LogonMessage-viaGPO.ps1** and **Broadcast-ADUser-LogonMessage-viaGPO.hta**  
    Displays customizable logon messages to users via GPO.
 
 2. **Clear-and-ReSyncGPOs-ADComputers.ps1**  
