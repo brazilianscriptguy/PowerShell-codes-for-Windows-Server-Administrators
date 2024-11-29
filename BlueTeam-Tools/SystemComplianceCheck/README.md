@@ -30,7 +30,7 @@ Ensure the following requirements are met before running the scripts:
 
 ---
 
-## 📄 Script Descriptions
+## 📄 Script Descriptions (Alphabetical Order)
 
 1. **🔍 Check-ServicesPort-Connectivity.ps1**  
    Verifies real-time connectivity of critical service ports to ensure availability and proper configuration.
@@ -41,28 +41,31 @@ Ensure the following requirements are met before running the scripts:
 3. **🔐 Organize-CERTs-Repository.ps1**  
    Organizes SSL/TLS certificates by issuer for better management, compliance, and streamlined audits.
 
-4. **📂 Retrieve-ADComputer-SharedFolders.ps1**  
+4. **📜 Retrieve-AuditPolicy-Configuration.ps1**  
+   Retrieves Advanced Audit Policies applied via GPOs on selected servers. Maps audit policies to their respective GPOs, generates a detailed `.csv` report in the My Documents folder, and logs all actions (including RSOP reports) in `C:\Logs-TEMP`. Includes a real-time progress bar for enhanced monitoring.
+
+5. **📂 Retrieve-ADComputer-SharedFolders.ps1**  
    Scans AD workstations for shared folders and logs findings to validate authorized configurations.
 
-5. **📡 Retrieve-DHCPReservations.ps1**  
+6. **📡 Retrieve-DHCPReservations.ps1**  
    Retrieves and filters DHCP reservations by hostname or description, ensuring accurate network resource documentation.
 
-6. **🛡️ Retrieve-Elevated-ADForestInfo.ps1**  
+7. **🛡️ Retrieve-Elevated-ADForestInfo.ps1**  
    Compiles data on elevated accounts and groups across the AD forest to support privileged access monitoring.
 
-7. **🌐 Retrieve-Empty-DNSReverseLookupZone.ps1**  
-   Detects and logs empty DNS reverse lookup zones to facilitate cleanup and ensure proper DNS configuration.
+8. **🌐 Retrieve-Empty-DNSReverseLookupZone.ps1**  
+   Detects and logs empty DNS reverse lookup zones, assisting in DNS cleanup and ensuring proper DNS configuration.
 
-8. **📋 Retrieve-InstalledSoftwareList.ps1**  
+9. **📋 Retrieve-InstalledSoftwareList.ps1**  
    Inventories installed software on AD computers to verify compliance with organizational software policies.
 
-9. **💽 Retrieve-ServersDiskSpace.ps1**  
-   Collects disk space usage data from servers, providing insights for resource management and health monitoring.
+10. **💽 Retrieve-ServersDiskSpace.ps1**  
+    Collects disk space usage data from servers, providing insights for resource management and health monitoring.
 
-10. **🔑 Retrieve-Windows-ProductKey.ps1**  
+11. **🔑 Retrieve-Windows-ProductKey.ps1**  
     Extracts Windows product keys to ensure compliance with licensing requirements.
 
-11. **✂️ Shorten-LongFileNames-Tool.ps1**  
+12. **✂️ Shorten-LongFileNames-Tool.ps1**  
     Truncates file names exceeding a specified length to prevent file system errors and maintain naming standards.
 
 ---
@@ -70,7 +73,7 @@ Ensure the following requirements are met before running the scripts:
 ## 🚀 Usage Instructions
 
 ### General Steps:
-1. **Run the Script:** Open the script using the "Run With PowerShell" option.  
+1. **Run the Script:** Open the script using the `Run With PowerShell` option.  
 2. **Provide Inputs:** Follow on-screen prompts or specify required parameters.  
 3. **Review Outputs:** Analyze generated `.log` files and, where applicable, `.csv` reports.
 
@@ -79,6 +82,10 @@ Ensure the following requirements are met before running the scripts:
 - **Check-ServicesPort-Connectivity.ps1**  
    - Input desired ports to monitor their connectivity in real-time.  
    - Logs are saved for post-execution review.
+
+- **Retrieve-AuditPolicy-Configuration.ps1**  
+   - Runs an audit of Advanced Audit Policies applied through GPOs.  
+   - Generates a `.csv` report in the My Documents folder and logs all actions in `C:\Logs-TEMP`.
 
 - **Retrieve-DHCPReservations.ps1**  
    - Filter DHCP reservations by hostname or description for network audits.  
