@@ -31,7 +31,7 @@ This folder includes scripts for deploying and configuring software, group polic
 8. **Deploy-ZoomWorkplace-viaGPO.ps1**  
    Automates the deployment of Zoom software through GPO.
 
-9. **Enhance-BGInfoDisplay-viaGPO.ps1**  
+9. **Enhance-BGInfoDisplay-viaGPO.ps1**  and ** **Enhance-BGInfoDisplay-viaGPO.bgi**
    Integrates BGInfo with GPO to display system information on desktops.
 
 10. **Install-KMSLicensingServer-Tool.ps1**  
