@@ -379,16 +379,27 @@ function Show-MDIConfigurationForm {
             $jobOutput = Receive-Job -Job $job -Keep
 
             foreach ($line in $jobOutput) {
-                if ($line -like "PROGRESS:*") {
-                    # Update Progress Bar on the UI thread
-                    $progressValue = [int]($line -replace "PROGRESS:", "")
-                    if ($progressValue -ge 0 -and $progressValue -le 100) {
-                        $form.Invoke([Action]{
-                            $progressBar.Value = $progressValue
-                        }) | Out-Null
-                    }
-                } elseif ($line -match "^\[.*\]") {
-                    # Update Progress TextBox and Log
+                # Update progress for specific steps
+                if ($line -like "[INFO] Starting audit report generation for server:*") {
+                    $form.Invoke([Action]{
+                        $progressBar.Value = 20  # Step 1 - Starting audit report generation
+                    }) | Out-Null
+                } elseif ($line -like "[INFO] RSOP report generated at*") {
+                    $form.Invoke([Action]{
+                        $progressBar.Value = 40  # Step 2 - RSOP report generation completed
+                    }) | Out-Null
+                } elseif ($line -like "[INFO] Found * Audit Policy nodes in GPO XML.") {
+                    $form.Invoke([Action]{
+                        $progressBar.Value = 60  # Step 3 - Parsing audit policies completed
+                    }) | Out-Null
+                } elseif ($line -like "[INFO] CSV report saved to*") {
+                    $form.Invoke([Action]{
+                        $progressBar.Value = 80  # Step 4 - CSV report processing completed
+                    }) | Out-Null
+                }
+
+                # Display progress messages in the TextBox
+                if ($line -match "^\[.*\]") {
                     $lineContent = $line
                     $form.Invoke([Action]{
                         $textBoxProgress.AppendText($lineContent + "`r`n")
@@ -404,27 +415,9 @@ function Show-MDIConfigurationForm {
                         Log-Message -Message ($line -replace "^\[.*?\] ", "") -MessageType "INFO"
                     }
                 }
-
-                # Update progress for specific steps
-                if ($line -like "[INFO] Starting audit report generation for server:*") {
-                    $form.Invoke([Action]{
-                        $progressBar.Value = 20  # Step 1 - Starting process
-                    }) | Out-Null
-                } elseif ($line -like "[INFO] RSOP report generated at*") {
-                    $form.Invoke([Action]{
-                        $progressBar.Value = 40  # Step 2 - RSOP generation completed
-                    }) | Out-Null
-                } elseif ($line -like "[INFO] Found * Audit Policy nodes in GPO XML.") {
-                    $form.Invoke([Action]{
-                        $progressBar.Value = 60  # Step 3 - Parsing completed
-                    }) | Out-Null
-                } elseif ($line -like "[INFO] CSV report saved to*") {
-                    $form.Invoke([Action]{
-                        $progressBar.Value = 80  # Step 4 - CSV processing completed
-                    }) | Out-Null
-                }
             }
 
+            # Break out of loop once the job is completed
             if ($jobState -eq 'Completed' -or $jobState -eq 'Failed' -or $jobState -eq 'Stopped') {
                 break
             }
@@ -434,7 +427,7 @@ function Show-MDIConfigurationForm {
 
         # Finalize Progress Bar
         $form.Invoke([Action]{
-            $progressBar.Value = 100  # Step 5 - Completed process
+            $progressBar.Value = 100  # Step 5 - All tasks completed
         }) | Out-Null
 
         # Ensure Job is Completed before Proceeding
