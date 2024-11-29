@@ -2,7 +2,9 @@
 
 Welcome to the **PowerShell Toolset for Windows Server Administration and VBScript Repository**—a meticulously curated collection of scripts tailored for advanced Windows Server and Windows 10/11 workstation management. Developed by `@brazilianscriptguy`, this repository offers a comprehensive suite of tools designed to **streamline Windows Server administration, including Active Directory functions**, while optimizing workstation management, configuration, and ITSM compliance.
 
-✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and Workstation management more intuitive, efficient, and user-friendly.
+✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and workstation management more intuitive, efficient, and user-friendly.
+
+---
 
 ## 🗂️ My GitHub Contributions
 
@@ -31,91 +33,110 @@ Welcome to the **PowerShell Toolset for Windows Server Administration and VBScri
 
 ## 🛠️ Introduction
 
-This repository is a comprehensive source of tools and scripts specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10/11 workstations. Whether you’re focused on optimizing system performance, boosting security, or streamlining administrative workflows, the tools in the **ADAdmin-Tools**, **BlueTeam-Tools**, **Core-ScriptLibrary**, and **ITSM-Templates** folders are here to help.
+This repository provides a robust set of tools and scripts specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10/11 workstations. Whether optimizing system performance, boosting security, or streamlining administrative workflows, the tools in the **SysAdmin-Tools**, **BlueTeam-Tools**, **Core-ScriptLibrary**, and **ITSM-Templates** folders have you covered.
+
+---
 
 ## 🚀 Features
 
-The repository is divided into core sections, each with its own suite of scripts focusing on different aspects of IT management and compliance:
+The repository is organized into four key sections, each focusing on distinct aspects of IT management and compliance:
 
-### 1. **ADAdmin-Tools**
-   - Automate tasks related to **Active Directory** (AD) management, such as user, group, and organizational unit (OU) administration.
-   - Includes tools for managing **DNS**, **DHCP**, **Sites and Services**, and system synchronization, providing comprehensive solutions for Windows Server environments.
-   - These tools streamline routine **Active Directory** operations, ensuring consistency, security, and compliance within server environments.
+### **1. BlueTeam-Tools**
+   - Focused on forensic analysis and system monitoring, with tools designed to help Blue Teams detect, analyze, and resolve potential security threats.
+   - **Integration with Log Parser Utility** enhances log querying and in-depth data analysis for audits, threat detection, and forensic investigations.
+   - Includes modules for **incident response**, enabling administrators to gather crucial information during and after security breaches.
 
-### 2. **BlueTeam-Tools**
-   - Focused on forensic analysis and system monitoring, with tools designed to help Blue Teams detect, analyze, and resolve potential security threats quickly.
-   - **Integration with Log Parser Utility** allows for complex log querying and in-depth data analysis, enhancing security audits, threat detection, and forensic investigations.
-   - Includes modules for **incident response**, enabling administrators to gather crucial information during and after a security breach to minimize risk and damage.
+### **2. Core-ScriptLibrary**
+   - Offers foundational PowerShell scripts for building and managing **custom script libraries** with dynamic user interfaces, core functionality, and automation.
+   - Provides templates for automating routine administrative tasks, enabling faster and more efficient script development.
+   - Ideal for creating complex **PowerShell-based solutions** tailored to specific IT administrative needs.
 
-### 3. **Core-ScriptLibrary**
-   - A set of essential PowerShell scripts focused on creating and managing **custom script libraries** with a focus on dynamic user interfaces, core functionality, and automation.
-   - Ideal for building more complex **PowerShell-based solutions**, offering foundational scripts that can be customized or extended to meet specific IT administrative needs.
-   - These scripts provide templates for automating routine administrative tasks, making script development faster and more efficient.
+### **3. ITSM-Templates**
+   - Contains templates and scripts tailored for **IT Service Management (ITSM)**, emphasizing workstation hardening, configuration, and automation.
+   - Includes deployment strategies, GPO management, and audit compliance tools to maintain high-security and operational standards.
 
-### 4. **ITSM-Templates**
-   - Contains templates and scripts specifically tailored for **IT Service Management (ITSM)**, emphasizing workstation hardening, configuration, compliance, and automation.
-   - Includes deployment strategies, GPO management, and audit compliance checks to help maintain high security and operational standards across your IT infrastructure.
+### **4. SysAdmin-Tools**
+   - Automates tasks related to **Active Directory** management, such as user, group, and OU administration.
+   - Includes tools for managing **DNS**, **DHCP**, **Sites and Services**, and system synchronization.
+   - Streamlines routine **Active Directory** operations, ensuring consistency, security, and compliance within server environments.
+
+---
 
 ## 🌟 Key Highlights
 
-- **GUI-Driven Solutions**: Each tool is GUI-driven, making them user-friendly and accessible even for non-PowerShell experts.
-- **Advanced Logging**: All scripts generate `.log` files for detailed event tracking and **audit compliance**. They also export key results in `.csv` for easy integration with reporting tools.
-- **Customizable**: All scripts are highly customizable, allowing you to adjust parameters, paths, and execution behaviors based on your organizational needs.
+- **GUI-Driven Solutions**: Intuitive GUIs make these tools accessible even for non-PowerShell experts.
+- **Advanced Logging**: Scripts generate detailed `.log` files for operational transparency and `.csv` files for actionable reporting.
+- **Customizable**: Highly customizable scripts allow you to adjust parameters, paths, and execution behaviors based on organizational needs.
+
+---
 
 ## 💻 Getting Started
 
-To begin using the tools in this repository:
+### Steps to Begin:
 
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators.git
    ```
 
-2. **Save the Scripts**: Choose a directory to save the scripts and organize them as needed for easier access.
+2. **Organize the Scripts**: Save the scripts into directories for easier access and management.
 
-3. **Explore the Folders**: Navigate through **ADAdmin-Tools**, **BlueTeam-Tools**, **Core-ScriptLibrary**, and **ITSM-Templates** to find the tools relevant to your tasks.
+3. **Explore the Folders**:
+   - `SysAdmin-Tools`
+   - `BlueTeam-Tools`
+   - `Core-ScriptLibrary`
+   - `ITSM-Templates`
 
 4. **Run the Scripts**:
    - **PowerShell Scripts (`.ps1`)**: Right-click the script and select `Run with PowerShell`.
-   - **VBScript Files (`.vbs`)**: Right-click the file and choose `Run with Command Prompt`.
+   - **VBScript Files (`.vbs`)**: Right-click the file and select `Run with Command Prompt`.
+
+---
 
 ## 🛠️ Prerequisites
 
 Before running these scripts, ensure your environment meets the following requirements:
 
-- **PowerShell Version**: PowerShell version 5.1 or later is required.
-- **Administrative Rights**: Most scripts require administrative privileges.
-- **RSAT Tools**: Required for **ADAdmin-Tools** and **BlueTeam-Tools**, ensure `Remote Server Administration Tools (RSAT)` is installed.
-- **Log Parser Utility**: Required for **BlueTeam-Tools**, install [Microsoft Log Parser 2.2](https://www.microsoft.com/en-us/download/details.aspx?id=24659).
-- **ITSM-Templates**: Ensure workstations are running **Windows 10 (1507 or later)** or **Windows 11**.
-
-## 🔧 Installing RSAT on Windows 10 and 11
-
-1. **Open Settings**: Go to `Settings` on your Windows 10/11 workstation.
-2. **Apps & Features**: Navigate to `Apps`, then select `Optional Features`.
-3. **Add a Feature**: Click on `Add a feature` and search for `RSAT`.
-4. **Install**: Select and install the necessary RSAT tools (e.g., Active Directory, DNS, DHCP).
-
-## 🔧 Installing Microsoft Log Parser Utility
-
-1. **Download**: Visit the [Log Parser 2.2 page](https://www.microsoft.com/en-us/download/details.aspx?id=24659) and download `LogParser.msi`.
-2. **Install**: Run the installer and follow the setup wizard.
-3. **Verify**: Open Command Prompt and type `LogParser.exe` to check if it is installed.
-4. **Optional PATH**: Add the installation path (e.g., `C:\Program Files (x86)\Log Parser 2.2\`) to your system’s PATH for easier access.
-
-## ⚙️ Customization
-
-This repository allows significant flexibility to adapt the scripts to your specific environment. Common customizations include:
-
-- **Configuration Files**: Modify the included configuration files for specific execution behaviors.
-- **Script Parameters**: Adjust script parameters based on your requirements, such as adding or changing AD OU paths, setting Domain targets, or customizing compliance checks.
-
-## 🤝 Support and Contributions
-
-For support, feel free to reach out via [email](mailto:luizhamilton.lhr@gmail.com) or join the [PowerShell-Br WhatsApp channel](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c). You can also support my work via [Patreon](https://patreon.com/brazilianscriptguy) for exclusive content.
-
-For the latest updates and releases, visit the [SysAdminToolSet Release](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/releases/tag/SysAdminToolSet).
+- **PowerShell Version**: Version 5.1 or later is required.
+- **Administrative Rights**: Most scripts require elevated permissions.
+- **RSAT Tools**: Required for **SysAdmin-Tools** and **BlueTeam-Tools**. Ensure `Remote Server Administration Tools (RSAT)` is installed.
+- **Log Parser Utility**: Install [Microsoft Log Parser 2.2](https://www.microsoft.com/en-us/download/details.aspx?id=24659) for **BlueTeam-Tools**.
+- **ITSM-Templates**: Workstations must run **Windows 10 (1507 or later)** or **Windows 11**.
 
 ---
 
-*Thank you for choosing the PowerShell Toolset for Windows Server Administration, BlueTeam Tools, and VBScript Repository for Workstation Management.* We hope these tools enhance your workflow and system efficiency.
+## 🔧 Installation Guides
+
+### **Installing RSAT on Windows 10/11**
+
+1. Open **Settings** > **Apps** > **Optional Features**.  
+2. Select **Add a Feature** and search for `RSAT`.  
+3. Install the necessary tools (e.g., Active Directory, DNS, DHCP).  
+
+### **Installing Log Parser Utility**
+
+1. **Download**: Visit the [Log Parser page](https://www.microsoft.com/en-us/download/details.aspx?id=24659).  
+2. **Install**: Run the `.msi` installer and follow the setup wizard.  
+3. **Verify**: Run `LogParser.exe` in Command Prompt to confirm installation.  
+4. **Optional PATH**: Add the installation path (e.g., `C:\Program Files (x86)\Log Parser 2.2\`) to your system’s PATH for easier access.
+
+---
+
+## ⚙️ Customization
+
+Tailor the scripts to meet your specific needs:
+
+- **Configuration Files**: Modify the included configuration files for custom behaviors.  
+- **Script Parameters**: Adjust parameters such as AD OU paths, domain targets, and compliance rules.
+
+---
+
+## 🤝 Support and Contributions
+
+For support, contact via [email](mailto:luizhamilton.lhr@gmail.com) or join the [PowerShell-Br WhatsApp channel](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c). Support the project on [Patreon](https://patreon.com/brazilianscriptguy) for exclusive content.
+
+For updates and releases, visit the [SysAdminToolSet Release](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/releases/tag/SysAdminToolSet).
+
+---
+
+Thank you for choosing the **SysAdmin-Tools repository** to enhance your IT administration workflow. We hope these tools boost your productivity and system efficiency.
