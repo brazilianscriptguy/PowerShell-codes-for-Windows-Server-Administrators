@@ -60,33 +60,20 @@ function Initialize-ScriptPaths {
     $logPath = Join-Path $logDir "${scriptName}_${timestamp}.log"
     $rsopDir = Join-Path $logDir "RSOP_Reports"
     
-    # Ensure log directory exists
-    if (-not (Test-Path $logDir)) {
-        try {
-            New-Item -Path $logDir -ItemType Directory -Force | Out-Null
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show(
-                "Failed to create log directory at $logDir. Logging will not be possible.",
-                "Logging Error",
-                [System.Windows.Forms.MessageBoxButtons]::OK,
-                [System.Windows.Forms.MessageBoxIcon]::Error
-            )
-            exit
-        }
-    }
-    
-    # Ensure RSOP reports directory exists
-    if (-not (Test-Path $rsopDir)) {
-        try {
-            New-Item -Path $rsopDir -ItemType Directory -Force | Out-Null
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show(
-                "Failed to create RSOP reports directory at $rsopDir. RSOP reports will not be saved.",
-                "RSOP Directory Error",
-                [System.Windows.Forms.MessageBoxButtons]::OK,
-                [System.Windows.Forms.MessageBoxIcon]::Error
-            )
-            exit
+    # Ensure log and RSOP report directories exist
+    foreach ($dir in @($logDir, $rsopDir)) {
+        if (-not (Test-Path $dir)) {
+            try {
+                New-Item -Path $dir -ItemType Directory -Force | Out-Null
+            } catch {
+                [System.Windows.Forms.MessageBox]::Show(
+                    "Failed to create directory at $dir.",
+                    "Directory Creation Error",
+                    [System.Windows.Forms.MessageBoxButtons]::OK,
+                    [System.Windows.Forms.MessageBoxIcon]::Error
+                )
+                exit
+            }
         }
     }
 
@@ -226,6 +213,12 @@ function Show-MDIConfigurationForm {
         $job = Start-Job -ScriptBlock {
             param($ServerName, $CsvPath, $LogPath, $rsopDir)
 
+            # Define Progress Bar sections (20% for each of 5 steps)
+            function Update-Progress {
+                param ($Section)
+                Write-Output ("PROGRESS:" + ($Section * 20))
+            }
+
             # Define Parse-GPOsForAuditPolicies function inside the job
             function Parse-GPOsForAuditPolicies {
                 param (
@@ -299,24 +292,26 @@ function Show-MDIConfigurationForm {
             # Define RSOP XML path within RSOP reports directory
             $rsopXmlPath = Join-Path $rsopDir "RSOP_${ServerName}_$timestamp.xml"
 
-            # Generate RSOP report
+            # Step 1: Generate RSOP report
             try {
                 Generate-RSOPReport -ServerName $ServerName -RsopXmlPath $rsopXmlPath
+                Update-Progress -Section 1
             } catch {
                 Write-Output ("[ERROR] An error occurred during RSOP report generation.")
                 Write-Output ("PROGRESS:100")
                 return
             }
 
-            # Parse RSOP report
+            # Step 2: Parse RSOP report
             $auditPolicies = Parse-GPOsForAuditPolicies -GpoXmlPath $rsopXmlPath
             if (-not $auditPolicies) {
                 Write-Output ("[ERROR] No audit policies found in RSOP for ${ServerName}.")
                 Write-Output ("PROGRESS:100")
                 return
             }
+            Update-Progress -Section 2
 
-            # Define required policies with categories and EventIDs
+            # Step 3: Define required policies with categories and EventIDs
             $RequiredPolicies = @(
                 @{ Category = "Account Logon"; Policy = "Audit Credential Validation"; EventIDs = @(4776, 4625) },
                 @{ Category = "Account Management"; Policy = "Audit Security Group Management"; EventIDs = @(4728, 4729, 4732, 4733) },
@@ -325,16 +320,11 @@ function Show-MDIConfigurationForm {
                 @{ Category = "Privilege Use"; Policy = "Audit Sensitive Privilege Use"; EventIDs = @(4672) },
                 @{ Category = "Policy Change"; Policy = "Audit Policy Change"; EventIDs = @(4719, 4907) }
             )
+            Update-Progress -Section 3
 
+            # Step 4: Process policies and create CSV data
             $csvData = @()
-            $totalPolicies = $RequiredPolicies.Count
-            $currentPolicy = 0
-
             foreach ($requiredPolicy in $RequiredPolicies) {
-                $currentPolicy++
-                $percentComplete = [int](($currentPolicy / $totalPolicies) * 80) # 80% for processing policies
-                Write-Output ("PROGRESS:${percentComplete}")
-
                 $Category = $requiredPolicy.Category
                 $PolicyName = $requiredPolicy.Policy
                 $EventIDs = $requiredPolicy.EventIDs -join ", "
@@ -364,11 +354,13 @@ function Show-MDIConfigurationForm {
                     Write-Output ("[WARNING] Policy ${PolicyName} not found in RSOP.")
                 }
             }
+            Update-Progress -Section 4
 
-            # Export CSV
+            # Step 5: Export CSV
             try {
                 $csvData | Export-Csv -Path $csvOutputPath -NoTypeInformation -Encoding UTF8 -Force | Out-Null
                 Write-Output ("[INFO] CSV report saved to ${csvOutputPath}.")
+                Update-Progress -Section 5
             } catch {
                 $errorMessage = $_.Exception.Message
                 Write-Output ("[ERROR] Failed to save CSV report to ${csvOutputPath}: ${errorMessage}")
@@ -381,76 +373,94 @@ function Show-MDIConfigurationForm {
             Write-Output ("[INFO] CSV report successfully saved to ${csvOutputPath}.")
         } -ArgumentList $selectedServer, $csvPath, $logPath, $rsopDir
 
-# Monitor the Background Job
-while ($true) {
-    $jobState = $job.State
-    $jobOutput = Receive-Job -Job $job -Keep
+        # Monitor the Background Job
+        while ($true) {
+            $jobState = $job.State
+            $jobOutput = Receive-Job -Job $job -Keep
 
-    foreach ($line in $jobOutput) {
-        if ($line -like "PROGRESS:*") {
-            # Update Progress Bar on the UI thread
-            $progressValue = [int]($line -replace "PROGRESS:", "")
-            if ($progressValue -ge 0 -and $progressValue -le 100) {
-                # Use Invoke to ensure thread-safe UI updates
-                $form.Invoke([Action]{
-                    $progressBar.Value = $progressValue
-                }) | Out-Null
-            }
-        } elseif ($line -match "^\[.*\]") {
-            # Update Progress TextBox and Log
-            $lineContent = $line
-            $form.Invoke([Action]{
-                $textBoxProgress.AppendText($lineContent + "`r`n")
-                $textBoxProgress.ScrollToCaret()
-            }) | Out-Null
+            foreach ($line in $jobOutput) {
+                if ($line -like "PROGRESS:*") {
+                    # Update Progress Bar on the UI thread
+                    $progressValue = [int]($line -replace "PROGRESS:", "")
+                    if ($progressValue -ge 0 -and $progressValue -le 100) {
+                        $form.Invoke([Action]{
+                            $progressBar.Value = $progressValue
+                        }) | Out-Null
+                    }
+                } elseif ($line -match "^\[.*\]") {
+                    # Update Progress TextBox and Log
+                    $lineContent = $line
+                    $form.Invoke([Action]{
+                        $textBoxProgress.AppendText($lineContent + "`r`n")
+                        $textBoxProgress.ScrollToCaret()
+                    }) | Out-Null
 
-            # Also log the message
-            $messageTypeMatch = $line -match "^\[(INFO|ERROR|WARNING)\]"
-            if ($messageTypeMatch) {
-                $messageType = $matches[1]
-                Log-Message -Message ($line -replace "^\[.*?\] ", "") -MessageType $messageType
-            } else {
-                Log-Message -Message ($line -replace "^\[.*?\] ", "") -MessageType "INFO"
+                    # Also log the message
+                    $messageTypeMatch = $line -match "^\[(INFO|ERROR|WARNING)\]"
+                    if ($messageTypeMatch) {
+                        $messageType = $matches[1]
+                        Log-Message -Message ($line -replace "^\[.*?\] ", "") -MessageType $messageType
+                    } else {
+                        Log-Message -Message ($line -replace "^\[.*?\] ", "") -MessageType "INFO"
+                    }
+                }
+
+                # Update progress for specific steps
+                if ($line -like "[INFO] Starting audit report generation for server:*") {
+                    $form.Invoke([Action]{
+                        $progressBar.Value = 20  # Step 1 - Starting process
+                    }) | Out-Null
+                } elseif ($line -like "[INFO] RSOP report generated at*") {
+                    $form.Invoke([Action]{
+                        $progressBar.Value = 40  # Step 2 - RSOP generation completed
+                    }) | Out-Null
+                } elseif ($line -like "[INFO] Found * Audit Policy nodes in GPO XML.") {
+                    $form.Invoke([Action]{
+                        $progressBar.Value = 60  # Step 3 - Parsing completed
+                    }) | Out-Null
+                } elseif ($line -like "[INFO] CSV report saved to*") {
+                    $form.Invoke([Action]{
+                        $progressBar.Value = 80  # Step 4 - CSV processing completed
+                    }) | Out-Null
+                }
             }
+
+            if ($jobState -eq 'Completed' -or $jobState -eq 'Failed' -or $jobState -eq 'Stopped') {
+                break
+            }
+
+            Start-Sleep -Milliseconds 500
         }
-    }
 
-    if ($jobState -eq 'Completed' -or $jobState -eq 'Failed' -or $jobState -eq 'Stopped') {
-        break
-    }
+        # Finalize Progress Bar
+        $form.Invoke([Action]{
+            $progressBar.Value = 100  # Step 5 - Completed process
+        }) | Out-Null
 
-    Start-Sleep -Milliseconds 500
-}
+        # Ensure Job is Completed before Proceeding
+        $finalOutput = Receive-Job -Job $job -Wait -AutoRemoveJob
+        $csvSuccess = $finalOutput | Where-Object { $_ -like "[INFO] CSV report successfully saved to *" }
 
-# Finalize Progress Bar
-$form.Invoke([Action]{
-    $progressBar.Value = 100
-}) | Out-Null
+        # Display the Final Success Message Window
+        if ($csvSuccess) {
+            # Extract the CSV path from the final output
+            $csvPathExtract = $csvSuccess -replace "^\[INFO\] CSV report successfully saved to ", ""
+            # Show INFO Message Box
+            $form.Invoke([Action]{
+                [System.Windows.Forms.MessageBox]::Show(
+                    "CSV report successfully saved to: `n${csvPathExtract}",
+                    "Success",
+                    [System.Windows.Forms.MessageBoxButtons]::OK,
+                    [System.Windows.Forms.MessageBoxIcon]::Information
+                )
+            }) | Out-Null
+        }
 
-# Check if CSV was generated successfully by inspecting the last output line
-$finalOutput = Receive-Job -Job $job -Wait -AutoRemoveJob
-$csvSuccess = $finalOutput | Where-Object { $_ -like "[INFO] CSV report successfully saved to *" }
-
-if ($csvSuccess) {
-    # Extract the CSV path from the final output
-    $csvPathExtract = $csvSuccess -replace "^\[INFO\] CSV report successfully saved to ", ""
-    # Show INFO Message Box
-    $form.BeginInvoke([Action]{
-        [System.Windows.Forms.MessageBox]::Show(
-            "CSV report successfully saved to: `n${csvPathExtract}",
-            "Success",
-            [System.Windows.Forms.MessageBoxButtons]::OK,
-            [System.Windows.Forms.MessageBoxIcon]::Information
-        )
-    }) | Out-Null
-}
-
-# Enable UI elements after processing
-$form.Invoke([Action]{
-    $buttonGenerate.Enabled = $true
-    $comboBoxServer.Enabled = $true
-}) | Out-Null
-
+        # Enable UI elements after processing
+        $form.Invoke([Action]{
+            $buttonGenerate.Enabled = $true
+            $comboBoxServer.Enabled = $true
+        }) | Out-Null
     })
 
     # Show the form (Start the UI)
