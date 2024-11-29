@@ -40,8 +40,8 @@ Ensure the following requirements are met before running the scripts:
 3. **🗑️ Delete-FilesByExtension-Bulk.ps1**  
    Facilitates bulk deletion of files based on their extensions, aiding in the removal of unwanted or harmful files during incident response and cleanup efforts.
 
-4. **📑 Delete-FilesByExtension-Bulk.txt**  
-   A configuration text file used by the **Delete-FilesByExtension-Bulk.ps1** script. It specifies the file extensions to target for deletion, allowing administrators to customize the cleanup process.
+   **📑 Delete-FilesByExtension-Bulk.txt**  
+      - A configuration text file used by the **Delete-FilesByExtension-Bulk.ps1** script. It specifies the file extensions to target for deletion, allowing administrators to customize the cleanup process.
 
 ---
 
