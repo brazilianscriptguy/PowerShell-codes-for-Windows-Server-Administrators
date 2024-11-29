@@ -32,15 +32,15 @@ Ensure the following requirements are met before running the scripts:
 ## 📄 Script Descriptions (Alphabetical Order)
 
 1. **🛡️ Remove-Softwares-NonCompliance-Tool.ps1**  
-   Automates the uninstallation of multiple software applications based on a `.txt` configuration file. Logs all actions performed, handles errors gracefully, and provides an efficient solution for bulk software removal.
+   Automates the uninstallation of multiple software applications based on a `.txt` configuration file. Logs every action performed, handles errors gracefully, and provides an efficient solution for bulk software removal.
+
+   - **Additional Files:**  
+     - **Softwares-NonCompliance-List.txt:** A configuration file specifying the software to uninstall. Applications must be listed one per line for targeted and precise uninstallation.  
 
 2. **🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
    Enforces software compliance by removing non-compliant or unauthorized applications via Group Policy Objects (GPO). This script reduces vulnerabilities by automating software removal across multiple machines.
 
-3. **📝 Softwares-NonCompliance-List.txt**  
-   A configuration text file used by **Remove-Softwares-NonCompliance-Tool.ps1**. Contains the names of applications to uninstall, ensuring targeted and precise uninstallation.
-
-4. **🗑️ Uninstall-SelectedApp-Tool.ps1**  
+3. **🗑️ Uninstall-SelectedApp-Tool.ps1**  
    Provides a user-friendly GUI for selecting and uninstalling applications directly from workstations. This script detects and removes unwanted or malicious software with minimal manual intervention, ensuring effective removal.
 
 ---
