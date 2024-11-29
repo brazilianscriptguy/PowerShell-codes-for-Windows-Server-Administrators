@@ -32,20 +32,17 @@ Before using the scripts in this folder, ensure the following prerequisites are 
 
 ## 📄 Script Descriptions (Alphabetical Order)
 
-### **1. Remove-EmptyFiles-or-DateRange.ps1**
-   Detects and removes empty files or files within a specified date range, optimizing file storage and maintaining system organization.
-
-### **2. 🛡️ Remove-Softwares-NonCompliance-Tool.ps1**  
+### **1. 🛡️ Remove-Softwares-NonCompliance-Tool.ps1**  
    Automates the uninstallation of multiple software applications based on a `.TXT` configuration file. Logs every action performed, handles errors gracefully, and provides an efficient solution for bulk software removal.
 
    **Additional Files:**  
    - **Softwares-NonCompliance-List.txt**:  
      Serves as a configuration file for the script. Each application to be uninstalled must be listed on a separate line to ensure targeted and precise uninstallation.
 
-### **3. 🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
+### **2. 🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
    Enforces software compliance by removing non-compliant or unauthorized applications via Group Policy Objects (GPO). Automates removal across multiple machines, reducing vulnerabilities.
 
-### **4. 🗑️ Uninstall-SelectedApp-Tool.ps1**  
+### **3. 🗑️ Uninstall-SelectedApp-Tool.ps1**  
    Provides a user-friendly GUI for selecting and uninstalling applications directly from workstations. Detects and removes unwanted or malicious software with minimal manual intervention, ensuring effective removal.
 
 ---
@@ -58,10 +55,6 @@ Before using the scripts in this folder, ensure the following prerequisites are 
 3. **Review Outputs:** Check generated `.LOG` files and, where applicable, `.CSV` reports for results.
 
 ### Example Scenarios:
-
-- **Remove-EmptyFiles-or-DateRange.ps1**  
-   - Run the script and specify the target directory and file criteria (empty or within a specific date range).  
-   - The script removes matching files and logs all actions for review.
 
 - **🛡️ Remove-Softwares-NonCompliance-Tool.ps1**  
    - Open **Softwares-NonCompliance-List.txt** and list the names of applications to uninstall (one per line).  
