@@ -144,9 +144,6 @@ This folder contains a suite of PowerShell scripts designed to streamline the ad
 32. **Move-ADUser-betweenOUs.ps1**
     - **Purpose:** Streamlines moving user accounts between OUs in Active Directory, aiding in organizational structure changes.
 
-33. **Remove-EmptyFiles-or-DateRange.ps1**
-    - **Purpose:** Detects and removes empty files or files within a specified date range, optimizing file storage and system organization.
-
 34. **Rename-DiskVolumes-viaGPO.ps1**
     - **Purpose:** Renames disk volumes uniformly across workstations using GPO, simplifying disk management.
 
