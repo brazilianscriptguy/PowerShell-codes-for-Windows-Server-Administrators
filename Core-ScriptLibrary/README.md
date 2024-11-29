@@ -1,77 +1,103 @@
-# 📂 Core-ScriptLibrary
+# 📂 Core-ScriptLibrary Folder
 
-Welcome to the **Core-ScriptLibrary**! This folder contains essential PowerShell scripts designed to create and manage custom script libraries, focusing on dynamic user interfaces, core functionality, and automation. These tools provide a strong foundation for building more complex and efficient PowerShell-based solutions
+Welcome to the **Core-ScriptLibrary**! This folder contains essential **PowerShell scripts** designed to streamline the creation and management of custom script libraries. With a focus on dynamic user interfaces, core functionality, and automation, these tools provide a robust foundation for developing efficient and maintainable PowerShell-based solutions.
 
-✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and Workstation management more intuitive, efficient, and user-friendly.
+### Key Features:
+- **User-Friendly GUI Integration:** Simplifies user interaction with intuitive graphical interfaces.  
+- **Standardized Logging:** Implements consistent logging across scripts, improving traceability and debugging.  
+- **Exportable Results:** Outputs in `.CSV` format for easy reporting and analysis.  
+- **Efficient Automation:** Streamlines the creation of dynamic PowerShell script libraries and templates.
+
+---
 
 ## 🛠️ Prerequisites
 
-Before using the scripts in this folder, ensure the following prerequisites are met:
+Ensure the following requirements are met before using the scripts:
 
 1. **⚙️ PowerShell**
-   - **Requirement:** PowerShell must be enabled on your system.
-   - **Module:** Import the **Active Directory** module if necessary.
+   - PowerShell must be enabled on your system.
+   - Import modules as needed, such as:
+     - **Active Directory:** `Import-Module ActiveDirectory`
+     - **DHCP Server:** `Import-Module DHCPServer`
 
 2. **🔑 Administrator Privileges**
-   - **Note:** Some scripts require elevated permissions to uninstall applications and access certain system information.
+   - Scripts may require elevated permissions to manage sensitive configurations, create logs, or execute administrative tasks.
 
 3. **🖥️ Remote Server Administration Tools (RSAT)**
-   - **Installation:** Ensure RSAT is installed on your Windows 10/11 workstation to enable remote administration of Windows Servers.
-   - **Usage:** Facilitates the management of Active Directory and other remote server roles.
+   - Install RSAT on your Windows 10/11 workstation to enable remote management of **Active Directory, DHCP, and other server roles**.
 
-## 📄 Script Descriptions
+---
 
-1. **📝 Create-Script-AutomaticMenuGUI.ps1**  
-   - **Purpose:** Automatically generates a dynamic, categorized GUI interface for discovering and executing PowerShell scripts stored in subdirectories. This tool is ideal for organizing and managing large script collections through an intuitive, user-friendly interface.
+## 📄 Script Descriptions (Alphabetical Order)
 
-2. **📋 Create-Script-DefaultHeader.ps1**  
-   - **Purpose:** Generates standardized headers for new PowerShell scripts, including details like author, version, and description. This ensures consistency across your PowerShell scripts.
+### 1. **📝 Create-Script-AutomaticMenuGUI.ps1**
+   - **Purpose:** Automatically generates a categorized, dynamic GUI for discovering and executing PowerShell scripts stored in subdirectories. Ideal for organizing and managing large script collections.  
+   - **Features:** Interactive GUI, categorized script browsing, and execution.
 
-3. **📊 Create-Script-LoggingMethod.ps1**  
-   - **Purpose:** Implements a standardized logging method across PowerShell scripts, ensuring uniform and consistent logging for improved traceability and debugging.
+### 2. **📋 Create-Script-DefaultHeader.ps1**
+   - **Purpose:** Generates standardized headers for new PowerShell scripts, including details such as author, version, and description. Ensures uniformity across your script library.  
+   - **Features:** Customizable metadata entry for script headers.
 
-4. **🛠️ Create-Script-MainCore.ps1**  
-   - **Purpose:** Provides a reusable template for building PowerShell scripts, complete with essential features such as standardized headers, logging mechanisms, and module imports. This script serves as the core framework for creating structured and maintainable PowerShell projects.
+### 3. **📊 Create-Script-LoggingMethod.ps1**
+   - **Purpose:** Implements a standardized logging mechanism for PowerShell scripts, ensuring consistent and traceable logs for debugging and auditing.  
+   - **Features:** Customizable log file location and detailed event/error logging.
 
-5. **💻 Create-Script-MainGUI.ps1**  
-   - **Purpose:** A customizable template for generating graphical user interfaces (GUIs) within PowerShell scripts. This enables developers to incorporate interactive GUI elements into their scripts, making them more user-friendly and accessible to users of varying technical expertise.
+### 4. **🛠️ Create-Script-MainCore.ps1**
+   - **Purpose:** Provides a reusable PowerShell script template with standardized headers, logging, and essential functions. Serves as a core framework for structured and maintainable PowerShell projects.  
+   - **Features:** Prebuilt template for rapid script development.
+
+### 5. **💻 Create-Script-MainGUI.ps1**
+   - **Purpose:** A customizable template for building graphical user interfaces (GUIs) in PowerShell scripts. Enables the creation of interactive and user-friendly tools.  
+   - **Features:** Support for buttons, input fields, and event handling.
+
+---
 
 ## 🚀 Script Usage Instructions
 
 ### How to Use Each Script:
 
 1. **📝 Create-Script-AutomaticMenuGUI.ps1**  
-   - **Steps**:
-     - Open PowerShell and navigate to the folder containing the script.
-     - Run `.\Create-Script-AutomaticMenuGUI.ps1`.
-     - Specify the directory containing your PowerShell scripts.
-     - Use the generated GUI to browse and execute scripts from an intuitive interface.
+   - **Steps:**  
+     - Navigate to the folder containing the script.  
+     - Run `.\Create-Script-AutomaticMenuGUI.ps1`.  
+     - Specify the directory with your PowerShell scripts.  
+     - Use the GUI to browse and execute scripts.
 
 2. **📋 Create-Script-DefaultHeader.ps1**  
-   - **Steps**:
-     - Run `.\Create-Script-DefaultHeader.ps1`.
-     - Enter the required details such as author name, script description, and version.
-     - The script will output a standardized header that you can paste into your new PowerShell script.
+   - **Steps:**  
+     - Run `.\Create-Script-DefaultHeader.ps1`.  
+     - Provide details such as author name, script version, and description.  
+     - Copy the generated header into your new PowerShell script.
 
 3. **📊 Create-Script-LoggingMethod.ps1**  
-   - **Steps**:
-     - Import the logging method into your existing PowerShell scripts by copying and pasting the required functions.
-     - Define the log file location within your script.
-     - Ensure your script writes key events and errors to the log file for future review.
+   - **Steps:**  
+     - Integrate the logging functions into your existing scripts.  
+     - Define the desired log file location.  
+     - Write key events and errors to the log file for debugging and traceability.
 
 4. **🛠️ Create-Script-MainCore.ps1**  
-   - **Steps**:
-     - Copy `Create-Script-MainCore.ps1` and use it as a starting template for your new PowerShell scripts.
-     - Modify the core functions and include your custom logic.
-     - Use the built-in logging mechanisms for tracking script execution.
+   - **Steps:**  
+     - Copy `Create-Script-MainCore.ps1` as a template for your new script.  
+     - Customize the core functions and include your logic.  
+     - Utilize built-in logging mechanisms to track script execution.
 
 5. **💻 Create-Script-MainGUI.ps1**  
-   - **Steps**:
-     - Open `Create-Script-MainGUI.ps1` and define the layout of your GUI elements (e.g., buttons, labels, input fields).
-     - Add event handlers to the GUI elements to execute specific actions when the user interacts with them.
-     - Run the script to display the GUI and allow users to interact with the interface.
+   - **Steps:**  
+     - Open `Create-Script-MainGUI.ps1` to define your GUI layout and functionality.  
+     - Add event handlers to execute specific actions when GUI elements are interacted with.  
+     - Run the script to display and test your GUI.
+
+---
 
 ## 📝 Logging and Output
 
-- 📄 **Logging:** Each script generates detailed logs in `.LOG` format, documenting every step of the process, from uninstalling software to handling errors.
-- 📊 **Export Functionality:** Results are exported in `.CSV` format, providing easy-to-analyze data for auditing and reporting purposes.
+- **📄 Logs:** Each script generates `.LOG` files, documenting key actions and errors for transparency and troubleshooting.  
+- **📊 Reports:** Some scripts export data in `.CSV` format, providing actionable insights for reporting and analysis.
+
+---
+
+## 💡 Tips for Optimization
+
+- **Automate Execution:** Schedule scripts to run periodically for consistent results and reduced manual intervention.  
+- **Centralize Logs and Reports:** Save `.log` and `.csv` files in a shared location for easier collaboration and audits.  
+- **Customize Templates:** Modify script templates to align with your organization's specific needs and requirements.
