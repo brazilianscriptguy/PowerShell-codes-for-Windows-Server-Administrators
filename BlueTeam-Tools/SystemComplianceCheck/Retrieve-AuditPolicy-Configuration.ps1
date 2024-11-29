@@ -224,7 +224,7 @@ function Show-MDIConfigurationForm {
 
         # Start Processing in a Background Job to Keep UI Responsive
         $job = Start-Job -ScriptBlock {
-            param($ServerName, $CsvPath, $LogPath, $RsopDir)
+            param($ServerName, $CsvPath, $LogPath, $rsopDir)
 
             # Define Parse-GPOsForAuditPolicies function inside the job
             function Parse-GPOsForAuditPolicies {
@@ -241,10 +241,13 @@ function Show-MDIConfigurationForm {
                     return @()
                 }
 
+                # Define a namespace manager to handle the XML namespaces correctly
+                $namespaceManager = New-Object System.Xml.XmlNamespaceManager($gpoXml.NameTable)
+                $namespaceManager.AddNamespace("q1", "http://www.microsoft.com/GroupPolicy/Types")
+
                 $policies = @()
                 # XPath to locate audit policies and their associated GPOs
-                # Adjust the XPath based on actual RSOP XML structure
-                $auditPolicyNodes = $gpoXml.SelectNodes("//Policy/PolicySettings/PolicySetting")
+                $auditPolicyNodes = $gpoXml.SelectNodes("//q1:Policy/q1:PolicySettings/q1:PolicySetting", $namespaceManager)
 
                 if ($auditPolicyNodes -eq $null -or $auditPolicyNodes.Count -eq 0) {
                     Write-Output ("[WARNING] No Audit Policy nodes found in GPO XML at " + $GpoXmlPath + ".")
@@ -255,12 +258,9 @@ function Show-MDIConfigurationForm {
 
                 foreach ($policyNode in $auditPolicyNodes) {
                     # Extract Policy Name and GPO Name
-                    $policyName = $policyNode.Name
-                    $gpoName = $policyNode.GPOName
-
-                    if (-not $gpoName) {
-                        $gpoName = "Not Configured"
-                    }
+                    $policyName = $policyNode.SelectSingleNode("q1:Name", $namespaceManager).InnerText
+                    $gpoNameNode = $policyNode.ParentNode.ParentNode.SelectSingleNode("q1:GPOName", $namespaceManager)
+                    $gpoName = if ($gpoNameNode) { $gpoNameNode.InnerText } else { "Not Configured" }
 
                     Write-Output ("[INFO] Processing Policy: " + $policyName + ", Configured By GPO: " + $gpoName + ".")
 
@@ -297,7 +297,7 @@ function Show-MDIConfigurationForm {
             $csvOutputPath = $CsvPath.Replace('.csv', "_${timestamp}.csv")
 
             # Define RSOP XML path within RSOP reports directory
-            $rsopXmlPath = Join-Path $RsopDir "RSOP_${ServerName}_$timestamp.xml"
+            $rsopXmlPath = Join-Path $rsopDir "RSOP_${ServerName}_$timestamp.xml"
 
             # Generate RSOP report
             try {
@@ -381,75 +381,79 @@ function Show-MDIConfigurationForm {
             Write-Output ("[INFO] CSV report successfully saved to ${csvOutputPath}.")
         } -ArgumentList $selectedServer, $csvPath, $logPath, $rsopDir
 
-        # Monitor the Background Job
-        while ($true) {
-            $jobState = $job.State
-            $jobOutput = Receive-Job -Job $job -Keep
+# Monitor the Background Job
+while ($true) {
+    $jobState = $job.State
+    $jobOutput = Receive-Job -Job $job -Keep
 
-            foreach ($line in $jobOutput) {
-                if ($line -like "PROGRESS:*") {
-                    # Update Progress Bar on the UI thread
-                    $progressValue = [int]($line -replace "PROGRESS:", "")
-                    if ($progressValue -ge 0 -and $progressValue -le 100) {
-                        # Use Invoke to ensure thread-safe UI updates
-                        $form.Invoke([Action]{
-                            $progressBar.Value = $progressValue
-                        }) | Out-Null
-                    }
-                } elseif ($line -match "^\[.*\]") {
-                    # Update Progress TextBox and Log
-                    $lineContent = $line
-                    $form.Invoke([Action]{
-                        $textBoxProgress.AppendText($lineContent + "`r`n")
-                        $textBoxProgress.ScrollToCaret()
-                    }) | Out-Null
-
-                    # Also log the message
-                    $messageTypeMatch = $line -match "^\[(INFO|ERROR|WARNING)\]"
-                    if ($messageTypeMatch) {
-                        $messageType = $matches[1]
-                        Log-Message -Message ($line -replace "^\[.*?\] ", "") -MessageType $messageType
-                    } else {
-                        Log-Message -Message ($line -replace "^\[.*?\] ", "") -MessageType "INFO"
-                    }
-                }
+    foreach ($line in $jobOutput) {
+        if ($line -like "PROGRESS:*") {
+            # Update Progress Bar on the UI thread
+            $progressValue = [int]($line -replace "PROGRESS:", "")
+            if ($progressValue -ge 0 -and $progressValue -le 100) {
+                # Use Invoke to ensure thread-safe UI updates
+                $form.Invoke([Action]{
+                    $progressBar.Value = $progressValue
+                }) | Out-Null
             }
+        } elseif ($line -match "^\[.*\]") {
+            # Update Progress TextBox and Log
+            $lineContent = $line
+            $form.Invoke([Action]{
+                $textBoxProgress.AppendText($lineContent + "`r`n")
+                $textBoxProgress.ScrollToCaret()
+            }) | Out-Null
 
-            if ($jobState -eq 'Completed' -or $jobState -eq 'Failed' -or $jobState -eq 'Stopped') {
-                break
+            # Also log the message
+            $messageTypeMatch = $line -match "^\[(INFO|ERROR|WARNING)\]"
+            if ($messageTypeMatch) {
+                $messageType = $matches[1]
+                Log-Message -Message ($line -replace "^\[.*?\] ", "") -MessageType $messageType
+            } else {
+                Log-Message -Message ($line -replace "^\[.*?\] ", "") -MessageType "INFO"
             }
-
-            Start-Sleep -Milliseconds 500
         }
+    }
 
-        # Finalize Progress Bar
-        $form.Invoke([Action]{
-            $progressBar.Value = 100
-        }) | Out-Null
+    if ($jobState -eq 'Completed' -or $jobState -eq 'Failed' -or $jobState -eq 'Stopped') {
+        break
+    }
 
-        # Check if CSV was generated successfully by inspecting the last output line
-        $finalOutput = Receive-Job -Job $job -Wait -AutoRemoveJob
-        $csvSuccess = $finalOutput | Where-Object { $_ -like "[INFO] CSV report successfully saved to *" }
+    Start-Sleep -Milliseconds 500
+}
 
-        if ($csvSuccess) {
-            # Extract the CSV path from the final output
-            $csvPathExtract = $csvSuccess -replace "^\[INFO\] CSV report successfully saved to ", ""
-            # Show INFO Message Box
-            [System.Windows.Forms.MessageBox]::Show(
-                "CSV report successfully saved to ${csvPathExtract}.",
-                "Success",
-                [System.Windows.Forms.MessageBoxButtons]::OK,
-                [System.Windows.Forms.MessageBoxIcon]::Information
-            )
-        }
+# Finalize Progress Bar
+$form.Invoke([Action]{
+    $progressBar.Value = 100
+}) | Out-Null
 
-        # Enable UI elements after processing
-        $form.Invoke([Action]{
-            $buttonGenerate.Enabled = $true
-            $comboBoxServer.Enabled = $true
-        }) | Out-Null
+# Check if CSV was generated successfully by inspecting the last output line
+$finalOutput = Receive-Job -Job $job -Wait -AutoRemoveJob
+$csvSuccess = $finalOutput | Where-Object { $_ -like "[INFO] CSV report successfully saved to *" }
+
+if ($csvSuccess) {
+    # Extract the CSV path from the final output
+    $csvPathExtract = $csvSuccess -replace "^\[INFO\] CSV report successfully saved to ", ""
+    # Show INFO Message Box
+    $form.BeginInvoke([Action]{
+        [System.Windows.Forms.MessageBox]::Show(
+            "CSV report successfully saved to: `n${csvPathExtract}",
+            "Success",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Information
+        )
+    }) | Out-Null
+}
+
+# Enable UI elements after processing
+$form.Invoke([Action]{
+    $buttonGenerate.Enabled = $true
+    $comboBoxServer.Enabled = $true
+}) | Out-Null
+
     })
 
+    # Show the form (Start the UI)
     [void]$form.ShowDialog()
 }
 
