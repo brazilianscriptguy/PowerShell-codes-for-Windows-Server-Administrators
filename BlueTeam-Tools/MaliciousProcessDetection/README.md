@@ -2,46 +2,51 @@
 
 ## 📝 Overview
 
-The **MaliciousProcessDetection Folder** contains a suite of **PowerShell scripts** designed to detect and remove **malicious processes** and unauthorized applications within **Windows environments**. These tools automate the uninstallation of suspicious software, enhancing system integrity, ensuring compliance, and strengthening overall security.
+The **MaliciousProcessDetection Folder** contains a collection of **PowerShell scripts** tailored to detect and remove **malicious processes** and unauthorized applications within **Windows environments**. These tools automate the uninstallation of suspicious software, enhancing system integrity, ensuring compliance, and strengthening overall security.
 
 ### Key Features:
 - **User-Friendly GUI:** Simplifies user interaction for efficient operation.
-- **Detailed Logging:** All scripts generate `.log` files for operational transparency and troubleshooting.
-- **Exportable Reports:** Scripts export data in `.csv` format for easy integration with reporting tools.
-- **Proactive Software Compliance:** Automates the removal of non-compliant applications, improving security and reducing vulnerabilities.
+- **Detailed Logging:** All scripts generate `.LOG` files for operational transparency and troubleshooting.
+- **Exportable Reports:** Outputs in `.CSV` format for seamless integration with reporting tools.
+- **Proactive Software Compliance:** Automates the removal of non-compliant applications, reducing vulnerabilities and enhancing security.
 
 ---
 
 ## 🛠️ Prerequisites
 
-Ensure the following requirements are met before running the scripts:
+Before using the scripts in this folder, ensure the following prerequisites are met:
 
 1. **⚙️ PowerShell**
    - PowerShell must be enabled on your system.
-   - The following module may need to be imported where applicable:
+   - The following modules may need to be imported where applicable:
      - **Active Directory:** `Import-Module ActiveDirectory`
+     - **DHCP:** `Import-Module DHCPServer`
 
 2. **🔑 Administrator Privileges**
    - Scripts may require elevated permissions to access sensitive configurations, uninstall applications, or modify system settings.
 
 3. **🖥️ Remote Server Administration Tools (RSAT)**
-   - Install RSAT on your Windows 10/11 workstation to enable remote management of Active Directory and server roles.
+   - Install RSAT on your Windows 10/11 workstation to enable remote management of Active Directory, DNS, DHCP, and other server roles.
 
 ---
 
 ## 📄 Script Descriptions (Alphabetical Order)
 
-1. **🛡️ Remove-Softwares-NonCompliance-Tool.ps1**  
-   Automates the uninstallation of multiple software applications based on a `.txt` configuration file. Logs every action performed, handles errors gracefully, and provides an efficient solution for bulk software removal.
+### **1. Remove-EmptyFiles-or-DateRange.ps1**
+   Detects and removes empty files or files within a specified date range, optimizing file storage and maintaining system organization.
 
-   - **Additional Files:**  
-     - **Softwares-NonCompliance-List.txt:** A configuration file specifying the software to uninstall. Applications must be listed one per line for targeted and precise uninstallation.  
+### **2. 🛡️ Remove-Softwares-NonCompliance-Tool.ps1**  
+   Automates the uninstallation of multiple software applications based on a `.TXT` configuration file. Logs every action performed, handles errors gracefully, and provides an efficient solution for bulk software removal.
 
-2. **🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
-   Enforces software compliance by removing non-compliant or unauthorized applications via Group Policy Objects (GPO). This script reduces vulnerabilities by automating software removal across multiple machines.
+   **Additional Files:**  
+   - **Softwares-NonCompliance-List.txt**:  
+     Serves as a configuration file for the script. Each application to be uninstalled must be listed on a separate line to ensure targeted and precise uninstallation.
 
-3. **🗑️ Uninstall-SelectedApp-Tool.ps1**  
-   Provides a user-friendly GUI for selecting and uninstalling applications directly from workstations. This script detects and removes unwanted or malicious software with minimal manual intervention, ensuring effective removal.
+### **3. 🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
+   Enforces software compliance by removing non-compliant or unauthorized applications via Group Policy Objects (GPO). Automates removal across multiple machines, reducing vulnerabilities.
+
+### **4. 🗑️ Uninstall-SelectedApp-Tool.ps1**  
+   Provides a user-friendly GUI for selecting and uninstalling applications directly from workstations. Detects and removes unwanted or malicious software with minimal manual intervention, ensuring effective removal.
 
 ---
 
@@ -50,24 +55,27 @@ Ensure the following requirements are met before running the scripts:
 ### General Steps:
 1. **Run the Script:** Launch the desired script using the `Run With PowerShell` option.  
 2. **Provide Inputs:** Follow on-screen prompts or specify parameters as required.  
-3. **Review Outputs:** Check generated `.log` files and, where applicable, `.csv` reports for results.
+3. **Review Outputs:** Check generated `.LOG` files and, where applicable, `.CSV` reports for results.
 
 ### Example Scenarios:
+
+- **Remove-EmptyFiles-or-DateRange.ps1**  
+   - Run the script and specify the target directory and file criteria (empty or within a specific date range).  
+   - The script removes matching files and logs all actions for review.
 
 - **🛡️ Remove-Softwares-NonCompliance-Tool.ps1**  
    - Open **Softwares-NonCompliance-List.txt** and list the names of applications to uninstall (one per line).  
    - Run the script with administrative privileges.  
-   - The script automatically uninstalls the listed applications, logs actions taken, and gracefully handles errors.  
-   - Review the `.log` file for detailed uninstallation reports.
+   - Automatically uninstalls listed applications, logs actions, and gracefully handles errors.  
+   - Review the `.LOG` file for detailed uninstallation reports.
 
 - **🚫 Remove-Softwares-NonCompliance-viaGPO.ps1**  
-   - Prepare a GPO to deploy this script across multiple systems.  
-   - Execute the script to silently uninstall non-compliant software on target machines.  
-   - Logs confirm the uninstallation process and ensure compliance.
+   - Deploy the script via a GPO to uninstall unauthorized software across multiple systems.  
+   - Logs confirm uninstallation processes and ensure compliance.
 
 - **🗑️ Uninstall-SelectedApp-Tool.ps1**  
-   - Run the script to launch a graphical user interface (GUI).  
-   - Select the application(s) to uninstall from the displayed list.  
+   - Run the script to launch the GUI.  
+   - Select application(s) to uninstall from the displayed list.  
    - Confirm and proceed with the uninstallation.  
    - Logs document the removed applications and any issues encountered.
 
@@ -75,13 +83,13 @@ Ensure the following requirements are met before running the scripts:
 
 ## 📝 Logging and Output
 
-- **📄 Logs:** Each script generates detailed logs in `.LOG` format, documenting every step of the process, including uninstallation actions and error handling.  
-- **📊 Reports:** Scripts export data in `.CSV` format, providing actionable insights for auditing and reporting purposes.
+- **📄 Logs:** Each script generates detailed logs in `.LOG` format, documenting all actions performed and errors encountered.  
+- **📊 Reports:** Outputs in `.CSV` format provide actionable insights for auditing and reporting.
 
 ---
 
 ## 💡 Tips for Optimization
 
-- **Automate Execution:** Use task schedulers to deploy scripts periodically, ensuring consistent software compliance.  
-- **Centralize Logs and Reports:** Store `.log` and `.csv` files in a shared location for collaborative analysis and audits.  
-- **Tailor Scripts to Policies:** Customize the scripts and configuration files to meet your organization's specific compliance requirements.
+- **Automate Execution:** Use task schedulers to deploy scripts periodically for consistent software compliance.  
+- **Centralize Logs and Reports:** Store `.LOG` and `.CSV` files in a shared location for collaborative analysis and audits.  
+- **Customize to Policies:** Tailor scripts and configuration files to align with your organization's specific compliance requirements.
