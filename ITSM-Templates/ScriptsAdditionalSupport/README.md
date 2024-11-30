@@ -2,65 +2,101 @@
 
 ## 📄 Overview
 
-The **ScriptsAdditionalSupport** folder contains a collection of additional scripts designed to address configuration inconsistencies identified by **L1 Service Support**. These scripts provide critical tools for troubleshooting, maintenance, and optimization of workstation and server environments.
+The **ScriptsAdditionalSupport** folder contains a comprehensive collection of additional scripts designed to address configuration inconsistencies identified by **L1 Service Support**. These scripts serve as essential tools for troubleshooting, maintenance, and optimization of workstation and server environments, ensuring smooth operations and compliance with IT standards.
+
+Each script includes robust error handling, detailed logging, and, where applicable, a user-friendly GUI for streamlined interaction.
 
 ---
 
 ## 📋 Script Descriptions
 
 ### **ActivateAllAdminShare**  
-Activates administrative shares, enables Remote Desktop Protocol (RDP), disables Windows Firewall, and turns off Windows Defender to facilitate administrative access.
+**Script:** `Activate-All-AdminShares.ps1`  
+Enables administrative shares, activates Remote Desktop Protocol (RDP), disables Windows Firewall, and turns off Windows Defender to facilitate administrative access. Includes a GUI for task management.  
+
+---
 
 ### **ExportCustomThemesFiles**  
-Exports customized system themes for consistent desktop and user interface configurations.
+**Script:** `Exports-CustomThemes-Files.ps1`  
+Exports custom Windows theme files, including `LayoutModification.xml`, `.msstyles`, and `.deskthemepack`, to standardize desktop and user interface configurations across the network.  
+
+---
 
 ### **FixPrinterDriverIssues**  
-Clears the print spooler and resets all printer drivers on the workstation to resolve common printer-related issues.
+**Script:** `Fix-PrinterDriver-Issues.ps1`  
+Troubleshoots common printer-related issues by resetting the print spooler, clearing print jobs, and managing printer drivers. The script includes multiple resolution methods and a GUI for user interaction.  
+
+---
 
 ### **GetSID**  
-Provides the Microsoft Internals tool to identify the **Security Identifier (SID)** of a workstation or user account.
+**Tool:** Microsoft Internals Tool  
+Identifies the **Security Identifier (SID)** of a workstation or user account, useful for diagnostic and management purposes.  
+
+---
 
 ### **InventoryInstalledSoftwareList**  
-Inventories the list of installed software on the workstation, generating a comprehensive report.
+**Script:** `Inventory-InstalledSoftwareList.ps1`  
+Inventories all installed software on the workstation, generating a detailed report for auditing and compliance purposes.  
+
+---
 
 ### **LegacyWorkstationIngress**  
-Enables legacy operating system workstations to join new domains, ensuring compatibility and network integration.
+**Script:** `LSA-NetJoin-Legacy.ps1`  
+Modifies registry settings to allow legacy operating systems to join modern domains. Fully compatible with Windows Server 2019 and newer.  
+
+---
 
 ### **RecallKESCert**  
-Points the workstation to the Antivirus server and renews the required certificate for secure antivirus operations.
+**Script:** `RecallKESCert.ps1`  
+Points the workstation to the Antivirus server and renews the necessary certificate, ensuring continued protection and secure operations.  
+
+---
 
 ### **RenameDiskVolumes**  
-Locally renames the disk volumes **C:** and **D:** to maintain standardized naming conventions.
+**Script:** `ChangeDiskVolumesNames.ps1`  
+Renames disk volumes **C:** and **D:**. The **C:** drive is labeled with the hostname, while **D:** is labeled for personal data or custom use. Detailed logging ensures traceability.  
+
+---
 
 ### **ResyncGPOsDataStore**  
-Resets all Group Policy Objects (GPOs) on the workstation and initiates a new synchronization with the domain.
+**Script:** `Resync-GPOs-DataStore.ps1`  
+Resets all Group Policy Objects (GPOs) on the workstation and synchronizes them with the domain policies. The script includes a GUI for user guidance and logs all actions for traceability.  
+
+---
 
 ### **UnjoinADComputer-and-Cleanup**  
-Unjoins the workstation from the domain and clears old domain data, preparing it for reallocation or repurposing.
+**Script:** `Unjoin-ADComputer-and-Cleanup.ps1`  
+Unjoins the workstation from the domain and performs cleanup operations, such as clearing DNS cache, removing old domain profiles, and resetting environment variables. Includes a GUI for seamless interaction and standardized logging.  
+
+---
 
 ### **WorkStationConfigReport**  
-Generates configuration reports for each workstation and records the details in a spreadsheet for auditing and analysis.
+**Script:** `Workstation-Data-Report.ps1`  
+Collects system configuration details, including OS, BIOS, and network information, saving the data into a `.CSV` file. Designed with a GUI for user feedback and error handling.  
+
+---
 
 ### **WorkstationTimeSync**  
-Synchronizes the workstation’s time, date, and time zone to ensure consistency with domain controllers.
+**Script:** `Workstation-TimeSync.ps1`  
+Synchronizes the workstation’s time, date, and time zone with the domain controllers, ensuring network-wide consistency.  
 
 ---
 
 ## 🚀 How to Use
 
-1. Navigate to the **ScriptsAdditionalSupport** folder in the **ITSM-Templates** directory.
-2. Select the desired script for execution based on the task or issue to be addressed.
-3. Follow the usage instructions included in the script header or associated documentation.
+1. Navigate to the **ScriptsAdditionalSupport** folder in the **ITSM-Templates** directory.  
+2. Select and execute the script relevant to the task or issue you are addressing.  
+3. Refer to the usage instructions included in the script header or associated documentation for detailed guidance.  
 
 ---
 
 ## 📝 Logging and Output
 
-Each script generates detailed logs to document the steps performed, outcomes, and any errors encountered. These logs are saved in the `C:\ITSM-Logs\` directory for easy access and troubleshooting.
+Each script generates detailed logs documenting the steps performed, outcomes, and any errors encountered. Logs are saved in the `C:\ITSM-Logs\` directory, making them easily accessible for troubleshooting and auditing purposes.  
 
 ---
 
 ## 🔗 References
 
 - [ITSM-Templates Documentation](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/blob/main/ITSM-Templates/README.md)  
-- For additional assistance, contact **L1 Service Support** or refer to the **README.md** file in the root directory of **ITSM-Templates**.
+- For further assistance, contact **L1 Service Support** or consult the **README.md** file located in the root directory of **ITSM-Templates**.
