@@ -69,23 +69,33 @@ Before running the scripts, ensure the following prerequisites are met:
 - **ScriptsAdditionalSupport**: Support scripts for addressing configuration inconsistencies.
 - **Uniquescripts**: Unified scripts for registry and VBS configurations.
 
-### **Key Scripts**:
+### **Key Scripts**
 
 #### **ITSM-DefaultVBSing.vbs**
-Located in `C:\ITSM-Templates\UniqueScripts\`, this script standardizes configurations, including:
-1. Installing certificates.
-2. Configuring desktop wallpapers and user profiles.
-3. Renewing IP connections.
-4. Disabling Windows Firewall.
-5. Pointing to the WSUS server.
+Located in `C:\ITSM-Templates\UniqueScripts\`, this script standardizes workstation configurations by:
+1. Installing certificates required for secure network connections.
+2. Applying consistent desktop wallpapers and user profile settings.
+3. Renewing IP connections to ensure proper network integration.
+4. Disabling Windows Firewall for compatibility with the Company’s network policies.
+5. Configuring the WSUS server address to manage updates.
 
 #### **ITSM-ModifyREGing.vbs**
-Located in `C:\ITSM-Templates\UniqueScripts\`, this script handles essential registry modifications, such as:
-1. Setting browser homepages.
-2. Enabling administrative shares.
-3. Disabling User Account Control (UAC).
-4. Applying desktop themes.
+Located in `C:\ITSM-Templates\UniqueScripts\`, this script applies critical registry configurations, including:
+1. Setting default browser homepages for user accessibility.
+2. Enabling administrative shares to support remote management.
+3. Disabling User Account Control (UAC) to streamline administrative operations.
+4. Applying desktop themes to maintain a consistent user interface.
 
+### **PostIngress Scripts**
+
+Located in `C:\ITSM-Templates\PostIngress\`, this collection of scripts is executed after the workstation joins the domain to complete critical configurations:
+
+1. **ITSM-NewDNSRegistering.vbs**  
+   Updates the workstation's hostname and domain information in the DNS servers of the Company’s Active Directory forest. This ensures accurate DNS registration and seamless integration with the domain network.  
+ 
+2. **ITSM-ProfileImprinting.vbs**  
+   Registers the user's domain profile on the workstation after three login cycles (login, logoff, and restart). This process enforces the network environment, domain configurations, and user profile registration, ensuring proper functionality both within and outside the Company’s network.  
+ 
 ---
 
 ### **ScriptsAdditionalSupport**
