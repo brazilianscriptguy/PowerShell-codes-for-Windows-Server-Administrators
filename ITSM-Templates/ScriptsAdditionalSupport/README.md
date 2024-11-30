@@ -62,5 +62,5 @@ Each script generates detailed logs to document the steps performed, outcomes, a
 
 ## 🔗 References
 
-- [ITSM-Templates Documentation](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators)  
+- [ITSM-Templates Documentation](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/blob/main/ITSM-Templates/README.md)  
 - For additional assistance, contact **L1 Service Support** or refer to the **README.md** file in the root directory of **ITSM-Templates**.
