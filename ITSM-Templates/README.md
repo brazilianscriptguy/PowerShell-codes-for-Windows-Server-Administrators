@@ -148,4 +148,4 @@ Logs are stored in `C:\ITSM-Logs\` and include:
 ---
 
 ### **Document Classification**:
-This document is **RESTRICTED** for internal use within the COMPANY network.
+This document is **RESTRICTED** for internal use within the Company's network.
