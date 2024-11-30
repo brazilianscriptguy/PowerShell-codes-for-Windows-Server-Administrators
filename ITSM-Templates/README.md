@@ -86,6 +86,8 @@ Located in `C:\ITSM-Templates\UniqueScripts\`, this script applies critical regi
 3. Disabling User Account Control (UAC) to streamline administrative operations.
 4. Applying desktop themes to maintain a consistent user interface.
 
+---
+
 ### **PostIngress Scripts**
 
 Located in `C:\ITSM-Templates\PostIngress\`, this collection of scripts is executed after the workstation joins the domain to complete critical configurations:
