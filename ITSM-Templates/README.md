@@ -55,7 +55,7 @@ Before running the scripts, ensure the following prerequisites are met:
    - Modify `.VBS` and `.REG` scripts as needed to suit specific configurations.
 
 4. **Personalize Workstation Appearance**:
-   - Update workstation themes using the `ITSM-Templates\CustomImages` folder.
+   - Update workstation themes using the `C:\ITSM-Templates\CustomImages` folder.
 
 ---
 
