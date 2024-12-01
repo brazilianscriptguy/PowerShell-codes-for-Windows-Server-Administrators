@@ -82,10 +82,10 @@ The repository is organized into four key sections, each focusing on distinct as
 2. **Organize the Scripts**: Save the scripts into directories for easier access and management.
 
 3. **Explore the Folders**:
-   - `SysAdmin-Tools`
    - `BlueTeam-Tools`
    - `Core-ScriptLibrary`
    - `ITSM-Templates`
+   - `SysAdmin-Tools`
 
 4. **Run the Scripts**:
    - **PowerShell Scripts (`.ps1`)**: Right-click the script and select `Run with PowerShell`.
