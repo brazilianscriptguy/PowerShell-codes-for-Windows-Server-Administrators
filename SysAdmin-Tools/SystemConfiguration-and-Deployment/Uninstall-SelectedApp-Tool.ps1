@@ -145,7 +145,7 @@ function Uninstall-Application {
 function Create-GUI {
     $form = New-Object System.Windows.Forms.Form
     $form.Text = 'Uninstall Applications'
-    $form.Size = New-Object System.Drawing.Size(500, 400)
+    $form.Size = New-Object System.Drawing.Size(520, 400)
     $form.StartPosition = 'CenterScreen'
 
     # Application Name label and textbox
