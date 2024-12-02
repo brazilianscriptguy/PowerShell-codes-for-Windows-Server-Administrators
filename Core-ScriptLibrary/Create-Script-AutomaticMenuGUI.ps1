@@ -56,7 +56,7 @@ function Get-ScriptDictionaries {
         Write-Host "Checking directory: $($dir.FullName)" -ForegroundColor Yellow
         
         # Get all .ps1 files in the current subdirectory
-        $scriptFiles = Get-ChildItem -Path $dir.FullName -Filter "*.ps1" -File
+        $scriptFiles = Get-ChildItem -Path $scriptDirectory -Recurse -Filter "*.ps1" -File
         
         if ($scriptFiles.Count -gt 0) {
             # Use the directory name as the category
