@@ -34,14 +34,14 @@ Before running the scripts, ensure the following requirements are met:
 
 ## 📄 Script Descriptions (Alphabetical Order)
 
-1. **🔍 Decipher-EML-MailMessages.ps1**  
+1. **🔍 Decipher-EML-MailMessages-Tool.ps1**  
    - **Purpose:** Decodes suspicious email messages using techniques like offset subtraction, encoding conversions, ROT13, and Caesar cipher brute force.  
    - **Output:** Analyzes and identifies hidden threats in email content.
 
-2. **🗑️ Delete-FilesByExtension-Bulk.ps1**  
+2. **🗑️ Delete-FilesByExtension-Tool.ps1**  
    - **Purpose:** Deletes files in bulk based on specified extensions, ideal for post-incident cleanup or routine maintenance.  
    - **Complementary File:**  
-     - **Delete-FilesByExtension-Bulk.txt**: Lists file extensions to target for deletion. Modify this file to customize cleanup parameters.
+     - **Delete-FilesByExtension-List.txt**: Lists file extensions to target for deletion. Modify this file to customize cleanup parameters.
 
 ---
 
@@ -54,12 +54,12 @@ Before running the scripts, ensure the following requirements are met:
 
 ### Example Scenarios:
 
-- **🔍 Decipher-EML-MailMessages.ps1**  
+- **🔍 Decipher-EML-MailMessages-Tool.ps1**  
    - Use the script to decode suspicious email messages, identifying hidden threats or harmful content.  
    - Analyze the logs for detailed decoding steps and results.
 
-- **🗑️ Delete-FilesByExtension-Bulk.ps1**  
-   - Update `Delete-FilesByExtension-Bulk.txt` to specify extensions for deletion (e.g., `.tmp`, `.bak`).  
+- **🗑️ Delete-FilesByExtension-Tool.ps1**  
+   - Update `Delete-FilesByExtension-List.txt` to specify extensions for deletion (e.g., `.tmp`, `.bak`).  
    - Run the script to delete files in bulk from targeted directories.  
    - Review the generated log to verify file removal and identify any issues.
 
