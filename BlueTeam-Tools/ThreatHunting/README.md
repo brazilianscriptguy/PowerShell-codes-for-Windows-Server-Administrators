@@ -2,94 +2,95 @@
 
 ## 📝 Overview
 
-The **ThreatHunting Folder** contains a suite of **PowerShell scripts** designed to enhance threat detection and mitigate security risks within **Windows networks**. These tools automate critical tasks, such as analyzing suspicious emails, purging expired certificates, and removing unauthorized shared resources, helping administrators maintain a secure and compliant infrastructure.
+The **ThreatHunting Folder** houses a suite of **PowerShell scripts** specifically designed to bolster threat detection and reduce security risks within **Windows networks**. These tools automate essential tasks such as analyzing suspicious emails, purging expired certificates, and removing unauthorized shared resources, enabling administrators to maintain a secure and compliant infrastructure.
 
 ### Key Features:
-- **User-Friendly GUI:** Simplifies user interaction for efficient operation.
-- **Detailed Logging:** All scripts generate `.log` files for operational transparency and troubleshooting.
-- **Exportable Reports:** Scripts export data in `.csv` format for easy integration with reporting tools.
-- **Proactive Security Management:** Automates tasks to improve your network's security posture and compliance.
+- **User-Friendly GUI:** Intuitive graphical interfaces streamline operations.  
+- **Detailed Logging:** Comprehensive `.log` files ensure operational transparency and simplify troubleshooting.  
+- **Exportable Reports:** Outputs in `.csv` format facilitate integration with reporting tools.  
+- **Proactive Security Management:** Automated tasks strengthen your network's security posture and enhance compliance.
 
 ---
 
 ## 🛠️ Prerequisites
 
-Ensure the following requirements are met before running the scripts:
+Before running the scripts, ensure the following requirements are met:
 
 1. **⚙️ PowerShell**
-   - PowerShell must be enabled on your system.
-   - The following module may need to be imported where applicable:
-     - **Active Directory:** `Import-Module ActiveDirectory`
+   - **Version Requirement:** PowerShell 5.1 or later is recommended.  
+   - **Active Directory Module:** Use the following command to import if needed:  
+     ```powershell
+     Import-Module ActiveDirectory
+     ```
 
 2. **🔑 Administrator Privileges**
-   - Scripts may require elevated permissions to access sensitive configurations, uninstall applications, or modify system settings.
+   - **Requirement:** Elevated permissions may be necessary to access system configurations, uninstall applications, or modify settings.
 
 3. **🖥️ Remote Server Administration Tools (RSAT)**
-   - Install RSAT on your Windows 10/11 workstation to enable remote management of Active Directory and server roles.
+   - **Installation:** Required for remote management of Active Directory, DNS, DHCP, and other server roles on Windows 10/11 workstations.
 
 ---
 
 ## 📄 Script Descriptions (Alphabetical Order)
 
-1. **🔍 Decipher-EML-MailMessages.ps1**  
-   Decodes suspicious email content using techniques such as offset subtraction, encoding conversions, ROT13, and Caesar cipher brute force. This script is invaluable for uncovering hidden threats in email messages.
+1. **🗑️ Cleanup-Repository-ExpiredCertificates-Tool.ps1**  
+   Detects and removes expired certificates from the certificate repository, ensuring your network’s certificates remain current and secure.
 
-2. **🗑️ Purge-ExpiredInstalledCertificates-Tool.ps1**  
-   Selectively removes expired Certificate Authorities (CAs) from the system to reduce security risks and maintain a secure certificate infrastructure.
+2. **🔍 Decipher-EML-MailMessages.ps1**  
+   Decodes suspicious email content using techniques such as offset subtraction, encoding conversions, ROT13, and Caesar cipher brute force. A crucial tool for uncovering hidden threats in emails.
 
-3. **🗑️ Purge-ExpiredInstalledCertificates-viaGPO.ps1**  
-   Automates the removal of expired Certificate Authorities across domain machines using Group Policy Objects (GPO), ensuring consistent and efficient certificate management.
+3. **🗑️ Purge-ExpiredInstalledCertificates-Tool.ps1**  
+   Identifies and removes expired Certificate Authorities (CAs) to mitigate security risks and maintain an up-to-date certificate infrastructure.
 
-4. **🗑️ Cleanup-Repository-ExpiredCertificates-Tool.ps1**  
-   Detects and removes expired certificates from the certificate repository, ensuring your network’s certificates remain up to date and secure.
+4. **🗑️ Purge-ExpiredInstalledCertificates-viaGPO.ps1**  
+   Automates the removal of expired Certificate Authorities across domain machines using Group Policy Objects (GPO), ensuring consistent and efficient management.
 
 5. **📂 Remove-SharedFolders-and-Drives-viaGPO.ps1**  
-   Removes unauthorized shared folders and drives across the network using GPOs, ensuring compliance with data-sharing policies and reducing the risk of data leaks.
+   Automates the removal of unauthorized shared folders and drives across the network via GPO, ensuring compliance with data-sharing policies and reducing data leakage risks.
 
 ---
 
 ## 🚀 Usage Instructions
 
 ### General Steps:
-1. **Run the Script:** Launch the desired script using the `Run With PowerShell` option.  
-2. **Provide Inputs:** Follow on-screen prompts or specify parameters as required.  
-3. **Review Outputs:** Check generated `.log` files and, where applicable, `.csv` reports for results.
+1. **Run the Script:** Execute the desired script using the `Run With PowerShell` option.  
+2. **Provide Inputs:** Follow on-screen prompts or configure parameters as required.  
+3. **Review Outputs:** Examine `.log` files and, where applicable, `.csv` reports for results.
 
 ### Example Scenarios:
 
+- **🗑️ Cleanup-Repository-ExpiredCertificates-Tool.ps1**  
+   - Scan the repository for expired certificates and remove them.  
+   - Logs provide a detailed record of removed certificates and any encountered issues.
+
 - **🔍 Decipher-EML-MailMessages.ps1**  
-   - Run the script with administrative privileges.  
-   - Specify the email or string to decode. The script applies decoding techniques and presents the results in a readable format.  
-   - Logs detail the decoding process and findings for further analysis.
+   - Launch the script with administrator privileges.  
+   - Input the email or string to decode.  
+   - View decoding results in a readable format and check logs for detailed insights.
 
 - **🗑️ Purge-ExpiredInstalledCertificates-Tool.ps1**  
-   - Execute the script to identify and remove expired CAs from the system.  
-   - Review logs to confirm which CAs were removed and ensure successful operation.
+   - Run the script to identify and remove expired Certificate Authorities.  
+   - Check logs to verify which CAs were removed.
 
 - **🗑️ Purge-ExpiredInstalledCertificates-viaGPO.ps1**  
-   - Ensure GPO is properly configured.  
-   - Run the script to remove expired CAs across domain machines.  
-   - Logs provide a record of removed CAs for compliance verification.
-
-- **🗑️ Cleanup-Repository-ExpiredCertificates-Tool.ps1**  
-   - Scan and remove expired certificates from the repository.  
-   - Logs list all removed certificates and document any issues encountered.
+   - Configure the GPO appropriately before running the script.  
+   - Logs will record all actions for compliance verification.
 
 - **📂 Remove-SharedFolders-and-Drives-viaGPO.ps1**  
-   - Use GPO to automate the removal of unauthorized shared folders and drives.  
-   - Logs detail the actions taken, providing an audit trail for compliance.
+   - Automate the removal of unauthorized shared folders and drives via GPO.  
+   - Review logs for an audit trail of completed actions.
 
 ---
 
 ## 📝 Logging and Output
 
-- **📄 Logs:** Each script generates `.log` files, detailing the steps performed, items modified or removed, and any errors encountered.  
-- **📊 Reports:** Scripts that export `.csv` files provide actionable data for compliance verification and reporting.
+- **📄 Logs:** All scripts generate `.log` files with detailed information about actions taken, items modified or removed, and errors encountered.  
+- **📊 Reports:** Scripts that produce `.csv` outputs provide actionable data for compliance and reporting.
 
 ---
 
 ## 💡 Tips for Optimization
 
-- **Automate Execution:** Schedule scripts to run periodically using task schedulers, ensuring consistent security monitoring and compliance.  
+- **Automate Execution:** Use task schedulers to periodically run scripts, ensuring consistent monitoring and compliance.  
 - **Centralize Logs and Reports:** Store `.log` and `.csv` files in a shared location for collaborative analysis and auditing.  
-- **Customize Scripts:** Adjust script parameters and thresholds to align with your organization’s specific security and compliance needs.
+- **Customize Scripts:** Adjust parameters and thresholds to align with your organization's specific security and compliance needs.
