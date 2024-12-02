@@ -11,7 +11,7 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: December 2, 2024
 #>
 
 # Hide the PowerShell console window
@@ -46,156 +46,129 @@ Write-Host "Current Script Directory: $scriptDirectory" -ForegroundColor Cyan
 
 # Function to generate a dictionary of script filenames and paths from all subdirectories
 function Get-ScriptDictionaries {
-    # Get all subdirectories in the current directory (customize path if needed)
-    $directories = Get-ChildItem -Path $scriptDirectory -Directory
-
-    # Create a dictionary to hold scripts for each directory
+    $scriptFiles = Get-ChildItem -Path $scriptDirectory -Recurse -Filter "*.ps1" -File
     $scriptsByCategory = @{}
 
-    foreach ($dir in $directories) {
-        Write-Host "Checking directory: $($dir.FullName)" -ForegroundColor Yellow
-        
-        # Get all .ps1 files in the current subdirectory
-        $scriptFiles = Get-ChildItem -Path $scriptDirectory -Recurse -Filter "*.ps1" -File
-        
-        if ($scriptFiles.Count -gt 0) {
-            # Use the directory name as the category
-            $category = $dir.Name
+    foreach ($file in $scriptFiles) {
+        $folderName = (Split-Path -Path $file.DirectoryName -Leaf)
 
-            # Initialize an array for scripts in this category
-            $scriptsByCategory[$category] = @{}
-
-            # Add each script to the dictionary using the script name as the key
-            foreach ($file in $scriptFiles) {
-                $scriptsByCategory[$category][$file.Name] = $file.FullName
-                Write-Host "Found script: $($file.FullName)" -ForegroundColor Green
-            }
-        } else {
-            Write-Host "No scripts found in directory: $($dir.FullName)" -ForegroundColor Red
+        if (-not $scriptsByCategory.ContainsKey($folderName)) {
+            $scriptsByCategory[$folderName] = @{}
         }
+        $scriptsByCategory[$folderName][$file.Name] = $file.FullName
+        Write-Host "Found script: $($file.FullName)" -ForegroundColor Green
     }
 
     return $scriptsByCategory
 }
 
-# Generate dictionaries for each section dynamically
 $scriptsByCategory = Get-ScriptDictionaries
-
-# Check if any scripts were found
 if ($scriptsByCategory.Count -eq 0) {
     Write-Host "No scripts found in any subdirectory." -ForegroundColor Yellow
 }
 
 # Function to create and show the GUI
 function Create-GUI {
-    # Initialize form components
     $form = [System.Windows.Forms.Form]::new()
     $form.Text = 'PowerShell Script Execution Menu'
-    $form.Size = [System.Drawing.Size]::new(600, 600)
+    $form.Size = [System.Drawing.Size]::new(850, 600)
     $form.StartPosition = 'CenterScreen'
     $form.BackColor = [System.Drawing.Color]::WhiteSmoke
 
-    # Header label
     $headerLabel = [System.Windows.Forms.Label]::new()
     $headerLabel.Text = "Select Scripts to Execute"
-    $headerLabel.Size = [System.Drawing.Size]::new(550, 30)
+    $headerLabel.Size = [System.Drawing.Size]::new(800, 30)
     $headerLabel.Location = [System.Drawing.Point]::new(25, 20)
     $headerLabel.Font = [System.Drawing.Font]::new("Arial", 14, [System.Drawing.FontStyle]::Bold)
     $headerLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
     $form.Controls.Add($headerLabel)
 
-    # Define initial position for group boxes
-    $yPosition = 60
+    $xPositionLeft = 25
+    $xPositionRight = 430
+    $yPositionLeft = 60
+    $yPositionRight = 60
+    $toggleColumn = $true
 
-    # Function to create a group box and a checked list box for each script category
     function Create-CategoryUI {
         param (
             [string]$CategoryName,
             [System.Collections.IDictionary]$Scripts,
-            [ref]$yPos
+            [ref]$xPosLeft,
+            [ref]$yPosLeft,
+            [ref]$xPosRight,
+            [ref]$yPosRight,
+            [ref]$toggle
         )
-
-        Write-Host "Creating UI for category: $CategoryName" -ForegroundColor Blue
 
         $groupBox = [System.Windows.Forms.GroupBox]::new()
         $groupBox.Text = "$CategoryName"
-        $groupBox.Size = [System.Drawing.Size]::new(550, 200)
-        $groupBox.Location = [System.Drawing.Point]::new(25, $yPos.Value)
+        $groupBox.Size = [System.Drawing.Size]::new(380, 200)
+
+        if ($toggle.Value) {
+            $groupBox.Location = [System.Drawing.Point]::new($xPosLeft.Value, $yPosLeft.Value)
+            $yPosLeft.Value += 210
+        } else {
+            $groupBox.Location = [System.Drawing.Point]::new($xPosRight.Value, $yPosRight.Value)
+            $yPosRight.Value += 210
+        }
+        $toggle.Value = -not $toggle.Value
+
         $groupBox.Font = [System.Drawing.Font]::new("Arial", 10, [System.Drawing.FontStyle]::Bold)
         $form.Controls.Add($groupBox)
 
         $listBox = [System.Windows.Forms.CheckedListBox]::new()
-        $listBox.Size = [System.Drawing.Size]::new(530, 160)
+        $listBox.Size = [System.Drawing.Size]::new(360, 160)
         $listBox.Location = [System.Drawing.Point]::new(10, 20)
         $listBox.Font = [System.Drawing.Font]::new("Arial", 10)
 
-        # Populate the checked list box with scripts in alphabetical order
-        if ($Scripts.Count -gt 0) {
-            foreach ($entry in $Scripts.GetEnumerator() | Sort-Object -Property Key) {
-                $listBox.Items.Add($entry.Key)
-                Write-Host "Adding script to list: $($entry.Key)" -ForegroundColor Cyan
-            }
-        } else {
-            Write-Host "No scripts found in category: $CategoryName" -ForegroundColor Red
+        foreach ($entry in $Scripts.GetEnumerator() | Sort-Object -Property Key) {
+            $listBox.Items.Add($entry.Key)
         }
 
         $groupBox.Controls.Add($listBox)
-
-        # Adjust the y position for the next group box
-        $yPos.Value += 210
-
         return $listBox
     }
 
-    # Create UI for each script category dynamically
     $listBoxes = @{}
     foreach ($category in $scriptsByCategory.Keys) {
-        $listBoxes[$category] = Create-CategoryUI -CategoryName $category -Scripts $scriptsByCategory[$category] -yPos ([ref]$yPosition)
+        $listBoxes[$category] = Create-CategoryUI -CategoryName $category -Scripts $scriptsByCategory[$category] `
+            -xPosLeft ([ref]$xPositionLeft) -yPosLeft ([ref]$yPositionLeft) `
+            -xPosRight ([ref]$xPositionRight) -yPosRight ([ref]$yPositionRight) -toggle ([ref]$toggleColumn)
     }
 
-    # Status label
     $statusLabel = [System.Windows.Forms.Label]::new()
     $statusLabel.Text = "Status: Ready"
-    $statusLabel.Location = [System.Drawing.Point]::new(25, $yPosition)
-    $statusLabel.Size = [System.Drawing.Size]::new(550, 20)
+    $statusLabel.Location = [System.Drawing.Point]::new(25, 520)
+    $statusLabel.Size = [System.Drawing.Size]::new(800, 20)
     $statusLabel.Font = [System.Drawing.Font]::new("Arial", 9)
     $form.Controls.Add($statusLabel)
 
-    # Create an execute button
     $executeButton = [System.Windows.Forms.Button]::new()
     $executeButton.Text = 'Execute'
     $executeButton.Size = [System.Drawing.Size]::new(150, 40)
-    $executeButton.Location = [System.Drawing.Point]::new(120, $yPosition + 30)
+    $executeButton.Location = [System.Drawing.Point]::new(250, 550)
     $executeButton.Font = [System.Drawing.Font]::new("Arial", 10, [System.Drawing.FontStyle]::Bold)
     $executeButton.BackColor = [System.Drawing.Color]::LightSkyBlue
     $executeButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
 
-    # Add the execute button click event
     $executeButton.Add_Click({
         $anySelected = $false
-
-        # Execute scripts for each category
         foreach ($category in $scriptsByCategory.Keys) {
             $listBox = $listBoxes[$category]
             $selectedScripts = $listBox.CheckedItems
 
             if ($selectedScripts.Count -gt 0) {
                 $anySelected = $true
-                [System.Windows.Forms.MessageBox]::Show("Executing selected scripts from $category...", "Information")
-
                 foreach ($option in $selectedScripts) {
                     try {
                         $scriptFile = $scriptsByCategory[$category][$option]
                         if ($null -ne $scriptFile -and (Test-Path $scriptFile)) {
-                            # Debug output to verify the script path
-                            Write-Host "Executing script: $scriptFile" -ForegroundColor Green
-                            # Execute the selected script with full path
                             Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$scriptFile`"" -NoNewWindow
                         } else {
-                            [System.Windows.Forms.MessageBox]::Show("Script not found or invalid path: $($scriptFile)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                            [System.Windows.Forms.MessageBox]::Show("Script not found: $scriptFile", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
                         }
                     } catch {
-                        [System.Windows.Forms.MessageBox]::Show("An error occurred while executing $($scriptFile): $($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                        [System.Windows.Forms.MessageBox]::Show("Error executing script: $scriptFile`r`nError Details: $($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
                     }
                 }
             }
@@ -208,26 +181,20 @@ function Create-GUI {
     })
     $form.Controls.Add($executeButton)
 
-    # Create an exit button
     $exitButton = [System.Windows.Forms.Button]::new()
     $exitButton.Text = 'Exit'
     $exitButton.Size = [System.Drawing.Size]::new(150, 40)
-    $exitButton.Location = [System.Drawing.Point]::new(300, $yPosition + 30)
+    $exitButton.Location = [System.Drawing.Point]::new(450, 550)
     $exitButton.Font = [System.Drawing.Font]::new("Arial", 10, [System.Drawing.FontStyle]::Bold)
     $exitButton.BackColor = [System.Drawing.Color]::Salmon
     $exitButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
 
-    # Add the exit button click event
     $exitButton.Add_Click({
         $form.Close()
     })
     $form.Controls.Add($exitButton)
 
-    # Show the form
     [void] $form.ShowDialog()
 }
 
-# Call the function to create the GUI
 Create-GUI
-
-# End of script
