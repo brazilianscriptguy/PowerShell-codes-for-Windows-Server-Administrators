@@ -40,7 +40,7 @@ Ensure the following requirements are met before running the scripts:
 3. **🗑️ Purge-ExpiredCAs-viaGPO.ps1**  
    Automates the removal of expired Certificate Authorities across domain machines using Group Policy Objects (GPO), ensuring consistent and efficient certificate management.
 
-4. **🗑️ Purge-ExpiredCERTs-Repository.ps1**  
+4. **🗑️ Cleanup-Repository-ExpiredCertificates-Tool.ps1**  
    Detects and removes expired certificates from the certificate repository, ensuring your network’s certificates remain up to date and secure.
 
 5. **📂 Remove-SharedFolders-and-Drives-viaGPO.ps1**  
@@ -71,7 +71,7 @@ Ensure the following requirements are met before running the scripts:
    - Run the script to remove expired CAs across domain machines.  
    - Logs provide a record of removed CAs for compliance verification.
 
-- **🗑️ Purge-ExpiredCERTs-Repository.ps1**  
+- **🗑️ Cleanup-Repository-ExpiredCertificates-Tool.ps1**  
    - Scan and remove expired certificates from the repository.  
    - Logs list all removed certificates and document any issues encountered.
 
