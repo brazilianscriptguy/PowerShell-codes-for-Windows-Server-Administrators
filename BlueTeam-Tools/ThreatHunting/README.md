@@ -34,7 +34,7 @@ Ensure the following requirements are met before running the scripts:
 1. **🔍 Decipher-EML-MailMessages.ps1**  
    Decodes suspicious email content using techniques such as offset subtraction, encoding conversions, ROT13, and Caesar cipher brute force. This script is invaluable for uncovering hidden threats in email messages.
 
-2. **🗑️ Purge-ExpiredCAs-Explicitly.ps1**  
+2. **🗑️ Purge-ExpiredCertificates-Tool.ps1**  
    Selectively removes expired Certificate Authorities (CAs) from the system to reduce security risks and maintain a secure certificate infrastructure.
 
 3. **🗑️ Purge-ExpiredCAs-viaGPO.ps1**  
@@ -62,7 +62,7 @@ Ensure the following requirements are met before running the scripts:
    - Specify the email or string to decode. The script applies decoding techniques and presents the results in a readable format.  
    - Logs detail the decoding process and findings for further analysis.
 
-- **🗑️ Purge-ExpiredCAs-Explicitly.ps1**  
+- **🗑️ Purge-ExpiredCertificates-Tool.ps1**  
    - Execute the script to identify and remove expired CAs from the system.  
    - Review logs to confirm which CAs were removed and ensure successful operation.
 
