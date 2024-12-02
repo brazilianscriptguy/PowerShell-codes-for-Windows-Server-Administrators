@@ -33,7 +33,7 @@ Welcome to the **PowerShell Toolset for Windows Server Administration and VBScri
 
 ## 🛠️ Introduction
 
-This repository provides a robust set of tools and scripts specifically designed to enhance the efficiency of managing Windows Server environments and Windows 10/11 workstations. Whether optimizing system performance, boosting security, or streamlining administrative workflows, the tools in the **BlueTeam-Tools**, **Core-ScriptLibrary**, **ITSM-Templates** and **SysAdmin-Tools** folders have you covered.
+This repository features a powerful collection of tools and scripts crafted to streamline the management of Windows Server environments and Windows 10/11 workstations. Whether you're focused on optimizing system performance, enhancing security, or simplifying administrative workflows, the tools within the **BlueTeam-Tools**, **Core-ScriptLibrary**, **ITSM-Templates**, and **SysAdmin-Tools** folders are designed to meet your needs effectively.
 
 ---
 
