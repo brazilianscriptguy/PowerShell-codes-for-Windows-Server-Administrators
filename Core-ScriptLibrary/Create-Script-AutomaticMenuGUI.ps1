@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
-    PowerShell Script for Generating a Dynamic Script Execution Menu GUI.
+    PowerShell GUI for Executing Scripts Organized by Tabs.
 
 .DESCRIPTION
-    This script automatically generates a dynamic, categorized GUI interface for discovering 
-    and executing PowerShell scripts stored in subdirectories. It is ideal for organizing 
-    and managing large script collections through an intuitive user-friendly interface.
+    This script provides a GUI interface to browse, search, and execute PowerShell scripts
+    from a hierarchy of folders. Each folder is represented as a tab, and its scripts are listed
+    in a scrollable list. Users can search for specific scripts and execute them.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -40,29 +40,39 @@ public class Window {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Get the current script directory (can be customized as needed)
+# Get the current script directory
 $scriptDirectory = (Get-Location).Path
 Write-Host "Current Script Directory: $scriptDirectory" -ForegroundColor Cyan
 
 # Function to generate a dictionary of script filenames and paths from all subdirectories
 function Get-ScriptDictionaries {
-    $scriptFiles = Get-ChildItem -Path $scriptDirectory -Recurse -Filter "*.ps1" -File
+    $directories = Get-ChildItem -Path $scriptDirectory -Directory -Recurse
     $scriptsByCategory = @{}
 
-    foreach ($file in $scriptFiles) {
-        $folderName = (Split-Path -Path $file.DirectoryName -Leaf)
+    foreach ($dir in $directories) {
+        Write-Host "Checking directory: $($dir.FullName)" -ForegroundColor Yellow
+        
+        $scriptFiles = Get-ChildItem -Path $dir.FullName -Filter "*.ps1" -File
+        if ($scriptFiles.Count -gt 0) {
+            $category = $dir.Name
+            $scriptsByCategory[$category] = @{}
 
-        if (-not $scriptsByCategory.ContainsKey($folderName)) {
-            $scriptsByCategory[$folderName] = @{}
+            foreach ($file in $scriptFiles) {
+                $scriptsByCategory[$category][$file.Name] = $file.FullName
+                Write-Host "Found script: $($file.FullName)" -ForegroundColor Green
+            }
+        } else {
+            Write-Host "No scripts found in directory: $($dir.FullName)" -ForegroundColor Red
         }
-        $scriptsByCategory[$folderName][$file.Name] = $file.FullName
-        Write-Host "Found script: $($file.FullName)" -ForegroundColor Green
     }
 
     return $scriptsByCategory
 }
 
+# Generate dictionaries for each section dynamically
 $scriptsByCategory = Get-ScriptDictionaries
+
+# Check if any scripts were found
 if ($scriptsByCategory.Count -eq 0) {
     Write-Host "No scripts found in any subdirectory." -ForegroundColor Yellow
 }
@@ -70,131 +80,100 @@ if ($scriptsByCategory.Count -eq 0) {
 # Function to create and show the GUI
 function Create-GUI {
     $form = [System.Windows.Forms.Form]::new()
-    $form.Text = 'PowerShell Script Execution Menu'
-    $form.Size = [System.Drawing.Size]::new(850, 600)
-    $form.StartPosition = 'CenterScreen'
+    $form.Text = 'SysAdmin Tool Set Interface'
+    $form.WindowState = [System.Windows.Forms.FormWindowState]::Maximized
     $form.BackColor = [System.Drawing.Color]::WhiteSmoke
 
     $headerLabel = [System.Windows.Forms.Label]::new()
-    $headerLabel.Text = "Select Scripts to Execute"
-    $headerLabel.Size = [System.Drawing.Size]::new(800, 30)
-    $headerLabel.Location = [System.Drawing.Point]::new(25, 20)
-    $headerLabel.Font = [System.Drawing.Font]::new("Arial", 14, [System.Drawing.FontStyle]::Bold)
+    $headerLabel.Text = "SysAdmin Tool Set Menu"
+    $headerLabel.Size = [System.Drawing.Size]::new($form.Width - 20, 30)
+    $headerLabel.Location = [System.Drawing.Point]::new(10, 10)
+    $headerLabel.Font = [System.Drawing.Font]::new("Arial", 16, [System.Drawing.FontStyle]::Bold)
     $headerLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+    $headerLabel.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
     $form.Controls.Add($headerLabel)
 
-    $xPositionLeft = 25
-    $xPositionRight = 430
-    $yPositionLeft = 60
-    $yPositionRight = 60
-    $toggleColumn = $true
+    $tabControl = [System.Windows.Forms.TabControl]::new()
+    $tabControl.Size = [System.Drawing.Size]::new($form.Width - 40, $form.Height - 150)
+    $tabControl.Location = [System.Drawing.Point]::new(10, 50)
+    $tabControl.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Bottom
+    $form.Controls.Add($tabControl)
 
-    function Create-CategoryUI {
-        param (
-            [string]$CategoryName,
-            [System.Collections.IDictionary]$Scripts,
-            [ref]$xPosLeft,
-            [ref]$yPosLeft,
-            [ref]$xPosRight,
-            [ref]$yPosRight,
-            [ref]$toggle
-        )
+    foreach ($category in $scriptsByCategory.Keys) {
+        $tabPage = [System.Windows.Forms.TabPage]::new()
+        $tabPage.Text = $category
+        $tabPage.AutoScroll = $true
 
-        $groupBox = [System.Windows.Forms.GroupBox]::new()
-        $groupBox.Text = "$CategoryName"
-        $groupBox.Size = [System.Drawing.Size]::new(380, 200)
-
-        if ($toggle.Value) {
-            $groupBox.Location = [System.Drawing.Point]::new($xPosLeft.Value, $yPosLeft.Value)
-            $yPosLeft.Value += 210
-        } else {
-            $groupBox.Location = [System.Drawing.Point]::new($xPosRight.Value, $yPosRight.Value)
-            $yPosRight.Value += 210
-        }
-        $toggle.Value = -not $toggle.Value
-
-        $groupBox.Font = [System.Drawing.Font]::new("Arial", 10, [System.Drawing.FontStyle]::Bold)
-        $form.Controls.Add($groupBox)
+        $searchBox = [System.Windows.Forms.TextBox]::new()
+        $searchBox.Size = [System.Drawing.Size]::new($tabPage.Width - 20, 25)
+        $searchBox.Location = [System.Drawing.Point]::new(10, 10)
+        $searchBox.Font = [System.Drawing.Font]::new("Arial", 10)
+        $searchBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+        $tabPage.Controls.Add($searchBox)
 
         $listBox = [System.Windows.Forms.CheckedListBox]::new()
-        $listBox.Size = [System.Drawing.Size]::new(360, 160)
-        $listBox.Location = [System.Drawing.Point]::new(10, 20)
-        $listBox.Font = [System.Drawing.Font]::new("Arial", 10)
+        $listBox.Size = [System.Drawing.Size]::new($tabPage.Width - 20, $tabPage.Height - 70)
+        $listBox.Location = [System.Drawing.Point]::new(10, 40)
+        $listBox.Font = [System.Drawing.Font]::new("Arial", 9)
+        $listBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Bottom
+        $listBox.ScrollAlwaysVisible = $true
 
-        foreach ($entry in $Scripts.GetEnumerator() | Sort-Object -Property Key) {
-            $listBox.Items.Add($entry.Key)
+        foreach ($entry in $scriptsByCategory[$category].Keys) {
+            $listBox.Items.Add($entry)
         }
+        $tabPage.Controls.Add($listBox)
 
-        $groupBox.Controls.Add($listBox)
-        return $listBox
+        $searchBox.Add_TextChanged({
+            $searchText = $searchBox.Text.ToLower()
+            $listBox.Items.Clear()
+            foreach ($entry in $scriptsByCategory[$category].Keys) {
+                if ($entry.ToLower() -like "*$searchText*") {
+                    $listBox.Items.Add($entry)
+                }
+            }
+        })
+
+        $tabControl.TabPages.Add($tabPage)
     }
-
-    $listBoxes = @{}
-    foreach ($category in $scriptsByCategory.Keys) {
-        $listBoxes[$category] = Create-CategoryUI -CategoryName $category -Scripts $scriptsByCategory[$category] `
-            -xPosLeft ([ref]$xPositionLeft) -yPosLeft ([ref]$yPositionLeft) `
-            -xPosRight ([ref]$xPositionRight) -yPosRight ([ref]$yPositionRight) -toggle ([ref]$toggleColumn)
-    }
-
-    $statusLabel = [System.Windows.Forms.Label]::new()
-    $statusLabel.Text = "Status: Ready"
-    $statusLabel.Location = [System.Drawing.Point]::new(25, 520)
-    $statusLabel.Size = [System.Drawing.Size]::new(800, 20)
-    $statusLabel.Font = [System.Drawing.Font]::new("Arial", 9)
-    $form.Controls.Add($statusLabel)
 
     $executeButton = [System.Windows.Forms.Button]::new()
     $executeButton.Text = 'Execute'
     $executeButton.Size = [System.Drawing.Size]::new(150, 40)
-    $executeButton.Location = [System.Drawing.Point]::new(250, 550)
-    $executeButton.Font = [System.Drawing.Font]::new("Arial", 10, [System.Drawing.FontStyle]::Bold)
+    $executeButton.Location = [System.Drawing.Point]::new($form.ClientSize.Width - 170, $form.ClientSize.Height - 60)
+    $executeButton.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Right
     $executeButton.BackColor = [System.Drawing.Color]::LightSkyBlue
     $executeButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
 
     $executeButton.Add_Click({
-        $anySelected = $false
-        foreach ($category in $scriptsByCategory.Keys) {
-            $listBox = $listBoxes[$category]
-            $selectedScripts = $listBox.CheckedItems
+        $anyExecuted = $false
 
-            if ($selectedScripts.Count -gt 0) {
-                $anySelected = $true
-                foreach ($option in $selectedScripts) {
-                    try {
-                        $scriptFile = $scriptsByCategory[$category][$option]
-                        if ($null -ne $scriptFile -and (Test-Path $scriptFile)) {
-                            Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$scriptFile`"" -NoNewWindow
+        foreach ($tabPage in $tabControl.TabPages) {
+            foreach ($control in $tabPage.Controls) {
+                if ($control -is [System.Windows.Forms.CheckedListBox]) {
+                    foreach ($script in $control.CheckedItems) {
+                        $scriptPath = $scriptsByCategory[$tabPage.Text][$script]
+                        if ((Test-Path $scriptPath)) {
+                            Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$scriptPath`"" -NoNewWindow
+                            Write-Host "Executed: $scriptPath"
+                            $anyExecuted = $true
                         } else {
-                            [System.Windows.Forms.MessageBox]::Show("Script not found: $scriptFile", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                            [System.Windows.Forms.MessageBox]::Show("Script not found: $scriptPath", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
                         }
-                    } catch {
-                        [System.Windows.Forms.MessageBox]::Show("Error executing script: $scriptFile`r`nError Details: $($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
                     }
                 }
             }
         }
 
-        if (-not $anySelected) {
-            [System.Windows.Forms.MessageBox]::Show("Please select at least one script to execute.", "Warning", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+        if (-not $anyExecuted) {
+            [System.Windows.Forms.MessageBox]::Show("No scripts selected for execution.", "Info", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
         }
-        $statusLabel.Text = "Status: Completed"
     })
     $form.Controls.Add($executeButton)
-
-    $exitButton = [System.Windows.Forms.Button]::new()
-    $exitButton.Text = 'Exit'
-    $exitButton.Size = [System.Drawing.Size]::new(150, 40)
-    $exitButton.Location = [System.Drawing.Point]::new(450, 550)
-    $exitButton.Font = [System.Drawing.Font]::new("Arial", 10, [System.Drawing.FontStyle]::Bold)
-    $exitButton.BackColor = [System.Drawing.Color]::Salmon
-    $exitButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-
-    $exitButton.Add_Click({
-        $form.Close()
-    })
-    $form.Controls.Add($exitButton)
 
     [void] $form.ShowDialog()
 }
 
+# Call the function to create the GUI
 Create-GUI
+
+# End of script
