@@ -30,29 +30,29 @@ Before using the scripts, ensure the following requirements are met:
 
 ## 📄 Script Descriptions (Alphabetical Order)
 
-### 1. **📝 Create-Script-AutomaticMenuGUI.ps1**
-   - **Purpose:** Provides a dynamic GUI for browsing and executing scripts organized in folder tabs.  
-   - **Features:** Search functionality, categorized browsing, and streamlined script execution through an intuitive interface.
-
-### 2. **📋 Create-Script-DefaultHeader.ps1**
+### 1. **📋 Create-Script-DefaultHeader.ps1**
    - **Purpose:** Creates standardized headers for PowerShell scripts, ensuring uniformity and adherence to best practices.  
    - **Features:** Customizable metadata fields such as author, version, and description.
 
-### 3. **📊 Create-Script-LoggingMethod.ps1**
+### 2. **📊 Create-Script-LoggingMethod.ps1**
    - **Purpose:** Implements a standardized logging mechanism for PowerShell scripts, enhancing traceability and debugging.  
    - **Features:** Configurable log file locations and detailed event/error logging.
 
-### 4. **🛠️ Create-Script-MainCore.ps1**
+### 3. **🛠️ Create-Script-MainCore.ps1**
    - **Purpose:** Provides a reusable template for creating structured PowerShell scripts, complete with headers, logging, and modular functionality.  
    - **Features:** Accelerates script development with a prebuilt framework.
 
-### 5. **💻 Create-Script-MainGUI.ps1**
+### 4. **💻 Create-Script-MainGUI.ps1**
    - **Purpose:** Enables the development of graphical user interfaces (GUIs) within PowerShell scripts for enhanced user interaction.  
    - **Features:** Includes support for buttons, input fields, and customizable event handling.
 
-### 6. **📄 Extract-Script-Headers.ps1**
+### 5. **📄 Extract-Script-Headers.ps1**
    - **Purpose:** Extracts headers from `.ps1` files within a specified directory and organizes them into folder-specific `.txt` files for easy reference.  
    - **Features:** Automates the documentation of script metadata and categorization.
+
+### 6. **📝 Launch-Script-AutomaticMenu.ps1**
+   - **Purpose:** Provides a dynamic GUI for browsing and executing scripts organized in folder tabs.  
+   - **Features:** Search functionality, categorized browsing, and streamlined script execution through an intuitive interface.
 
 ---
 
@@ -60,33 +60,33 @@ Before using the scripts, ensure the following requirements are met:
 
 ### How to Use Each Script:
 
-1. **📝 Create-Script-AutomaticMenuGUI.ps1**  
-   - Navigate to the folder containing the script.  
-   - Run `.\Create-Script-AutomaticMenuGUI.ps1`.  
-   - Specify the directory containing PowerShell scripts.  
-   - Use the generated GUI to browse and execute scripts effortlessly.
-
-2. **📋 Create-Script-DefaultHeader.ps1**  
+1. **📋 Create-Script-DefaultHeader.ps1**  
    - Execute the script and provide inputs for author, version, and description.  
    - Copy the generated header into your new or existing PowerShell script.
 
-3. **📊 Create-Script-LoggingMethod.ps1**  
+2. **📊 Create-Script-LoggingMethod.ps1**  
    - Integrate the logging function into your PowerShell scripts.  
    - Define log file locations for consistent traceability.  
    - Use logs to review events, errors, and debugging information.
 
-4. **🛠️ Create-Script-MainCore.ps1**  
+3. **🛠️ Create-Script-MainCore.ps1**  
    - Use the provided template as a base for your PowerShell projects.  
    - Customize core functionalities and logging as required.
 
-5. **💻 Create-Script-MainGUI.ps1**  
+4. **💻 Create-Script-MainGUI.ps1**  
    - Open the script in your PowerShell editor and define GUI components such as buttons and input fields.  
    - Add logic for user interaction and events.  
    - Test the GUI functionality by running the script.
 
-6. **📄 Extract-Script-Headers.ps1**  
+5. **📄 Extract-Script-Headers.ps1**  
    - Specify a root folder containing `.ps1` files.  
    - Run the script to extract and save headers into `.txt` files categorized by folder.
+
+6. **📝 Launch-Script-AutomaticMenu.ps1**  
+   - Navigate to the folder containing the script.  
+   - Run `.\Create-Script-AutomaticMenuGUI.ps1`.  
+   - Specify the directory containing PowerShell scripts.  
+   - Use the generated GUI to browse and execute scripts effortlessly.
 
 ---
 
