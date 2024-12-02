@@ -84,7 +84,7 @@ Before using the scripts, ensure the following requirements are met:
 
 6. **📝 Launch-Script-AutomaticMenu.ps1**  
    - Navigate to the folder containing the script.  
-   - Run `.\Create-Script-AutomaticMenuGUI.ps1`.  
+   - Run `.\Launch-Script-AutomaticMenu.ps1`.  
    - Specify the directory containing PowerShell scripts.  
    - Use the generated GUI to browse and execute scripts effortlessly.
 
