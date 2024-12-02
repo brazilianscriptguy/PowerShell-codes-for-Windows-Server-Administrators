@@ -83,10 +83,15 @@ Before using the scripts, ensure the following requirements are met:
    - Run the script to extract and save headers into `.txt` files categorized by folder.
 
 6. **📝 Launch-Script-AutomaticMenu.ps1**  
-   - Navigate to the folder containing the script.  
-   - Run `.\Launch-Script-AutomaticMenu.ps1`.  
-   - Specify the directory containing PowerShell scripts.  
-   - Use the generated GUI to browse and execute scripts effortlessly.
+- Specify the directory containing your PowerShell scripts.  
+- Navigate to the root folder where all your customized scripts are stored.  
+   - Place the `Launch-Script-AutomaticMenu.ps1` file in the root scripts folder.  
+   - Right-click on `Launch-Script-AutomaticMenu.ps1` and select **"Run with PowerShell"**.  
+      - Use the intuitive GUI to browse and execute your scripts effortlessly.  
+
+--- 
+
+Let me know if you’d like further refinements! 😊
 
 ---
 
