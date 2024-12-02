@@ -27,9 +27,9 @@ Welcome to the **PowerShell Toolset for Windows Server Administration and VBScri
 
 ## 📊 My GitHub Statistics
 
-![GitHub Stats](https://github-readme-stats.vercel.app/api?username=brazilianscriptguy&show_icons=true&theme=radical)
-![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=brazilianscriptguy&layout=compact&theme=radical)
-![GitHub Streak](https://streak-stats.demolab.com/?user=brazilianscriptguy&theme=radical)
+![GitHub Stats](https://github-readme-stats.vercel.app/api?username=brazilianscriptguy&show_icons=true&theme=radical&v=2)
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=brazilianscriptguy&layout=compact&theme=radical&v=2)
+![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=brazilianscriptguy&theme=radical&v=2)
 
 ## 🛠️ Introduction
 
