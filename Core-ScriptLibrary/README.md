@@ -31,8 +31,8 @@ Before using the scripts, ensure the following requirements are met:
 ## 📄 Script Descriptions (Alphabetical Order)
 
 ### 1. **📝 Create-Script-AutomaticMenuGUI.ps1**
-   - **Purpose:** Automatically generates a categorized, dynamic GUI for discovering and executing PowerShell scripts stored in subdirectories.  
-   - **Features:** Interactive GUI, categorized browsing, and streamlined script execution.
+   - **Purpose:** Provides a dynamic GUI for browsing and executing scripts organized in folder tabs.  
+   - **Features:** Search functionality, categorized browsing, and streamlined script execution through an intuitive interface.
 
 ### 2. **📋 Create-Script-DefaultHeader.ps1**
    - **Purpose:** Creates standardized headers for PowerShell scripts, ensuring uniformity and adherence to best practices.  
