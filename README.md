@@ -139,4 +139,4 @@ For updates and releases, visit the [SysAdminToolSet Release](https://github.com
 
 ---
 
-Thank you for choosing the **SysAdmin-Tools repository** to enhance your IT administration workflow. We hope these tools boost your productivity and system efficiency.
+Thank you for choosing the **SysAdminToolSet Portfolio** to enhance your IT administration workflow. We hope these tools boost your productivity and system efficiency.
