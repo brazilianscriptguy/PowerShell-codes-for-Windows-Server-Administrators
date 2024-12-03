@@ -104,8 +104,8 @@ function Create-GUI {
         $listBox.ScrollAlwaysVisible = $true
         $tabPage.Controls.Add($listBox)
 
-        # Populate ListBox with scripts
-        $originalList = @($scriptsByCategory[$category].Keys)
+        # Sort scripts alphabetically and populate ListBox
+        $originalList = $scriptsByCategory[$category].Keys | Sort-Object
         foreach ($entry in $originalList) {
             $listBox.Items.Add($entry)
         }
@@ -115,20 +115,16 @@ function Create-GUI {
             $searchText = $searchBox.Text.Trim().ToLower()
             $listBox.Items.Clear()
 
-            if (-not [string]::IsNullOrEmpty($searchText)) {
-                $filteredList = $originalList | Where-Object { $_.ToLower() -like "*$searchText*" }
-                if ($filteredList.Count -eq 0) {
-                    $listBox.Items.Add("<No matching scripts found>")
-                } else {
-                    foreach ($entry in $filteredList) {
-                        $listBox.Items.Add($entry)
-                    }
-                }
-            } else {
-                # Repopulate the list box if search is empty
-                foreach ($entry in $originalList) {
+            # Repopulate the list box based on the search text
+            foreach ($entry in $originalList) {
+                if ($entry.ToLower().Contains($searchText)) {
                     $listBox.Items.Add($entry)
                 }
+            }
+
+            # Add a placeholder if no matches are found
+            if ($listBox.Items.Count -eq 0) {
+                $listBox.Items.Add("<No matching scripts found>")
             }
         })
 
