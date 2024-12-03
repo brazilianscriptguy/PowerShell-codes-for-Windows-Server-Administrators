@@ -62,6 +62,33 @@ function Get-ScriptDictionaries {
 # Generate dictionaries for each section dynamically
 $scriptsByCategory = Get-ScriptDictionaries
 
+# Function to update listbox items based on the search text
+function Update-ListBox {
+    param (
+        [System.Windows.Forms.TextBox]$searchBox,
+        [System.Windows.Forms.CheckedListBox]$listBox,
+        [System.Collections.ObjectModel.Collection[System.IO.FileInfo]]$originalList
+    )
+
+    $searchText = $searchBox.Text.Trim().ToLower()
+    $listBox.BeginUpdate()
+    $listBox.Items.Clear()
+
+    # Repopulate the list box based on the search text
+    foreach ($file in $originalList) {
+        if ($file.Name.ToLower().Contains($searchText)) {
+            $listBox.Items.Add($file.Name)
+        }
+    }
+
+    # Add a placeholder if no matches are found
+    if ($listBox.Items.Count -eq 0) {
+        $listBox.Items.Add("<No matching scripts found>")
+    }
+
+    $listBox.EndUpdate()
+}
+
 # Function to create and show the GUI
 function Create-GUI {
     # Initialize the Form
@@ -85,9 +112,6 @@ function Create-GUI {
         $tabPage = [System.Windows.Forms.TabPage]::new()
         $tabPage.Text = $category
 
-        # Create a local variable to store the original list for this tab
-        $originalList = $scriptsByCategory[$category]
-
         # Add Search Box
         $searchBox = [System.Windows.Forms.TextBox]::new()
         $searchBox.Size = [System.Drawing.Size]::new($tabPage.Width - 20, 25)
@@ -105,55 +129,39 @@ function Create-GUI {
         $listBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Bottom
         $listBox.ScrollAlwaysVisible = $true
         $tabPage.Controls.Add($listBox)
-
-        # Sort scripts alphabetically and populate ListBox
-        foreach ($file in $originalList) {
-            $listBox.Items.Add($file.Name)
-        }
-
-        # Store the ListBox reference for this tab
         $listBoxes[$category] = $listBox
+
+        # Add Search Functionality for each tab immediately
+        $searchBox.Add_TextChanged({
+            Update-ListBox -searchBox $searchBox -listBox $listBox -originalList $scriptsByCategory[$category]
+        })
 
         # Add the TabPage to the TabControl
         $tabControl.TabPages.Add($tabPage)
     }
 
-    # Ensure proper initialization by manually selecting each tab in turn
-    foreach ($tab in $tabControl.TabPages) {
-        $tabControl.SelectedTab = $tab
-        Start-Sleep -Milliseconds 100 # Small delay to allow proper initialization
-    }
-    $tabControl.SelectedTab = $tabControl.TabPages[0] # Select the first tab to start
+    # Event to ensure list box is updated whenever a tab is selected
+    $tabControl.add_SelectedIndexChanged({
+        $currentTab = $tabControl.SelectedTab
+        if ($currentTab -ne $null) {
+            $category = $currentTab.Text
+            $searchBox = $searchBoxes[$category]
+            $listBox = $listBoxes[$category]
+            Update-ListBox -searchBox $searchBox -listBox $listBox -originalList $scriptsByCategory[$category]
+        }
+    })
 
-    # Add Search Functionality for each search box
-    foreach ($category in $scriptsByCategory.Keys) {
-        $searchBox = $searchBoxes[$category]
-        $listBox = $listBoxes[$category]
-        $originalList = $scriptsByCategory[$category]
-
-        $searchBox.Add_TextChanged({
-            $searchText = $searchBox.Text.Trim().ToLower()
-
-            # Use BeginUpdate to improve performance during update
-            $listBox.BeginUpdate()
-            $listBox.Items.Clear()
-
-            # Repopulate the list box based on the search text
-            foreach ($file in $originalList) {
-                if ($file.Name.ToLower().Contains($searchText)) {
-                    $listBox.Items.Add($file.Name)
-                }
-            }
-
-            # Add a placeholder if no matches are found
-            if ($listBox.Items.Count -eq 0) {
-                $listBox.Items.Add("<No matching scripts found>")
-            }
-
-            # End updating the ListBox to prevent flickering
-            $listBox.EndUpdate()
-        })
-    }
+    # Add Shown event to initialize the first tab properly after form is loaded
+    $form.Add_Shown({
+        $tabControl.SelectTab(0)
+        $currentTab = $tabControl.SelectedTab
+        if ($currentTab -ne $null) {
+            $category = $currentTab.Text
+            $searchBox = $searchBoxes[$category]
+            $listBox = $listBoxes[$category]
+            Update-ListBox -searchBox $searchBox -listBox $listBox -originalList $scriptsByCategory[$category]
+        }
+    })
 
     # Add Execute Button
     $executeButton = [System.Windows.Forms.Button]::new()
