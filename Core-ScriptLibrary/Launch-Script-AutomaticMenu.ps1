@@ -53,11 +53,7 @@ function Get-ScriptDictionaries {
         $scriptFiles = Get-ChildItem -Path $dir.FullName -Filter "*.ps1" -File
         if ($scriptFiles.Count -gt 0) {
             $category = $dir.Name
-            $scriptsByCategory[$category] = @{}
-
-            foreach ($file in $scriptFiles) {
-                $scriptsByCategory[$category][$file.Name] = $file.FullName
-            }
+            $scriptsByCategory[$category] = $scriptFiles | Sort-Object -Property Name
         }
     }
     return $scriptsByCategory
@@ -83,9 +79,14 @@ function Create-GUI {
     $form.Controls.Add($tabControl)
 
     # Add Tabs for each category
+    $listBoxes = @{}
+    $searchBoxes = @{}
     foreach ($category in $scriptsByCategory.Keys) {
         $tabPage = [System.Windows.Forms.TabPage]::new()
         $tabPage.Text = $category
+
+        # Create a local variable to store the original list for this tab
+        $originalList = $scriptsByCategory[$category]
 
         # Add Search Box
         $searchBox = [System.Windows.Forms.TextBox]::new()
@@ -94,6 +95,7 @@ function Create-GUI {
         $searchBox.Font = [System.Drawing.Font]::new("Arial", 10)
         $searchBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
         $tabPage.Controls.Add($searchBox)
+        $searchBoxes[$category] = $searchBox
 
         # Add ListBox to display scripts with scrollbar support
         $listBox = [System.Windows.Forms.CheckedListBox]::new()
@@ -105,20 +107,41 @@ function Create-GUI {
         $tabPage.Controls.Add($listBox)
 
         # Sort scripts alphabetically and populate ListBox
-        $originalList = $scriptsByCategory[$category].Keys | Sort-Object
-        foreach ($entry in $originalList) {
-            $listBox.Items.Add($entry)
+        foreach ($file in $originalList) {
+            $listBox.Items.Add($file.Name)
         }
 
-        # Add Search Functionality
+        # Store the ListBox reference for this tab
+        $listBoxes[$category] = $listBox
+
+        # Add the TabPage to the TabControl
+        $tabControl.TabPages.Add($tabPage)
+    }
+
+    # Ensure proper initialization by manually selecting each tab in turn
+    foreach ($tab in $tabControl.TabPages) {
+        $tabControl.SelectedTab = $tab
+        Start-Sleep -Milliseconds 100 # Small delay to allow proper initialization
+    }
+    $tabControl.SelectedTab = $tabControl.TabPages[0] # Select the first tab to start
+
+    # Add Search Functionality for each search box
+    foreach ($category in $scriptsByCategory.Keys) {
+        $searchBox = $searchBoxes[$category]
+        $listBox = $listBoxes[$category]
+        $originalList = $scriptsByCategory[$category]
+
         $searchBox.Add_TextChanged({
             $searchText = $searchBox.Text.Trim().ToLower()
+
+            # Use BeginUpdate to improve performance during update
+            $listBox.BeginUpdate()
             $listBox.Items.Clear()
 
             # Repopulate the list box based on the search text
-            foreach ($entry in $originalList) {
-                if ($entry.ToLower().Contains($searchText)) {
-                    $listBox.Items.Add($entry)
+            foreach ($file in $originalList) {
+                if ($file.Name.ToLower().Contains($searchText)) {
+                    $listBox.Items.Add($file.Name)
                 }
             }
 
@@ -126,9 +149,10 @@ function Create-GUI {
             if ($listBox.Items.Count -eq 0) {
                 $listBox.Items.Add("<No matching scripts found>")
             }
-        })
 
-        $tabControl.TabPages.Add($tabPage)
+            # End updating the ListBox to prevent flickering
+            $listBox.EndUpdate()
+        })
     }
 
     # Add Execute Button
@@ -148,7 +172,8 @@ function Create-GUI {
                 foreach ($script in $listBox.CheckedItems) {
                     if ($script -eq "<No matching scripts found>") { continue }
 
-                    $scriptPath = $scriptsByCategory[$tabPage.Text][$script]
+                    # Find the corresponding script path
+                    $scriptPath = $scriptsByCategory[$tabPage.Text] | Where-Object { $_.Name -eq $script } | Select-Object -ExpandProperty FullName
                     if ((Test-Path $scriptPath)) {
                         Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$scriptPath`"" -NoNewWindow
                         Write-Host "Executed: $scriptPath"
