@@ -1,17 +1,17 @@
 <#
 .SYNOPSIS
-    PowerShell GUI for Executing Scripts Organized by Tabs.
+    PowerShell GUI for Executing Scripts Organized by Tabs with Real-Time Search.
 
 .DESCRIPTION
     This script provides a GUI interface to browse, search, and execute PowerShell scripts
-    from a hierarchy of folders. Each folder is represented as a tab, and its scripts are listed
-    in a scrollable list. Users can search for specific scripts and execute them.
+    organized by tabs representing different script categories (folders). It ensures that the 
+    search function works consistently in real time for each tab.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: December 2, 2024
+    Updated: December 2, 2024
 #>
 
 # Hide the PowerShell console window
@@ -105,10 +105,12 @@ function Create-GUI {
     $tabControl.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Bottom
     $form.Controls.Add($tabControl)
 
+    # Store references to controls in a dictionary for easier access
+    $tabControls = @{}
+
     # Add Tabs for each category
-    $listBoxes = @{}
-    $searchBoxes = @{}
     foreach ($category in $scriptsByCategory.Keys) {
+        # Create a new TabPage for the category
         $tabPage = [System.Windows.Forms.TabPage]::new()
         $tabPage.Text = $category
 
@@ -119,7 +121,6 @@ function Create-GUI {
         $searchBox.Font = [System.Drawing.Font]::new("Arial", 10)
         $searchBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
         $tabPage.Controls.Add($searchBox)
-        $searchBoxes[$category] = $searchBox
 
         # Add ListBox to display scripts with scrollbar support
         $listBox = [System.Windows.Forms.CheckedListBox]::new()
@@ -129,37 +130,34 @@ function Create-GUI {
         $listBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Bottom
         $listBox.ScrollAlwaysVisible = $true
         $tabPage.Controls.Add($listBox)
-        $listBoxes[$category] = $listBox
 
-        # Add Search Functionality for each tab immediately
+        # Populate listbox initially
+        Update-ListBox -searchBox $searchBox -listBox $listBox -originalList $scriptsByCategory[$category]
+
+        # Add Search Functionality for real-time updates
         $searchBox.Add_TextChanged({
             Update-ListBox -searchBox $searchBox -listBox $listBox -originalList $scriptsByCategory[$category]
         })
+
+        # Store controls in the dictionary
+        $tabControls[$category] = @{
+            SearchBox = $searchBox
+            ListBox = $listBox
+        }
 
         # Add the TabPage to the TabControl
         $tabControl.TabPages.Add($tabPage)
     }
 
-    # Event to ensure list box is updated whenever a tab is selected
-    $tabControl.add_SelectedIndexChanged({
-        $currentTab = $tabControl.SelectedTab
-        if ($currentTab -ne $null) {
-            $category = $currentTab.Text
-            $searchBox = $searchBoxes[$category]
-            $listBox = $listBoxes[$category]
-            Update-ListBox -searchBox $searchBox -listBox $listBox -originalList $scriptsByCategory[$category]
-        }
-    })
-
-    # Add Shown event to initialize the first tab properly after form is loaded
-    $form.Add_Shown({
-        $tabControl.SelectTab(0)
-        $currentTab = $tabControl.SelectedTab
-        if ($currentTab -ne $null) {
-            $category = $currentTab.Text
-            $searchBox = $searchBoxes[$category]
-            $listBox = $listBoxes[$category]
-            Update-ListBox -searchBox $searchBox -listBox $listBox -originalList $scriptsByCategory[$category]
+    # Add TabControl SelectedIndexChanged event to handle updating the active tab
+    $tabControl.Add_SelectedIndexChanged({
+        $selectedTab = $tabControl.SelectedTab
+        if ($selectedTab -ne $null) {
+            $category = $selectedTab.Text
+            if ($tabControls.ContainsKey($category)) {
+                $controls = $tabControls[$category]
+                Update-ListBox -searchBox $controls.SearchBox -listBox $controls.ListBox -originalList $scriptsByCategory[$category]
+            }
         }
     })
 
