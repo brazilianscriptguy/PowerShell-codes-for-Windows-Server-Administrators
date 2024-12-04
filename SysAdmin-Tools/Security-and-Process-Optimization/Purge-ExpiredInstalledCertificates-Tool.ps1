@@ -11,7 +11,7 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: December 2, 2024
+    Last Updated: December 4, 2024
 #>
 
 # Hide the PowerShell console window
