@@ -11,7 +11,7 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: December 02, 2024
+    Last Updated: December 4, 2024
 #>
 
 # Configure logging
@@ -34,10 +34,11 @@ if (-not (Test-Path $logDir)) {
 function Write-Log {
     param (
         [Parameter(Mandatory = $true)]
-        [string]$Message
+        [string]$Message,
+        [Parameter()][ValidateSet('INFO', 'ERROR')] [string]$Level = 'INFO'
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "[$timestamp] $Message"
+    $logEntry = "[$timestamp] [$Level] $Message"
     try {
         Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
     } catch {
@@ -45,75 +46,77 @@ function Write-Log {
     }
 }
 
-# Function to log error messages
-function Log-ErrorMessage {
-    param ([string]$Message)
-    Write-Log "ERROR: $Message"
-}
-
-# Function to log informational messages
-function Log-InfoMessage {
-    param ([string]$Message)
-    Write-Log "INFO: $Message"
-}
-
 # Retrieve expired certificates
 function Get-ExpiredCertificates {
     param (
-        [Parameter(Mandatory = $true)]
-        [string]$StoreLocation
+        [Parameter(Mandatory = $true)][string]$StoreLocation
     )
     try {
         $certificates = Get-ChildItem -Path "Cert:\$StoreLocation" -Recurse |
                         Where-Object { $_ -is [System.Security.Cryptography.X509Certificates.X509Certificate2] -and $_.NotAfter -lt (Get-Date) }
-        if ($certificates.Count -eq 0) {
-            Log-InfoMessage "No expired certificates found in the '$StoreLocation' store."
-        } else {
-            Log-InfoMessage "Expired certificates found in the '$StoreLocation' store: $($certificates.Count)"
-        }
+        Write-Log -Message "Retrieved expired certificates from '$StoreLocation' store." -Level "INFO"
         return $certificates
     } catch {
-        Log-ErrorMessage "Failed to retrieve expired certificates from the '$StoreLocation' store: $_"
+        Write-Log -Message "Failed to retrieve expired certificates from '$StoreLocation': $_" -Level "ERROR"
         return @()
     }
 }
 
-# Remove expired certificates
-function Remove-ExpiredCertificates {
-    param ([System.Security.Cryptography.X509Certificates.X509Certificate2[]]$Certificates)
+# Remove certificates by thumbprint
+function Remove-CertificatesByThumbprint {
+    param (
+        [Parameter(Mandatory = $true)][string[]]$Thumbprints
+    )
 
-    if ($null -eq $Certificates -or $Certificates.Count -eq 0) {
-        Log-InfoMessage "No expired certificates to remove."
-        return
-    }
+    Write-Log -Message "Starting removal of selected certificates." -Level "INFO"
 
-    Log-InfoMessage "Starting removal of expired CA certificates."
-    foreach ($cert in $Certificates) {
+    foreach ($thumbprint in $Thumbprints) {
         try {
-            Write-Log "Removing certificate with thumbprint: $($cert.Thumbprint)"
-            Remove-Item -Path $cert.PSPath -Force -ErrorAction Stop
-            Log-InfoMessage "Successfully removed certificate with thumbprint: $($cert.Thumbprint)"
+            # Search for certificates matching the thumbprint
+            $certificates = Get-ChildItem -Path Cert:\ -Recurse | Where-Object { $_.Thumbprint -eq $thumbprint.Trim() }
+
+            if ($certificates.Count -eq 0) {
+                Write-Log -Message "No certificates found with thumbprint: $thumbprint" -Level "INFO"
+                continue
+            }
+
+            foreach ($certificate in $certificates) {
+                # Verify the path exists before removing
+                if (Test-Path -Path $certificate.PSPath) {
+                    Remove-Item -Path $certificate.PSPath -Force -ErrorAction Stop
+                    Write-Log -Message "Successfully removed certificate with thumbprint: $thumbprint" -Level "INFO"
+                } else {
+                    Write-Log -Message "Certificate path not found: $certificate.PSPath for thumbprint: $thumbprint" -Level "INFO"
+                }
+            }
         } catch {
-            Log-ErrorMessage "Failed to remove certificate with thumbprint: $($cert.Thumbprint). Error: $_"
+            Write-Log -Message "Failed to remove certificate with thumbprint: $thumbprint - $_" -Level "ERROR"
         }
     }
-    Log-InfoMessage "Certificate removal process completed."
+
+    Write-Log -Message "Certificate removal process completed." -Level "INFO"
 }
 
 # Execution
-Log-InfoMessage "Starting the process of removing expired certificates."
+Write-Log -Message "Starting the process of removing expired certificates." -Level "INFO"
 
 # Retrieve and remove certificates from LocalMachine
 $certificatesMachine = Get-ExpiredCertificates -StoreLocation 'LocalMachine'
-Remove-ExpiredCertificates -Certificates $certificatesMachine
+if ($certificatesMachine.Count -gt 0) {
+    $thumbprints = $certificatesMachine | ForEach-Object { $_.Thumbprint }
+    Remove-CertificatesByThumbprint -Thumbprints $thumbprints
+}
 
 # Retrieve and remove certificates from CurrentUser
 $certificatesUser = Get-ExpiredCertificates -StoreLocation 'CurrentUser'
-Remove-ExpiredCertificates -Certificates $certificatesUser
+if ($certificatesUser.Count -gt 0) {
+    $thumbprints = $certificatesUser | ForEach-Object { $_.Thumbprint }
+    Remove-CertificatesByThumbprint -Thumbprints $thumbprints
+}
 
 # Final summary
-Log-InfoMessage "Summary: $($certificatesMachine.Count) certificates removed from 'LocalMachine'."
-Log-InfoMessage "Summary: $($certificatesUser.Count) certificates removed from 'CurrentUser'."
-Log-InfoMessage "Script completed successfully."
+Write-Log -Message "Summary: $($certificatesMachine.Count) certificates removed from 'LocalMachine'." -Level "INFO"
+Write-Log -Message "Summary: $($certificatesUser.Count) certificates removed from 'CurrentUser'." -Level "INFO"
+Write-Log -Message "Script completed successfully." -Level "INFO"
 
-# End of Script
+# End of script
