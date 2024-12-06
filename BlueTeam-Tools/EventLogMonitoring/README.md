@@ -45,8 +45,8 @@ Ensure the following requirements are met before running the scripts:
      - **PrintService-Operational-EventLogs.reg**: Configures Windows Print Servers to enable detailed print logging.  
      - **PrintService-Operational-EventLogs.md**: Contains setup instructions and best practices for configuring print service logs.
 
-3. **EventID4624-LogonViaRDP.ps1**  
-   Generates a `.csv` report on RDP logon activities (Event ID 4624) for monitoring remote access and identifying potential risks.
+3. **EventID4624-ADUserLoginViaRDP.ps1**  
+   Generates a `.csv` report on RDP logon activities (login at Event ID 4624) for monitoring remote access and identifying potential risks.
 
 4. **EventID4624and4634-ADUserLoginTracking.ps1**  
    Tracks user login activities (logon at Event ID 4624) and (logoff at Event ID 4634)and produces a `.csv` report for auditing and compliance purposes.
