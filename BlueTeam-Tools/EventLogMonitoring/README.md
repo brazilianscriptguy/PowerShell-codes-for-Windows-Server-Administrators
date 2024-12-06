@@ -48,8 +48,8 @@ Ensure the following requirements are met before running the scripts:
 3. **EventID4624-LogonViaRDP.ps1**  
    Generates a `.csv` report on RDP logon activities (Event ID 4624) for monitoring remote access and identifying potential risks.
 
-4. **EventID4624-UserLogonTracking.ps1**  
-   Tracks user logon activities (Event ID 4624) and produces a `.csv` report for auditing and compliance purposes.
+4. **EventID4624and4634-ADUserLoginTracking.ps1**  
+   Tracks user login activities (logon at Event ID 4624) and (logoff at Event ID 4634)and produces a `.csv` report for auditing and compliance purposes.
 
 5. **EventID4625-LogonAccountFailed.ps1**  
    Compiles failed logon attempts (Event ID 4625) into a `.csv`, helping identify potential breaches and login patterns.
