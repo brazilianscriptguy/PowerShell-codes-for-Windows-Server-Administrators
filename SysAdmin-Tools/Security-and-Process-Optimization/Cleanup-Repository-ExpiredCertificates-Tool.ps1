@@ -1,17 +1,17 @@
 <#
 .SYNOPSIS
-    PowerShell Script for Purging Expired Certificates from the Repository.
+    PowerShell Script for Managing Expired and Expiring Certificates.
 
 .DESCRIPTION
-    This script detects and removes expired certificates from the certificate repository,
-    maintaining a secure and up-to-date certificate infrastructure to minimize security 
-    vulnerabilities.
+    This script detects and removes expired certificates from the certificate repository and lists 
+    certificates that are due to expire within a user-specified timeframe, maintaining a secure and 
+    up-to-date certificate infrastructure to minimize security vulnerabilities.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: December 02, 2024
+    Last Updated: December 06, 2024
 #>
 
 # Hide the PowerShell console window
@@ -115,6 +115,42 @@ function Is-CertificateExpired {
     }
 }
 
+# List certificates expiring soon and export to CSV
+function List-ExpiringCertificates {
+    param (
+        [Parameter(Mandatory = $true)][string[]]$Files,
+        [Parameter()][ValidateRange(1, 24)][int]$Months = 6
+    )
+    $expiringCertificates = @()
+    $cutoffDate = (Get-Date).AddMonths($Months)
+    foreach ($file in $Files) {
+        try {
+            $certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 -ArgumentList $file
+            if ($certificate.NotAfter -gt (Get-Date) -and $certificate.NotAfter -le $cutoffDate) {
+                $expiringCertificates += [PSCustomObject]@{
+                    FilePath    = $file
+                    Subject     = $certificate.Subject
+                    NotAfter    = $certificate.NotAfter
+                }
+            }
+        } catch {
+            Write-Log -Message "Error processing certificate file: $file. $_" -Level "ERROR"
+        }
+    }
+
+    $csvPath = Join-Path $logDir "ExpiringCertificates_$(Get-Date -Format 'yyyyMMddHHmmss').csv"
+
+    if ($expiringCertificates.Count -gt 0) {
+        $expiringCertificates | Export-Csv -Path $csvPath -NoTypeInformation -Force
+        Show-Message -Message "Certificates expiring in the next $Months months have been listed in the log and exported to: $csvPath" -Type "Information"
+        foreach ($cert in $expiringCertificates) {
+            Write-Log -Message "Expiring Certificate: FilePath=$($cert.FilePath), Subject=$($cert.Subject), ExpiryDate=$($cert.NotAfter)" -Level "INFO"
+        }
+    } else {
+        Show-Message -Message "No certificates expiring in the next $Months months found." -Type "Information"
+    }
+}
+
 # Remove expired certificates
 function Remove-ExpiredCertificates {
     param ([Parameter(Mandatory = $true)][string[]]$Files)
@@ -162,15 +198,15 @@ function Browse-Folder {
 
 # Form setup
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Expired Certificate Cleanup Tool'
-$form.Size = New-Object System.Drawing.Size(600, 400)
+$form.Text = 'Certificate Management Tool'
+$form.Size = New-Object System.Drawing.Size(600, 500)
 $form.StartPosition = 'CenterScreen'
 
 # Controls
 $label = New-Object System.Windows.Forms.Label
 $label.Text = "Enter path or browse for folder:"
 $label.Location = New-Object System.Drawing.Point(20, 20)
-$label.Size = New-Object System.Drawing.Size(250, 20)
+$label.Size = New-Object System.Drawing.Size(550, 20)
 $form.Controls.Add($label)
 
 $textBox = New-Object System.Windows.Forms.TextBox
@@ -181,26 +217,92 @@ $form.Controls.Add($textBox)
 $browseButton = New-Object System.Windows.Forms.Button
 $browseButton.Text = "Browse"
 $browseButton.Location = New-Object System.Drawing.Point(430, 50)
+$browseButton.Size = New-Object System.Drawing.Size(120, 30)
 $browseButton.Add_Click({
     $selectedPath = Browse-Folder
     if ($selectedPath) { $textBox.Text = $selectedPath }
 })
 $form.Controls.Add($browseButton)
 
+$monthsLabel = New-Object System.Windows.Forms.Label
+$monthsLabel.Text = "Months to Check:"
+$monthsLabel.Location = New-Object System.Drawing.Point(20, 100)
+$monthsLabel.Size = New-Object System.Drawing.Size(120, 20)
+$form.Controls.Add($monthsLabel)
+
+$monthsBox = New-Object System.Windows.Forms.NumericUpDown
+$monthsBox.Minimum = 1
+$monthsBox.Maximum = 24
+$monthsBox.Value = 6
+$monthsBox.Location = New-Object System.Drawing.Point(150, 100)
+$monthsBox.Size = New-Object System.Drawing.Size(100, 20)
+$form.Controls.Add($monthsBox)
+
 $executeButton = New-Object System.Windows.Forms.Button
-$executeButton.Text = "Cleanup"
-$executeButton.Location = New-Object System.Drawing.Point(200, 100)
+$executeButton.Text = "Cleanup Repository"
+$executeButton.Location = New-Object System.Drawing.Point(20, 150)
+$executeButton.Size = New-Object System.Drawing.Size(250, 30)
 $executeButton.Add_Click({
-    Cleanup-Certificates -Path $textBox.Text
+    # Validate if the path is provided
+    if ([string]::IsNullOrWhiteSpace($textBox.Text)) {
+        Show-Message -Message "The path cannot be empty. Please provide a valid directory." -Type "Error"
+        return
+    }
+
+    # Validate if the path exists
+    if (!(Test-Path $textBox.Text)) {
+        Show-Message -Message "Invalid path provided. Please select a valid directory." -Type "Error"
+        return
+    }
+
+    try {
+        # Call the Cleanup-Certificates function with the validated path
+        Cleanup-Certificates -Path $textBox.Text
+    } catch {
+        Write-Log -Message "Error during cleanup: $_" -Level "ERROR"
+        Show-Message -Message "An unexpected error occurred during cleanup: $_" -Type "Error"
+    }
 })
 $form.Controls.Add($executeButton)
 
+$listExpiringButton = New-Object System.Windows.Forms.Button
+$listExpiringButton.Text = "List Expiring Certificates"
+$listExpiringButton.Location = New-Object System.Drawing.Point(300, 150)
+$listExpiringButton.Size = New-Object System.Drawing.Size(250, 30)
+$listExpiringButton.Add_Click({
+    # Validate if the path is provided
+    if ([string]::IsNullOrWhiteSpace($textBox.Text)) {
+        Show-Message -Message "The path cannot be empty. Please provide a valid directory." -Type "Error"
+        return
+    }
+    
+    # Validate if the path exists
+    if (!(Test-Path $textBox.Text)) {
+        Show-Message -Message "Invalid path provided. Please select a valid directory." -Type "Error"
+        return
+    }
+    
+    try {
+        $files = Get-CertificateFiles -Directories @($textBox.Text)
+        if ($files.Count -eq 0) {
+            Show-Message -Message "No certificate files found in the specified directory." -Type "Information"
+            return
+        }
+
+        List-ExpiringCertificates -Files $files.FullName -Months $monthsBox.Value
+    } catch {
+        Write-Log -Message "Error during processing: $_" -Level "ERROR"
+        Show-Message -Message "An unexpected error occurred: $_" -Type "Error"
+    }
+})
+$form.Controls.Add($listExpiringButton)
+
 $logBox = New-Object System.Windows.Forms.ListBox
-$logBox.Location = New-Object System.Drawing.Point(20, 150)
-$logBox.Size = New-Object System.Drawing.Size(550, 200)
+$logBox.Location = New-Object System.Drawing.Point(20, 200)
+$logBox.Size = New-Object System.Drawing.Size(550, 250)
 $form.Controls.Add($logBox)
 
-# Display form
+# Display the form
 [void]$form.ShowDialog()
 
 # End of script
