@@ -93,7 +93,7 @@ Ensure the following requirements are met before running the scripts:
    - Merge the `PrintService-Operational-EventLogs.reg` file into the Windows registry to enable detailed logging.  
    - Run the script to audit print activities, generating a `.csv` report for review.
 
-- **EventID4624-LogonViaRDP.ps1**  
+- **EventID4624-ADUserLoginViaRDP.ps1***  
    - Execute the script with administrative privileges to monitor RDP logon activities and identify potential risks.
 
 - **EventID5136-5137-5141-ADObjectChanges.ps1**  
