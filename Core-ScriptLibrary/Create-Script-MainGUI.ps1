@@ -3,19 +3,17 @@
     PowerShell Script Template for Creating Customizable GUIs.
 
 .DESCRIPTION
-    This script serves as a customizable template for generating graphical user interfaces (GUIs) 
-    within PowerShell scripts. It enables developers to incorporate interactive GUI elements into 
-    their scripts, making them more user-friendly and accessible to users with varying technical 
-    expertise.
+    This script provides a framework for creating GUIs in PowerShell, featuring reusable 
+    components, error handling, and dynamic input handling for a user-friendly experience.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: October 22, 2024
+    Last Updated: December 6, 2024
 #>
 
-# Function to create the Default GUI for New Scripts
+# Dynamic GUI creation for PowerShell scripts
 function Create-GUI {
     # Helper function to create labels
     function Create-Label {
@@ -23,7 +21,7 @@ function Create-GUI {
             [string]$Text,
             [int]$X,
             [int]$Y,
-            [int]$Width = 160,
+            [int]$Width = 150,
             [int]$Height = 20
         )
         $label = New-Object System.Windows.Forms.Label
@@ -49,74 +47,65 @@ function Create-GUI {
 
     # Initialize form components
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = 'Generalized PowerShell GUI Tool'
-    $form.Size = New-Object System.Drawing.Size(400, 300)
+    $form.Text = 'Customizable PowerShell GUI Tool'
+    $form.Size = New-Object System.Drawing.Size(400, 350)
     $form.StartPosition = 'CenterScreen'
 
     # Create input labels and textboxes
     $labelInput1 = Create-Label -Text 'Input 1:' -X 10 -Y 20
     $textBoxInput1 = Create-Textbox -X 180 -Y 20
 
-    $labelInput2 = Create-Label -Text 'Input 2:' -X 10 -Y 50
-    $textBoxInput2 = Create-Textbox -X 180 -Y 50
+    $labelInput2 = Create-Label -Text 'Input 2:' -X 10 -Y 60
+    $textBoxInput2 = Create-Textbox -X 180 -Y 60
 
-    $labelInput3 = Create-Label -Text 'Input 3:' -X 10 -Y 80
-    $textBoxInput3 = Create-Textbox -X 180 -Y 80
+    $labelInput3 = Create-Label -Text 'Input 3:' -X 10 -Y 100
+    $textBoxInput3 = Create-Textbox -X 180 -Y 100
 
-    # Add labels and textboxes to the form
     $form.Controls.AddRange(@($labelInput1, $textBoxInput1, $labelInput2, $textBoxInput2, $labelInput3, $textBoxInput3))
 
-    # Progress bar (optional, for indicating progress)
+    # Add a progress bar
     $progressBar = New-Object System.Windows.Forms.ProgressBar
     $progressBar.Location = New-Object System.Drawing.Point(10, 200)
     $progressBar.Size = New-Object System.Drawing.Size(370, 20)
+    $progressBar.Style = 'Continuous'
     $form.Controls.Add($progressBar)
 
-    # Function for executing main logic
-    function Execute-Logic {
-        param (
-            [string]$Input1,
-            [string]$Input2,
-            [string]$Input3,
-            [System.Management.Automation.PSCredential]$Credential
-        )
+    # Execute button (handles the main logic)
+    $executeButton = New-Object System.Windows.Forms.Button
+    $executeButton.Text = "Execute"
+    $executeButton.Size = New-Object System.Drawing.Size(75, 23)
+    $executeButton.Location = New-Object System.Drawing.Point(10, 250)
+    $executeButton.Add_Click({
+        $progressBar.Value = 10
         try {
-            # Placeholder logic (replace with your logic)
-            $progressBar.Value = 50
-            Get-ADComputer -Server $Input1 -Filter * -SearchBase $Input3 -Credential $Credential -ErrorAction Stop | ForEach-Object {
-                Set-ADComputer -Server $Input1 -Identity $_.DistinguishedName -Description $Input2 -Credential $Credential
+            # Retrieve inputs
+            $input1 = $textBoxInput1.Text
+            $input2 = $textBoxInput2.Text
+            $input3 = $textBoxInput3.Text
+
+            # Validate inputs
+            if (-not $input1 -or -not $input2 -or -not $input3) {
+                throw "All fields must be filled out."
             }
+
+            # Simulated logic (replace with actual logic)
+            $progressBar.Value = 50
+            Start-Sleep -Seconds 2 # Placeholder for a long-running task
             $progressBar.Value = 100
-            [System.Windows.Forms.MessageBox]::Show("Operation completed successfully.")
+
+            [System.Windows.Forms.MessageBox]::Show("Operation completed successfully.", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
         } catch {
-            [System.Windows.Forms.MessageBox]::Show("Error: " + $_.Exception.Message, "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            $progressBar.Value = 0
+            [System.Windows.Forms.MessageBox]::Show("Error: $($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         }
-    }
-
-   # Execute button (handles primary action)
-$executeButton = New-Object System.Windows.Forms.Button
-$executeButton.Location = New-Object System.Drawing.Point(10, 230)
-$executeButton.Size = New-Object System.Drawing.Size(75, 23)
-$executeButton.Text = 'Execute'
-$executeButton.Add_Click({
-    # Get the values from the textboxes (inputs)
-    $input1 = $textBoxInput1.Text
-    $input2 = $textBoxInput2.Text
-    $input3 = $textBoxInput3.Text
-
-    # Prompt for admin credentials if needed
-    $credential = Get-Credential -Message "Enter your credentials"
-
-    # Execute logic (replace with actual logic)
-    Execute-Logic -Input1 $input1 -Input2 $input2 -Input3 $input3 -Credential $credential
-})
-$form.Controls.Add($executeButton)
+    })
+    $form.Controls.Add($executeButton)
 
     # Close button to exit the form
     $closeButton = New-Object System.Windows.Forms.Button
-    $closeButton.Location = New-Object System.Drawing.Point(305, 230)
+    $closeButton.Text = "Close"
     $closeButton.Size = New-Object System.Drawing.Size(75, 23)
-    $closeButton.Text = 'Close'
+    $closeButton.Location = New-Object System.Drawing.Point(305, 250)
     $closeButton.Add_Click({ $form.Close() })
     $form.Controls.Add($closeButton)
 
@@ -124,7 +113,5 @@ $form.Controls.Add($executeButton)
     $form.ShowDialog()
 }
 
-# Call the function to create the generalized GUI
+# Invoke the function to create the GUI
 Create-GUI
-
-# End of script
