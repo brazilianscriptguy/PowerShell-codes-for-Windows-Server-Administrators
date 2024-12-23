@@ -73,7 +73,23 @@ Ensure the following requirements are met before running the scripts:
     Retrieves details of system restarts and shutdown events from the System log and exports the results to `.csv`.
 
 12. **Migrate-WinEvtStructure-Tool.ps1**  
-    Moves Windows Event Log files to a new directory, updates registry paths, and restarts the Event Log service. **Requires administrative privileges.**
+This script moves Windows Event Log files to a new directory, updates registry paths, and restarts the Event Log service. **It requires administrative privileges.**
+
+> **Note:** Some Windows Server environments that are already joined to a domain require restarting in Safe Mode to allow stopping the Event Log service. To do this, run:
+
+```cmd
+bcdedit /set {current} safeboot minimal
+shutdown /r /t 0
+```
+
+This will reboot the server in Safe Mode (with minimal services). After running **Migrate-WinEvtStructure-Tool.ps1**, return to normal mode with:
+
+```cmd
+bcdedit /deletevalue {current} safeboot
+shutdown /r /t 0
+```
+
+The server will then restart in its standard operating mode with all services enabled.
 
 ---
 
