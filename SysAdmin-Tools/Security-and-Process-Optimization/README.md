@@ -1,13 +1,14 @@
 # 🔒 Security and Process Optimization Tools
 
 ## 📄 Overview
+
 This folder contains scripts designed to enhance system security, enforce compliance, and optimize IT processes through automation.
 
 ---
 
 ## 📜 Script List and Descriptions
 
-1. **Cleanup-CertificateAuthority-Tool.ps1**
+1. **Cleanup-CertificateAuthority-Tool.ps1**  
    Provides an interactive tool for managing expired certificates in a Windows Certificate Authority environment.
 
 2. **Cleanup-Repository-ExpiredCertificates-Tool.ps1**  
@@ -35,11 +36,12 @@ This folder contains scripts designed to enhance system security, enforce compli
    Automatically shortens file names that exceed a specified length, preventing file system errors.
 
 10. **Unjoin-ADComputer-and-Cleanup.ps1**  
-   Unjoins computers from the domain and performs cleanup tasks, including DNS cache clearing and domain profile removal.
+    Unjoins computers from the domain and performs cleanup tasks, including DNS cache clearing and domain profile removal.
 
 ---
 
 ## 🔍 How to Use
+
 Refer to the detailed instructions provided in each script header for setup and execution steps. Most scripts require administrative privileges to run.
 
 ---
@@ -55,5 +57,3 @@ Refer to the detailed instructions provided in each script header for setup and 
 ## 📣 Feedback and Contributions
 
 For feedback or contributions, please open an issue or submit a pull request in the GitHub repository. Your collaboration is welcome!
-
----
