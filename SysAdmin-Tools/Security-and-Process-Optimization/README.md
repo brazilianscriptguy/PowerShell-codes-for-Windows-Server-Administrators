@@ -7,31 +7,34 @@ This folder contains scripts designed to enhance system security, enforce compli
 
 ## 📜 Script List and Descriptions
 
-1. **Cleanup-Repository-ExpiredCertificates-Tool.ps1**  
+1. **Cleanup-CertificateAuthority-Tool.ps1**
+   Provides an interactive tool for managing expired certificates in a Windows Certificate Authority environment.
+
+2. **Cleanup-Repository-ExpiredCertificates-Tool.ps1**  
    Detects and removes expired certificates from the repository, maintaining a secure and up-to-date certificate infrastructure.
 
-2. **Initiate-MultipleRDPSessions.ps1**  
+3. **Initiate-MultipleRDPSessions.ps1**  
    Enables simultaneous RDP sessions to multiple servers, enhancing remote management.
 
-3. **Organize-CERTs-Repository.ps1**  
+4. **Organize-CERTs-Repository.ps1**  
    Organizes SSL/TLS certificates by issuer for better management and compliance.
 
-4. **Purge-ExpiredInstalledCertificates-Tool.ps1**  
+5. **Purge-ExpiredInstalledCertificates-Tool.ps1**  
    Automates the selective removal of expired Certificate Authorities (CAs) to reduce security risks.
 
-5. **Purge-ExpiredInstalledCertificates-viaGPO.ps1**  
+6. **Purge-ExpiredInstalledCertificates-viaGPO.ps1**  
    Removes expired Certificate Authorities across domain machines using Group Policy.
 
-6. **Remove-EmptyFiles-or-DateRange.ps1**  
+7. **Remove-EmptyFiles-or-DateRange.ps1**  
    Detects and removes empty files or files within a specified date range to optimize storage usage.
 
-7. **Retrieve-Windows-ProductKey.ps1**  
+8. **Retrieve-Windows-ProductKey.ps1**  
    Retrieves Windows product keys from the registry to ensure licensing compliance.
 
-8. **Shorten-LongFileNames-Tool.ps1**  
+9. **Shorten-LongFileNames-Tool.ps1**  
    Automatically shortens file names that exceed a specified length, preventing file system errors.
 
-9. **Unjoin-ADComputer-and-Cleanup.ps1**  
+10. **Unjoin-ADComputer-and-Cleanup.ps1**  
    Unjoins computers from the domain and performs cleanup tasks, including DNS cache clearing and domain profile removal.
 
 ---
