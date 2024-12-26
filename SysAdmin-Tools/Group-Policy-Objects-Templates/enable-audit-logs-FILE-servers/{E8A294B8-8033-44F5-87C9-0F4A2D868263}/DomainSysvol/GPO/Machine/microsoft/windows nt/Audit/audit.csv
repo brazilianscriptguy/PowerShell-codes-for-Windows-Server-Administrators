@@ -1,6 +1,0 @@
-Nome do Computador,Destino da Política,Subcategoria,GUID de Subcategoria,Configuração de Inclusão,Configuração de Exclusão,Valor da Configuração
-,Sistema,Auditoria de Compartilhamento de Arquivos,{0cce9224-69ae-11d9-bed3-505054503030},Êxito,,1
-,Sistema,Auditoria de Sistema de Arquivos,{0cce921d-69ae-11d9-bed3-505054503030},Êxito,,1
-,Sistema,Auditoria de Outros Eventos de Uso de Privilégios,{0cce922a-69ae-11d9-bed3-505054503030},Êxito,,1
-,Sistema,Auditoria de Uso de Privilégio Importante,{0cce9228-69ae-11d9-bed3-505054503030},Êxito,,1
-,,FileGlobalSacl,,,,S:(AU;SAFA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;AU)

@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Shortcuts clsid="{872ECB34-B2EC-401b-A585-D32574AA90EE}"><Shortcut clsid="{4F2F7C55-2790-433e-8127-0739D1CFA327}" name="bginfo" status="bginfo" image="0" changed="2024-07-17 15:54:16" uid="{3C58E089-D2D5-48B1-9EF9-CB792BFE5CCF}" userContext="0" bypassErrors="1" disabled="0"><Properties pidl="" targetType="FILESYSTEM" action="C" comment="" shortcutKey="0" startIn="" arguments="C:\Windows\Resources\GSTI-Templates-Servers\Themes\BGInfo\bginfo-servers.bgi /timer:0 /silent /nolicprompt" iconIndex="0" targetPath="C:\Windows\Resources\GSTI-Templates-Servers\Themes\BGInfo\Bginfo64.exe" iconPath="" window="" shortcutPath="%CommonStartUpDir%\bginfo"/></Shortcut>
-</Shortcuts>

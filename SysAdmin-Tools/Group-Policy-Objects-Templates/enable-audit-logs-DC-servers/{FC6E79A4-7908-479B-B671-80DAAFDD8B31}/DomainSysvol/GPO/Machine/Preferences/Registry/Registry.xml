@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RegistrySettings clsid="{A3CCFC41-DFDB-43a5-8D26-0FE8B954DA51}"><Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}" name="Microsoft-Windows-PrintService/Operational" status="Microsoft-Windows-PrintService/Operational" image="2" changed="2023-07-26 14:06:54" uid="{6880A62A-C20C-4A6F-B8E2-959A12676A16}"><Properties action="U" displayDecimal="0" default="0" hive="HKEY_LOCAL_MACHINE" key="SYSTEM\CurrentControlSet\Services\EventLog\Microsoft-Windows-PrintService/Operational" name="" type="REG_SZ" value=""/></Registry>
-</RegistrySettings>
