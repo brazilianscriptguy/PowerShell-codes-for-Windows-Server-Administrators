@@ -4,6 +4,12 @@
 
 This folder contains a curated collection of Group Policy Object (GPO) templates designed to simplify and standardize the configuration of Windows Server Forest and Domain structures. These templates cover a wide range of use cases, enhancing security, productivity, and compliance within your IT infrastructure.
 
+### Key Examples:
+- **enable-logon-message-workstations**: Ensures users see critical logon messages.
+- **disable-firewall-domain-workstations**: Enhances domain workstation management by disabling the firewall for specific scenarios.
+- **install-cmdb-fusioninventory-agent**: Automates deployment of asset management tools.
+- **password-policy-all-domain-users**: Implements robust password policies for domain-wide users.
+
 ---
 
 ## 📜 Template List and Descriptions
@@ -20,7 +26,7 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 4. **Default_Domain_Policy**  
    The baseline GPO for domain-wide security settings and configurations.
 
-5. **deploly-printer-Template**  
+5. **deploly-printer-template**  
    Configures printer deployment across specified models.
 
 6. **disable-firewall-domain-workstations**  
@@ -98,7 +104,7 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 30. **install-zoom-workplace-32bits**  
     Deploys the 32-bit version of Zoom for workstations.
 
-31. **mapping-storage-Template**  
+31. **mapping-storage-template**  
     Configures storage mapping for a specific model.
 
 32. **password-policy-all-domain-users**  
@@ -122,11 +128,11 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 38. **rename-disks-volumes-workstations**  
     Standardizes disk volume names on workstations.
 
-39. **wsus-update-servers-Template**  
-    Configures WSUS updates for a specific server model.
+39. **wsus-update-servers-template**  
+    Configures WSUS updates for specific servers.
 
-40. **wsus-update-workstation-Template**  
-    Sets up WSUS updates for a specific workstation model.
+40. **wsus-update-workstation-template**  
+    Sets up WSUS updates for specific workstations.
 
 ---
 
@@ -155,3 +161,4 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 
 1. **Detailed Documentation:** Included in each template’s comments.
 2. **Feedback and Contributions:** Submit issues or pull requests to improve the repository.
+3. 
