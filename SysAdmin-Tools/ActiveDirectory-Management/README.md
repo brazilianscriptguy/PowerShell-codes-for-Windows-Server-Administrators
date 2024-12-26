@@ -32,64 +32,67 @@ This folder contains a comprehensive suite of PowerShell scripts designed to aut
 8. **Create-OUsDefaultADStructure.ps1**  
    Helps define and implement a standardized Organizational Unit (OU) structure for easier domain setup or reorganization.
 
-9. **Enforce-Expiration-ADUserPasswords.ps1**  
+9. **Enforce-Expiration-ADUserPasswords.ps1**
    Enforces password expiration policies for users within specific OUs, ensuring compliance with security requirements.
+   
+11. **Export-n-Import-GPOsTool.ps1**
+   Provides an intuitive GUI for exporting and importing Group Policy Objects (GPOs) between Active Directory domains. 
 
-10. **Inventory-ADDomainComputers.ps1**  
+12. **Inventory-ADDomainComputers.ps1**  
     Generates a detailed inventory of all computers within an AD domain for asset tracking and management.
 
-11. **Inventory-ADGroups-their-Members.ps1**  
+13. **Inventory-ADGroups-their-Members.ps1**  
     Retrieves group membership details, aiding in audits and compliance checks.
 
-12. **Inventory-ADMemberServers.ps1**  
+14. **Inventory-ADMemberServers.ps1**  
     Produces detailed reports on member servers in the AD domain, simplifying server management.
 
-13. **Inventory-ADUserAttributes.ps1**  
+15. **Inventory-ADUserAttributes.ps1**  
     Extracts user attributes from AD, helping administrators manage and report user data more effectively.
 
-14. **Inventory-ADUserLastLogon.ps1**  
+16. **Inventory-ADUserLastLogon.ps1**  
     Tracks user last logon times, helping identify inactive accounts.
 
-15. **Inventory-ADUserWithNonExpiringPasswords.ps1**  
+17. **Inventory-ADUserWithNonExpiringPasswords.ps1**  
     Lists users with non-expiring passwords, enabling enforcement of password policies.
 
-16. **Inventory-InactiveADComputerAccounts.ps1**  
+18. **Inventory-InactiveADComputerAccounts.ps1**  
     Identifies and removes outdated or inactive computer accounts, ensuring a clean and secure directory.
 
-17. **Manage-Disabled-Expired-ADUserAccounts.ps1**  
+19. **Manage-Disabled-Expired-ADUserAccounts.ps1**  
     Automates the disabling of expired AD user accounts, improving security and compliance.
 
-18. **Manage-FSMOs-Roles.ps1**  
+20. **Manage-FSMOs-Roles.ps1**  
     Simplifies the management and transfer of Flexible Single Master Operation (FSMO) roles within the AD forest.
 
-19. **Move-ADComputer-betweenOUs.ps1**  
+21. **Move-ADComputer-betweenOUs.ps1**  
     Moves computer accounts between OUs, accommodating organizational structure adjustments.
 
-20. **Move-ADUser-betweenOUs.ps1**  
+22. **Move-ADUser-betweenOUs.ps1**  
     Relocates user accounts between OUs to reflect changes in organizational alignment.
 
-21. **Reset-ADUserPasswordsToDefault.ps1**  
+23. **Reset-ADUserPasswordsToDefault.ps1**  
     Resets passwords for multiple AD users to a default value, simplifying password management.
 
-22. **Retrieve-ADComputer-SharedFolders.ps1**  
+24. **Retrieve-ADComputer-SharedFolders.ps1**  
     Scans AD computers for shared folders, ensuring only authorized shares are in place.
 
-23. **Retrieve-ADDomain-AuditPolicy-Configuration.ps1**  
+25. **Retrieve-ADDomain-AuditPolicy-Configuration.ps1**  
     Retrieves advanced audit policies applied via GPOs, generating detailed reports for compliance.
 
-24. **Retrieve-Elevated-ADForestInfo.ps1**  
+26. **Retrieve-Elevated-ADForestInfo.ps1**  
     Gathers data on elevated accounts and privileged groups across the AD forest for improved security monitoring.
 
-25. **Synchronize-ADForestDCs.ps1**  
+27. **Synchronize-ADForestDCs.ps1**  
     Automates synchronization of all Domain Controllers across the AD forest, ensuring consistent updates.
 
-26. **Unlock-SMBShareADUserAccess.ps1**  
+28. **Unlock-SMBShareADUserAccess.ps1**  
     Restores access to SMB shared resources for AD users, resolving access issues.
 
-27. **Update-ADComputer-Descriptions.ps1**  
+29. **Update-ADComputer-Descriptions.ps1**  
     Updates AD computer descriptions via a GUI, improving directory accuracy.
 
-28. **Update-ADUserDisplayName.ps1**  
+30. **Update-ADUserDisplayName.ps1**  
     Standardizes user display names based on email addresses, with preview and undo options for enhanced control.
 
 ---
