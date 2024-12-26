@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Folders clsid="{77CC39E7-3D16-4f8f-AF86-EC0BBEE2C861}"><Folder clsid="{07DA02F5-F9CD-4397-A550-4AE21B6B4BD3}" name="GSTI-Templates" status="GSTI-Templates" image="3" changed="2024-05-29 12:57:40" uid="{7326264F-9248-45A7-87BE-8EE6A3D8FB06}"><Properties action="D" path="c:\GSTI-Templates" deleteFolder="1" deleteSubFolders="1" deleteFiles="1" deleteReadOnly="1" deleteIgnoreErrors="0" readOnly="0" archive="1" hidden="0"/></Folder>
+	<Folder clsid="{07DA02F5-F9CD-4397-A550-4AE21B6B4BD3}" name="GSTI-Templates" status="GSTI-Templates" image="3" changed="2024-05-29 12:57:42" uid="{1CC74347-6144-48C3-87D3-61A81574429F}"><Properties action="D" path="d:\GSTI-Templates" deleteFolder="1" deleteSubFolders="1" deleteFiles="1" deleteReadOnly="1" deleteIgnoreErrors="0" readOnly="0" archive="1" hidden="0"/></Folder>
+</Folders>
