@@ -20,7 +20,7 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 4. **Default_Domain_Policy**  
    The baseline GPO for domain-wide security settings and configurations.
 
-5. **deploly-printer-MODEL**  
+5. **deploly-printer-Template**  
    Configures printer deployment across specified models.
 
 6. **disable-firewall-domain-workstations**  
@@ -98,7 +98,7 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 30. **install-zoom-workplace-32bits**  
     Deploys the 32-bit version of Zoom for workstations.
 
-31. **mapping-storage-MODEL**  
+31. **mapping-storage-Template**  
     Configures storage mapping for a specific model.
 
 32. **password-policy-all-domain-users**  
@@ -122,10 +122,10 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 38. **rename-disks-volumes-workstations**  
     Standardizes disk volume names on workstations.
 
-39. **wsus-update-servers-MODEL**  
+39. **wsus-update-servers-Template**  
     Configures WSUS updates for a specific server model.
 
-40. **wsus-update-workstation-MODEL**  
+40. **wsus-update-workstation-Template**  
     Sets up WSUS updates for a specific workstation model.
 
 ---
