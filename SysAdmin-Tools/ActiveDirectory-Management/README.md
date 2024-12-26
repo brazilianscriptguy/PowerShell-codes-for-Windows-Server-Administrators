@@ -8,7 +8,6 @@ This repository contains a suite of PowerShell scripts designed to streamline an
 
 ## 📜 Script List and Descriptions
 
-### User and Computer Account Management
 1. **Add-ADComputers-GrantPermissions.ps1**  
    Automates adding workstations to specific OUs in AD and assigns the necessary permissions for domain joining.
 
@@ -24,62 +23,62 @@ This repository contains a suite of PowerShell scripts designed to streamline an
 5. **Cleanup-Inactive-ADComputerAccounts.ps1**  
    Detects and removes inactive computer accounts, improving directory organization and security.
 
-6. **Manage-Disabled-Expired-ADUserAccounts.ps1**  
-   Automates the disabling of expired AD user accounts to enhance security and compliance.
+6. **Cleanup-MetaData-ADForest-Tool.ps1**  
+   Cleans up metadata in the AD forest by removing orphaned objects and synchronizing Domain Controllers.
 
-7. **Reset-ADUserPasswordsToDefault.ps1**  
-   Resets passwords for multiple AD users to a default value, simplifying password management.
-
-8. **Unlock-SMBShareADUserAccess.ps1**  
-   Restores access to SMB shared resources for AD users, resolving access issues.
-
-9. **Create-OUsDefaultADStructure.ps1**  
+7. **Create-OUsDefaultADStructure.ps1**  
    Helps define and implement a standardized OU structure for domain setup or reorganization.
 
-10. **Move-ADComputer-betweenOUs.ps1**  
-    Moves computer accounts between OUs to accommodate structural adjustments.
+8. **Export-n-Import-GPOsTool.ps1**  
+   Provides a GUI for exporting and importing GPOs between domains, with progress tracking.
 
-11. **Move-ADUser-betweenOUs.ps1**  
-    Relocates user accounts between OUs to reflect organizational changes.
+9. **Inventory-ADDomainComputers.ps1**  
+   Generates a detailed inventory of all computers within an AD domain for asset tracking.
 
-12. **Export-n-Import-GPOsTool.ps1**  
-    Provides a GUI for exporting and importing GPOs between domains, with progress tracking.
-
-13. **Retrieve-ADDomain-AuditPolicy-Configuration.ps1**  
-    Retrieves detailed reports on advanced audit policies applied via GPOs for compliance monitoring.
-
-14. **Inventory-ADDomainComputers.ps1**  
-    Generates a detailed inventory of all computers within an AD domain for asset tracking.
-
-15. **Inventory-ADGroups-their-Members.ps1**  
+10. **Inventory-ADGroups-their-Members.ps1**  
     Retrieves group membership details for audits and compliance checks.
 
-16. **Inventory-ADMemberServers.ps1**  
+11. **Inventory-ADMemberServers.ps1**  
     Produces detailed reports on member servers in the AD domain.
 
-17. **Inventory-ADUserAttributes.ps1**  
+12. **Inventory-ADUserAttributes.ps1**  
     Extracts user attributes for better user data management and reporting.
 
-18. **Inventory-ADUserLastLogon.ps1**  
+13. **Inventory-ADUserLastLogon.ps1**  
     Tracks user last logon times to identify inactive accounts.
 
-19. **Inventory-ADUserWithNonExpiringPasswords.ps1**  
+14. **Inventory-ADUserWithNonExpiringPasswords.ps1**  
     Lists users with non-expiring passwords for enforcing password policies.
 
-20. **Inventory-InactiveADComputerAccounts.ps1**  
+15. **Inventory-InactiveADComputerAccounts.ps1**  
     Identifies and removes outdated or inactive computer accounts to maintain a clean directory.
+
+16. **Manage-Disabled-Expired-ADUserAccounts.ps1**  
+    Automates the disabling of expired AD user accounts to enhance security and compliance.
+
+17. **Manage-FSMOs-Roles.ps1**  
+    Simplifies the management and transfer of FSMO roles within the AD forest.
+
+18. **Move-ADComputer-betweenOUs.ps1**  
+    Moves computer accounts between OUs to accommodate structural adjustments.
+
+19. **Move-ADUser-betweenOUs.ps1**  
+    Relocates user accounts between OUs to reflect organizational changes.
+
+20. **Retrieve-ADDomain-AuditPolicy-Configuration.ps1**  
+    Retrieves detailed reports on advanced audit policies applied via GPOs for compliance monitoring.
 
 21. **Retrieve-Elevated-ADForestInfo.ps1**  
     Collects data on elevated accounts and privileged groups across the AD forest.
 
-22. **Cleanup-MetaData-ADForest-Tool.ps1**  
-    Cleans up metadata in the AD forest by removing orphaned objects and synchronizing Domain Controllers.
+22. **Reset-ADUserPasswordsToDefault.ps1**  
+    Resets passwords for multiple AD users to a default value, simplifying password management.
 
-23. **Manage-FSMOs-Roles.ps1**  
-    Simplifies the management and transfer of FSMO roles within the AD forest.
-
-24. **Synchronize-ADForestDCs.ps1**  
+23. **Synchronize-ADForestDCs.ps1**  
     Automates synchronization of all Domain Controllers, ensuring consistent updates.
+
+24. **Unlock-SMBShareADUserAccess.ps1**  
+    Restores access to SMB shared resources for AD users, resolving access issues.
 
 25. **Update-ADComputer-Descriptions.ps1**  
     Updates AD computer descriptions via a GUI to improve directory accuracy.
