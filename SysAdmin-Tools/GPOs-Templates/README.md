@@ -161,4 +161,3 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 
 1. **Detailed Documentation:** Included in each template’s comments.
 2. **Feedback and Contributions:** Submit issues or pull requests to improve the repository.
-3. 
