@@ -58,9 +58,9 @@ if (-not (Test-Path $logDir)) {
 # Enhanced logging function
 function Log-Message {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$Message,
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$MessageType = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -205,19 +205,26 @@ $buttonExport.Add_Click({
 
     foreach ($gpo in $gpos) {
         try {
-            Backup-GPO -Guid $gpo.Id -Path $backupDir -Domain $sourceDomain -ErrorAction Stop
-            $textBoxResults.AppendText("Exported GPO: $($gpo.DisplayName)`r`n")
-            Log-Message "Exported GPO: $($gpo.DisplayName)"
+            # Use GPO Display Name to create a directory for each GPO backup
+            $exportPath = Join-Path -Path $backupDir -ChildPath ($gpo.DisplayName -replace '[^a-zA-Z0-9-_]', '_')
+            if (-not (Test-Path $exportPath)) {
+                New-Item -ItemType Directory -Path $exportPath -Force | Out-Null
+            }
+
+            # Perform the backup
+            Backup-GPO -Guid $gpo.Id -Path $exportPath -Domain $sourceDomain -ErrorAction Stop
+            $textBoxResults.AppendText("Exported GPO: $($gpo.DisplayName) to folder $exportPath`r`n")
+            Log-Message "Exported GPO: $($gpo.DisplayName) to folder $exportPath"
         } catch {
-            $textBoxResults.AppendText("Failed: $($gpo.DisplayName) - $_`r`n")
-            Log-Message "Failed to export GPO: $($gpo.DisplayName) - $_" -MessageType "ERROR"
+            $textBoxResults.AppendText("Failed to export GPO: $($gpo.DisplayName). Error: $_`r`n")
+            Log-Message "Failed to export GPO: $($gpo.DisplayName). Error: $_" -MessageType "ERROR"
         } finally {
             $progressBar.PerformStep()
         }
     }
 
-    $textBoxResults.AppendText("Export completed to $backupDir. Check the results log at $logDir for details.`r`n")
-    Show-InfoMessage "Export completed to ${backupDir}. Check the results log at ${logDir} for details."
+    $textBoxResults.AppendText("Export process completed. Check log at $logDir.`r`n")
+    Show-InfoMessage "Export process completed to $backupdir. Check log at $logDir."
 })
 
 # Import GPOs Click Event
