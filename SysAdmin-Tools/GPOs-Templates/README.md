@@ -1,4 +1,4 @@
-# 🛠️ GPO Templates
+# 🛠️ GPOs-Templates Folder
 
 ## 📄 Overview
 
