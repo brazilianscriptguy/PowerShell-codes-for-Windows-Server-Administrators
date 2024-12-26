@@ -28,7 +28,20 @@ The suite is organized into four main subfolders, grouping scripts by functional
 
 ---
 
-### 2. **Network-and-Infrastructure-Management**
+### 2. **GPOs-Templates**
+   A collection of ready-to-use GPO templates designed for seamless import into a new Windows Server Forest and Domain structure.
+   
+   - **Examples**:
+     - `enable-logon-message-workstations`
+     - `itsm-template-ALL-workstations`
+     - `install-cmdb-fusioninventory-agent`
+     - `wsus-update-workstation-MODEL`
+
+   📄 *Refer to the detailed [GPOs-Templates/README.md](GPOs-Templates/README.md) for a complete list of scripts and usage instructions.*
+
+---
+
+### 3. **Network-and-Infrastructure-Management**
    Scripts for managing network services (e.g., DHCP, DNS, WSUS) and ensuring reliable infrastructure operations.
 
    - **Examples**:
@@ -41,7 +54,7 @@ The suite is organized into four main subfolders, grouping scripts by functional
 
 ---
 
-### 3. **Security-and-Process-Optimization**
+### 4. **Security-and-Process-Optimization**
    Tools for optimizing system performance, enforcing compliance, and enhancing security.
 
    - **Examples**:
@@ -124,3 +137,5 @@ Ensure the following prerequisites are met to maximize the tools' effectiveness:
 For questions or contributions:
 - Open an issue or submit a pull request on GitHub.
 - Your feedback and collaboration are always welcome!
+
+---
