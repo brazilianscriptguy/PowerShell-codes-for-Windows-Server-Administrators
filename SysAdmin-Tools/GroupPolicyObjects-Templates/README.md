@@ -29,7 +29,7 @@ To import these templates, follow these steps:
 
 4. **Deployment Location:**
    - Once imported, all templates and their associated scripts will be loaded into:  
-     `\\your-forest-domain\netlogon\`  
+     `\\your-forest-domain\SYSVOL\your-domain\Policies\`  
    - This ensures templates are accessible and ready for deployment across the domain.
 
 Following these steps will standardize your GPO configurations and simplify deployment across your Windows Server infrastructure.
