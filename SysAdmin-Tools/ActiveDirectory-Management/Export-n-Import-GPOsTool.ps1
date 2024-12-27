@@ -10,7 +10,7 @@
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    Last Updated: December 26, 2024
+    Last Updated: December 27, 2024
 #>
 
 # Hide the PowerShell console window
@@ -229,36 +229,69 @@ $buttonExport.Add_Click({
 
 # Import GPOs Click Event
 $buttonImport.Add_Click({
-    $targetDomain = $comboBoxTargetDomain.Text.Trim()
     $backupDir = $textBoxBackupDir.Text.Trim()
-
-    if (-not $targetDomain) {
-        Show-ErrorMessage "Please select or enter a target domain."
-        return
-    }
 
     if (-not (Test-Path $backupDir)) {
         Show-ErrorMessage "Backup directory does not exist: $backupDir"
         return
     }
 
-    $backupFiles = Get-ChildItem -Path $backupDir -Filter *.bak -Recurse -ErrorAction SilentlyContinue
-    if (-not $backupFiles) {
-        Show-ErrorMessage "No backup files found in directory: $backupDir"
+    # Get all subdirectories in the backup folder (each representing a GPO)
+    $gpoFolders = Get-ChildItem -Path $backupDir -Directory -ErrorAction SilentlyContinue
+    if (-not $gpoFolders) {
+        Show-ErrorMessage "No GPO backup folders found in directory: $backupDir"
         return
     }
 
-    $progressBar.Maximum = $backupFiles.Count
+    $progressBar.Maximum = $gpoFolders.Count
     $progressBar.Value = 0
 
-    foreach ($file in $backupFiles) {
+    foreach ($folder in $gpoFolders) {
         try {
-            Import-GPO -BackupId $file.BaseName -Path $file.DirectoryName -TargetDomain $targetDomain -ErrorAction Stop
-            $textBoxResults.AppendText("Imported GPO: $($file.BaseName)`r`n")
-            Log-Message "Imported GPO: $($file.BaseName)"
+            # Handle special cases for Default GPOs
+            $gpoName = $folder.Name
+            switch ($folder.Name) {
+                "Default_Domain_Controllers_Policy" {
+                    $gpoName = "Default Domain Controllers Policy"
+                }
+                "Default_Domain_Policy" {
+                    $gpoName = "Default Domain Policy"
+                }
+            }
+
+            # Skip special GPOs if already present in the target domain
+            if ($gpoName -in @("Default Domain Controllers Policy", "Default Domain Policy")) {
+                $textBoxResults.AppendText("Skipped special GPO: $($gpoName)`r`n")
+                Log-Message "Skipped special GPO: $($gpoName)"
+                continue
+            }
+
+            # Check if the GPO already exists in the target domain
+            $existingGPO = Get-GPO -Name $gpoName -ErrorAction SilentlyContinue
+
+            # If the GPO doesn't exist, create it
+            if (-not $existingGPO) {
+                Log-Message "Creating GPO: $($gpoName) in target domain."
+                $newGPO = New-GPO -Name $gpoName -Domain $comboBoxTargetDomain.Text -ErrorAction Stop
+                $textBoxResults.AppendText("Created new GPO: $($gpoName)`r`n")
+                Log-Message "Created new GPO: $($gpoName) with GUID $($newGPO.Id)"
+            } else {
+                Log-Message "GPO already exists: $($gpoName) in target domain."
+            }
+
+            # The GUID-based subfolder inside the GPO's main backup folder
+            $backupIdFolder = Get-ChildItem -Path $folder.FullName -Directory | Where-Object { $_.Name -match '^{.*}$' }
+            if (-not $backupIdFolder) {
+                throw "Backup folder structure is invalid for GPO: $($folder.Name)"
+            }
+
+            # Import the GPO using the BackupId folder path
+            Import-GPO -BackupId $backupIdFolder.Name -Path $folder.FullName -TargetName $gpoName -ErrorAction Stop
+            $textBoxResults.AppendText("Imported GPO: $($gpoName)`r`n")
+            Log-Message "Imported GPO: $($gpoName)"
         } catch {
-            $textBoxResults.AppendText("Failed: $($file.BaseName) - $_`r`n")
-            Log-Message "Failed to import GPO: $($file.BaseName) - $_" -MessageType "ERROR"
+            $textBoxResults.AppendText("Failed to import GPO: $($folder.Name). Error: $_`r`n")
+            Log-Message "Failed to import GPO: $($folder.Name). Error: $_" -MessageType "ERROR"
         } finally {
             $progressBar.PerformStep()
         }
