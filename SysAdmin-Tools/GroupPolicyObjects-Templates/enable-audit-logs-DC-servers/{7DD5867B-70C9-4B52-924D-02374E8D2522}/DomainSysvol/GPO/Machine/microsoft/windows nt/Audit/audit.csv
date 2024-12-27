@@ -1,0 +1,37 @@
+Nome do Computador,Destino da Política,Subcategoria,GUID de Subcategoria,Configuração de Inclusão,Configuração de Exclusão,Valor da Configuração
+,Sistema,Auditoria de Validação de Credenciais,{0cce923f-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Serviço de Autenticação Kerberos,{0cce9242-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Operações do Tíquete de Serviço Kerberos,{0cce9240-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Outros Eventos de Logon de Conta,{0cce9241-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Gerenciamento de Grupo de Aplicativos,{0cce9239-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Gerenciamento de Conta de Computador,{0cce9236-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Gerenciamento de Grupo de Distribuição,{0cce9238-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Outros Eventos de Gerenciamento de Contas,{0cce923a-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Gerenciamento de Grupo de Segurança,{0cce9237-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Gerenciamento de Conta de Usuário,{0cce9235-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Atividade DPAPI,{0cce922d-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditar Atividade PNP,{0cce9248-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Acesso ao Serviço de Diretório,{0cce923b-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Alterações no Serviço de Diretório,{0cce923c-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Bloqueio de Conta,{0cce9217-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditar Declarações do Usuário/Dispositivo,{0cce9247-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditar Associação de Grupo,{0cce9249-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Logoff de Auditoria,{0cce9216-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Logon de Auditoria,{0cce9215-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Outros Eventos de Logon/Logoff,{0cce921c-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Logon Especial,{0cce921b-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Serviços de Certificação,{0cce9221-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Compartilhamento de Arquivos de Auditoria Detalhado,{0cce9244-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Compartilhamento de Arquivos,{0cce9224-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Sistema de Arquivos,{0cce921d-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Manipulação de Identificador,{0cce9223-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Registro,{0cce921e-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de SAM,{0cce9220-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Preparo de Política de Acesso Central de Auditoria,{0cce9246-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Alteração de Políticas de Auditoria,{0cce922f-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Alteração de Políticas de Autenticação,{0cce9230-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Alteração de Políticas de Autorização,{0cce9231-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
+,Sistema,Auditoria de Alteração na Política de Nível de Regra MPSSVC,{0cce9232-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Outros Eventos de Uso de Privilégios,{0cce922a-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Uso de Privilégio Importante,{0cce9228-69ae-11d9-bed3-505054503030},Êxito,,1
+,Sistema,Auditoria de Integridade do Sistema,{0cce9212-69ae-11d9-bed3-505054503030},Êxito e Falha,,3
