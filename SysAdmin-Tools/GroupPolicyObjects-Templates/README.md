@@ -18,7 +18,7 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
    Grants elevated administrative privileges across the entire AD Forest for specific restricted groups.
 
 2. **admin-local-Workstations-IT-TEAM**  
-   Assigns local administrative rights for IT team members on workstations.
+   Assigns local administrative rights for IT team members on workstations for specific restricted groups.
 
 3. **deploly-printer-template**  
    Automates printer deployment across specified Organizational Units (OUs).
