@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Shortcuts clsid="{872ECB34-B2EC-401b-A585-D32574AA90EE}"><Shortcut clsid="{4F2F7C55-2790-433e-8127-0739D1CFA327}" userContext="1" name="Enterprise Files (T)" status="Enterprise Files (T)" image="2" changed="2024-12-27 16:08:10" uid="{81257E72-B163-4E32-BAB0-7E9578352A60}"><Properties pidl="" targetType="FILESYSTEM" action="U" comment="Pasta, exclusiva, para os arquivos institucionais." shortcutKey="0" startIn="T:\" arguments="" iconIndex="169" targetPath="T:\" iconPath="c:\Windows\System32\imageres.dll" window="" shortcutPath="%DesktopDir%\Enterprise Files (T)"/></Shortcut>
+</Shortcuts>
