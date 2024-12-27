@@ -8,7 +8,10 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 - **Enable Logon Message for Workstations:** Ensures users see critical logon messages using an .HTA file.  
 - **Disable Firewall for Domain Workstations:** Optimizes domain workstation management by disabling the native Windows Firewall in scenarios such as third-party antivirus firewall deployment.  
 - **Install CMDB FusionInventory Agent:** Automates the deployment of asset management tools like the FusionInventory Agent.  
-- **Password Policy for All Domain Users:** Implements robust password policies to ensure compliance across domain-wide user accounts.  
+- **Password Policy for All Domain Users:** Implements robust password policies to ensure compliance across domain-wide user accounts.
+
+### How to Import these GPOs Templates onto your Domain or Forest Server (Global Catalog Server)?
+You must, first of all have an functional Windows Server DC or Forest Server, that must be Global Catalog Server, and use this script locate at: `   ` and use the option to Import GPOs. There's an 'C:\Logs-TEMP\' log file to obtaining the Import procedure results.
 
 ---
 
