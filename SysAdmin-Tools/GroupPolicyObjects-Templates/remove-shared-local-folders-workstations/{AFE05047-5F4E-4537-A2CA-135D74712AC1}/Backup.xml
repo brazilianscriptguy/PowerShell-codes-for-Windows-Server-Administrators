@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) Microsoft Corporation.  All rights reserved. --><GroupPolicyBackupScheme bkp:version="2.0" bkp:type="GroupPolicyBackupTemplate" xmlns:bkp="http://www.microsoft.com/GroupPolicy/GPOOperations" xmlns="http://www.microsoft.com/GroupPolicy/GPOOperations">
+    <GroupPolicyObject><SecurityGroups><Group bkp:Source="FromDACL"><Sid><![CDATA[S-1-5-21-1469191319-3143825322-1297275687-519]]></Sid><SamAccountName><![CDATA[Administradores de empresa]]></SamAccountName><Type><![CDATA[UniversalGroup]]></Type><NetBIOSDomainName><![CDATA[HEADQ]]></NetBIOSDomainName><DnsDomainName><![CDATA[headq.scriptguy]]></DnsDomainName><UPN><![CDATA[Administradores de empresa@headq.scriptguy]]></UPN></Group><Group bkp:Source="FromDACL"><Sid><![CDATA[S-1-5-21-1469191319-3143825322-1297275687-512]]></Sid><SamAccountName><![CDATA[Administradores do Domínio]]></SamAccountName><Type><![CDATA[GlobalGroup]]></Type><NetBIOSDomainName><![CDATA[HEADQ]]></NetBIOSDomainName><DnsDomainName><![CDATA[headq.scriptguy]]></DnsDomainName><UPN><![CDATA[Administradores do Domínio@headq.scriptguy]]></UPN></Group></SecurityGroups><FilePaths/><GroupPolicyCoreSettings><ID><![CDATA[{cc671fc2-e260-4802-b1a9-d4e7d09a8226}]]></ID><Domain><![CDATA[headq.scriptguy]]></Domain><SecurityDescriptor>01 00 04 9c 00 00 00 00 00 00 00 00 00 00 00 00 14 00 00 00 04 00 ec 00 08 00 00 00 05 02 28 00 00 01 00 00 01 00 00 00 8f fd ac ed b3 ff d1 11 b4 1d 00 a0 c9 68 f9 39 01 01 00 00 00 00 00 05 0b 00 00 00 00 00 24 00 ff 00 0f 00 01 05 00 00 00 00 00 05 15 00 00 00 97 14 92 57 aa f7 62 bb 27 db 52 4d 00 02 00 00 00 02 24 00 ff 00 0f 00 01 05 00 00 00 00 00 05 15 00 00 00 97 14 92 57 aa f7 62 bb 27 db 52 4d 00 02 00 00 00 02 24 00 ff 00 0f 00 01 05 00 00 00 00 00 05 15 00 00 00 97 14 92 57 aa f7 62 bb 27 db 52 4d 07 02 00 00 00 02 14 00 94 00 02 00 01 01 00 00 00 00 00 05 09 00 00 00 00 02 14 00 94 00 02 00 01 01 00 00 00 00 00 05 0b 00 00 00 00 02 14 00 ff 00 0f 00 01 01 00 00 00 00 00 05 12 00 00 00 00 0a 14 00 ff 00 0f 00 01 01 00 00 00 00 00 03 00 00 00 00</SecurityDescriptor><DisplayName><![CDATA[remove-shared-local-folders-workstations]]></DisplayName><Options><![CDATA[1]]></Options><UserVersionNumber><![CDATA[65537]]></UserVersionNumber><MachineVersionNumber><![CDATA[196611]]></MachineVersionNumber><MachineExtensionGuids><![CDATA[[{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B6664F-4972-11D1-A7CA-0000F87571E3}][{C6DC5466-785A-11D2-84D0-00C04FB169F7}{942A8E4F-A261-11D1-A760-00C04FB9603F}]]]></MachineExtensionGuids><UserExtensionGuids/><WMIFilter/></GroupPolicyCoreSettings> 
+        <GroupPolicyExtension bkp:ID="{35378EAC-683F-11D2-A89A-00C04FBBCFA2}" bkp:DescName="Registry">
+            
+            
+            <FSObjectFile bkp:Path="%GPO_FSPATH%\Adm\*.*" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Adm\*.*"/>
+        </GroupPolicyExtension>
+        
+        
+        <GroupPolicyExtension bkp:ID="{42B5FAAE-6536-11d2-AE5A-0000F87571E3}" bkp:DescName="Scripts">
+            <FSObjectFile bkp:Path="%GPO_MACH_FSPATH%\Scripts\scripts.ini" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Scripts\scripts.ini" bkp:ReEvaluateFunction="ScriptsValidatePaths" bkp:Location="DomainSysvol\GPO\Machine\Scripts\scripts.ini"/>
+	    <FSObjectFile bkp:Path="%GPO_MACH_FSPATH%\Scripts\PSscripts.ini" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Scripts\PSscripts.ini" bkp:Location="DomainSysvol\GPO\Machine\Scripts\PSscripts.ini"/>
+            <FSObjectDir bkp:Path="%GPO_MACH_FSPATH%\Scripts\Startup\*" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Scripts\Startup\*"><FSObjectDir bkp:Path="%GPO_MACH_FSPATH%\Scripts\Startup" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Scripts\Startup" bkp:Location="DomainSysvol\GPO\Machine\Scripts\Startup"/></FSObjectDir>
+            <FSObjectFile bkp:Path="%GPO_MACH_FSPATH%\Scripts\Startup\*" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Scripts\Startup\*"><FSObjectFile bkp:Path="%GPO_MACH_FSPATH%\Scripts\Startup\Remove-SharedFolders-and-Drives-viaGPO.ps1" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Scripts\Startup\Remove-SharedFolders-and-Drives-viaGPO.ps1" bkp:Location="DomainSysvol\GPO\Machine\Scripts\Startup\Remove-SharedFolders-and-Drives-viaGPO.ps1"/></FSObjectFile>
+            <FSObjectDir bkp:Path="%GPO_MACH_FSPATH%\Scripts\Shutdown\*" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Scripts\Shutdown\*"><FSObjectDir bkp:Path="%GPO_MACH_FSPATH%\Scripts\Shutdown" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Scripts\Shutdown" bkp:Location="DomainSysvol\GPO\Machine\Scripts\Shutdown"/></FSObjectDir>
+            <FSObjectFile bkp:Path="%GPO_MACH_FSPATH%\Scripts\Shutdown\*" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Scripts\Shutdown\*"/>
+            
+	    
+            <FSObjectDir bkp:Path="%GPO_USER_FSPATH%\Scripts\Logon\*" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\User\Scripts\Logon\*"/>
+            <FSObjectFile bkp:Path="%GPO_USER_FSPATH%\Scripts\Logon\*" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\User\Scripts\Logon\*"/>
+            <FSObjectDir bkp:Path="%GPO_USER_FSPATH%\Scripts\Logoff\*" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\User\Scripts\Logoff\*"/>
+            <FSObjectFile bkp:Path="%GPO_USER_FSPATH%\Scripts\Logoff\*" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\User\Scripts\Logoff\*"/>
+        </GroupPolicyExtension>
+        
+        
+        
+        
+        
+        <GroupPolicyExtension bkp:ID="{c6dc5466-785a-11d2-84d0-00c04fb169f7}" bkp:DescName="Software Installation">
+            
+        <DSObject bkp:Path="cn=Class Store,%GPO_MACH_DSPATH%" bkp:ObjectClass="classStore" bkp:SourceExpandedPath="cn=Class Store,cn=Machine,cn={cc671fc2-e260-4802-b1a9-d4e7d09a8226},CN=Policies,CN=System,DC=headq,DC=scriptguy">
+                <DSObject bkp:Path="cn=Packages,cn=Class Store,%GPO_MACH_DSPATH%" bkp:ObjectClass="classStore" bkp:SourceExpandedPath="cn=Packages,cn=Class Store,cn=Machine,cn={cc671fc2-e260-4802-b1a9-d4e7d09a8226},CN=Policies,CN=System,DC=headq,DC=scriptguy">
+                    <DSObject bkp:Path="*,cn=Packages,cn=Class Store,%GPO_MACH_DSPATH%" bkp:ObjectClass="packageRegistration" bkp:SourceExpandedPath="*,cn=Packages,cn=Class Store,cn=Machine,cn={cc671fc2-e260-4802-b1a9-d4e7d09a8226},CN=Policies,CN=System,DC=headq,DC=scriptguy" bkp:ReEvaluateFunction="SIProcessAllPackageObjects">
+                        <SecurityDescriptor/>
+                        <DSAttributeBinary bkp:DSAttrName="objectGUID"/>
+                        <DSAttributeMultiString bkp:DSAttrName="cOMClassID"/>
+                        <DSAttributeMultiString bkp:DSAttrName="cOMProgID"/>
+                        <DSAttributeMultiString bkp:DSAttrName="fileExtPriority"/>
+                        <DSAttributeMultiDWORD bkp:DSAttrName="localeID"/>
+                        <DSAttributeMultiDWORD bkp:DSAttrName="machineArchitecture"/>
+                        <DSAttributeDWORD bkp:DSAttrName="versionNumberHi"/>
+                        <DSAttributeDWORD bkp:DSAttrName="versionNumberLo"/>
+                        <DSAttributeDWORD bkp:DSAttrName="revision"/>
+                        <DSAttributeDWORD bkp:DSAttrName="packageType"/>
+                        <DSAttributeDWORD bkp:DSAttrName="packageFlags"/>
+                        <DSAttributeString bkp:DSAttrName="packageName"/>
+                        <DSAttributeString bkp:DSAttrName="msiScriptPath"/>
+                        <DSAttributeString bkp:DSAttrName="msiScriptName"/>
+                        <DSAttributeDWORD bkp:DSAttrName="msiScriptSize"/>
+                        <DSAttributeMultiString bkp:DSAttrName="url"/>
+                        <DSAttributeString bkp:DSAttrName="setupCommand"/>
+                        <DSAttributeString bkp:DSAttrName="lastUpdateSequence"/>
+                        <DSAttributeMultiString bkp:DSAttrName="msiFileList"/>
+                        <DSAttributeMultiString bkp:DSAttrName="categories"/>
+                        <DSAttributeMultiString bkp:DSAttrName="canUpgradeScript"/>
+                        <DSAttributeDWORD bkp:DSAttrName="installUiLevel"/>
+                        <DSAttributeBinary bkp:DSAttrName="msiScript"/>
+                        <DSAttributeString bkp:DSAttrName="displayName"/>
+                        <DSAttributeBinary bkp:DSAttrName="productCode"/>
+                        <DSAttributeBinary bkp:DSAttrName="upgradeProductCode"/>
+                        <DSAttributeString bkp:DSAttrName="Vendor"/>
+                    </DSObject>
+                </DSObject>
+                <DSAttributeDWORD bkp:DSAttrName="appSchemaVersion"><DSValue><![CDATA[1740]]></DSValue></DSAttributeDWORD>
+                <DSAttributeString bkp:DSAttrName="extensionName"><DSValue><![CDATA[remove-shared-local-folders-workstations]]></DSValue></DSAttributeString>
+                <DSAttributeString bkp:DSAttrName="description"><DSValue><![CDATA[Application Store]]></DSValue></DSAttributeString>
+                <DSAttributeExpandedString bkp:DSAttrName="displayName">
+                    <DSValue>LDAP://%GPO_DSPATH%</DSValue>
+                </DSAttributeExpandedString>
+            </DSObject>
+        </GroupPolicyExtension>
+    <GroupPolicyExtension bkp:ID="{F15C46CD-82A0-4C2D-A210-5D0D3182A418}" bkp:DescName="Unknown Extension"><FSObjectDir bkp:Path="%GPO_MACH_FSPATH%\Applications" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Applications" bkp:Location="DomainSysvol\GPO\Machine\Applications"/><FSObjectDir bkp:Path="%GPO_MACH_FSPATH%\Scripts" bkp:SourceExpandedPath="\\dc01-scriptguy.headq.scriptguy\sysvol\headq.scriptguy\Policies\{cc671fc2-e260-4802-b1a9-d4e7d09a8226}\Machine\Scripts" bkp:Location="DomainSysvol\GPO\Machine\Scripts"/></GroupPolicyExtension></GroupPolicyObject>
+</GroupPolicyBackupScheme>
