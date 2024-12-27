@@ -1,4 +1,4 @@
-# ⚙️ Group-Policy-Objects-Templates Folder
+# ⚙️ GroupPolicyObjects-Templates Folder
 
 ## 📄 Overview
 
@@ -65,44 +65,44 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 17. **enable-zabbix-ports-servers**  
     Opens ports required for Zabbix monitoring on servers.
 
-18. **itsm-disable-monitor-after-06hours**  
-    Disables monitors after six hours of inactivity.
-
-19. **itsm-template-ALL-servers**  
-    A standardized template for all servers.
-
-20. **itsm-template-ALL-workstations**  
-    A standardized template for all workstations.
-
-21. **itsm-VMs-dont-shutdown**  
-    Prevents virtual machines from shutting down automatically.
-
-22. **install-certificates-forest**  
+18. **install-certificates-forest**  
     Deploys certificates across the entire AD Forest.
 
-23. **install-cmdb-fusioninventory-agent**  
+19. **install-cmdb-fusioninventory-agent**  
     Automates the installation of the FusionInventory agent for asset management.
 
-24. **install-forticlient-vpn**  
+20. **install-forticlient-vpn**  
     Deploys FortiClient VPN software on workstations.
 
-25. **install-kasperskyfull-workstations**  
+21. **install-kasperskyfull-workstations**  
     Installs Kaspersky antivirus on workstations.
 
-26. **install-powershell7**  
+22. **install-powershell7**  
     Automates the installation of PowerShell 7.
 
-27. **install-reaqtahive-servers**  
+23. **install-reaqtahive-servers**  
     Deploys ReaQtaHive agents on servers.
 
-28. **install-update-winget-apps**  
+24. **install-update-winget-apps**  
     Updates applications using Winget.
 
-29. **install-wincollect-servers**  
+25. **install-wincollect-servers**  
     Installs the WinCollect agent for log collection.
 
-30. **install-zoom-workplace-32bits**  
+26. **install-zoom-workplace-32bits**  
     Deploys the 32-bit version of Zoom for workstations.
+
+27. **itsm-disable-monitor-after-06hours**  
+    Disables monitors after six hours of inactivity.
+
+28. **itsm-template-ALL-servers**  
+    A standardized template for all servers.
+
+29. **itsm-template-ALL-workstations**  
+    A standardized template for all workstations.
+
+30. **itsm-VMs-dont-shutdown**  
+    Prevents virtual machines from shutting down automatically.
 
 31. **mapping-storage-template**  
     Configures storage mapping for a specific model.
@@ -161,5 +161,3 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 
 1. **Detailed Documentation:** Included in each template’s comments.
 2. **Feedback and Contributions:** Submit issues or pull requests to improve the repository.
-
-
