@@ -5,8 +5,8 @@
 This folder contains a curated collection of Group Policy Object (GPO) templates designed to simplify and standardize the configuration of Windows Server Forest and Domain structures. These templates cover a wide range of use cases, enhancing security, productivity, and compliance within your IT infrastructure.
 
 ### Key Examples:
-- **enable-logon-message-workstations**: Ensures users see critical logon messages.
-- **disable-firewall-domain-workstations**: Enhances domain workstation management by disabling the firewall for specific scenarios.
+- **enable-logon-message-workstations**: Ensures users see critical logon messages as showed at example .
+- **disable-firewall-domain-workstations**: Enhances domain workstation management by disabling the native windows firewall for specific scenarios.
 - **install-cmdb-fusioninventory-agent**: Automates deployment of asset management tools.
 - **password-policy-all-domain-users**: Implements robust password policies for domain-wide users.
 
@@ -19,12 +19,6 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 
 2. **admin-local-Workstations-IT-TEAM**  
    Configures local administrative rights for IT team members on workstations.
-
-3. **Default_Domain_Controllers_Policy**  
-   The default GPO for configuring domain controllers with essential security and operational settings.
-
-4. **Default_Domain_Policy**  
-   The baseline GPO for domain-wide security settings and configurations.
 
 5. **deploly-printer-template**  
    Configures printer deployment across specified models.
