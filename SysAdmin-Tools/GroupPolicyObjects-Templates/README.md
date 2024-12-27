@@ -65,16 +65,16 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 17. **enable-zabbix-ports-servers**  
     Opens ports required for Zabbix monitoring on servers.
 
-18. **gsti-disable-monitor-after-06hours**  
+18. **itsm-disable-monitor-after-06hours**  
     Disables monitors after six hours of inactivity.
 
-19. **gsti-template-ALL-servers**  
+19. **itsm-template-ALL-servers**  
     A standardized template for all servers.
 
-20. **gsti-template-ALL-workstations**  
+20. **itsm-template-ALL-workstations**  
     A standardized template for all workstations.
 
-21. **gsti-VMs-dont-shutdown**  
+21. **itsm-VMs-dont-shutdown**  
     Prevents virtual machines from shutting down automatically.
 
 22. **install-certificates-forest**  
