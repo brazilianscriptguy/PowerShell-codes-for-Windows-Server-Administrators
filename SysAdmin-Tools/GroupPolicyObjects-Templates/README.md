@@ -10,8 +10,10 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 - **Install CMDB FusionInventory Agent:** Automates the deployment of asset management tools like the FusionInventory Agent.  
 - **Password Policy for All Domain Users:** Implements robust password policies to ensure compliance across domain-wide user accounts.
 
-### How to Import these GPOs Templates onto your Domain or Forest Server (Global Catalog Server)?
-You must, first of all have an functional Windows Server DC or Forest Server, that must be Global Catalog Server, and use this script locate at: `   ` and use the option to Import GPOs. There's an 'C:\Logs-TEMP\' log file to obtaining the Import procedure results.
+### How to Import These GPO Templates into Your Domain or Forest Server? 
+To import these templates, ensure you have a functional Windows Server DC or Forest Server configured as a Global Catalog Server. Use the script located at:  
+`SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1`.  
+This script includes options to import GPOs into your server, and a log file is generated at `C:\Logs-TEMP\` to record the results of the import process.
 
 ---
 
@@ -21,13 +23,13 @@ You must, first of all have an functional Windows Server DC or Forest Server, th
    Grants elevated administrative privileges across the entire AD Forest for specific restricted groups.
 
 2. **admin-local-Workstations-IT-TEAM**  
-   Assigns local administrative rights for IT team members on workstations for specific restricted groups.
+   Assigns local administrative rights for IT team members on workstations.
 
 3. **deploly-printer-template**  
    Automates printer deployment across specified Organizational Units (OUs).
 
 4. **disable-firewall-domain-workstations**  
-   Disables the firewall on domain-joined workstations for antivirus-managed environments.
+   Disables the firewall on domain-joined workstations in antivirus-managed environments.
 
 5. **enable-audit-logs-DC-servers**  
    Activates auditing logs on domain controllers to enhance security monitoring.
@@ -164,4 +166,3 @@ You must, first of all have an functional Windows Server DC or Forest Server, th
 
 1. **Detailed Documentation:** Comments within each template provide specific guidance.  
 2. **Feedback and Contributions:** Submit issues or pull requests to enhance the repository.
-   
