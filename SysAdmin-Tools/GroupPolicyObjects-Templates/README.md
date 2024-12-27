@@ -1,157 +1,169 @@
+
 # ⚙️ GroupPolicyObjects-Templates Folder
 
 ## 📄 Overview
 
-This folder contains a curated collection of Group Policy Object (GPO) templates designed to simplify and standardize the configuration of Windows Server Forest and Domain structures. These templates cover a wide range of use cases, enhancing security, productivity, and compliance within your IT infrastructure.
+This folder contains a curated collection of Group Policy Object (GPO) templates designed to simplify and standardize the configuration of Windows Server Forest and Domain structures. These templates address a wide range of use cases, enhancing security, productivity, and compliance within your IT infrastructure.
 
 ### Key Examples:
-- **enable-logon-message-workstations**: Ensures users see critical logon messages as showed at example .
-- **disable-firewall-domain-workstations**: Enhances domain workstation management by disabling the native windows firewall for specific scenarios.
-- **install-cmdb-fusioninventory-agent**: Automates deployment of asset management tools.
-- **password-policy-all-domain-users**: Implements robust password policies for domain-wide users.
+- **Enable Logon Message for Workstations:** Ensures users see critical logon messages. The corresponding `.PS1` code can be found at:  
+  `SysAdmin-Tools/SystemConfiguration-and-Deployment/Broadcast-ADUser-LogonMessage-viaGPO.ps1`.
+- **Disable Firewall for Domain Workstations:** Improves domain workstation management by disabling the native Windows Firewall in specific scenarios, such as when using a third-party antivirus firewall.
+- **Install CMDB FusionInventory Agent:** Automates the deployment of asset management tools like the FusionInventory Agent.
+- **Password Policy for All Domain Users:** Implements robust password policies for domain-wide users.
 
 ---
 
 ## 📜 Template List and Descriptions
 
 1. **admin-entire-Forest-LEVEL3**  
-   Provides elevated administrative privileges across the entire AD Forest.
+   Grants elevated administrative privileges across the entire AD Forest for specific restricted groups.
 
 2. **admin-local-Workstations-IT-TEAM**  
-   Configures local administrative rights for IT team members on workstations.
+   Assigns local administrative rights for IT team members on workstations.
 
-5. **deploly-printer-template**  
-   Configures printer deployment across specified models.
+3. **deploly-printer-template**  
+   Automates printer deployment across specified Organizational Units (OUs).
 
-6. **disable-firewall-domain-workstations**  
-   Disables the firewall on domain-joined workstations for specific scenarios.
+4. **disable-firewall-domain-workstations**  
+   Disables the firewall on domain-joined workstations in antivirus-managed environments.
 
-7. **enable-audit-logs-DC-servers**  
-   Enables auditing on domain controllers for improved security monitoring.
+5. **enable-audit-logs-DC-servers**  
+   Activates auditing logs on domain controllers to enhance security monitoring.
 
-8. **enable-audit-logs-FILE-servers**  
-   Activates file server auditing to track access and modifications.
+6. **enable-audit-logs-FILE-servers**  
+   Enables file server auditing logs to track access and modifications, configured differently from domain controllers.
 
-9. **enable-biometrics-logon**  
-   Enables biometric authentication for user logons.
+7. **enable-biometrics-logon**  
+   Activates biometric authentication methods, including tokens, fingerprint readers, and image recognition, for user logons.
 
-10. **enable-ldap-bind-servers**  
-    Configures secure LDAP binding for enhanced directory security.
+8. **enable-ldap-bind-servers**  
+   Configures secure LDAP binding to enhance directory security.
 
-11. **enable-licensing-RDS**  
-    Configures Remote Desktop Services licensing.
+9. **enable-licensing-RDS**  
+   Configures Remote Desktop Services (RDS) licensing across the domain structure.
 
-12. **enable-logon-message-workstations**  
-    Displays custom logon messages on workstations.
+10. **enable-logon-message-workstations**  
+    Displays custom logon messages on workstations. The corresponding script is located at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment/Broadcast-ADUser-LogonMessage-viaGPO.ps1`.
 
-13. **enable-network-discovery**  
-    Enables network discovery for improved connectivity within the domain.
+11. **enable-network-discovery**  
+    Activates network discovery to improve connectivity within the domain.
 
-14. **enable-RDP-configs-users-RPC-gpos**  
-    Enables Remote Desktop Protocol (RDP) configurations for specified users.
+12. **enable-RDP-configs-users-RPC-gpos**  
+    Configures Remote Desktop Protocol (RDP) settings for specified users.
 
-15. **enable-WDS-ports**  
+13. **enable-WDS-ports**  
     Opens necessary ports for Windows Deployment Services (WDS).
 
-16. **enable-WinRM-service**  
+14. **enable-WinRM-service**  
     Activates Windows Remote Management (WinRM) for remote server administration.
 
-17. **enable-zabbix-ports-servers**  
-    Opens ports required for Zabbix monitoring on servers.
+15. **enable-zabbix-ports-servers**  
+    Opens required ports for Zabbix monitoring on servers.
 
-18. **install-certificates-forest**  
-    Deploys certificates across the entire AD Forest.
+16. **install-certificates-forest**  
+    Deploys certificates across the entire AD Forest. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-19. **install-cmdb-fusioninventory-agent**  
-    Automates the installation of the FusionInventory agent for asset management.
+17. **install-cmdb-fusioninventory-agent**  
+    Automates the installation of the FusionInventory Agent for asset management. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-20. **install-forticlient-vpn**  
-    Deploys FortiClient VPN software on workstations.
+18. **install-forticlient-vpn**  
+    Deploys FortiClient VPN software on workstations. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-21. **install-kasperskyfull-workstations**  
-    Installs Kaspersky antivirus on workstations.
+19. **install-kasperskyfull-workstations**  
+    Installs Kaspersky antivirus on workstations. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-22. **install-powershell7**  
-    Automates the installation of PowerShell 7.
+20. **install-powershell7**  
+    Automates the installation of PowerShell 7. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-23. **install-reaqtahive-servers**  
-    Deploys ReaQtaHive agents on servers.
+21. **install-update-winget-apps**  
+    Updates applications using Winget. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-24. **install-update-winget-apps**  
-    Updates applications using Winget.
+22. **install-wincollect-servers**  
+    Installs the WinCollect agent for centralized log collection. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-25. **install-wincollect-servers**  
-    Installs the WinCollect agent for log collection.
+23. **install-zoom-workplace-32bits**  
+    Deploys the 32-bit version of Zoom for workstations. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-26. **install-zoom-workplace-32bits**  
-    Deploys the 32-bit version of Zoom for workstations.
+24. **itsm-disable-monitor-after-06hours**  
+    Disables monitors after six hours of inactivity to conserve energy.
 
-27. **itsm-disable-monitor-after-06hours**  
-    Disables monitors after six hours of inactivity.
+25. **itsm-template-ALL-servers**  
+    Provides a standardized template for configuring all servers in the domain.
 
-28. **itsm-template-ALL-servers**  
-    A standardized template for all servers.
+26. **itsm-template-ALL-workstations**  
+    Provides a standardized template for configuring all workstations in the domain.
 
-29. **itsm-template-ALL-workstations**  
-    A standardized template for all workstations.
+27. **itsm-VMs-dont-shutdown**  
+    Prevents virtual machines from shutting down automatically or due to user commands.
 
-30. **itsm-VMs-dont-shutdown**  
-    Prevents virtual machines from shutting down automatically.
+28. **mapping-storage-template**  
+    Configures enterprise shared folder mappings for improved storage management.
 
-31. **mapping-storage-template**  
-    Configures storage mapping for a specific model.
+29. **password-policy-all-domain-users**  
+    Enforces comprehensive password policies for all domain users.
 
-32. **password-policy-all-domain-users**  
-    Enforces password policies for all domain users.
+30. **password-policy-all-servers-machines**  
+    Implements strict password policies for server accounts.
 
-33. **password-policy-all-servers-machines**  
-    Implements password policies for server accounts.
-
-34. **password-policy-only-IT-TEAM-users**  
+31. **password-policy-only-IT-TEAM-users**  
     Applies stricter password policies for IT team members.
 
-35. **purge-expired-certificates**  
-    Removes expired certificates from the domain.
+32. **purge-expired-certificates**  
+    Removes expired certificates from servers and workstations. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/Security-and-Process-Optimization`.
 
-36. **remove-shared-local-folders-workstations**  
-    Deletes unauthorized shared folders from workstations.
+33. **remove-shared-local-folders-workstations**  
+    Deletes unauthorized shared folders from workstations. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-37. **remove-softwares-non-compliance**  
-    Removes non-compliant software from workstations.
+34. **remove-softwares-non-compliance**  
+    Uninstalls non-compliant software from workstations. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-38. **rename-disks-volumes-workstations**  
-    Standardizes disk volume names on workstations.
+35. **rename-disks-volumes-workstations**  
+    Standardizes disk volume names for better management. Refer to the `.PS1` code at:  
+    `SysAdmin-Tools/SystemConfiguration-and-Deployment`.
 
-39. **wsus-update-servers-template**  
-    Configures WSUS updates for specific servers.
+36. **wsus-update-servers-template**  
+    Configures WSUS updates for server environments.
 
-40. **wsus-update-workstation-template**  
-    Sets up WSUS updates for specific workstations.
+37. **wsus-update-workstation-template**  
+    Configures WSUS updates for workstations.
 
 ---
 
 ## 🔍 How to Use
 
-- Each GPO template includes detailed comments for usage. Review them for prerequisites and specific configurations.
-- Use the script located at `SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1` to import the GPO templates into a new Domain or Forest.
-- Adjust settings as needed to align with your organization’s requirements.
-- Link the templates to the appropriate Organizational Units (OUs).
+- Each GPO template includes detailed comments for usage. Review them to understand prerequisites and configurations.
+- Use the script located at `SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1` to import GPO templates into a new domain or forest.
+- Adjust template settings to meet your organization’s specific requirements.
+- Link the templates to the appropriate Organizational Units (OUs) for implementation.
 
 ---
 
 ## 🛠️ Prerequisites
 
-1. **Active Directory Environment:** A functioning AD Forest and Domain structure.
-2. **PowerShell 5.1 or Later:** Required for script execution. Verify your version with:  
+1. **Active Directory Environment:** A functioning AD Forest and Domain structure.  
+2. **PowerShell 5.1 or Later:** Required for executing related scripts. Verify your version with:  
    ```powershell
    $PSVersionTable.PSVersion
-   ```
-3. **Administrator Privileges:** Necessary to import and link GPOs.
-4. **Dependencies:** Ensure required modules, such as `GroupPolicy`, are installed.
+   ```  
+3. **Administrator Privileges:** Required to manage and deploy GPOs.  
+4. **Required Modules:** Ensure modules like `GroupPolicy` are installed and available.
 
 ---
 
 ## 📄 Complementary Resources
 
-1. **Detailed Documentation:** Included in each template’s comments.
-2. **Feedback and Contributions:** Submit issues or pull requests to improve the repository.
+1. **Detailed Documentation:** Comments within each template provide specific guidance.  
+2. **Feedback and Contributions:** Submit issues or pull requests to enhance the repository.
