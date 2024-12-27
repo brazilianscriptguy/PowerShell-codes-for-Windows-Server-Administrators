@@ -10,10 +10,29 @@ This folder contains a curated collection of Group Policy Object (GPO) templates
 - **Install CMDB FusionInventory Agent:** Automates the deployment of asset management tools like the FusionInventory Agent.  
 - **Password Policy for All Domain Users:** Implements robust password policies to ensure compliance across domain-wide user accounts.
 
-### How to Import These GPO Templates into Your Domain or Forest Server? 
-To import these templates, ensure you have a functional Windows Server DC or Forest Server configured as a Global Catalog Server. Use the script located at:  
-`SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1`.  
-This script includes options to import GPOs into your server, and a log file is generated at `C:\Logs-TEMP\` to record the results of the import process.
+### How to Import These GPO Templates into Your Domain or Forest Server?
+
+To import these templates, follow these steps:
+
+1. **Prerequisites:**
+   - Ensure you have a functional **Windows Server Domain Controller (DC)** or **Forest Server** configured as a **Global Catalog Server**.
+
+2. **Importing Templates:**
+   - Use the script located at:  
+     `SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1`.  
+   - This script provides options for importing GPO templates into your server environment.
+
+3. **Log File Generation:**
+   - A log file will be generated at:  
+     `C:\Logs-TEMP\`  
+   - Review this log file to verify the success and details of the import process.
+
+4. **Deployment Location:**
+   - Once imported, all templates and their associated scripts will be loaded into:  
+     `\\your-forest-domain\netlogon\`  
+   - This ensures templates are accessible and ready for deployment across the domain.
+
+Following these steps will standardize your GPO configurations and simplify deployment across your Windows Server infrastructure.
 
 ---
 
