@@ -31,10 +31,6 @@ Welcome to the **PowerShell Toolset for Windows Server Administration and VBScri
 ![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=brazilianscriptguy&layout=compact&theme=radical&v=2)
 ![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=brazilianscriptguy&theme=radical&v=2)
 
-Here is the revised and improved version of your README.md file:
-
----
-
 # 🛠️ Introduction
 
 This repository is a powerful collection of tools and scripts meticulously crafted to streamline the management of Windows Server environments and Windows 10/11 workstations. Whether you're optimizing system performance, enhancing security, or simplifying administrative workflows, the tools in the **BlueTeam-Tools**, **Core-ScriptLibrary**, **ITSM-Templates-SVR**, **ITSM-Templates-WKS**, and **SysAdmin-Tools** folders are designed to meet your IT management needs effectively and efficiently.
