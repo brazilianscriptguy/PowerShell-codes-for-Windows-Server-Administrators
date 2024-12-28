@@ -33,7 +33,7 @@ Welcome to the **PowerShell Toolset for Windows Server Administration and VBScri
 
 ## 🛠️ Introduction
 
-This repository features a powerful collection of tools and scripts crafted to streamline the management of Windows Server environments and Windows 10/11 workstations. Whether you're focused on optimizing system performance, enhancing security, or simplifying administrative workflows, the tools within the **BlueTeam-Tools**, **Core-ScriptLibrary**, **ITSM-Templates-WKS**, and **SysAdmin-Tools** folders are designed to meet your needs effectively.
+This repository features a powerful collection of tools and scripts crafted to streamline the management of Windows Server environments and Windows 10/11 workstations. Whether you're focused on optimizing system performance, enhancing security, or simplifying administrative workflows, the tools within the **BlueTeam-Tools**, **Core-ScriptLibrary**, **ITSM-Templates-SVR**, **ITSM-Templates-WKS**, and **SysAdmin-Tools** folders are designed to meet your needs effectively.
 
 ---
 
@@ -51,11 +51,15 @@ The repository is organized into four key sections, each focusing on distinct as
    - Provides templates for automating routine administrative tasks, enabling faster and more efficient script development.
    - Ideal for creating complex **PowerShell-based solutions** tailored to specific IT administrative needs.
 
-### **3. ITSM-Templates-WKS**
+### **3. ITSM-Templates-SVR**
+   - Contains templates and scripts tailored for **IT Service Management (ITSM)**, emphasizing Servers hardening, configuration, and automation.
+   - Includes deployment strategies, GPO management, and audit compliance tools to maintain high-security and operational standards.
+
+### **4. ITSM-Templates-WKS**
    - Contains templates and scripts tailored for **IT Service Management (ITSM)**, emphasizing workstation hardening, configuration, and automation.
    - Includes deployment strategies, GPO management, and audit compliance tools to maintain high-security and operational standards.
 
-### **4. SysAdmin-Tools**
+### **5. SysAdmin-Tools**
    - Automates tasks related to **Active Directory** management, such as user, group, and OU administration.
    - Includes tools for managing **DNS**, **DHCP**, **Sites and Services**, and system synchronization.
    - Streamlines routine **Active Directory** operations, ensuring consistency, security, and compliance within server environments.
