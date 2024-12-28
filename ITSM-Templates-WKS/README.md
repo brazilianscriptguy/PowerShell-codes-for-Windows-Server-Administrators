@@ -49,7 +49,7 @@ Before running the scripts, ensure the following prerequisites are met:
    - Clone the `ITSM-Templates-WKS` folder to your Definitive Media Library (DML) network path.
 
 2. **Follow the Checklist**:
-   - Refer to the `Check-List for Applying ITSM-Templates-WKS on Windows 10 and 11 Workstations.pdf` file located in the main `ITSM-Templates-WKS` folder for detailed instructions.
+   - Refer to the `Check-List for Applying ITSM-Templates on Windows 10 and 11 Workstations.pdf` file located in the main `ITSM-Templates-WKS` folder for detailed instructions.
 
 3. **Customize Scripts**:
    - Modify `.VBS` and `.REG` scripts as needed to suit specific configurations.
