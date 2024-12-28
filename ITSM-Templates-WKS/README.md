@@ -55,8 +55,8 @@ Before running the scripts, ensure the following prerequisites are met:
    - Modify `.VBS` and `.REG` scripts as needed to suit specific configurations.
 
 4. **Personalize Workstation Appearance**:
-   - Update desktop appearance and user images using the `C:\ITSM-Templates-WKS\CustomImages\` folder.
-   - Update workstation themes and layout using the `C:\ITSM-Templates-WKS\ModifyReg\UserDesktopTheme` folder.
+   - Customize workstation appearance and user images using the `C:\ITSM-Templates-WKS\CustomImages\` folder.
+   - Update desktop themes and layout using the `C:\ITSM-Templates-WKS\ModifyReg\UserDesktopTheme\` folder.
 
 ---
 
@@ -103,7 +103,7 @@ Located in `C:\ITSM-Templates-WKS\PostIngress\`, this collection of scripts is e
 
 ### **ScriptsAdditionalSupport**
 
-The `C:\ITSM-Templates-WKS\ScriptsAdditionalSupport` folder contains additional support scripts for addressing configuration inconsistencies identified by **L1 Service Support**:
+The `C:\ITSM-Templates-WKS\ScriptsAdditionalSupport\` folder contains additional support scripts for addressing configuration inconsistencies identified by **L1 Service Support**:
 
 - **ActivateAllAdminShare**: Script to activate administrative shares, enable RDP, disable Windows Firewall, and turn off Windows Defender.  
 - **ExportCustomThemesFiles**: Script to export customized system themes.  
