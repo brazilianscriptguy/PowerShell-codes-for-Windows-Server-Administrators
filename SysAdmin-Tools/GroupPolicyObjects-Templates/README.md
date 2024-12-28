@@ -119,7 +119,7 @@ To import these templates, follow these steps:
 
 25. **itsm-template-ALL-workstations**  
     Standardized template for workstation configuration. Refer to:  
-    `ITSM-Templates/Check-List for Applying ITSM-Templates on Windows 10 and 11 Workstations.pdf`.
+    `ITSM-Templates-WKS/Check-List for Applying ITSM-Templates on Windows 10 and 11 Workstations.pdf`.
 
 26. **itsm-VMs-dont-shutdown**  
     Prevents virtual machines from shutting down automatically or by user commands.
