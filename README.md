@@ -33,7 +33,7 @@ Welcome to the **PowerShell Toolset for Windows Server Administration and VBScri
 
 ## 🛠️ Introduction
 
-This repository features a powerful collection of tools and scripts crafted to streamline the management of Windows Server environments and Windows 10/11 workstations. Whether you're focused on optimizing system performance, enhancing security, or simplifying administrative workflows, the tools within the **BlueTeam-Tools**, **Core-ScriptLibrary**, **ITSM-Templates**, and **SysAdmin-Tools** folders are designed to meet your needs effectively.
+This repository features a powerful collection of tools and scripts crafted to streamline the management of Windows Server environments and Windows 10/11 workstations. Whether you're focused on optimizing system performance, enhancing security, or simplifying administrative workflows, the tools within the **BlueTeam-Tools**, **Core-ScriptLibrary**, **ITSM-Templates-WKS**, and **SysAdmin-Tools** folders are designed to meet your needs effectively.
 
 ---
 
@@ -51,7 +51,7 @@ The repository is organized into four key sections, each focusing on distinct as
    - Provides templates for automating routine administrative tasks, enabling faster and more efficient script development.
    - Ideal for creating complex **PowerShell-based solutions** tailored to specific IT administrative needs.
 
-### **3. ITSM-Templates**
+### **3. ITSM-Templates-WKS**
    - Contains templates and scripts tailored for **IT Service Management (ITSM)**, emphasizing workstation hardening, configuration, and automation.
    - Includes deployment strategies, GPO management, and audit compliance tools to maintain high-security and operational standards.
 
@@ -84,7 +84,7 @@ The repository is organized into four key sections, each focusing on distinct as
 3. **Explore the Folders**:
    - `BlueTeam-Tools`
    - `Core-ScriptLibrary`
-   - `ITSM-Templates`
+   - `ITSM-Templates-WKS`
    - `SysAdmin-Tools`
 
 4. **Run the Scripts**:
@@ -101,7 +101,7 @@ Before running these scripts, ensure your environment meets the following requir
 - **Administrative Rights**: Most scripts require elevated permissions.
 - **RSAT Tools**: Required for **SysAdmin-Tools** and **BlueTeam-Tools**. Ensure `Remote Server Administration Tools (RSAT)` is installed.
 - **Log Parser Utility**: Install [Microsoft Log Parser 2.2](https://www.microsoft.com/en-us/download/details.aspx?id=24659) for **BlueTeam-Tools**.
-- **ITSM-Templates**: Workstations must run **Windows 10 (1507 or later)** or **Windows 11**.
+- **ITSM-Templates-WKS**: Workstations must run **Windows 10 (1507 or later)** or **Windows 11**.
 
 ---
 
