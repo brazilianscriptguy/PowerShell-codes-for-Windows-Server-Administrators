@@ -1,10 +1,10 @@
-# Complete PowerShell and VBScript Toolkit for Managing Windows Servers and Workstations with ITSM Compliance on Windows 10 and 11
+# Complete PowerShell and VBScript Toolkit for Managing Windows Servers and Workstations with ITSM Compliance on Windows 10/11 Workstations and Windows Server 2019/2022
 
-Welcome to the **PowerShell Toolset for Windows Server Administration and VBScript Repository**—a meticulously curated collection of scripts tailored for advanced Windows Server and Windows 10/11 workstation management. Developed by `@brazilianscriptguy`, this repository offers a comprehensive suite of tools designed to **streamline Windows Server administration, including Active Directory functions**, while optimizing workstation management, configuration, and ITSM compliance.
+Welcome to the **PowerShell Toolset for Windows Server Administration and VBScript Repository**—a meticulously curated collection of scripts tailored for advanced Windows Server and Windows 10/11 workstation management. Developed by `@brazilianscriptguy`, this repository offers a comprehensive suite of tools designed to **streamline Windows Server administration, including Active Directory functions**, while optimizing workstation management, configuration, and ITSM compliance across both servers and workstations.
 
-✨ **All scripts feature a graphical user interface (GUI)** to enhance user interaction. Each script **generates detailed `.log` files** for operational tracking, and some of them **export results to `.csv` files** for easy integration with reporting tools. This makes Windows Server and workstation management more intuitive, efficient, and user-friendly.
+✨ **All scripts include a graphical user interface (GUI)** to simplify user interaction. Each script **generates detailed `.log` files** for operational tracking, with some scripts also **exporting results to `.csv` files** for seamless integration with reporting tools. This collection ensures Windows Server and workstation management is more intuitive, efficient, and user-friendly.
 
----
+--- 
 
 ## 🗂️ My GitHub Contributions
 
