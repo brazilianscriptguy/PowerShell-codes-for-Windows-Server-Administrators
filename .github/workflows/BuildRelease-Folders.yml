@@ -1,5 +1,5 @@
 # .github/workflows/build-and-release.yml
-# Build and Release Workflows for Windows-SysAdmin-ProSuite
+# Build and Release Workflow for Windows-SysAdmin-ProSuite
 name: Build and Release
 
 on:
