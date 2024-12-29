@@ -1,31 +1,61 @@
-Describe 'Test Get-UserInfo Function' {
+Describe 'Get-UserInfo Command Validation' {
 
-    # Mock definition for Get-ADUser so it doesn't contact a real Domain Controller
-    Mock -CommandName Get-ADUser -MockWith {
-        param([string]$Identity)
-        # Return a fake AD user object
-        [PSCustomObject]@{
-            Name           = "$Identity FullName"
-            SamAccountName = $Identity
-            EmailAddress   = "$Identity@example.com"
-            Department     = "MockDept"
-            Title          = "MockTitle"
+    # --------------------------------------------------------------------------
+    # 1) Mock-based AD tests (no domain needed)
+    # --------------------------------------------------------------------------
+    Context 'Mock-based AD tests' {
+
+        # Mock "Get-ADUser" so no real domain is required
+        Mock -CommandName Get-ADUser -MockWith {
+            param([string]$Identity)
+            # Return a fake AD user object
+            [PSCustomObject]@{
+                Name           = "$Identity Full"
+                SamAccountName = $Identity
+                EmailAddress   = "$Identity@example.com"
+                Department     = "MockDept"
+                Title          = "MockTitle"
+            }
         }
-    }
 
-    Context 'When valid parameters are passed' {
-        It 'Should return user information' {
+        It 'Should return user information when valid parameters are passed' {
             $Result = Get-UserInfo -SamAccountName 'ValidUser'
             $Result | Should -Not -BeNullOrEmpty
             $Result.SamAccountName | Should -Be 'ValidUser'
             $Result.EmailAddress   | Should -Be 'ValidUser@example.com'
         }
+
+        It 'Should throw an error when invalid parameters are passed' {
+            { Get-UserInfo -SamAccountName '' } | Should -Throw
+        }
     }
 
-    Context 'When invalid parameters are passed' {
-        It 'Should throw an error' {
-            # Use a script block approach:
-            { Get-UserInfo -SamAccountName '' } | Should -Throw
+    # --------------------------------------------------------------------------
+    # 2) Real AD tests (skip if the environment is not domain-joined)
+    # --------------------------------------------------------------------------
+    Context 'Real AD integration tests' {
+
+        # Attempt to detect domain membership
+        $ComputerSystem = Get-WmiObject -Class Win32_ComputerSystem -ErrorAction SilentlyContinue
+
+        if (-not $ComputerSystem) {
+            # If we can't even query Win32_ComputerSystem, skip
+            It '[SKIPPED] Could not detect domain membership' -Skip {
+            }
+        }
+        elseif (-not $ComputerSystem.PartOfDomain) {
+            # If the machine is not domain-joined, skip real AD integration
+            It '[SKIPPED] Not domain-joined' -Skip {
+            }
+        }
+        else {
+            # If domain-joined, run a real query
+            It 'Should retrieve user info from a real AD domain' {
+                $RealUser = 'SomeRealUser'  # Replace with a valid SamAccountName in your domain
+                $UserInfo = Get-UserInfo -SamAccountName $RealUser
+                $UserInfo | Should -Not -BeNullOrEmpty
+                $UserInfo.SamAccountName | Should -Be $RealUser
+            }
         }
     }
 }
