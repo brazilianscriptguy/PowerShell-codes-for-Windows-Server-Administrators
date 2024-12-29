@@ -35,23 +35,32 @@
 
     PowerShellVersion = '5.1'
 
-    # This FileList enumerates all relevant folders and files in Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary,
-    # as well as other module and test files in your repository.
+    # This FileList enumerates the relevant folders/files in your repository.
     FileList = @(
-        # Existing module & tests
+        # Module & tests
         'Windows-SysAdmin-ProSuite.psm1'
         'Tests\CommandValidation.Tests.ps1'
         'Tests\ModuleValidation.Tests.ps1'
         '.github\workflows\windows-rsat-pester.yml'
 
-        # Core-ScriptLibrary structure
-        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Create-Script-DefaultHeader.ps1'
-        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Create-Script-LoggingMethod.ps1'
-        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Create-Script-MainCore.ps1'
-        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Create-Script-MainGUI.ps1'
-        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Extract-Script-Headers.ps1'
-        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Launch-Script-AutomaticMenu.ps1'
-        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\README.md'
+        # General README
+        'Windows-SysAdmin-ProSuite\README.md'
+
+        # BlueTeam-Tools
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\README.md'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID-Count-AllEvtx-Events.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID307-PrintAudit.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID4624-ADUserLoginViaRDP.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID4624and4634-ADUserLoginTracking.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID4625-ADUserLoginAccountFailed.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID4648-ExplicitCredentialsLogon.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID4660and4663-ObjectDeletionTracking.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID4771-KerberosPreAuthFailed.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID4800and4801-WorkstationLockStatus.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID5136-5137and5141-ADChanges-and-ObjectDeletions.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\EventID6005-6006-6008-6009-6013-1074-1076-SystemRestarts.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\Migrate-WinEvtStructure-Tool.ps1'
+        'Windows-SysAdmin-ProSuite\BlueTeam-Tools\EventLogMonitoring\README.md'
     )
 }
 
