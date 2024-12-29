@@ -5,8 +5,9 @@ Describe 'Get-UserInfo Command Validation' {
     # --------------------------------------------------------------------------
     Context 'Mock-based AD tests' {
 
-        # Mock "Get-ADUser" so no real domain is required
-        Mock -CommandName Get-ADUser -MockWith {
+        # IMPORTANT: Include -ModuleName 'ActiveDirectory' so that Pester
+        # knows to intercept calls from that specific module.
+        Mock -CommandName 'Get-ADUser' -ModuleName 'ActiveDirectory' -MockWith {
             param([string]$Identity)
             # Return a fake AD user object
             [PSCustomObject]@{
@@ -31,7 +32,7 @@ Describe 'Get-UserInfo Command Validation' {
     }
 
     # --------------------------------------------------------------------------
-    # 2) Real AD tests (skip if the environment is not domain-joined)
+    # 2) Real AD tests (skip if not domain-joined)
     # --------------------------------------------------------------------------
     Context 'Real AD integration tests' {
 
@@ -39,19 +40,15 @@ Describe 'Get-UserInfo Command Validation' {
         $ComputerSystem = Get-WmiObject -Class Win32_ComputerSystem -ErrorAction SilentlyContinue
 
         if (-not $ComputerSystem) {
-            # If we can't even query Win32_ComputerSystem, skip
-            It '[SKIPPED] Could not detect domain membership' -Skip {
-            }
+            It '[SKIPPED] Could not detect domain membership' -Skip { }
         }
         elseif (-not $ComputerSystem.PartOfDomain) {
-            # If the machine is not domain-joined, skip real AD integration
-            It '[SKIPPED] Not domain-joined' -Skip {
-            }
+            It '[SKIPPED] Not domain-joined' -Skip { }
         }
         else {
             # If domain-joined, run a real query
             It 'Should retrieve user info from a real AD domain' {
-                $RealUser = 'SomeRealUser'  # Replace with a valid SamAccountName in your domain
+                $RealUser = 'SomeRealUser'
                 $UserInfo = Get-UserInfo -SamAccountName $RealUser
                 $UserInfo | Should -Not -BeNullOrEmpty
                 $UserInfo.SamAccountName | Should -Be $RealUser
