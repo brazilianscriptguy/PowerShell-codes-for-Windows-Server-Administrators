@@ -1,5 +1,5 @@
 Describe 'Test Get-UserInfo Function' {
-    # Mock the Get-UserInfo function
+    # Ensure the mock definition is set up properly for the test environment
     Mock -CommandName Get-UserInfo -MockWith {
         param([string]$UserName)
         if (-not $UserName -or $UserName -eq '') {
@@ -28,4 +28,3 @@ Describe 'Test Get-UserInfo Function' {
         }
     }
 }
-
