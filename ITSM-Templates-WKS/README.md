@@ -1,4 +1,4 @@
-### 🖥️ Efficient Workstation Management, Configuration, and ITSM Compliance on Windows 10 and 11
+# 🖥️ Efficient Workstation Management, Configuration, and ITSM Compliance on Windows 10 and 11
 
 ## 📄 Description
 
