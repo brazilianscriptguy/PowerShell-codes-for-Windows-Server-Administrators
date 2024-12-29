@@ -17,24 +17,39 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Install dependencies and PowerShell
+      # Install Dependencies and PowerShell
       - name: Install Dependencies and PowerShell
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget apt-transport-https software-properties-common
+          sudo apt-get install -y wget apt-transport-https software-properties-common zip
           wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
           sudo dpkg -i packages-microsoft-prod.deb
           sudo apt-get update
-          sudo apt-get install -y powershell zip
+          sudo apt-get install -y powershell
 
-      # Build the PowerShell module
+      # Locate the PowerShell module file
+      - name: Locate PowerShell Module
+        run: |
+          MODULE_FILE=$(find . -name "Windows-SysAdmin-ProSuite.psd1" | head -n 1)
+          if [ -z "$MODULE_FILE" ]; then
+            echo "Error: Windows-SysAdmin-ProSuite.psd1 not found in the repository!" && exit 1
+          fi
+          echo "Module file located at: $MODULE_FILE"
+          echo "MODULE_FILE=$MODULE_FILE" >> $GITHUB_ENV
+
+      # Build the PowerShell Module
       - name: Build PowerShell Module
         shell: pwsh
         run: |
-          Import-Module ./YourModule.psd1
-          Test-ModuleManifest -Path ./YourModule.psd1
+          try {
+            Import-Module "$env:MODULE_FILE" -ErrorAction Stop
+            Test-ModuleManifest -Path "$env:MODULE_FILE" -ErrorAction Stop
+          } catch {
+            Write-Error "Failed to import or validate the module manifest: $_"
+            exit 1
+          }
 
-      # Run tests for the module
+      # Run PowerShell Tests
       - name: Run PowerShell Tests
         shell: pwsh
         run: |
@@ -43,12 +58,13 @@ jobs:
       # Package the PowerShell Module
       - name: Package PowerShell Module
         run: |
+          MODULE_DIR=$(dirname "$env:MODULE_FILE")
           mkdir -p ./dist
-          zip -r ./dist/YourModule.zip ./YourModule.psd1 ./YourModule.psm1 ./YourModule/*.ps1
+          zip -r ./dist/Windows-SysAdmin-ProSuite.zip "$MODULE_DIR"
 
-      # Upload the package as an artifact
+      # Upload the Package as an Artifact
       - name: Upload Package to GitHub
         uses: actions/upload-artifact@v3
         with:
-          name: YourModule
-          path: ./dist/YourModule.zip
+          name: Windows-SysAdmin-ProSuite
+          path: ./dist/Windows-SysAdmin-ProSuite.zip
