@@ -3,8 +3,12 @@
 #    GitHub Actions Workflow: Windows-based CI with RSAT + Pester
 
 #.DESCRIPTION
-#    Checks out code in ./repo, locates Manifest-ProSuite.psd1,
-#    validates the manifest, runs Pester tests, packages an artifact.
+#    1) Checks out code in ./repo
+#    2) Installs RSAT for ActiveDirectory
+#    3) Finds Manifest-ProSuite.psd1, sets MODULE_FILE
+#    4) Validates the manifest
+#    5) Imports the module, runs Pester tests
+#    6) Packages the artifact
 
 #.AUTHOR
 #    Luiz Hamilton Silva - @brazilianscriptguy
@@ -50,16 +54,15 @@ jobs:
           }
           Write-Host "RSAT ActiveDirectory tools installed."
 
-      - name: Locate Manifest-ProSuite
-        id: locate-module
+      - name: Locate Manifest
         shell: powershell
         run: |
           $moduleFile = Get-ChildItem -Path './repo' -Filter "Manifest-ProSuite.psd1" -Recurse | Select-Object -First 1
           if (-not $moduleFile) {
-            Write-Error "Error: Manifest-ProSuite.psd1 not found in ./repo!"
+            Write-Error "Manifest-ProSuite.psd1 not found in ./repo!"
             exit 1
           }
-          Write-Host "Module file: $($moduleFile.FullName)"
+          Write-Host "Module file located at: $($moduleFile.FullName)"
           echo "MODULE_FILE=$($moduleFile.FullName)" >> $Env:GITHUB_ENV
 
       - name: Validate Manifest
@@ -69,10 +72,10 @@ jobs:
             $modulePath = $Env:MODULE_FILE
             Write-Host "Validating manifest at: $modulePath"
             Test-ModuleManifest -Path $modulePath -ErrorAction Stop
-            Write-Host "Module manifest validation successful."
+            Write-Host "Manifest validation successful."
           }
           catch {
-            Write-Error "Failed to validate the manifest: $_"
+            Write-Error "Failed to validate manifest: $_"
             exit 1
           }
 
@@ -80,14 +83,17 @@ jobs:
         shell: powershell
         run: |
           try {
-            Write-Host "Ensuring AD is loaded..."
+            # 1) Optionally load AD here so the mock sees it
             if (-not (Get-Module ActiveDirectory)) {
+              Write-Host "Importing ActiveDirectory..."
               Import-Module ActiveDirectory -ErrorAction SilentlyContinue
             }
 
+            # 2) Import your module once in this session
             Write-Host "Importing module before tests..."
             Import-Module $Env:MODULE_FILE -ErrorAction Stop
 
+            # 3) Run Pester (the test scripts define the mock for 'Get-ADUser')
             Write-Host "Running Pester tests..."
             Invoke-Pester -Path ./repo/Tests -Output Detailed
 
@@ -98,7 +104,7 @@ jobs:
             exit 1
           }
 
-      - name: Package the Module
+      - name: Package Module
         shell: powershell
         run: |
           $moduleDir = Split-Path $Env:MODULE_FILE
@@ -107,9 +113,9 @@ jobs:
           }
           $zipPath = Join-Path -Path './dist' -ChildPath 'Windows-SysAdmin-ProSuite.zip'
           Compress-Archive -Path "$moduleDir/*" -DestinationPath $zipPath -Force
-          Write-Host "Packaging complete. Archive saved at $zipPath."
+          Write-Host "Packaging complete. Archive: $zipPath"
 
-      - name: Upload Module Artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: Windows-SysAdmin-ProSuite
