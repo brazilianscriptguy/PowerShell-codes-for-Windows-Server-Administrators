@@ -13,104 +13,33 @@
     Last Updated: December 29, 2024
 #>
 
-# Function: Write-Log
-function Write-Log {
-    param (
-        [Parameter(Mandatory)]
-        [string]$Message,
-        
-        [ValidateSet("INFO","ERROR","WARNING","DEBUG","CRITICAL")]
-        [string]$MessageType = "INFO"
-    )
-    $timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
-    $logEntry = "[$timestamp] [$MessageType] $Message"
-    Write-Host $logEntry
-    # Optionally write to a file:
-    # Add-Content -Path 'C:\temp\module.log' -Value $logEntry
-}
+@{
+    RootModule        = 'Windows-SysAdmin-ProSuite.psm1'
+    ModuleVersion     = '1.0.4'
+    Author            = 'Luiz Hamilton Silva - @brazilianscriptguy'
+    CompanyName       = '@brazilianscriptguy'
+    Copyright         = '(c) 2024'
+    Description       = 'PowerShell module for advanced Windows SysAdmin tasks, includes ActiveDirectory integration.'
+    GUID              = 'f81ecf42-2c94-4ad9-a7d1-bb8f580de39b'
 
-# Function: Handle-Error
-function Handle-Error {
-    param (
-        [Parameter(Mandatory)]
-        [string]$ErrorMessage
-    )
-    Write-Log -Message "ERROR: $ErrorMessage" -MessageType "ERROR"
-    throw $ErrorMessage
-}
+    FunctionsToExport = @('Get-UserInfo', 'Test-SysAdminFeature')
+    CmdletsToExport   = @()
+    VariablesToExport = @('*')
+    AliasesToExport   = @()
 
-# Attempt to import ActiveDirectory
-try {
-    if (-not (Get-Module -Name ActiveDirectory -ListAvailable)) {
-        Write-Log -Message "Importing Active Directory module..."
-        Import-Module ActiveDirectory -ErrorAction Stop
+    PrivateData = @{
+        ProjectUri   = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite'
+        LicenseUri   = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/blob/main/LICENSE'
+        ReleaseNotes = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/releases'
     }
-}
-catch {
-    Write-Log -Message "ActiveDirectory module not found or failed to load. $_" -MessageType "WARNING"
-}
 
-# Function: Get-UserInfo
-function Get-UserInfo {
-<#
-.SYNOPSIS
-    Retrieves detailed information about an Active Directory user.
+    PowerShellVersion = '5.1'
 
-.DESCRIPTION
-    Leverages the AD module to query domain user properties.
-
-.PARAMETER SamAccountName
-    The SAM account name of the user to retrieve.
-
-.EXAMPLE
-    Get-UserInfo -SamAccountName jdoe
-#>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [string]$SamAccountName
+    FileList = @(
+        'Windows-SysAdmin-ProSuite.psm1',
+        'Tests\CommandValidation.Tests.ps1',
+        'Tests\ModuleValidation.Tests.ps1'
     )
-
-    try {
-        if (-not $SamAccountName) {
-            throw "SamAccountName cannot be empty."
-        }
-        
-        $user = Get-ADUser -Identity $SamAccountName -Properties * 2>$null
-        if (-not $user) {
-            throw "User '$SamAccountName' not found in AD."
-        }
-
-        [PSCustomObject]@{
-            Name           = $user.Name
-            SamAccountName = $user.SamAccountName
-            EmailAddress   = $user.EmailAddress
-            Department     = $user.Department
-            Title          = $user.Title
-        }
-    }
-    catch {
-        Handle-Error "Failed to retrieve user info for '$SamAccountName': $_"
-        return $null
-    }
 }
-
-# Function: Test-SysAdminFeature
-function Test-SysAdminFeature {
-<#
-.SYNOPSIS
-    Placeholder function for future system admin features.
-
-.DESCRIPTION
-    This is a stub function to illustrate how multiple functions can be included in the module.
-
-.EXAMPLE
-    Test-SysAdminFeature
-#>
-    Write-Log "Test-SysAdminFeature called." -MessageType "INFO"
-    return "Feature under development..."
-}
-
-Export-ModuleMember -Function Get-UserInfo, Test-SysAdminFeature
 
 # End of script
