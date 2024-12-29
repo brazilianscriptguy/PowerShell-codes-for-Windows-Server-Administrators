@@ -1,7 +1,8 @@
-# This workflow generates SLSA Level 3 provenance files for the Windows-SysAdmin-ProSuite repository.
-# It automates artifact creation, hashing, and release uploads while ensuring provenance compliance.
+# SLSA-ProSuite-Publish.yml
+# This workflow generates SLSA Level 3 provenance for the Windows-SysAdmin-ProSuite repository.
+# It automates artifact creation, hashing, and triggers the slsa-framework generator to produce a provenance statement.
 
-name: Generate SLSA Provenance
+name: SLSA-ProSuite-Publish
 
 on:
   workflow_dispatch:
@@ -12,52 +13,48 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      digests: ${{ steps.hash.outputs.digests }}  # Use "digests" from the 'hash' step
+      digests: ${{ steps.hash.outputs.digests }}
 
     steps:
-      # 1) Checkout the repository
+      # 1) Check out repository
       - uses: actions/checkout@v4
 
-      # 2) Build and package artifacts
+      # 2) Build/package artifacts
       - name: Build and package artifacts
         run: |
           mkdir -p build
-          # Include PowerShell scripts
+          # Copy PowerShell scripts (optional)
           cp *.ps1 build/ 2>/dev/null || true
-          # Include VBScript files
+          # Copy VBScript files (optional)
           cp *.vbs build/ 2>/dev/null || true
-          # Include documentation files
+          # Copy doc files
           cp README.md build/ 2>/dev/null || true
           cp LICENSE build/ 2>/dev/null || true
 
-          # Create a tarball in the workspace (root) for release
+          # Create a tarball for release
           tar -czf Package-ProSuite.tar.gz -C build .
 
-      # 3) Generate provenance subject hashes
+      # 3) Generate provenance subject hashes (base64-encoded)
       - name: Generate provenance subjects
         id: hash
         run: |
-          # Hash each file in ./build
+          # Hash each file in ./build, then base64-encode
           files=$(ls build/*)
-          echo "Found files to hash: $files"
           echo "digests=$(sha256sum $files | base64 -w0)" >> "${GITHUB_OUTPUT}"
 
-      # Optional: Log included artifacts for debugging
-      - name: Log included artifacts
-        run: ls -lh build/ && ls -lh Package-ProSuite.tar.gz
+      # Optional: debug logs
+      - name: Debug artifacts
+        run: |
+          ls -lh build/
+          ls -lh Package-ProSuite.tar.gz
 
   provenance:
-    # The 'provenance' job depends on the 'build' job
     needs: [build]
     permissions:
-      actions: read   # To read the workflow path.
-      id-token: write # To sign the provenance.
-      contents: write # To add assets to a release.
-    # We call the SLSA generator workflow:
+      actions: read
+      id-token: write
+      contents: write
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
     with:
-      # The SLSA generator expects the base64-encoded subject hashes
+      # Provide the base64-encoded subject hashes to the generator
       base64-subjects: "${{ needs.build.outputs.digests }}"
-      upload-assets: true
-      assets: |
-        Package-ProSuite.tar.gz
