@@ -1,7 +1,7 @@
 @{
     # Module manifest for module 'Windows-SysAdmin-ProSuite'
     RootModule        = 'Windows-SysAdmin-ProSuite.psm1'
-    ModuleVersion     = '1.0.1'
+    ModuleVersion     = '1.0.2'
     Author            = 'Luiz Hamilton Silva - @brazilianscriptguy'
     CompanyName       = '@brazilianscriptguy'
     Copyright         = "(c) Luiz Hamilton Silva - @brazilianscriptguy. All rights reserved."
@@ -22,7 +22,27 @@
 
     # Private data specific to this module
     PrivateData = @{
-        Tags         = @('active-directory', 'sysadmin', 'siem', 'itsm', 'workstations', 'audit-log', 'admin-tools', 'customize', 'blueteam', 'active-directory-domain-services', 'evtx-analisys', 'sysadmin-tasks', 'sysadmin-tool', 'sysadmin-scripts', 'eventlogs', 'windows-server-2019', 'organizational-units', 'forensics-tools', 'itsm-solutions')
+        Tags         = @(
+            'active-directory', 
+            'sysadmin', 
+            'siem', 
+            'itsm', 
+            'workstations', 
+            'audit-log', 
+            'admin-tools', 
+            'customize', 
+            'blueteam', 
+            'active-directory-domain-services', 
+            'evtx-analisys', 
+            'sysadmin-tasks', 
+            'sysadmin-tool', 
+            'sysadmin-scripts', 
+            'eventlogs', 
+            'windows-server-2019', 
+            'organizational-units', 
+            'forensics-tools', 
+            'itsm-solutions'
+        )
         ProjectUri   = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite'
         LicenseUri   = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/blob/main/.github/LICENSE'
         ReleaseNotes = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/releases/tag/Windows-SysAdmin-ProSuite'
@@ -60,7 +80,9 @@
         'SysAdmin-Tools\GroupPolicyObjects-Templates\enable-audit-logs-DC-servers',
         'SysAdmin-Tools\GroupPolicyObjects-Templates\disable-firewall-domain-workstations',
         'ITSM-Templates-WKS\ModifyReg\UserDesktopFolders\My Corporate Web Portals',
-        'SysAdmin-Tools\Security-and-Process-Optimization'
+        'SysAdmin-Tools\Security-and-Process-Optimization',
+        'Tests\CommandValidation.Tests.ps1',
+        'Tests\ModuleValidation.Tests.ps1',
+        'Tests\README.md'
     )
 }
-
