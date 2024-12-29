@@ -10,23 +10,25 @@ on:
 
 jobs:
   build-and-test:
-    # Switch from ubuntu-latest to windows-latest
     runs-on: windows-latest
 
     steps:
-      # Checkout the repository
+      # 1) Enable long paths in Git
+      - name: Enable long paths
+        run: git config --system core.longpaths true
+
+      # 2) Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Optional: Install RSAT (Active Directory Tools) if not already available
+      # 3) (Optional) Install RSAT for Active Directory, if needed
       - name: Install RSAT for Active Directory
         shell: pwsh
         run: |
-          # On Windows runners, this adds the AD DS Tools, including the ActiveDirectory module.
           Add-WindowsCapability -Online -Name "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0"
           Write-Host "RSAT ActiveDirectory tools installed."
 
-      # Locate the PowerShell Module File
+      # 4) Locate the PowerShell Module File
       - name: Locate PowerShell Module
         id: locate-module
         shell: pwsh
@@ -37,10 +39,9 @@ jobs:
             exit 1
           }
           Write-Host "Module file located at: $moduleFile"
-          echo "MODULE_FILE=$moduleFile" | Out-Host
           echo "MODULE_FILE=$moduleFile" >> $Env:GITHUB_ENV
 
-      # Validate PowerShell Module Manifest
+      # 5) Validate PowerShell Module Manifest
       - name: Validate PowerShell Module Manifest
         shell: pwsh
         run: |
@@ -54,7 +55,7 @@ jobs:
             exit 1
           }
 
-      # Run Pester Tests
+      # 6) Run Pester Tests
       - name: Run PowerShell Tests
         shell: pwsh
         run: |
@@ -71,7 +72,7 @@ jobs:
             exit 1
           }
 
-      # Package the PowerShell Module
+      # 7) Package the PowerShell Module
       - name: Package PowerShell Module
         shell: pwsh
         run: |
@@ -80,7 +81,7 @@ jobs:
           Compress-Archive -Path "$moduleDir/*" -DestinationPath './dist/Windows-SysAdmin-ProSuite.zip' -Force
           Write-Host "Packaging complete. Archive saved at ./dist/Windows-SysAdmin-ProSuite.zip."
 
-      # Upload the Package as an Artifact
+      # 8) Upload the Package as an Artifact
       - name: Upload PowerShell Module Package
         uses: actions/upload-artifact@v3
         with:
