@@ -1,56 +1,51 @@
-name: Windows SysAdmin ProSuite CI
+name: CI/CD Workflow for PowerShell Module
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-  build:
-
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout repository
+      # Checkout the repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up dependencies
-      - name: Set up dependencies
+      # Update and resolve dependencies
+      - name: Update and Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq docker.io
+          sudo apt-get upgrade -y
+          sudo apt-get autoremove -y
+          sudo apt-get autoclean
+          sudo apt-get remove -y containerd || true
+          sudo apt-get install -y containerd.io jq docker.io
 
-      # Step 3: Package repository content
-      - name: Build and package repository
+      # Build the PowerShell module
+      - name: Build PowerShell Module
         run: |
-          mkdir -p build
-          cp *.ps1 build/ || true
-          cp *.vbs build/ || true
-          cp -r ITSM-Templates-WKS build/ || true
-          cp README.md LICENSE build/
-          tar -czf Windows-SysAdmin-ProSuite.tar.gz -C build .
+          pwsh -Command "Import-Module ./YourModule.psd1; Test-ModuleManifest -Path ./YourModule.psd1"
 
-      # Step 4: Build additional assets in a container
-      - name: Build assets in Docker container
+      # Run tests for the module
+      - name: Run PowerShell Tests
         run: |
-          docker run \
-          -v ${{ github.workspace }}:/workspace \
-          ubuntu:latest /bin/bash -c "
-            apt-get update &&
-            apt-get install -y make &&
-            cd /workspace &&
-            chmod -R 777 build &&
-            echo 'Building completed in container'"
+          pwsh -Command "Invoke-Pester -Path ./Tests -Output Detailed"
 
-      # Step 5: Log the artifacts created
-      - name: List built artifacts
-        run: ls -lh build/ Windows-SysAdmin-ProSuite.tar.gz
+      # Package the PowerShell Module
+      - name: Package PowerShell Module
+        run: |
+          mkdir -p ./dist
+          zip -r ./dist/YourModule.zip ./YourModule.psd1 ./YourModule.psm1 ./YourModule/*.ps1
 
-      # Step 6: Upload the packaged artifact
-      - name: Upload artifact
+      # Publish the package to GitHub Packages
+      - name: Publish to GitHub Packages
         uses: actions/upload-artifact@v3
         with:
-          name: Windows-SysAdmin-ProSuite
-          path: Windows-SysAdmin-ProSuite.tar.gz
+          name: YourModule
+          path: ./dist/YourModule.zip
