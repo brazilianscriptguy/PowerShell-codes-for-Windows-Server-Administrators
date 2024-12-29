@@ -44,7 +44,7 @@ jobs:
 
       # Step 2: Set up PowerShell
       - name: Setup PowerShell
-        uses: pwsh/setup-powershell@v2
+        uses: pwsh/setup-powershell@v1
         with:
           # Optional: Specify PowerShell version if needed
           # pwsh-version: '7.3.0'
@@ -118,5 +118,3 @@ jobs:
               release_id: releaseId,
               body: updatedBody
             });
-
-# End of script
