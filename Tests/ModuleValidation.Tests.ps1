@@ -15,8 +15,14 @@
 
 Describe 'Windows-SysAdmin-ProSuite Module Validation' {
 
+    # Retrieve the module manifest path from environment
     $ManifestPath = $Env:MODULE_FILE
-    $ModulePath   = [System.IO.Path]::ChangeExtension($ManifestPath, '.psm1')
+
+    if (-not $ManifestPath) {
+        throw "Environment variable MODULE_FILE is null or empty! Cannot run Module Validation."
+    }
+
+    $ModulePath = [System.IO.Path]::ChangeExtension($ManifestPath, '.psm1')
 
     It 'Should load the module manifest without errors' {
         Test-Path -Path $ManifestPath | Should -BeTrue
