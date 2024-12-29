@@ -1,0 +1,18 @@
+name: Test PowerShell Setup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-setup:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup PowerShell
+        uses: PowerShell/setup-powershell@v2
+
+      - name: Verify PowerShell Installation
+        run: |
+          pwsh -Command "Write-Host 'PowerShell version:'; $PSVersionTable.PSVersion"
