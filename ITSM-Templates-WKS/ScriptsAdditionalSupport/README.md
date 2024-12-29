@@ -11,73 +11,73 @@ Each script includes robust error handling, detailed logging, and, where applica
 ## 📋 Script Descriptions
 
 ### **ActivateAllAdminShare**  
-**Script:** `Activate-All-AdminShares.ps1`  
+1. **Script:** `Activate-All-AdminShares.ps1`  
 Enables administrative shares, activates Remote Desktop Protocol (RDP), disables Windows Firewall, and turns off Windows Defender to facilitate administrative access. Includes a GUI for task management.  
 
 ---
 
 ### **ExportCustomThemesFiles**  
-**Script:** `Exports-CustomThemes-Files.ps1`  
+2. **Script:** `Exports-CustomThemes-Files.ps1`  
 Exports custom Windows theme files, including `LayoutModification.xml`, `.msstyles`, and `.deskthemepack`, to standardize desktop and user interface configurations across the network.  
 
 ---
 
 ### **FixPrinterDriverIssues**  
-**Script:** `Fix-PrinterDriver-Issues.ps1`  
+3. **Script:** `Fix-PrinterDriver-Issues.ps1`  
 Troubleshoots common printer-related issues by resetting the print spooler, clearing print jobs, and managing printer drivers. The script includes multiple resolution methods and a GUI for user interaction.  
 
 ---
 
 ### **GetSID**  
-**Tool:** Microsoft Internals Tool  
-Identifies the **Security Identifier (SID)** of a workstation or user account, useful for diagnostic and management purposes.  
+4. **MS Sysinternals Tool** `PsGetsid64.exe` Allows you to translate SIDs to their display name and vice versa.
+Identifies the **Security Identifier (SID)** of builtin accounts, domain accounts, and local accounts, useful for diagnostic and management purposes.
 
 ---
 
 ### **InventoryInstalledSoftwareList**  
-**Script:** `Inventory-InstalledSoftwareList.ps1`  
+5. **Script:** `Inventory-InstalledSoftwareList.ps1`  
 Inventories all installed software on the workstation, generating a detailed report for auditing and compliance purposes.  
 
 ---
 
 ### **LegacyWorkstationIngress**  
-**Script:** `LSA-NetJoin-Legacy.ps1`  
+6. **Script:** `LSA-NetJoin-Legacy.ps1`  
 Modifies registry settings to allow legacy operating systems to join modern domains. Fully compatible with Windows Server 2019 and newer.  
 
 ---
 
 ### **RecallKESCert**  
-**Script:** `RecallKESCert.ps1`  
+7. **Script:** `RecallKESCert.ps1`  
 Points the workstation to the Antivirus server and renews the necessary certificate, ensuring continued protection and secure operations.  
 
 ---
 
 ### **RenameDiskVolumes**  
-**Script:** `ChangeDiskVolumesNames.ps1`  
+8. **Script:** `ChangeDiskVolumesNames.ps1`  
 Renames disk volumes **C:** and **D:**. The **C:** drive is labeled with the hostname, while **D:** is labeled for personal data or custom use. Detailed logging ensures traceability.  
 
 ---
 
 ### **ResyncGPOsDataStore**  
-**Script:** `Resync-GPOs-DataStore.ps1`  
+9. **Script:** `Resync-GPOs-DataStore.ps1`  
 Resets all Group Policy Objects (GPOs) on the workstation and synchronizes them with the domain policies. The script includes a GUI for user guidance and logs all actions for traceability.  
 
 ---
 
 ### **UnjoinADComputer-and-Cleanup**  
-**Script:** `Unjoin-ADComputer-and-Cleanup.ps1`  
+10. **Script:** `Unjoin-ADComputer-and-Cleanup.ps1`  
 Unjoins the workstation from the domain and performs cleanup operations, such as clearing DNS cache, removing old domain profiles, and resetting environment variables. Includes a GUI for seamless interaction and standardized logging.  
 
 ---
 
 ### **WorkStationConfigReport**  
-**Script:** `Workstation-Data-Report.ps1`  
+11. **Script:** `Workstation-Data-Report.ps1`  
 Collects system configuration details, including OS, BIOS, and network information, saving the data into a `.CSV` file. Designed with a GUI for user feedback and error handling.  
 
 ---
 
 ### **WorkstationTimeSync**  
-**Script:** `Workstation-TimeSync.ps1`  
+12. **Script:** `Workstation-TimeSync.ps1`  
 Synchronizes the workstation’s time, date, and time zone with the domain controllers, ensuring network-wide consistency.  
 
 ---
