@@ -3,7 +3,7 @@
     Windows-SysAdmin-ProSuite Module Manifest
 
 .DESCRIPTION
-    Specifies metadata, exports, and file references for Module-ProSuite.psm1.
+    Specifies metadata, exports, and file references for the "Module-ProSuite.psm1" module.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -32,13 +32,11 @@
         ReleaseNotes = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/releases'
     }
 
-    # FileList enumerates relevant folders/files in the repository
     FileList = @(
         'Module-ProSuite.psm1'
         'Tests\01-CommandValidation.Tests.ps1'
         'Tests\02-ModuleValidation.Tests.ps1'
         'Tests\README.md'
-        '.github\workflows\windows-rsat-pester.yml'
         'Manifest-ProSuite.psd1'
     )
 }
