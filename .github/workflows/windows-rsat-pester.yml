@@ -3,8 +3,8 @@
 #    GitHub Actions Workflow: Windows-based CI with RSAT + Pester
 
 #.DESCRIPTION
-#    Installs RSAT for Active Directory, checks out the code, locates the .psd1,
-#    validates the manifest, runs Pester tests, and packages the module artifact.
+#    Installs RSAT for Active Directory, checks out the code (with a custom path),
+#    locates the .psd1, validates the manifest, runs Pester tests, and packages the artifact.
 
 #.AUTHOR
 #    Luiz Hamilton Silva - @brazilianscriptguy
@@ -32,6 +32,9 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          # This ensures your repo is in D:\a\Windows-SysAdmin-ProSuite\Source
+          path: Source
 
       - name: Install RSAT for Active Directory
         shell: powershell
@@ -52,12 +55,14 @@ jobs:
         id: locate-module
         shell: powershell
         run: |
-          $moduleFile = Get-ChildItem -Path . -Filter "Windows-SysAdmin-ProSuite.psd1" -Recurse | Select-Object -First 1
+          # We now search inside the 'Source' folder for the .psd1
+          $moduleFile = Get-ChildItem -Path "./Source" -Filter "Windows-SysAdmin-ProSuite.psd1" -Recurse | Select-Object -First 1
           if (-not $moduleFile) {
-            Write-Error "Error: Windows-SysAdmin-ProSuite.psd1 not found!"
+            Write-Error "Error: Windows-SysAdmin-ProSuite.psd1 not found in the 'Source' folder!"
             exit 1
           }
           Write-Host "Module file: $($moduleFile.FullName)"
+          # Expose environment variable for subsequent steps
           echo "MODULE_FILE=$($moduleFile.FullName)" >> $Env:GITHUB_ENV
 
       - name: Validate PowerShell Module Manifest
@@ -83,7 +88,7 @@ jobs:
             Import-Module $modulePath -ErrorAction Stop
 
             Write-Host "Running Pester tests..."
-            Invoke-Pester -Path ./Tests -Output Detailed
+            Invoke-Pester -Path ./Source/Tests -Output Detailed
 
             Write-Host "Pester tests completed successfully."
           }
