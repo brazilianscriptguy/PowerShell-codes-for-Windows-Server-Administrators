@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    PowerShell Script Template for Structured and Maintainable PowerShell Projects.
+    Windows-SysAdmin-ProSuite Module Manifest
 
 .DESCRIPTION
-    Provides a reusable framework with standardized logging, error handling, dynamic paths, 
-    and GUI integration. Suitable for building robust and maintainable PowerShell tools.
+    This file specifies metadata, exports, and file references for the Windows-SysAdmin-ProSuite module.
+    It includes a FileList that enumerates the relevant folders/files in your GitHub repository.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -35,10 +35,12 @@
 
     PowerShellVersion = '5.1'
 
+    # This FileList should reflect your GitHub folder structure
     FileList = @(
         'Windows-SysAdmin-ProSuite.psm1',
         'Tests\CommandValidation.Tests.ps1',
-        'Tests\ModuleValidation.Tests.ps1'
+        'Tests\ModuleValidation.Tests.ps1',
+        '.github\workflows\windows-rsat-pester.yml'
     )
 }
 
