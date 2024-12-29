@@ -97,5 +97,3 @@ jobs:
           asset_path: ./downloaded-artifacts/Package-ProSuite.zip
           asset_name: Package-ProSuite.zip
           asset_content_type: application/zip
-
-# End of script
