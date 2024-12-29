@@ -67,7 +67,7 @@ The suite is organized into four main subfolders, grouping scripts by functional
 
 ---
 
-### 4. **SystemConfiguration-and-Deployment**
+### 5. **SystemConfiguration-and-Deployment**
    Tools for deploying and configuring software, managing group policies, and maintaining consistent system settings across the domain.
 
    - **Examples**:
