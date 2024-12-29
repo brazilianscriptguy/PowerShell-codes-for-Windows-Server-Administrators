@@ -2,7 +2,7 @@
 
 ## 📄 Description
 
-This repository contains a curated collection of VBSCripts and PowerShell scripts specifically designed to streamline the management and configuration of Windows 10 and 11 workstations within an IT Service Management (ITSM) framework. These tools automate essential administrative tasks, enabling IT professionals to enhance workflows, ensure consistency, and maintain compliance across the organization.
+This repository contains a curated collection of VBScripts and PowerShell scripts specifically designed to streamline the management and configuration of Windows 10 and 11 workstations within an IT Service Management (ITSM) framework. These tools automate essential administrative tasks, enabling IT professionals to enhance workflows, ensure consistency, and maintain compliance across the organization.
 
 ✨ **Key Features**:
 - **Graphical User Interfaces (GUI)** for intuitive operation.
