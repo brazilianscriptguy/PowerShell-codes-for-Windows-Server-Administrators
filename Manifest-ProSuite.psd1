@@ -14,7 +14,7 @@
 #>
 
 @{
-    RootModule        = 'Windows-SysAdmin-ProSuite.psm1'
+    RootModule        = 'Module-ProSuite.psm1'
     ModuleVersion     = '1.0.4'
     Author            = 'Luiz Hamilton Silva - @brazilianscriptguy'
     CompanyName       = '@brazilianscriptguy'
