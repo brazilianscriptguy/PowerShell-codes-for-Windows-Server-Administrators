@@ -15,8 +15,8 @@
 
 Describe 'Get-UserInfo Command Validation' {
 
-    Context 'Mock-based AD tests (no domain needed)' {
-
+    # Ensure the mock is in the same scope as the test
+    BeforeAll {
         Mock -CommandName 'Get-ADUser' -ModuleName 'ActiveDirectory' -MockWith {
             param([string]$Identity)
             [PSCustomObject]@{
@@ -27,7 +27,9 @@ Describe 'Get-UserInfo Command Validation' {
                 Title          = "MockTitle"
             }
         }
+    }
 
+    Context 'Mock-based AD tests (no domain needed)' {
         It 'Should return user information when valid parameters are passed' {
             $Result = Get-UserInfo -SamAccountName 'ValidUser'
             $Result | Should -Not -BeNullOrEmpty
