@@ -1,10 +1,9 @@
 <#
 .SYNOPSIS
-    Pester Tests for Command Validation in Windows-SysAdmin-ProSuite
+    Pester Tests: Validate commands in Module-ProSuite
 
 .DESCRIPTION
-    Contains tests verifying functionality of exported commands (like Get-UserInfo),
-    using mocks for AD calls, and optionally skipping real AD queries if not domain-joined.
+    Mocks ActiveDirectory calls, ensuring domainless testing is possible.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -14,48 +13,50 @@
 #>
 
 Describe 'Get-UserInfo Command Validation' {
-
-    # Ensure the mock is in the same scope as the test
     BeforeAll {
+        # Ensure AD is loaded so the mock is recognized
+        if (-not (Get-Module ActiveDirectory)) {
+            Import-Module ActiveDirectory -ErrorAction SilentlyContinue
+        }
+
         Mock -CommandName 'Get-ADUser' -ModuleName 'ActiveDirectory' -MockWith {
             param([string]$Identity)
             [PSCustomObject]@{
-                Name           = "$Identity Full"
-                SamAccountName = $Identity
-                EmailAddress   = "$Identity@example.com"
-                Department     = "MockDept"
-                Title          = "MockTitle"
+                Name        = "$Identity Mocked"
+                SamAccount  = $Identity
+                Email       = "$Identity@example.com"
+                Department  = "MockDept"
             }
         }
     }
 
-    Context 'Mock-based AD tests (no domain needed)' {
-        It 'Should return user information when valid parameters are passed' {
-            $Result = Get-UserInfo -SamAccountName 'ValidUser'
-            $Result | Should -Not -BeNullOrEmpty
-            $Result.SamAccountName | Should -Be 'ValidUser'
-            $Result.EmailAddress   | Should -Be 'ValidUser@example.com'
+    Context 'Mock-based AD tests' {
+        It 'Should return user info for a valid SamAccountName' {
+            $result = Get-UserInfo -SamAccountName 'ValidUser'
+            $result | Should -Not -BeNullOrEmpty
+            $result.SamAccount | Should -Be 'ValidUser'
+            $result.Email      | Should -Be 'ValidUser@example.com'
         }
 
-        It 'Should throw an error when invalid parameters are passed' {
+        It 'Should throw an error if SamAccountName is empty' {
             { Get-UserInfo -SamAccountName '' } | Should -Throw
         }
     }
 
     Context 'Real AD integration tests' {
-        $ComputerSystem = Get-WmiObject -Class Win32_ComputerSystem -ErrorAction SilentlyContinue
-        if (-not $ComputerSystem) {
+        $comp = Get-WmiObject -Class Win32_ComputerSystem -ErrorAction SilentlyContinue
+        if (-not $comp) {
             It '[SKIPPED] Could not detect domain membership' -Skip { }
         }
-        elseif (-not $ComputerSystem.PartOfDomain) {
+        elseif (-not $comp.PartOfDomain) {
             It '[SKIPPED] Not domain-joined' -Skip { }
         }
         else {
-            It 'Should retrieve user info from a real AD domain' {
-                $RealUser = 'SomeRealUser'
-                $UserInfo = Get-UserInfo -SamAccountName $RealUser
-                $UserInfo | Should -Not -BeNullOrEmpty
-                $UserInfo.SamAccountName | Should -Be $RealUser
+            It 'Should retrieve real user info from AD domain' {
+                $RealUser = 'SomeDomainUser'
+                $info = Get-UserInfo -SamAccountName $RealUser
+                $info | Should -Not -BeNullOrEmpty
+                $info.SamAccount | Should -Be $RealUser
             }
         }
     }
