@@ -5,11 +5,11 @@ name: SLSA-ProSuite-Publish
 on:
   workflow_dispatch:
   release:
-    types: [created]
+    types: [published]  # Triggers when a release is published
 
 permissions:
-  contents: write
-  id-token: write  # Ensure the workflow has write access to ID tokens
+  contents: write      # Allows creating and modifying releases
+  id-token: write     # Necessary for SLSA Provenance generation
 
 jobs:
   build:
@@ -19,22 +19,23 @@ jobs:
 
     steps:
       # Step 1: Check out the repository
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       # Step 2: Build and package artifacts
       - name: Build and package artifacts
         run: |
           mkdir build
           # Copy PowerShell scripts
-          copy *.ps1 build || exit 0
+          copy *.ps1 build\ || echo "No .ps1 files found"
           # Copy VBScript files
-          copy *.vbs build || exit 0
+          copy *.vbs build\ || echo "No .vbs files found"
           # Copy documentation files
-          copy README.md build || exit 0
-          copy LICENSE build || exit 0
+          copy README.md build\ || echo "No README.md found"
+          copy LICENSE build\ || echo "No LICENSE found"
 
-          # Create a ZIP file for release
-          powershell Compress-Archive -Path build\* -DestinationPath Package-ProSuite.zip
+          # Create a ZIP archive of the build directory
+          powershell Compress-Archive -Path build\* -DestinationPath Package-ProSuite.zip -Force
 
       # Step 3: Generate provenance hashes
       - name: Generate provenance subjects
@@ -66,9 +67,33 @@ jobs:
     needs: build
     runs-on: ubuntu-latest  # SLSA generator is optimized for Linux environments
     permissions:
-      actions: read
-      id-token: write
-      contents: write
+      actions: read       # Required by the SLSA generator
+      id-token: write    # Required for provenance generation
+      contents: write    # Required to interact with repository contents
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
     with:
       base64-subjects: "${{ needs.build.outputs.digests }}"
+
+  upload:
+    needs: provenance
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to upload assets to releases
+    steps:
+      # Step 1: Download artifact
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: Package-ProSuite
+          path: ./downloaded-artifacts
+
+      # Step 2: Upload to Release
+      - name: Upload to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./downloaded-artifacts/Package-ProSuite.zip
+          asset_name: Package-ProSuite.zip
+          asset_content_type: application/zip
