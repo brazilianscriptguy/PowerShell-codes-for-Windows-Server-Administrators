@@ -83,7 +83,7 @@ This repository is organized into five comprehensive sections, each focusing on 
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators.git
+   git clone https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite.git
    ```
 
 2. **Organize the Scripts**: Arrange the scripts into directories for easier access and management.
@@ -145,7 +145,7 @@ For support or to report issues, contact via [email](mailto:luizhamilton.lhr@gma
 
 Support the project on [Patreon](https://patreon.com/brazilianscriptguy) to access exclusive content and updates.  
 
-Stay informed about updates and releases at the [SysAdminToolSet Release](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/releases/tag/SysAdminToolSet).
+Stay informed about updates and releases at the [Windows-SysAdmin-ProSuite Release](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/releases/tag/Windows-SysAdmin-ProSuite).
 
 ---
 
