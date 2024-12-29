@@ -1,22 +1,17 @@
 <#
 .SYNOPSIS
-    Pester Tests: Validate Manifest-ProSuite.psd1
+    Validates the .psd1 manifest & exported commands
 
 .DESCRIPTION
-    Ensures the module loads, passes Test-ModuleManifest,
-    and exports expected commands.
+    Verifies the .psd1 loads with Test-ModuleManifest,
+    and ensures the .psm1 exports expected commands.
 
-.AUTHOR
-    Luiz Hamilton Silva - @brazilianscriptguy
-
-.VERSION
-    Last Updated: December 29, 2024
 #>
 
 Describe 'Module-ProSuite Validation' {
     $ManifestPath = $Env:MODULE_FILE
     if (-not $ManifestPath) {
-        throw "Environment variable MODULE_FILE is null/empty! Cannot test manifest."
+        throw "MODULE_FILE is null or empty. Can't validate manifest!"
     }
 
     $ModulePath = [System.IO.Path]::ChangeExtension($ManifestPath, '.psm1')
@@ -29,8 +24,9 @@ Describe 'Module-ProSuite Validation' {
     It 'Should export expected commands' {
         Test-Path -Path $ModulePath | Should -BeTrue
 
-        $Imported = Import-Module $ModulePath -Force -PassThru
-        $Exported = $Imported.ExportedCommands.Keys
+        # Importing the .psm1 here is safe because we do not rely on mocking in this test
+        $mod = Import-Module $ModulePath -Force -PassThru
+        $Exported = $mod.ExportedCommands.Keys
         $Expected = @('Get-UserInfo','Test-SysAdminFeature')
         $Exported | Should -ContainEveryItemOf $Expected
     }
