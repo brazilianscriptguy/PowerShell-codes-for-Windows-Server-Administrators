@@ -31,7 +31,7 @@ jobs:
           cp README.md build/
           cp LICENSE build/
           # Package everything into a tarball for release
-          tar -czf Windows-SysAdmin-ProSuite.tar.gz -C build .
+          tar -czf Package-ProSuite.tar.gz -C build .
 
       # Step 2: Generate provenance subject hashes
       - name: Generate provenance subjects
@@ -55,4 +55,4 @@ jobs:
       base64-subjects: "${{ needs.build.outputs.digests }}"
       upload-assets: true
       assets: |
-        Windows-SysAdmin-ProSuite.tar.gz
+        Package-ProSuite.tar.gz
