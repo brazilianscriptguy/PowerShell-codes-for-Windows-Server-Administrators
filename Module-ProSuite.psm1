@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Includes logging, error handling, and optional Active Directory integration.
-    Exports functions to help with user account queries and placeholder sysadmin features.
+    Exports functions like Get-UserInfo and Test-SysAdminFeature.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -15,7 +15,9 @@
 
 function Write-Log {
     param (
+        [Parameter(Mandatory)]
         [string]$Message,
+
         [ValidateSet("INFO","ERROR","WARNING","DEBUG","CRITICAL")]
         [string]$MessageType = "INFO"
     )
@@ -25,6 +27,7 @@ function Write-Log {
 
 function Handle-Error {
     param(
+        [Parameter(Mandatory)]
         [string]$ErrorMessage
     )
     Write-Log -Message "ERROR: $ErrorMessage" -MessageType "ERROR"
@@ -32,22 +35,25 @@ function Handle-Error {
 }
 
 try {
-    if (-not (Get-Module -Name ActiveDirectory -ListAvailable)) {
-        Write-Log -Message "Importing ActiveDirectory..."
+    if (-not (Get-Module ActiveDirectory -ListAvailable)) {
+        Write-Log -Message "Importing ActiveDirectory..." -MessageType "INFO"
         Import-Module ActiveDirectory -ErrorAction Stop
     }
 }
 catch {
-    Write-Log -Message "Failed to load ActiveDirectory module: $_" -MessageType "WARNING"
+    Write-Log -Message "Failed to load ActiveDirectory: $_" -MessageType "WARNING"
 }
 
 function Get-UserInfo {
 <#
 .SYNOPSIS
-    Retrieves info about an AD user
+    Retrieves info about an Active Directory user.
 
 .DESCRIPTION
-    Uses ActiveDirectory module to query user properties (Name, Email, Dept, etc.)
+    Uses the ActiveDirectory module to query user properties like Name, Email, Department, etc.
+
+.PARAMETER SamAccountName
+    The user's SAM account name.
 
 .EXAMPLE
     Get-UserInfo -SamAccountName "jdoe"
@@ -65,10 +71,10 @@ function Get-UserInfo {
             throw "User '$SamAccountName' not found in AD."
         }
         [PSCustomObject]@{
-            Name         = $user.Name
-            SamAccount   = $user.SamAccountName
-            Email        = $user.EmailAddress
-            Department   = $user.Department
+            Name          = $user.Name
+            SamAccount    = $user.SamAccountName
+            Email         = $user.EmailAddress
+            Department    = $user.Department
         }
     }
     catch {
@@ -80,10 +86,13 @@ function Get-UserInfo {
 function Test-SysAdminFeature {
 <#
 .SYNOPSIS
-    Placeholder function
+    Placeholder function for system admin features.
+
+.DESCRIPTION
+    Stub function to illustrate how multiple features can be included.
 #>
-    Write-Log "Test-SysAdminFeature called." -MessageType "INFO"
-    "Feature under development..."
+    Write-Log -Message "Test-SysAdminFeature called." -MessageType "INFO"
+    return "Feature under development..."
 }
 
 Export-ModuleMember -Function Get-UserInfo, Test-SysAdminFeature
