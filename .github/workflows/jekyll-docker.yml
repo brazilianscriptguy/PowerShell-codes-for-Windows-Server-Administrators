@@ -1,0 +1,56 @@
+name: Windows SysAdmin ProSuite CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up dependencies
+      - name: Set up dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq docker.io
+
+      # Step 3: Package repository content
+      - name: Build and package repository
+        run: |
+          mkdir -p build
+          cp *.ps1 build/ || true
+          cp *.vbs build/ || true
+          cp -r ITSM-Templates-WKS build/ || true
+          cp README.md LICENSE build/
+          tar -czf Windows-SysAdmin-ProSuite.tar.gz -C build .
+
+      # Step 4: Build additional assets in a container
+      - name: Build assets in Docker container
+        run: |
+          docker run \
+          -v ${{ github.workspace }}:/workspace \
+          ubuntu:latest /bin/bash -c "
+            apt-get update &&
+            apt-get install -y make &&
+            cd /workspace &&
+            chmod -R 777 build &&
+            echo 'Building completed in container'"
+
+      # Step 5: Log the artifacts created
+      - name: List built artifacts
+        run: ls -lh build/ Windows-SysAdmin-ProSuite.tar.gz
+
+      # Step 6: Upload the packaged artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Windows-SysAdmin-ProSuite
+          path: Windows-SysAdmin-ProSuite.tar.gz
