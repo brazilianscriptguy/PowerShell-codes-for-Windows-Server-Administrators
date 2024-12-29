@@ -1,0 +1,45 @@
+# .github/workflows/release.yml
+
+name: Build and Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    outputs:
+      package-path: ${{ steps.package.outputs.package-path }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PowerShell
+        uses: actions/setup-powershell@v2
+
+      - name: Build and package artifacts
+        id: package
+        run: |
+          mkdir build
+          copy *.ps1 build\ || echo "No .ps1 files found"
+          copy *.vbs build\ || echo "No .vbs files found"
+          copy README.md build\ || echo "No README.md found"
+          copy LICENSE build\ || echo "No LICENSE found"
+          powershell Compress-Archive -Path build\* -DestinationPath Package-ProSuite.zip -Force
+          echo "::set-output name=package-path::$(pwd)\Package-ProSuite.zip"
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ steps.package.outputs.package-path }}
+          asset_name: Package-ProSuite.zip
+          asset_content_type: application/zip
