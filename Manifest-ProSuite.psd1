@@ -35,9 +35,9 @@
 
     # This FileList enumerates the relevant folders/files relative to the repository root in GitHub Actions.
     FileList = @(
-        'Windows-SysAdmin-ProSuite.psm1'
-        'Tests\CommandValidation.Tests.ps1'
-        'Tests\ModuleValidation.Tests.ps1'
+        'Module-ProSuite.psm1'
+        'Tests\01-CommandValidation.Tests.ps1'
+        'Tests\02-ModuleValidation.Tests.ps1'
         '.github\workflows\windows-rsat-pester.yml'
 
         # Your top-level README
