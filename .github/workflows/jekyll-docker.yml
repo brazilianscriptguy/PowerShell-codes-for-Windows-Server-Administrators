@@ -17,12 +17,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Install dependencies
-      - name: Update and Install Dependencies
+      # Install dependencies and PowerShell
+      - name: Install Dependencies and PowerShell
         run: |
           sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt-get install -y jq docker.io pwsh zip
+          sudo apt-get install -y wget apt-transport-https software-properties-common
+          wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo apt-get install -y powershell zip
 
       # Build the PowerShell module
       - name: Build PowerShell Module
