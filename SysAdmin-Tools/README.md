@@ -5,9 +5,9 @@
 The **SysAdmin-Tools** suite provides a powerful collection of PowerShell scripts designed to streamline and automate the management of Active Directory (AD), Windows Server roles, network infrastructure, and workstation configurations. These scripts simplify complex administrative tasks, enhance operational efficiency, and ensure compliance and security across IT environments.
 
 ✨ **Key Features**:
-- **User-Friendly Interfaces**: Many scripts include a GUI for intuitive use.
-- **Detailed Logging**: All scripts generate `.LOG` files for audit trails and troubleshooting.
-- **Exportable Reports**: Results are often exported in `.CSV` format for integration with reporting and analytics tools.
+- **User-Friendly Interfaces**: All scripts include a GUI for intuitive use.
+- **Detailed Logging**: All scripts generate `.log` files for audit trails and troubleshooting.
+- **Exportable Reports**: Results are often exported in `.csv` format for integration with reporting and analytics tools.
 
 ---
 
@@ -127,8 +127,8 @@ Ensure the following prerequisites are met to maximize the tools' effectiveness:
 
 ## 📝 Logging and Reporting
 
-- **Logs**: Each script generates `.LOG` files for tracking operations and debugging.
-- **Reports**: Many scripts export results in `.CSV` format for reporting and analysis.
+- **Logs**: Each script generates `.log` files for tracking operations and debugging.
+- **Reports**: Many scripts export results in `.csv` format for reporting and analysis.
 
 ---
 
