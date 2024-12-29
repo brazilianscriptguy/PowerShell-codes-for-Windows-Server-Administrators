@@ -1,4 +1,26 @@
-# .github/workflows/ReleaseFolder-Build.yml
+# Build and Release Workflow for Windows-SysAdmin-ProSuite
+# This workflow automates the packaging and releasing of the project artifacts.
+# It creates a ZIP file containing the necessary files and uploads it to the corresponding GitHub Release.
+#
+# SYNOPSIS
+#     Build and Release Workflow for Windows-SysAdmin-ProSuite
+#
+# DESCRIPTION
+#     This GitHub Actions workflow is designed to streamline the process of packaging and releasing
+#     your PowerShell administration suite. It performs the following tasks:
+#       1. Triggers automatically when a new release is published or manually via the Actions tab.
+#       2. Checks out the repository, including submodules if any.
+#       3. Sets up the PowerShell environment.
+#       4. Builds and packages the required artifacts into a ZIP file.
+#       5. Computes the SHA256 hash of the ZIP file for integrity verification.
+#       6. Uploads the ZIP file as a release asset.
+#       7. Optionally updates the release notes with the SHA256 hash.
+#
+# AUTHOR
+#     Luiz Hamilton Silva - @brazilianscriptguy
+#
+# VERSION
+#     Last Updated: December 29, 2024
 
 name: Build and Release
 
@@ -22,7 +44,10 @@ jobs:
 
       # Step 2: Set up PowerShell
       - name: Setup PowerShell
-        uses: actions/setup-powershell@v1
+        uses: pwsh/setup-powershell@v2
+        with:
+          # Optional: Specify PowerShell version if needed
+          # pwsh-version: '7.3.0'
 
       # Step 3: Build and package artifacts
       - name: Build and package artifacts
@@ -49,14 +74,14 @@ jobs:
           if (Test-Path $sourceFile) {
               Copy-Item -Path $sourceFile -Destination PowerShellCodes\ -Force
           } else {
-              Write-Host "File $sourceFile not found."
+              Write-Error "File $sourceFile not found. Aborting workflow."
           }
 
           # Compress the 'PowerShellCodes' folder into a ZIP file
           Compress-Archive -Path PowerShellCodes\* -DestinationPath Package-ProSuite.zip -Force
 
           # Output the path to the ZIP file for later steps
-          $packagePath = Resolve-Path Package-ProSuite.zip
+          $packagePath = (Resolve-Path Package-ProSuite.zip).Path
           echo "package-path=$packagePath" >> $env:GITHUB_OUTPUT
 
       # Step 4: Optional - Compute SHA256 hash of the package
@@ -93,3 +118,5 @@ jobs:
               release_id: releaseId,
               body: updatedBody
             });
+
+# End of script
