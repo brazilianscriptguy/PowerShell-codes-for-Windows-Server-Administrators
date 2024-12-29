@@ -1,3 +1,4 @@
+# .github/workflows/build-and-release.yml
 # Build and Release Workflow for Windows-SysAdmin-ProSuite
 name: Build and Release
 
@@ -15,13 +16,13 @@ jobs:
     steps:
       # Step 1: Check out the repository, including submodules if any
       - name: Checkout repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3    # Updated to v3
         with:
-          submodules: true    # Set to true if using Git submodules
+          submodules: true           # Set to true if using Git submodules
 
       # Step 2: Set up PowerShell
       - name: Setup PowerShell
-        uses: PowerShell/setup-powershell@v1
+        uses: PowerShell/setup-powershell@v2    # Updated to v2
         # Optional: Specify PowerShell version if needed
         # with:
         #   pwsh-version: '7.3.0'
@@ -83,7 +84,7 @@ jobs:
       # Step 6: Update release notes with the SHA256 hash
       - name: Update Release Notes with SHA256 Hash
         if: ${{ steps.compute_hash.outputs.hash != '' }}
-        uses: actions/github-script@v1
+        uses: actions/github-script@v6    # Updated to v6
         with:
           script: |
             const hash = '${{ steps.compute_hash.outputs.hash }}';
