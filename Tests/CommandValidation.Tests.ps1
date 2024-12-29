@@ -1,9 +1,9 @@
 Describe 'Test Get-UserInfo Function' {
-    # Mocking the Get-UserInfo function to simulate behavior
+    # Mock the Get-UserInfo function
     Mock -CommandName Get-UserInfo -MockWith {
         param([string]$UserName)
         if (-not $UserName -or $UserName -eq '') {
-            throw "Invalid username provided"
+            throw [ParameterBindingException]::new("Invalid username provided")
         }
         [PSCustomObject]@{
             UserName = $UserName
@@ -24,7 +24,7 @@ Describe 'Test Get-UserInfo Function' {
 
     Context 'When invalid parameters are passed' {
         It 'Should throw an error' {
-            { Get-UserInfo -UserName '' } | Should -Throw -ErrorMessage "Invalid username provided"
+            { Get-UserInfo -UserName '' } | Should -Throw -ErrorType 'ParameterBindingException'
         }
     }
 }
