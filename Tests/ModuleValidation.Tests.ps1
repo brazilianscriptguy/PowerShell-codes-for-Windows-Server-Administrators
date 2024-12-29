@@ -4,8 +4,8 @@ Describe 'Windows-SysAdmin-ProSuite Module Validation' {
     }
 
     It 'Should export all expected commands' {
-        $ExportedCmdlets = (Import-Module '../Windows-SysAdmin-ProSuite.psd1' -PassThru).ExportedCommands.Keys
-        $ExpectedCmdlets = @('Function1', 'Function2', 'Function3') # Replace with actual function names
+        $ExportedCmdlets = (Import-Module '../Windows-SysAdmin-ProSuite.psm1' -PassThru).ExportedCommands.Keys
+        $ExpectedCmdlets = @('Get-UserInfo', 'FunctionX', 'FunctionY') # Replace with actual function names
         $ExportedCmdlets | Should -ContainEveryItemOf $ExpectedCmdlets
     }
 }
