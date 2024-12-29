@@ -45,9 +45,246 @@ jobs:
       # Step 2: Set up PowerShell
       - name: Setup PowerShell
         uses: pwsh/setup-powershell@v1
+        # Removed 'with:' block as it's empty
+
+      # Step 3: Build and package artifacts
+      - name: Build and package artifacts
+        id: package
+        run: |
+          # Create the main folder 'PowerShellCodes'
+          New-Item -ItemType Directory -Path PowerShellCodes
+
+          # Copy LICENSE and README.md to 'PowerShellCodes'
+          Copy-Item -Path LICENSE -Destination PowerShellCodes\ -ErrorAction SilentlyContinue
+          Copy-Item -Path README.md -Destination PowerShellCodes\ -ErrorAction SilentlyContinue
+
+          # Iterate over all subdirectories (sub-repositories) in the main repository
+          Get-ChildItem -Directory | ForEach-Object {
+              $subrepo = $_.Name
+              if ($subrepo -ne 'PowerShellCodes' -and $subrepo -ne '.git') {
+                  # Copy all contents of the sub-repository into 'PowerShellCodes/<SubrepoName>'
+                  Copy-Item -Path $_.FullName\* -Destination PowerShellCodes\$subrepo\ -Recurse -Force
+              }
+          }
+
+          # Locate and copy 'Launch-Script-AutomaticMenu.ps1' into 'PowerShellCodes'
+          $sourceFile = 'Core-ScriptLibrary\Launch-Script-AutomaticMenu.ps1'
+          if (Test-Path $sourceFile) {
+              Copy-Item -Path $sourceFile -Destination PowerShellCodes\ -Force
+          } else {
+              Write-Error "File $sourceFile not found. Aborting workflow."
+          }
+
+          # Compress the 'PowerShellCodes' folder into a ZIP file
+          Compress-Archive -Path PowerShellCodes\* -DestinationPath Package-ProSuite.zip -Force
+
+          # Output the path to the ZIP file for later steps
+          $packagePath = (Resolve-Path Package-ProSuite.zip).Path
+          echo "package-path=$packagePath" >> $env:GITHUB_OUTPUT
+
+      # Step 4: Optional - Compute SHA256 hash of the package
+      - name: Compute SHA256 hash
+        id: compute_hash
+        run: |
+          $hash = Get-FileHash -Path ${{ steps.package.outputs.package-path }} -Algorithm SHA256
+          echo "hash=$($hash.Hash)" >> $env:GITHUB_OUTPUT
+
+      # Step 5: Upload the package as a GitHub Release asset
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Optional: Specify PowerShell version if needed
-          # pwsh-version: '7.3.0'
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ steps.package.outputs.package-path }}
+          asset_name: Package-ProSuite.zip
+          asset_content_type: application/zip
+
+      # Step 6: Optional - Update release notes with the SHA256 hash
+      - name: Update Release Notes with SHA256 Hash
+        if: ${{ steps.compute_hash.outputs.hash != '' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const hash = '${{ steps.compute_hash.outputs.hash }}';
+            const releaseId = context.payload.release.id;
+            const currentBody = context.payload.release.body || '';
+            const updatedBody = `${currentBody}\n\n**SHA256 Hash of Package-ProSuite.zip:** \`${hash}\``;
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: releaseId,
+              body: updatedBody
+            });
+    ```
+
+### **Detailed Explanation of Corrections**
+
+1. **Removed the Empty `with:` Block in Step 2:**
+   - **Before:**
+     ```yaml
+     with:
+       # Optional: Specify PowerShell version if needed
+       # pwsh-version: '7.3.0'
+     ```
+   - **After:**
+     ```yaml
+     # Removed 'with:' block as it's empty
+     ```
+   - **Reason:** An empty `with:` block is invalid in YAML. If you need to specify parameters in the future, you can reintroduce it with the necessary key-value pairs.
+
+2. **Updated `actions/checkout` to Use `v3`:**
+   - **Changed From:**
+     ```yaml
+     uses: actions/checkout@v4
+     ```
+   - **To:**
+     ```yaml
+     uses: actions/checkout@v3
+     ```
+   - **Reason:** `actions/checkout@v4` does **not** exist. Using `v3` aligns with the latest stable version.
+
+3. **Corrected the `if` Condition Syntax:**
+   - **Before:**
+     ```yaml
+     if: steps.compute_hash.outputs.hash != ''
+     ```
+   - **After:**
+     ```yaml
+     if: ${{ steps.compute_hash.outputs.hash != '' }}
+     ```
+   - **Reason:** GitHub Actions requires expressions to be enclosed within `${{ }}` to evaluate them correctly.
+
+4. **Removed Extraneous Lines Outside YAML Structure:**
+   - **Removed:**
+     ```yaml
+     # End of script
+     ```
+   - **Reason:** Any lines or comments outside the YAML structure can cause parsing errors.
+
+### **Verification Steps**
+
+1. **Validate YAML Syntax:**
+   - **Action:** Use an online YAML validator or a linter extension in your code editor to ensure there are no syntax errors.
+   - **Example Online YAML Validator:** [YAML Lint](http://www.yamllint.com/)
+
+2. **Ensure the Existence of Critical Files:**
+   - **Action:** Confirm that the file `Core-ScriptLibrary\Launch-Script-AutomaticMenu.ps1` exists in the specified path within your repository.
+   - **If Located Elsewhere:** Update the `$sourceFile` variable accordingly.
+     ```powershell
+     $sourceFile = 'Path\To\Your\Launch-Script-AutomaticMenu.ps1'
+     ```
+
+3. **Commit and Push the Corrected Workflow:**
+   - **Commands:**
+     ```bash
+     git add .github/workflows/BuildRelease-Folders.yml
+     git commit -m "Fix GitHub Actions workflow syntax errors"
+     git push origin main
+     ```
+
+4. **Create a Test GitHub Release:**
+   - **Steps:**
+     1. Navigate to the **Releases** section of your repository on GitHub.
+     2. Click on **"Draft a new release"**.
+     3. Fill in the release details (tag version, release title, description).
+     4. Click **"Publish release"**.
+
+5. **Monitor the Workflow Execution:**
+   - **Action:**
+     - Go to the **Actions** tab in your repository.
+     - Select the **"Build and Release"** workflow run corresponding to your new release.
+     - Monitor each step for successful execution.
+     - If any step fails, click on it to view detailed logs and troubleshoot accordingly.
+
+6. **Verify the Release Assets:**
+   - **Action:**
+     - After the workflow completes, navigate back to the **Releases** section.
+     - Select the release you just published.
+     - Ensure that `Package-ProSuite.zip` is attached as a release asset.
+     - If you included the optional step, verify that the SHA256 hash is appended to the release description.
+
+### **Common Pitfalls and How to Avoid Them**
+
+1. **Using Non-Existent Action Versions:**
+   - **Pitfall:** Referencing action versions that do not exist (e.g., `actions/checkout@v4`).
+   - **Solution:** Always refer to the latest stable version of an action. Check the [GitHub Marketplace](https://github.com/marketplace?type=actions) or the action's repository for available versions.
+
+2. **Incorrect `if` Condition Syntax:**
+   - **Pitfall:** Missing the `${{ }}` around expressions.
+   - **Solution:** Always wrap expressions within `${{ }}` to ensure they are evaluated correctly.
+
+3. **Extraneous Lines or Characters Outside YAML Structure:**
+   - **Pitfall:** Adding comments or lines outside the main YAML structure.
+   - **Solution:** Ensure that all comments are properly placed within the YAML structure and remove any lines outside it.
+
+4. **Improper Indentation:**
+   - **Pitfall:** YAML is indentation-sensitive. Misaligned indentation can cause parsing errors.
+   - **Solution:** Use consistent indentation (typically 2 spaces) and avoid mixing tabs with spaces.
+
+5. **Missing or Incorrect Output Variables:**
+   - **Pitfall:** Referencing output variables that are not correctly set.
+   - **Solution:** Ensure that steps setting outputs use the correct syntax and that subsequent steps reference them accurately.
+
+6. **Incorrect Path Separators:**
+   - **Pitfall:** Using inconsistent or incorrect path separators, especially when switching between Windows (`\`) and UNIX (`/`) systems.
+   - **Solution:** Use backslashes (`\`) for Windows paths within PowerShell scripts and forward slashes (`/`) for YAML steps if needed.
+
+### **Final Thoughts**
+
+By meticulously applying the above corrections, your GitHub Actions workflow should function without syntax errors. The key is ensuring that all `with:` blocks contain valid parameters or are removed if unnecessary, using the correct action versions, and adhering to proper YAML syntax and indentation.
+
+**Here's the corrected workflow file once again for your reference:**
+
+```yaml
+# Build and Release Workflow for Windows-SysAdmin-ProSuite
+# This workflow automates the packaging and releasing of the project artifacts.
+# It creates a ZIP file containing the necessary files and uploads it to the corresponding GitHub Release.
+#
+# SYNOPSIS
+#     Build and Release Workflow for Windows-SysAdmin-ProSuite
+#
+# DESCRIPTION
+#     This GitHub Actions workflow is designed to streamline the process of packaging and releasing
+#     your PowerShell administration suite. It performs the following tasks:
+#       1. Triggers automatically when a new release is published or manually via the Actions tab.
+#       2. Checks out the repository, including submodules if any.
+#       3. Sets up the PowerShell environment.
+#       4. Builds and packages the required artifacts into a ZIP file.
+#       5. Computes the SHA256 hash of the ZIP file for integrity verification.
+#       6. Uploads the ZIP file as a release asset.
+#       7. Optionally updates the release notes with the SHA256 hash.
+#
+# AUTHOR
+#     Luiz Hamilton Silva - @brazilianscriptguy
+#
+# VERSION
+#     Last Updated: December 29, 2024
+
+name: Build and Release
+
+on:
+  workflow_dispatch:    # Allows manual triggering of the workflow
+  release:
+    types: [published]  # Triggers when a release is published
+
+permissions:
+  contents: write       # Allows creating and modifying releases
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      # Step 1: Check out the repository, including submodules if any
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true    # Set to true if using Git submodules
+
+      # Step 2: Set up PowerShell
+      - name: Setup PowerShell
+        uses: pwsh/setup-powershell@v1
+        # Removed 'with:' block as it's empty
 
       # Step 3: Build and package artifacts
       - name: Build and package artifacts
