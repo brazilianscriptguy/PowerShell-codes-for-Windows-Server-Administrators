@@ -82,7 +82,6 @@ Unjoins the workstation from the domain and performs cleanup tasks, such as:
   - Clearing DNS cache  
   - Removing old domain profiles  
   - Resetting environment variables  
-Includes a GUI for smooth operation and standardized logging.
 
 ---
 
