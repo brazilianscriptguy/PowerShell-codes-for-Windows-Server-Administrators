@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    PowerShell Script Template for Structured and Maintainable PowerShell Projects.
+    Pester Tests for Module Validation in Windows-SysAdmin-ProSuite
 
 .DESCRIPTION
-    Provides a reusable framework with standardized logging, error handling, dynamic paths, 
-    and GUI integration. Suitable for building robust and maintainable PowerShell tools.
+    Verifies the .psd1 manifest, checks that the module loads without errors,
+    and confirms that all expected commands are exported.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -29,7 +29,6 @@ Describe 'Windows-SysAdmin-ProSuite Module Validation' {
         $ImportedModule = Import-Module $ModulePath -Force -PassThru
         $ExportedCmdlets = $ImportedModule.ExportedCommands.Keys
         $ExpectedCmdlets = @('Get-UserInfo', 'Test-SysAdminFeature')
-
         $ExportedCmdlets | Should -ContainEveryItemOf $ExpectedCmdlets
     }
 }
