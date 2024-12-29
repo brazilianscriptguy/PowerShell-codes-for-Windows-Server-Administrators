@@ -1,4 +1,4 @@
-# Build and Release Workflow for Windows-SysAdmin-ProSuite
+# Build and Release W orkflow for Windows-SysAdmin-ProSuite
 # This workflow automates the packaging and releasing of the project artifacts.
 # It creates a ZIP file containing the necessary files and uploads it to the corresponding GitHub Release.
 #
