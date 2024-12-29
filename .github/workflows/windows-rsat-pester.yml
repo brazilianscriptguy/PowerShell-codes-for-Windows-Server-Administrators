@@ -88,7 +88,7 @@ jobs:
           if (-not (Test-Path './dist')) {
             New-Item -Path './dist' -ItemType Directory | Out-Null
           }
-          $zip = Join-Path -Path './dist' -ChildPath 'Windows-SysAdmin-ProSuite.zip'
+          $zip = Join-Path -Path './dist' -ChildPath 'Package-ProSuite.zip'
           Compress-Archive -Path "$dir/*" -DestinationPath $zip -Force
           Write-Host "Packaged at $zip."
 
@@ -96,6 +96,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Windows-SysAdmin-ProSuite
-          path: ./dist/Windows-SysAdmin-ProSuite.zip
+          path: ./dist/Package-ProSuite.zip
 
 # End of script
