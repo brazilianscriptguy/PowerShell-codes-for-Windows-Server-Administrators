@@ -13,23 +13,19 @@
     Last Updated: December 29, 2024
 #>
 
-# Function: Write-Log
 function Write-Log {
     param (
         [Parameter(Mandatory)]
         [string]$Message,
-        
+
         [ValidateSet("INFO","ERROR","WARNING","DEBUG","CRITICAL")]
         [string]$MessageType = "INFO"
     )
     $timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
     $logEntry = "[$timestamp] [$MessageType] $Message"
     Write-Host $logEntry
-    # Optionally write to a file:
-    # Add-Content -Path 'C:\temp\module.log' -Value $logEntry
 }
 
-# Function: Handle-Error
 function Handle-Error {
     param (
         [Parameter(Mandatory)]
@@ -49,7 +45,6 @@ catch {
     Write-Log -Message "ActiveDirectory module not found or failed to load. $_" -MessageType "WARNING"
 }
 
-# Function: Get-UserInfo
 function Get-UserInfo {
 <#
 .SYNOPSIS
@@ -75,12 +70,11 @@ function Get-UserInfo {
         if (-not $SamAccountName) {
             throw "SamAccountName cannot be empty."
         }
-        
+
         $user = Get-ADUser -Identity $SamAccountName -Properties * 2>$null
         if (-not $user) {
             throw "User '$SamAccountName' not found in AD."
         }
-
         [PSCustomObject]@{
             Name           = $user.Name
             SamAccountName = $user.SamAccountName
@@ -95,7 +89,6 @@ function Get-UserInfo {
     }
 }
 
-# Function: Test-SysAdminFeature
 function Test-SysAdminFeature {
 <#
 .SYNOPSIS
