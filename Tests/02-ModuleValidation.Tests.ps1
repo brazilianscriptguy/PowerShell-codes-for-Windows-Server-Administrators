@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Pester Tests for Module Validation in Windows-SysAdmin-ProSuite
+    Pester Tests: Validate Manifest-ProSuite.psd1
 
 .DESCRIPTION
-    Verifies the .psd1 manifest, checks that the module loads without errors,
-    and confirms that all expected commands are exported.
+    Ensures the module loads, passes Test-ModuleManifest,
+    and exports expected commands.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -13,29 +13,26 @@
     Last Updated: December 29, 2024
 #>
 
-Describe 'Windows-SysAdmin-ProSuite Module Validation' {
-
-    # Retrieve the module manifest path from environment
+Describe 'Module-ProSuite Validation' {
     $ManifestPath = $Env:MODULE_FILE
-
     if (-not $ManifestPath) {
-        throw "Environment variable MODULE_FILE is null or empty! Cannot run Module Validation."
+        throw "Environment variable MODULE_FILE is missing!"
     }
 
     $ModulePath = [System.IO.Path]::ChangeExtension($ManifestPath, '.psm1')
 
-    It 'Should load the module manifest without errors' {
+    It 'Should load the .psd1 manifest without errors' {
         Test-Path -Path $ManifestPath | Should -BeTrue
         { Test-ModuleManifest -Path $ManifestPath } | Should -Not -Throw
     }
 
-    It 'Should export all expected commands' {
+    It 'Should export expected commands' {
         Test-Path -Path $ModulePath | Should -BeTrue
 
-        $ImportedModule = Import-Module $ModulePath -Force -PassThru
-        $ExportedCmdlets = $ImportedModule.ExportedCommands.Keys
-        $ExpectedCmdlets = @('Get-UserInfo', 'Test-SysAdminFeature')
-        $ExportedCmdlets | Should -ContainEveryItemOf $ExpectedCmdlets
+        $mod = Import-Module $ModulePath -Force -PassThru
+        $Exported = $mod.ExportedCommands.Keys
+        $Expected = @('Get-UserInfo','Test-SysAdminFeature')
+        $Exported | Should -ContainEveryItemOf $Expected
     }
 }
 
