@@ -15,13 +15,13 @@ jobs:
     steps:
       # Step 1: Check out the repository, including submodules if any
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v1
         with:
           submodules: true    # Set to true if using Git submodules
 
       # Step 2: Set up PowerShell
       - name: Setup PowerShell
-        uses: PowerShell/setup-powershell@v2
+        uses: PowerShell/setup-powershell@v1
         # Optional: Specify PowerShell version if needed
         # with:
         #   pwsh-version: '7.3.0'
@@ -83,7 +83,7 @@ jobs:
       # Step 6: Update release notes with the SHA256 hash
       - name: Update Release Notes with SHA256 Hash
         if: ${{ steps.compute_hash.outputs.hash != '' }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v1
         with:
           script: |
             const hash = '${{ steps.compute_hash.outputs.hash }}';
