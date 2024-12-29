@@ -9,7 +9,7 @@ on:
 
 permissions:
   contents: write
-  id-token: write
+  id-token: write  # Ensure the workflow has write access to ID tokens
 
 jobs:
   build:
@@ -25,14 +25,15 @@ jobs:
       - name: Build and package artifacts
         run: |
           mkdir build
-          # Copy scripts
+          # Copy PowerShell scripts
           copy *.ps1 build || exit 0
+          # Copy VBScript files
           copy *.vbs build || exit 0
           # Copy documentation files
           copy README.md build || exit 0
           copy LICENSE build || exit 0
 
-          # Create a zip file for release
+          # Create a ZIP file for release
           powershell Compress-Archive -Path build\* -DestinationPath Package-ProSuite.zip
 
       # Step 3: Generate provenance hashes
@@ -48,7 +49,7 @@ jobs:
           $digestOutput = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($hashes -join "`n"))
           echo "digests=$digestOutput" >> $env:GITHUB_OUTPUT
 
-      # Step 4: Upload artifact for provenance
+      # Step 4: Upload artifact for provenance (optional but recommended)
       - name: Upload artifact for provenance
         uses: actions/upload-artifact@v3
         with:
@@ -63,7 +64,7 @@ jobs:
 
   provenance:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # SLSA generator is optimized for Linux environments
     permissions:
       actions: read
       id-token: write
@@ -71,22 +72,3 @@ jobs:
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
     with:
       base64-subjects: "${{ needs.build.outputs.digests }}"
-
-  upload:
-    needs: provenance
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: Package-ProSuite
-
-      - name: Upload to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./Package-ProSuite.zip
-          asset_name: Package-ProSuite.zip
-          asset_content_type: application/zip
