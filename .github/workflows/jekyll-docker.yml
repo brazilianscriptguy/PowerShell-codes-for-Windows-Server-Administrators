@@ -1,4 +1,4 @@
-name: CI/CD Workflow for PowerShell Module
+name: CI/CD Workflow for PowerShell Module-
 
 on:
   push:
