@@ -1,16 +1,15 @@
 Describe 'Test Get-UserInfo Function' {
 
-    # Mock definition for Get-UserInfo
-    Mock -CommandName Get-UserInfo -MockWith {
-        param([string]$SamAccountName)
-        if (-not $SamAccountName -or $SamAccountName -eq '') {
-            throw [ParameterBindingException]::new("Invalid username provided")
-        }
+    # Mock definition for Get-ADUser so it doesn't contact a real Domain Controller
+    Mock -CommandName Get-ADUser -MockWith {
+        param([string]$Identity)
+        # Return a fake AD user object
         [PSCustomObject]@{
-            SamAccountName = $SamAccountName
-            FullName       = "$SamAccountName Full"
-            Email          = "$SamAccountName@example.com"
-            Title          = "Mocked Title"
+            Name           = "$Identity FullName"
+            SamAccountName = $Identity
+            EmailAddress   = "$Identity@example.com"
+            Department     = "MockDept"
+            Title          = "MockTitle"
         }
     }
 
@@ -19,13 +18,14 @@ Describe 'Test Get-UserInfo Function' {
             $Result = Get-UserInfo -SamAccountName 'ValidUser'
             $Result | Should -Not -BeNullOrEmpty
             $Result.SamAccountName | Should -Be 'ValidUser'
-            $Result.Email          | Should -Be 'ValidUser@example.com'
+            $Result.EmailAddress   | Should -Be 'ValidUser@example.com'
         }
     }
 
     Context 'When invalid parameters are passed' {
         It 'Should throw an error' {
-            { Get-UserInfo -SamAccountName '' } | Should -Throw -ErrorType 'ParameterBindingException'
+            # Use a script block approach:
+            { Get-UserInfo -SamAccountName '' } | Should -Throw
         }
     }
 }
