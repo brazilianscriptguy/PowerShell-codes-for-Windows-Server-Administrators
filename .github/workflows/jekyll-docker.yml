@@ -44,10 +44,12 @@ jobs:
         shell: pwsh
         run: |
           try {
-            Import-Module "$env:MODULE_FILE" -ErrorAction Stop
-            Test-ModuleManifest -Path "$env:MODULE_FILE" -ErrorAction Stop
+            $modulePath = "${{ env.MODULE_FILE }}"
+            Write-Host "Validating module manifest at: $modulePath"
+            Test-ModuleManifest -Path $modulePath -ErrorAction Stop
+            Write-Host "Module manifest validation successful."
           } catch {
-            Write-Error "Failed to import or validate the module manifest: $_"
+            Write-Error "Failed to validate the module manifest: $_"
             exit 1
           }
         env:
@@ -58,7 +60,9 @@ jobs:
         shell: pwsh
         run: |
           try {
+            Write-Host "Running Pester tests..."
             Invoke-Pester -Path ./Tests -Output Detailed
+            Write-Host "Pester tests completed successfully."
           } catch {
             Write-Error "Pester tests failed: $_"
             exit 1
