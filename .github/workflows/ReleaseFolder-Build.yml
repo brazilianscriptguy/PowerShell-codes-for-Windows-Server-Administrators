@@ -1,4 +1,4 @@
-# Build and Release W orkflow for Windows-SysAdmin-ProSuite
+# Build and Release Workflow for Windows-SysAdmin-ProSuite
 # This workflow automates the packaging and releasing of the project artifacts.
 # It creates a ZIP file containing the necessary files and uploads it to the corresponding GitHub Release.
 #
@@ -104,7 +104,7 @@ jobs:
 
       # Step 6: Optional - Update release notes with the SHA256 hash
       - name: Update Release Notes with SHA256 Hash
-        if: steps.compute_hash.outputs.hash != ''
+        if: ${{ steps.compute_hash.outputs.hash != '' }}
         uses: actions/github-script@v6
         with:
           script: |
