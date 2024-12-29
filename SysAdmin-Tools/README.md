@@ -7,7 +7,7 @@ The **SysAdmin-Tools** suite provides a powerful collection of PowerShell script
 ✨ **Key Features**:
 - **User-Friendly Interfaces**: All scripts include a GUI for intuitive use.
 - **Detailed Logging**: All scripts generate `.log` files for audit trails and troubleshooting.
-- **Exportable Reports**: Results are often exported in `.csv` format for integration with reporting and analytics tools.
+- **Exportable Reports**: Reports are often exported in `.csv` format for integration with Reporting and Analytics Tools.
 
 ---
 
