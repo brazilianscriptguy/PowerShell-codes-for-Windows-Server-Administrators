@@ -10,6 +10,7 @@ on:
 
 jobs:
   build-and-test:
+    # Switch from ubuntu-latest to windows-latest
     runs-on: windows-latest
 
     steps:
@@ -17,34 +18,34 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Install Dependencies and PowerShell
-      - name: Install Dependencies and PowerShell
+      # Optional: Install RSAT (Active Directory Tools) if not already available
+      - name: Install RSAT for Active Directory
+        shell: pwsh
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget apt-transport-https software-properties-common zip
-          wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
-          sudo dpkg -i packages-microsoft-prod.deb
-          sudo apt-get update
-          sudo apt-get install -y powershell
-          pwsh -Command 'Write-Host "PowerShell installed successfully."'
+          # On Windows runners, this adds the AD DS Tools, including the ActiveDirectory module.
+          Add-WindowsCapability -Online -Name "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0"
+          Write-Host "RSAT ActiveDirectory tools installed."
 
       # Locate the PowerShell Module File
       - name: Locate PowerShell Module
         id: locate-module
+        shell: pwsh
         run: |
-          MODULE_FILE=$(find . -name "Windows-SysAdmin-ProSuite.psd1" | head -n 1)
-          if [ -z "$MODULE_FILE" ]; then
-            echo "Error: Windows-SysAdmin-ProSuite.psd1 not found in the repository!" && exit 1
-          fi
-          echo "Module file located at: $MODULE_FILE"
-          echo "MODULE_FILE=$MODULE_FILE" >> $GITHUB_ENV
+          $moduleFile = (Get-ChildItem -Path . -Filter "Windows-SysAdmin-ProSuite.psd1" -Recurse | Select-Object -First 1).FullName
+          if (-not $moduleFile) {
+            Write-Error "Error: Windows-SysAdmin-ProSuite.psd1 not found in the repository!"
+            exit 1
+          }
+          Write-Host "Module file located at: $moduleFile"
+          echo "MODULE_FILE=$moduleFile" | Out-Host
+          echo "MODULE_FILE=$moduleFile" >> $Env:GITHUB_ENV
 
       # Validate PowerShell Module Manifest
       - name: Validate PowerShell Module Manifest
         shell: pwsh
         run: |
           try {
-            $modulePath = "${{ env.MODULE_FILE }}"
+            $modulePath = $env:MODULE_FILE
             Write-Host "Validating module manifest at: $modulePath"
             Test-ModuleManifest -Path $modulePath -ErrorAction Stop
             Write-Host "Module manifest validation successful."
@@ -52,8 +53,6 @@ jobs:
             Write-Error "Failed to validate the module manifest: $_"
             exit 1
           }
-        env:
-          MODULE_FILE: ${{ env.MODULE_FILE }}
 
       # Run Pester Tests
       - name: Run PowerShell Tests
@@ -71,16 +70,15 @@ jobs:
             Write-Error "Pester tests failed: $_"
             exit 1
           }
-        env:
-          MODULE_FILE: ${{ env.MODULE_FILE }}
 
       # Package the PowerShell Module
       - name: Package PowerShell Module
+        shell: pwsh
         run: |
-          MODULE_DIR=$(dirname "${{ env.MODULE_FILE }}")
-          mkdir -p ./dist
-          zip -r ./dist/Windows-SysAdmin-ProSuite.zip "$MODULE_DIR"/*
-          echo "Packaging complete. Archive saved at ./dist/Windows-SysAdmin-ProSuite.zip."
+          $moduleDir = Split-Path -Path $env:MODULE_FILE
+          New-Item -Path './dist' -ItemType Directory -Force | Out-Null
+          Compress-Archive -Path "$moduleDir/*" -DestinationPath './dist/Windows-SysAdmin-ProSuite.zip' -Force
+          Write-Host "Packaging complete. Archive saved at ./dist/Windows-SysAdmin-ProSuite.zip."
 
       # Upload the Package as an Artifact
       - name: Upload PowerShell Module Package
