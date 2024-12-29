@@ -19,7 +19,7 @@ Describe 'Test Get-UserInfo Function' {
             $Result = Get-UserInfo -SamAccountName 'ValidUser'
             $Result | Should -Not -BeNullOrEmpty
             $Result.SamAccountName | Should -Be 'ValidUser'
-            $Result.Email         | Should -Be 'ValidUser@example.com'
+            $Result.Email          | Should -Be 'ValidUser@example.com'
         }
     }
 
