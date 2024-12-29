@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     outputs:
       digests: ${{ steps.hash.outputs.digests }}
 
@@ -18,64 +18,46 @@ jobs:
       # Step 2: Build and package artifacts
       - name: Build and package artifacts
         run: |
-          mkdir -p build
+          mkdir build
           # Copy scripts
-          cp *.ps1 build/ || true
-          cp *.vbs build/ || true
-          # Copy doc files
-          cp README.md build/ || true
-          cp LICENSE build/ || true
+          copy *.ps1 build || exit 0
+          copy *.vbs build || exit 0
+          # Copy documentation files
+          copy README.md build || exit 0
+          copy LICENSE build || exit 0
 
-          # Create tarball for release
-          tar -czf Package-ProSuite.tar.gz -C build .
+          # Create a zip file for release
+          powershell Compress-Archive -Path build\* -DestinationPath Package-ProSuite.zip
 
       # Step 3: Generate provenance hashes
       - name: Generate provenance subjects
         id: hash
         run: |
-          files=$(ls build/*)
-          echo "digests=$(sha256sum $files | base64 -w0)" >> "${GITHUB_OUTPUT}"
+          $files = Get-ChildItem -Path build\*
+          $hashes = @()
+          foreach ($file in $files) {
+              $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash
+              $hashes += "$($file.FullName): $hash"
+          }
+          $digestOutput = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($hashes -join "`n"))
+          echo "digests=$digestOutput" >> $env:GITHUB_ENV
 
       # Optional: Debug logs
       - name: Debug artifacts
         run: |
-          ls -lh build/
-          ls -lh Package-ProSuite.tar.gz
+          dir build
+          dir Package-ProSuite.zip
 
   provenance:
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       actions: read
       id-token: write
       contents: write
-    steps:
-      # Step 1: Install dependencies
-      - name: Install Sigstore CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl gnupg
-          curl -sLO https://github.com/sigstore/sigstore/releases/latest/download/sigstore-linux-amd64
-          chmod +x sigstore-linux-amd64
-          sudo mv sigstore-linux-amd64 /usr/local/bin/sigstore
-
-      # Step 2: Refresh TUF metadata
-      - name: Refresh Sigstore TUF metadata
-        run: |
-          sigstore tuf refresh || exit 1
-
-      # Step 3: Verify artifacts
-      - name: Verify artifact hashes
-        run: |
-          sigstore verify --artifact ./Package-ProSuite.tar.gz || exit 1
-
-      # Step 4: Generate SLSA provenance
-      - name: Generate SLSA provenance
-        uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
-        with:
-          base64-subjects: "${{ needs.build.outputs.digests }}"
-
-      # Optional: Debug provenance output
-      - name: Debug provenance output
-        run: |
-          ls -lh ./provenance/
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.digests }}"
+      upload-assets: true
+      assets: |
+        Package-ProSuite.zip
