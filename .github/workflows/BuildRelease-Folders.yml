@@ -38,7 +38,7 @@ jobs:
     steps:
       # Step 1: Check out the repository, including submodules if any
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           submodules: true    # Set to true if using Git submodules
 
