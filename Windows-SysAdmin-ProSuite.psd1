@@ -35,12 +35,23 @@
 
     PowerShellVersion = '5.1'
 
-    # This FileList should reflect your GitHub folder structure
+    # This FileList enumerates all relevant folders and files in Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary,
+    # as well as other module and test files in your repository.
     FileList = @(
-        'Windows-SysAdmin-ProSuite.psm1',
-        'Tests\CommandValidation.Tests.ps1',
-        'Tests\ModuleValidation.Tests.ps1',
+        # Existing module & tests
+        'Windows-SysAdmin-ProSuite.psm1'
+        'Tests\CommandValidation.Tests.ps1'
+        'Tests\ModuleValidation.Tests.ps1'
         '.github\workflows\windows-rsat-pester.yml'
+
+        # Core-ScriptLibrary structure
+        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Create-Script-DefaultHeader.ps1'
+        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Create-Script-LoggingMethod.ps1'
+        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Create-Script-MainCore.ps1'
+        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Create-Script-MainGUI.ps1'
+        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Extract-Script-Headers.ps1'
+        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\Launch-Script-AutomaticMenu.ps1'
+        'Windows-SysAdmin-ProSuite-main\Core-ScriptLibrary\README.md'
     )
 }
 
