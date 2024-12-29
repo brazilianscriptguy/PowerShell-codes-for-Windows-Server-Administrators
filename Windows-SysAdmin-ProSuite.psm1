@@ -21,7 +21,7 @@ function Get-UserInfo {
     #>
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory, ValueFromPipeline)]
+        [Parameter(Mandatory)]
         [string]$SamAccountName
     )
 
@@ -34,7 +34,8 @@ function Get-UserInfo {
             Department     = $user.Department
             Title          = $user.Title
         }
-    } catch {
+    }
+    catch {
         Write-Error "Failed to retrieve user info for '$SamAccountName': $_"
     }
 }
