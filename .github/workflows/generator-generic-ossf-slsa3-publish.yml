@@ -1,0 +1,57 @@
+# This workflow generates SLSA Level 3 provenance files for the Windows-SysAdmin-ProSuite repository.
+# It automates artifact creation, hashing, and release uploads while ensuring provenance compliance.
+
+name: Generate SLSA Provenance
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      digests: ${{ steps.hash.outputs.digests }}
+
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v4
+
+      # Step 1: Build artifacts
+      - name: Build and package artifacts
+        run: |
+          mkdir -p build
+          # Include PowerShell scripts
+          cp *.ps1 build/
+          # Include VBScripts
+          cp *.vbs build/
+          # Include documentation files
+          cp README.md build/
+          cp LICENSE build/
+          # Package everything into a tarball for release
+          tar -czf Windows-SysAdmin-ProSuite.tar.gz -C build .
+
+      # Step 2: Generate provenance subject hashes
+      - name: Generate provenance subjects
+        id: hash
+        run: |
+          files=$(ls build/*)
+          echo "hashes=$(sha256sum $files | base64 -w0)" >> "${GITHUB_OUTPUT}"
+
+      # Optional: Log included artifacts for debugging
+      - name: Log included artifacts
+        run: ls -lh build/
+
+  provenance:
+    needs: [build]
+    permissions:
+      actions: read   # To read the workflow path.
+      id-token: write # To sign the provenance.
+      contents: write # To add assets to a release.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.digests }}"
+      upload-assets: true
+      assets: |
+        Windows-SysAdmin-ProSuite.tar.gz
