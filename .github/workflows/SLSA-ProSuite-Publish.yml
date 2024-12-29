@@ -1,7 +1,3 @@
-# SLSA-ProSuite-Publish.yml
-# This workflow generates SLSA Level 3 provenance for the Windows-SysAdmin-ProSuite repository.
-# It automates artifact creation, hashing, and triggers the slsa-framework generator to produce a provenance statement.
-
 name: SLSA-ProSuite-Publish
 
 on:
@@ -16,33 +12,31 @@ jobs:
       digests: ${{ steps.hash.outputs.digests }}
 
     steps:
-      # 1) Check out repository
+      # 1) Check out the repository
       - uses: actions/checkout@v4
 
-      # 2) Build/package artifacts
+      # 2) Build and package artifacts
       - name: Build and package artifacts
         run: |
           mkdir -p build
-          # Copy PowerShell scripts (optional)
-          cp *.ps1 build/ 2>/dev/null || true
-          # Copy VBScript files (optional)
-          cp *.vbs build/ 2>/dev/null || true
+          # Copy scripts
+          cp *.ps1 build/ || true
+          cp *.vbs build/ || true
           # Copy doc files
-          cp README.md build/ 2>/dev/null || true
-          cp LICENSE build/ 2>/dev/null || true
+          cp README.md build/ || true
+          cp LICENSE build/ || true
 
-          # Create a tarball for release
+          # Create tarball for release
           tar -czf Package-ProSuite.tar.gz -C build .
 
-      # 3) Generate provenance subject hashes (base64-encoded)
+      # 3) Generate provenance hashes
       - name: Generate provenance subjects
         id: hash
         run: |
-          # Hash each file in ./build, then base64-encode
           files=$(ls build/*)
           echo "digests=$(sha256sum $files | base64 -w0)" >> "${GITHUB_OUTPUT}"
 
-      # Optional: debug logs
+      # Optional: Debug logs
       - name: Debug artifacts
         run: |
           ls -lh build/
@@ -54,7 +48,20 @@ jobs:
       actions: read
       id-token: write
       contents: write
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
-    with:
-      # Provide the base64-encoded subject hashes to the generator
-      base64-subjects: "${{ needs.build.outputs.digests }}"
+    steps:
+      # 1) Ensure Rekor public keys and TUF metadata are up to date
+      - name: Update Rekor public keys
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sigstore-cli
+          sigstore-init --refresh-tuf-metadata
+
+      # 2) Run SLSA generator
+      - name: Generate SLSA provenance
+        uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
+        with:
+          base64-subjects: "${{ needs.build.outputs.digests }}"
+
+      # Optional: Debug provenance generation
+      - name: Debug provenance output
+        run: ls -lh ./provenance/
