@@ -1,4 +1,4 @@
-name: CI/CD Workflow for PowerShell Module-
+name: CI/CD Workflow for PowerShell Module
 
 on:
   push:
@@ -60,13 +60,19 @@ jobs:
         shell: pwsh
         run: |
           try {
+            Write-Host "Importing module before tests..."
+            Import-Module $env:MODULE_FILE  # import the module
+
             Write-Host "Running Pester tests..."
             Invoke-Pester -Path ./Tests -Output Detailed
+
             Write-Host "Pester tests completed successfully."
           } catch {
             Write-Error "Pester tests failed: $_"
             exit 1
           }
+        env:
+          MODULE_FILE: ${{ env.MODULE_FILE }}
 
       # Package the PowerShell Module
       - name: Package PowerShell Module
