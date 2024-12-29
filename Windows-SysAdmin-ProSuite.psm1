@@ -1,4 +1,4 @@
-name: Publish Artifacts with SLSA3
+name: Publish Artifacts with SLSA3 and Run Pester Tests
 
 on:
   workflow_dispatch:
@@ -15,27 +15,38 @@ permissions:
   id-token: write
 
 jobs:
-  generate-artifact:
-    name: Generate and Publish Artifact
+  build-and-test:
+    name: Build, Test, and Publish Artifact
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Source Code
       uses: actions/checkout@v3
 
-    - name: Set Up Python (Optional for Dependencies)
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.9"
-
-    - name: Install Dependencies
+    - name: Install PowerShell and Dependencies
       run: |
-        pip install -r requirements.txt || echo "No Python dependencies specified."
+        sudo apt-get update
+        sudo apt-get install -y wget apt-transport-https software-properties-common
+        wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+        sudo dpkg -i packages-microsoft-prod.deb
+        sudo apt-get update
+        sudo apt-get install -y powershell
+        pwsh -Command 'Write-Host "PowerShell installed successfully."'
 
-    - name: Validate Source Code
+    - name: Run Pester Tests for Module Validation
       run: |
-        echo "Performing static analysis and source validation..."
-        # Replace with actual validation commands if needed
+        pwsh -Command "Invoke-Pester -Path './Tests/ModuleValidation.Tests.ps1' -Output Detailed"
+      shell: pwsh
+
+    - name: Run Pester Tests for Command Validation
+      run: |
+        pwsh -Command "Invoke-Pester -Path './Tests/CommandValidation.Tests.ps1' -Output Detailed"
+      shell: pwsh
+
+    - name: Run All Pester Tests
+      run: |
+        pwsh -Command "Invoke-Pester -Path './Tests' -Output Detailed"
+      shell: pwsh
 
     - name: Build Artifact
       run: |
@@ -65,7 +76,7 @@ jobs:
 
   verify-and-release:
     name: Verify Release Integrity
-    needs: generate-artifact
+    needs: build-and-test
     runs-on: ubuntu-latest
 
     steps:
