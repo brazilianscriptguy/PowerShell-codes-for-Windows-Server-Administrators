@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    PowerShell Script Template for Structured and Maintainable PowerShell Projects.
+    Pester Tests for Command Validation in Windows-SysAdmin-ProSuite
 
 .DESCRIPTION
-    Provides a reusable framework with standardized logging, error handling, dynamic paths, 
-    and GUI integration. Suitable for building robust and maintainable PowerShell tools.
+    Contains tests verifying functionality of exported commands (like Get-UserInfo),
+    using mocks for AD calls, and optionally skipping real AD queries if not domain-joined.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -58,3 +58,5 @@ Describe 'Get-UserInfo Command Validation' {
         }
     }
 }
+
+# End of script
