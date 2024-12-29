@@ -13,7 +13,7 @@
     AliasesToExport   = @()
 
     PrivateData = @{
-        Tags = @('active-directory', 'sysadmin', 'itsm', 'windows', 'powershell', 'blueteam', 'eventlogs')
+        Tags         = @('active-directory', 'sysadmin', 'itsm', 'windows', 'powershell', 'blueteam', 'eventlogs')
         ProjectUri   = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite'
         LicenseUri   = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/blob/main/.github/LICENSE'
         ReleaseNotes = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/releases'
