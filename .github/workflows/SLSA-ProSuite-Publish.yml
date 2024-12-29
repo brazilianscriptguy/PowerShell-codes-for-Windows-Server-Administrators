@@ -12,10 +12,10 @@ jobs:
       digests: ${{ steps.hash.outputs.digests }}
 
     steps:
-      # 1) Check out the repository
+      # Step 1: Check out the repository
       - uses: actions/checkout@v4
 
-      # 2) Build and package artifacts
+      # Step 2: Build and package artifacts
       - name: Build and package artifacts
         run: |
           mkdir -p build
@@ -29,7 +29,7 @@ jobs:
           # Create tarball for release
           tar -czf Package-ProSuite.tar.gz -C build .
 
-      # 3) Generate provenance hashes
+      # Step 3: Generate provenance hashes
       - name: Generate provenance subjects
         id: hash
         run: |
@@ -44,24 +44,38 @@ jobs:
 
   provenance:
     needs: [build]
+    runs-on: ubuntu-latest
     permissions:
       actions: read
       id-token: write
       contents: write
     steps:
-      # 1) Ensure Rekor public keys and TUF metadata are up to date
-      - name: Update Rekor public keys
+      # Step 1: Install dependencies
+      - name: Install Sigstore CLI
         run: |
           sudo apt-get update
-          sudo apt-get install -y sigstore-cli
-          sigstore-init --refresh-tuf-metadata
+          sudo apt-get install -y curl gnupg
+          curl -sLO https://github.com/sigstore/sigstore/releases/latest/download/sigstore-linux-amd64
+          chmod +x sigstore-linux-amd64
+          sudo mv sigstore-linux-amd64 /usr/local/bin/sigstore
 
-      # 2) Run SLSA generator
+      # Step 2: Refresh TUF metadata
+      - name: Refresh Sigstore TUF metadata
+        run: |
+          sigstore tuf refresh || exit 1
+
+      # Step 3: Verify artifacts
+      - name: Verify artifact hashes
+        run: |
+          sigstore verify --artifact ./Package-ProSuite.tar.gz || exit 1
+
+      # Step 4: Generate SLSA provenance
       - name: Generate SLSA provenance
         uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
         with:
           base64-subjects: "${{ needs.build.outputs.digests }}"
 
-      # Optional: Debug provenance generation
+      # Optional: Debug provenance output
       - name: Debug provenance output
-        run: ls -lh ./provenance/
+        run: |
+          ls -lh ./provenance/
