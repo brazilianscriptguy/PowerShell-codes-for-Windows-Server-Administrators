@@ -26,9 +26,11 @@ jobs:
           sudo dpkg -i packages-microsoft-prod.deb
           sudo apt-get update
           sudo apt-get install -y powershell
+          pwsh -Command 'Write-Host "PowerShell installed successfully."'
 
-      # Locate the PowerShell module file
+      # Locate the PowerShell Module File
       - name: Locate PowerShell Module
+        id: locate-module
         run: |
           MODULE_FILE=$(find . -name "Windows-SysAdmin-ProSuite.psd1" | head -n 1)
           if [ -z "$MODULE_FILE" ]; then
@@ -37,8 +39,8 @@ jobs:
           echo "Module file located at: $MODULE_FILE"
           echo "MODULE_FILE=$MODULE_FILE" >> $GITHUB_ENV
 
-      # Build the PowerShell Module
-      - name: Build PowerShell Module
+      # Validate PowerShell Module Manifest
+      - name: Validate PowerShell Module Manifest
         shell: pwsh
         run: |
           try {
@@ -48,22 +50,30 @@ jobs:
             Write-Error "Failed to import or validate the module manifest: $_"
             exit 1
           }
+        env:
+          MODULE_FILE: ${{ env.MODULE_FILE }}
 
-      # Run PowerShell Tests
+      # Run Pester Tests
       - name: Run PowerShell Tests
         shell: pwsh
         run: |
-          Invoke-Pester -Path ./Tests -Output Detailed
+          try {
+            Invoke-Pester -Path ./Tests -Output Detailed
+          } catch {
+            Write-Error "Pester tests failed: $_"
+            exit 1
+          }
 
       # Package the PowerShell Module
       - name: Package PowerShell Module
         run: |
-          MODULE_DIR=$(dirname "$env:MODULE_FILE")
+          MODULE_DIR=$(dirname "${{ env.MODULE_FILE }}")
           mkdir -p ./dist
-          zip -r ./dist/Windows-SysAdmin-ProSuite.zip "$MODULE_DIR"
+          zip -r ./dist/Windows-SysAdmin-ProSuite.zip "$MODULE_DIR"/*
+          echo "Packaging complete. Archive saved at ./dist/Windows-SysAdmin-ProSuite.zip."
 
       # Upload the Package as an Artifact
-      - name: Upload Package to GitHub
+      - name: Upload PowerShell Module Package
         uses: actions/upload-artifact@v3
         with:
           name: Windows-SysAdmin-ProSuite
