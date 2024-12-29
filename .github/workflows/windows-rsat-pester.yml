@@ -1,0 +1,119 @@
+name: CI/CD Workflow for PowerShell Module
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      # 1) Enable Git long paths on Windows
+      - name: Enable long paths
+        shell: powershell
+        run: |
+          git config --system core.longpaths true
+
+      # 2) Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 3) Install RSAT (Active Directory Tools)
+      #
+      #   GitHub Windows runners vary between Server 2019/2022 images.
+      #   We'll first try Install-WindowsFeature (works on many Server images).
+      #   If not found, fallback to Add-WindowsCapability for newer images.
+      #
+      - name: Install RSAT for Active Directory
+        shell: powershell
+        run: |
+          Write-Host "Installing RSAT for Active Directory..."
+
+          # Check if the "RSAT-AD-PowerShell" feature name is recognized (for Win Server 2019/2022)
+          $feature = Get-WindowsFeature RSAT-AD-PowerShell -ErrorAction SilentlyContinue
+          if ($feature -and $feature.Name -eq 'RSAT-AD-PowerShell') {
+            # If it's not installed, install it
+            if (-not $feature.Installed) {
+              Install-WindowsFeature RSAT-AD-PowerShell
+            }
+          }
+          else {
+            # Fallback for newer Windows versions that use Add-WindowsCapability
+            # "RSAT.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0"
+            Add-WindowsCapability -Online -Name "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0"
+          }
+
+          Write-Host "RSAT ActiveDirectory tools installed."
+          Write-Host "Verifying ActiveDirectory module presence..."
+          Get-Module -ListAvailable ActiveDirectory | Format-Table Name, ModuleType, Version, Path
+
+      # 4) Locate the PowerShell Module File (.psd1)
+      - name: Locate PowerShell Module
+        id: locate-module
+        shell: powershell
+        run: |
+          $moduleFile = Get-ChildItem -Path . -Filter "Windows-SysAdmin-ProSuite.psd1" -Recurse | Select-Object -First 1
+          if (-not $moduleFile) {
+            Write-Error "Error: Windows-SysAdmin-ProSuite.psd1 not found in the repository!"
+            exit 1
+          }
+          Write-Host "Module file located at: $($moduleFile.FullName)"
+          # Save path as an environment variable
+          echo "MODULE_FILE=$($moduleFile.FullName)" >> $Env:GITHUB_ENV
+
+      # 5) Validate the PowerShell Module Manifest
+      - name: Validate PowerShell Module Manifest
+        shell: powershell
+        run: |
+          try {
+            $modulePath = $Env:MODULE_FILE
+            Write-Host "Validating module manifest at: $modulePath"
+            Test-ModuleManifest -Path $modulePath -ErrorAction Stop
+            Write-Host "Module manifest validation successful."
+          }
+          catch {
+            Write-Error "Failed to validate the module manifest: $_"
+            exit 1
+          }
+
+      # 6) Import the Module & Run Pester Tests (in Windows PowerShell 5.1)
+      - name: Run PowerShell Tests
+        shell: powershell
+        run: |
+          try {
+            $modulePath = $Env:MODULE_FILE
+
+            Write-Host "Importing module before tests..."
+            Import-Module $modulePath -ErrorAction Stop
+
+            Write-Host "Running Pester tests..."
+            Invoke-Pester -Path ./Tests -Output Detailed
+
+            Write-Host "Pester tests completed successfully."
+          }
+          catch {
+            Write-Error "Pester tests failed: $_"
+            exit 1
+          }
+
+      # 7) Package the PowerShell Module
+      - name: Package PowerShell Module
+        shell: powershell
+        run: |
+          $moduleDir = Split-Path $Env:MODULE_FILE
+          if (-not (Test-Path './dist')) {
+            New-Item -ItemType Directory -Path './dist' | Out-Null
+          }
+          $zipPath = Join-Path -Path './dist' -ChildPath 'Windows-SysAdmin-ProSuite.zip'
+          Compress-Archive -Path "$moduleDir/*" -DestinationPath $zipPath -Force
+          Write-Host "Packaging complete. Archive saved at $zipPath."
+
+      # 8) Upload the Package as an Artifact
+      - name: Upload PowerShell Module Package
+        uses: actions/upload-artifact@v3
+        with:
+          name: Windows-SysAdmin-ProSuite
+          path: ./dist/Windows-SysAdmin-ProSuite.zip
