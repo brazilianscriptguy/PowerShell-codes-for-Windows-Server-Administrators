@@ -19,7 +19,7 @@ function Get-UserInfo {
     .EXAMPLE
         Get-UserInfo -SamAccountName "jdoe"
     #>
-
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
         [string]$SamAccountName
@@ -28,11 +28,11 @@ function Get-UserInfo {
     try {
         $user = Get-ADUser -Identity $SamAccountName -Properties *
         [PSCustomObject]@{
-            Name          = $user.Name
+            Name           = $user.Name
             SamAccountName = $user.SamAccountName
-            EmailAddress  = $user.EmailAddress
-            Department    = $user.Department
-            Title         = $user.Title
+            EmailAddress   = $user.EmailAddress
+            Department     = $user.Department
+            Title          = $user.Title
         }
     } catch {
         Write-Error "Failed to retrieve user info for '$SamAccountName': $_"
@@ -53,11 +53,3 @@ function Test-SysAdminFeature {
 
 # Export Functions
 Export-ModuleMember -Function Get-UserInfo, Test-SysAdminFeature
-
-# Test Integration
-try {
-    Write-Verbose "Running module validation tests..."
-    Invoke-Pester -Path './Tests/ModuleValidation.Tests.ps1' -Output Detailed
-} catch {
-    Write-Warning "Pester tests encountered issues: $_"
-}
