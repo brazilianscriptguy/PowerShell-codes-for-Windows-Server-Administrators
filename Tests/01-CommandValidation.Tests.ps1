@@ -3,7 +3,7 @@
     Pester Tests: Validate commands in Module-ProSuite
 
 .DESCRIPTION
-    Mocks ActiveDirectory calls, ensuring domainless testing is possible.
+    Mocks ActiveDirectory calls for domainless testing.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -13,19 +13,21 @@
 #>
 
 Describe 'Get-UserInfo Command Validation' {
+
     BeforeAll {
-        # Ensure AD is loaded so the mock is recognized
+        # Ensure the AD module is loaded so Pester can detect the command
         if (-not (Get-Module ActiveDirectory)) {
             Import-Module ActiveDirectory -ErrorAction SilentlyContinue
         }
 
+        # Define the mock AFTER AD is recognized
         Mock -CommandName 'Get-ADUser' -ModuleName 'ActiveDirectory' -MockWith {
             param([string]$Identity)
             [PSCustomObject]@{
-                Name        = "$Identity Mocked"
-                SamAccount  = $Identity
-                Email       = "$Identity@example.com"
-                Department  = "MockDept"
+                Name       = "$Identity Mock"
+                SamAccount = $Identity
+                Email      = "$Identity@example.com"
+                Department = "MockDept"
             }
         }
     }
@@ -38,7 +40,7 @@ Describe 'Get-UserInfo Command Validation' {
             $result.Email      | Should -Be 'ValidUser@example.com'
         }
 
-        It 'Should throw an error if SamAccountName is empty' {
+        It 'Should throw an error for an empty SamAccountName' {
             { Get-UserInfo -SamAccountName '' } | Should -Throw
         }
     }
