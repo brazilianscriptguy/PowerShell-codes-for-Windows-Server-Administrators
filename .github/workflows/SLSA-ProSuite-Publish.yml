@@ -1,3 +1,5 @@
+# .github/workflows/SLSA-ProSuite-Publish.yml
+
 name: SLSA-ProSuite-Publish
 
 on:
@@ -7,7 +9,7 @@ on:
 
 permissions:
   contents: write
-  id-token: write # Required for SLSA GitHub generator
+  id-token: write
 
 jobs:
   build:
@@ -44,7 +46,14 @@ jobs:
               $hashes += "$($file.FullName): $hash"
           }
           $digestOutput = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($hashes -join "`n"))
-          echo "digests=$digestOutput" >> $env:GITHUB_ENV
+          echo "digests=$digestOutput" >> $env:GITHUB_OUTPUT
+
+      # Step 4: Upload artifact for provenance
+      - name: Upload artifact for provenance
+        uses: actions/upload-artifact@v3
+        with:
+          name: Package-ProSuite
+          path: Package-ProSuite.zip
 
       # Optional: Debug logs
       - name: Debug artifacts
@@ -54,12 +63,30 @@ jobs:
 
   provenance:
     needs: build
-    runs-on: ubuntu-latest # SLSA framework supports Ubuntu runners
+    runs-on: ubuntu-latest
     permissions:
-      contents: write
+      actions: read
       id-token: write
+      contents: write
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.digests }}"
+
+  upload:
+    needs: provenance
+    runs-on: ubuntu-latest
     steps:
-      - name: Use reusable workflow for provenance
-        uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
+      - name: Download artifact
+        uses: actions/download-artifact@v3
         with:
-          base64-subjects: "${{ needs.build.outputs.digests }}"
+          name: Package-ProSuite
+
+      - name: Upload to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./Package-ProSuite.zip
+          asset_name: Package-ProSuite.zip
+          asset_content_type: application/zip
