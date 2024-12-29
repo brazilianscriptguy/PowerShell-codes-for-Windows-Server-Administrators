@@ -2,7 +2,7 @@
 
 ## 📄 Overview
 
-The **ScriptsAdditionalSupport** folder contains a comprehensive collection of additional scripts designed to address configuration inconsistencies identified by **L1 Service Support**. These scripts serve as essential tools for troubleshooting, maintenance, and optimization of workstation and server environments, ensuring smooth operations and compliance with IT standards.
+The **ScriptsAdditionalSupport** folder contains a comprehensive collection of additional scripts designed to address configuration inconsistencies identified by **L1 Service Support Operators**. These scripts serve as essential tools for troubleshooting, maintenance, and optimization of workstation and server environments, ensuring smooth operations and compliance with IT standards.
 
 Each script includes robust error handling, detailed logging, and, where applicable, a user-friendly GUI for streamlined interaction.
 
@@ -99,4 +99,4 @@ Each script generates detailed logs documenting the steps performed, outcomes, a
 ## 🔗 References
 
 - [ITSM-Templates-WKS Documentation](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/blob/main/ITSM-Templates-WKS/README.md)  
-- For further assistance, contact **L1 Service Support** or consult the **README.md** file located in the root directory of **ITSM-Templates-WKS**.
+- For further assistance, contact your **L1 Service Support Coordinator** or consult the **README.md** file located in the root directory of **ITSM-Templates-WKS**.
