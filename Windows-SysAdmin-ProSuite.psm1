@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    PowerShell Script Template for Structured and Maintainable PowerShell Projects.
+    Windows-SysAdmin-ProSuite Module: Implementation of advanced Windows SysAdmin tasks.
 
 .DESCRIPTION
-    Provides a reusable framework with standardized logging, error handling, dynamic paths, 
-    and GUI integration. Suitable for building robust and maintainable PowerShell tools.
+    This PowerShell module includes logging, error handling, and optional Active Directory integration.
+    Exports functions that help with user account queries and placeholder system admin features.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -39,7 +39,6 @@ function Handle-Error {
     throw $ErrorMessage
 }
 
-# Attempt to import ActiveDirectory
 try {
     if (-not (Get-Module -Name ActiveDirectory -ListAvailable)) {
         Write-Log -Message "Importing Active Directory module..."
@@ -57,7 +56,8 @@ function Get-UserInfo {
     Retrieves detailed information about an Active Directory user.
 
 .DESCRIPTION
-    Leverages the AD module to query domain user properties.
+    Queries an AD domain for user properties like Name, Email, Department, Title, etc.
+    Uses the ActiveDirectory module when available.
 
 .PARAMETER SamAccountName
     The SAM account name of the user to retrieve.
@@ -102,10 +102,7 @@ function Test-SysAdminFeature {
     Placeholder function for future system admin features.
 
 .DESCRIPTION
-    This is a stub function to illustrate how multiple functions can be included in the module.
-
-.EXAMPLE
-    Test-SysAdminFeature
+    Demonstrates how multiple functions can be included in this module.
 #>
     Write-Log "Test-SysAdminFeature called." -MessageType "INFO"
     return "Feature under development..."
