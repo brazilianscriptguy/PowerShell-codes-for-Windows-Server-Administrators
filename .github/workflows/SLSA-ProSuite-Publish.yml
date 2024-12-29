@@ -5,6 +5,10 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: write
+  id-token: write # Required for SLSA GitHub generator
+
 jobs:
   build:
     runs-on: windows-latest
@@ -50,8 +54,12 @@ jobs:
 
   provenance:
     needs: build
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
-    with:
-      base64-subjects: "${{ needs.build.outputs.digests }}"
-      upload-assets: true
-      assets: Package-ProSuite.zip
+    runs-on: ubuntu-latest # SLSA framework supports Ubuntu runners
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Use reusable workflow for provenance
+        uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
+        with:
+          base64-subjects: "${{ needs.build.outputs.digests }}"
