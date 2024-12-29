@@ -1,5 +1,6 @@
 Describe 'Windows-SysAdmin-ProSuite Module Validation' {
-    # Define paths relative to the test directory
+    # Dynamically resolve the paths
+    $PSScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
     $ManifestPath = (Join-Path -Path $PSScriptRoot -ChildPath '../Windows-SysAdmin-ProSuite.psd1')
     $ModulePath = (Join-Path -Path $PSScriptRoot -ChildPath '../Windows-SysAdmin-ProSuite.psm1')
 
