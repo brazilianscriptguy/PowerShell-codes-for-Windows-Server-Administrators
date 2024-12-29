@@ -1,6 +1,5 @@
 # This workflow generates SLSA Level 3 provenance files for the Windows-SysAdmin-ProSuite repository.
 # It automates artifact creation, hashing, and release uploads while ensuring provenance compliance.
-# 
 
 name: Generate SLSA Provenance
 
@@ -13,45 +12,51 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      digests: ${{ steps.hash.outputs.digests }}
+      digests: ${{ steps.hash.outputs.digests }}  # Use "digests" from the 'hash' step
 
     steps:
-      # Checkout the repository
+      # 1) Checkout the repository
       - uses: actions/checkout@v4
 
-      # Step 1: Build artifacts
+      # 2) Build and package artifacts
       - name: Build and package artifacts
         run: |
           mkdir -p build
           # Include PowerShell scripts
-          cp *.ps1 build/
-          # Include VBScripts
-          cp *.vbs build/
+          cp *.ps1 build/ 2>/dev/null || true
+          # Include VBScript files
+          cp *.vbs build/ 2>/dev/null || true
           # Include documentation files
-          cp README.md build/
-          cp LICENSE build/
-          # Package everything into a tarball for release
+          cp README.md build/ 2>/dev/null || true
+          cp LICENSE build/ 2>/dev/null || true
+
+          # Create a tarball in the workspace (root) for release
           tar -czf Package-ProSuite.tar.gz -C build .
 
-      # Step 2: Generate provenance subject hashes
+      # 3) Generate provenance subject hashes
       - name: Generate provenance subjects
         id: hash
         run: |
+          # Hash each file in ./build
           files=$(ls build/*)
-          echo "hashes=$(sha256sum $files | base64 -w0)" >> "${GITHUB_OUTPUT}"
+          echo "Found files to hash: $files"
+          echo "digests=$(sha256sum $files | base64 -w0)" >> "${GITHUB_OUTPUT}"
 
       # Optional: Log included artifacts for debugging
       - name: Log included artifacts
-        run: ls -lh build/
+        run: ls -lh build/ && ls -lh Package-ProSuite.tar.gz
 
   provenance:
+    # The 'provenance' job depends on the 'build' job
     needs: [build]
     permissions:
       actions: read   # To read the workflow path.
       id-token: write # To sign the provenance.
       contents: write # To add assets to a release.
+    # We call the SLSA generator workflow:
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
     with:
+      # The SLSA generator expects the base64-encoded subject hashes
       base64-subjects: "${{ needs.build.outputs.digests }}"
       upload-assets: true
       assets: |
