@@ -172,7 +172,7 @@ jobs:
    - **Action:** Confirm that the file `Core-ScriptLibrary\Launch-Script-AutomaticMenu.ps1` exists in the specified path within your repository.
    - **If Located Elsewhere:** Update the `$sourceFile` variable accordingly.
      ```powershell
-     $sourceFile = 'Path\To\Your\Launch-Script-AutomaticMenu.ps1'
+     $sourceFile = 'Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1'
      ```
 
 3. **Commit and Push the Corrected Workflow:**
