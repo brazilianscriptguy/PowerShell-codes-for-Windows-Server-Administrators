@@ -17,25 +17,25 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Update and resolve dependencies
+      # Install dependencies
       - name: Update and Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get upgrade -y
-          sudo apt-get autoremove -y
-          sudo apt-get autoclean
-          sudo apt-get remove -y containerd || true
-          sudo apt-get install -y containerd.io jq docker.io
+          sudo apt-get install -y jq docker.io pwsh zip
 
       # Build the PowerShell module
       - name: Build PowerShell Module
+        shell: pwsh
         run: |
-          pwsh -Command "Import-Module ./YourModule.psd1; Test-ModuleManifest -Path ./YourModule.psd1"
+          Import-Module ./YourModule.psd1
+          Test-ModuleManifest -Path ./YourModule.psd1
 
       # Run tests for the module
       - name: Run PowerShell Tests
+        shell: pwsh
         run: |
-          pwsh -Command "Invoke-Pester -Path ./Tests -Output Detailed"
+          Invoke-Pester -Path ./Tests -Output Detailed
 
       # Package the PowerShell Module
       - name: Package PowerShell Module
@@ -43,8 +43,8 @@ jobs:
           mkdir -p ./dist
           zip -r ./dist/YourModule.zip ./YourModule.psd1 ./YourModule.psm1 ./YourModule/*.ps1
 
-      # Publish the package to GitHub Packages
-      - name: Publish to GitHub Packages
+      # Upload the package as an artifact
+      - name: Upload Package to GitHub
         uses: actions/upload-artifact@v3
         with:
           name: YourModule
