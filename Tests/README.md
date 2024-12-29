@@ -3,8 +3,8 @@
 This directory contains automated tests for the **Windows-SysAdmin-ProSuite** PowerShell module. The tests are written using the [Pester](https://github.com/pester/Pester) framework.
 
 ## Structure
-- `ModuleValidation.Tests.ps1`: Validates the module manifest and exported commands.
-- `CommandValidation.Tests.ps1`: Validates individual functions for expected behavior.
+- `01-ModuleValidation.Tests.ps1`: Validates the module manifest and exported commands.
+- `02-CommandValidation.Tests.ps1`: Validates individual functions for expected behavior.
 
 ## Writing Tests
 1. Create a new `.Tests.ps1` file in the `Tests` directory.
