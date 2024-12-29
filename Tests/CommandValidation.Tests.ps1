@@ -5,8 +5,7 @@ Describe 'Get-UserInfo Command Validation' {
     # --------------------------------------------------------------------------
     Context 'Mock-based AD tests' {
 
-        # IMPORTANT: Include -ModuleName 'ActiveDirectory' so that Pester
-        # knows to intercept calls from that specific module.
+        # IMPORTANT: Mock the "Get-ADUser" command in the "ActiveDirectory" module
         Mock -CommandName 'Get-ADUser' -ModuleName 'ActiveDirectory' -MockWith {
             param([string]$Identity)
             # Return a fake AD user object
@@ -32,7 +31,7 @@ Describe 'Get-UserInfo Command Validation' {
     }
 
     # --------------------------------------------------------------------------
-    # 2) Real AD tests (skip if not domain-joined)
+    # 2) Real AD integration tests (skip if not domain-joined)
     # --------------------------------------------------------------------------
     Context 'Real AD integration tests' {
 
@@ -48,7 +47,7 @@ Describe 'Get-UserInfo Command Validation' {
         else {
             # If domain-joined, run a real query
             It 'Should retrieve user info from a real AD domain' {
-                $RealUser = 'SomeRealUser'
+                $RealUser = 'SomeRealUser'  # Insert a real SamAccountName if you want to test
                 $UserInfo = Get-UserInfo -SamAccountName $RealUser
                 $UserInfo | Should -Not -BeNullOrEmpty
                 $UserInfo.SamAccountName | Should -Be $RealUser
