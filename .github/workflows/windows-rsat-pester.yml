@@ -1,14 +1,14 @@
 #<#
 #.SYNOPSIS
-#    PowerShell Script Template for Structured and Maintainable PowerShell Projects.
-#
+#    GitHub Actions Workflow: Windows-based CI with RSAT + Pester
+
 #.DESCRIPTION
-#    Provides a reusable framework with standardized logging, error handling, dynamic paths, 
-#    and GUI integration. Suitable for building robust and maintainable PowerShell tools.
-#
+#    Installs RSAT for Active Directory, checks out the code, locates the .psd1,
+#    validates the manifest, runs Pester tests, and packages the module artifact.
+
 #.AUTHOR
 #    Luiz Hamilton Silva - @brazilianscriptguy
-#
+
 #.VERSION
 #    Last Updated: December 29, 2024
 #>
@@ -108,4 +108,5 @@ jobs:
         with:
           name: Windows-SysAdmin-ProSuite
           path: ./dist/Windows-SysAdmin-ProSuite.zip
+
 # End of script
