@@ -141,11 +141,11 @@ Tailor the scripts to suit your specific IT environment:
 
 ## 🤝 Support and Contributions
 
-For support or to report issues, contact via [email](mailto:luizhamilton.lhr@gmail.com) or join the [PowerShell-Br WhatsApp channel](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c).  
+For support or to report issues, contact via [email](mailto:luizhamilton.lhr@gmail.com) or join the [Windows-SysAdmin-ProSuite WhatsApp channel](https://whatsapp.com/channel/0029VaEgqC50G0XZV1k4Mb1c).  
 
 Support the project on [Patreon](https://patreon.com/brazilianscriptguy) to access exclusive content and updates.  
 
-Stay informed about updates and releases at the [Windows-SysAdmin-ProSuite Release](https://github.com/brazilianscriptguy/PowerShell-codes-for-Windows-Server-Administrators/releases/tag/Windows-SysAdmin-ProSuite).
+Stay informed about updates and releases at the [Windows-SysAdmin-ProSuite Release](https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/releases/tag/Windows-SysAdmin-ProSuite).
 
 ---
 
