@@ -49,7 +49,7 @@ jobs:
           dir Package-ProSuite.zip
 
   provenance:
-    needs: [build]
+    needs: build
     runs-on: windows-latest
     permissions:
       actions: read
@@ -59,5 +59,4 @@ jobs:
     with:
       base64-subjects: "${{ needs.build.outputs.digests }}"
       upload-assets: true
-      assets: |
-        Package-ProSuite.zip
+      assets: Package-ProSuite.zip
