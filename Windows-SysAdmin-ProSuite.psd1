@@ -18,9 +18,9 @@
     ModuleVersion     = '1.0.4'
     Author            = 'Luiz Hamilton Silva - @brazilianscriptguy'
     CompanyName       = '@brazilianscriptguy'
-    Copyright         = '(c) 2024'
     Description       = 'PowerShell module for advanced Windows SysAdmin tasks, includes ActiveDirectory integration.'
     GUID              = 'f81ecf42-2c94-4ad9-a7d1-bb8f580de39b'
+    PowerShellVersion = '5.1'
 
     FunctionsToExport = @('Get-UserInfo', 'Test-SysAdminFeature')
     CmdletsToExport   = @()
@@ -33,18 +33,14 @@
         ReleaseNotes = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/releases'
     }
 
-    PowerShellVersion = '5.1'
-
-    # This FileList enumerates the relevant folders/files 
-    # relative to the repository root in GitHub Actions.
+    # This FileList enumerates the relevant folders/files relative to the repository root in GitHub Actions.
     FileList = @(
-        # Main module & tests
         'Windows-SysAdmin-ProSuite.psm1'
         'Tests\CommandValidation.Tests.ps1'
         'Tests\ModuleValidation.Tests.ps1'
         '.github\workflows\windows-rsat-pester.yml'
 
-        # Top-level README (repo root)
+        # Your top-level README
         'README.md'
 
         # BlueTeam-Tools folder
