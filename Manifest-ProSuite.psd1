@@ -3,8 +3,7 @@
     Windows-SysAdmin-ProSuite Module Manifest
 
 .DESCRIPTION
-    This file specifies metadata, exports, and file references for the Windows-SysAdmin-ProSuite module.
-    It includes a FileList that enumerates the relevant folders/files in your GitHub repository.
+    Specifies metadata, exports, and file references for Module-ProSuite.psm1.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
@@ -33,31 +32,14 @@
         ReleaseNotes = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/releases'
     }
 
-    # This FileList enumerates the relevant folders/files relative to the repository root in GitHub Actions.
+    # FileList enumerates relevant folders/files in the repository
     FileList = @(
         'Module-ProSuite.psm1'
         'Tests\01-CommandValidation.Tests.ps1'
         'Tests\02-ModuleValidation.Tests.ps1'
+        'Tests\README.md'
         '.github\workflows\windows-rsat-pester.yml'
-
-        # Your top-level README
-        'README.md'
-
-        # BlueTeam-Tools folder
-        'BlueTeam-Tools\README.md'
-        'BlueTeam-Tools\EventLogMonitoring\EventID-Count-AllEvtx-Events.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\EventID307-PrintAudit.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\EventID4624-ADUserLoginViaRDP.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\EventID4624and4634-ADUserLoginTracking.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\EventID4625-ADUserLoginAccountFailed.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\EventID4648-ExplicitCredentialsLogon.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\EventID4660and4663-ObjectDeletionTracking.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\EventID4771-KerberosPreAuthFailed.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\EventID4800and4801-WorkstationLockStatus.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\EventID5136-5137and5141-ADChanges-and-ObjectDeletions.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\EventID6005-6006-6008-6009-6013-1074-1076-SystemRestarts.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\Migrate-WinEvtStructure-Tool.ps1'
-        'BlueTeam-Tools\EventLogMonitoring\README.md'
+        'Manifest-ProSuite.psd1'
     )
 }
 
