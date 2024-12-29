@@ -3,7 +3,7 @@
 #    GitHub Actions Workflow: Windows-based CI with RSAT + Pester
 
 #.DESCRIPTION
-#    Installs RSAT for Active Directory, checks out the code (with a custom path),
+#    Installs RSAT for Active Directory, checks out the code in a short path (./repo),
 #    locates the .psd1, validates the manifest, runs Pester tests, and packages the artifact.
 
 #.AUTHOR
@@ -26,16 +26,18 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # 1) Enable long paths
       - name: Enable long paths
         shell: powershell
         run: git config --system core.longpaths true
 
+      # 2) Checkout Repository in a short path (./repo)
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # This ensures your repo is in D:\a\Windows-SysAdmin-ProSuite\Source
-          path: Source
+          path: repo
 
+      # 3) Install RSAT (Active Directory)
       - name: Install RSAT for Active Directory
         shell: powershell
         run: |
@@ -51,20 +53,20 @@ jobs:
           }
           Write-Host "RSAT ActiveDirectory tools installed."
 
+      # 4) Locate the PowerShell Module File (.psd1)
       - name: Locate PowerShell Module
         id: locate-module
         shell: powershell
         run: |
-          # We now search inside the 'Source' folder for the .psd1
-          $moduleFile = Get-ChildItem -Path "./Source" -Filter "Windows-SysAdmin-ProSuite.psd1" -Recurse | Select-Object -First 1
+          $moduleFile = Get-ChildItem -Path './repo' -Filter "Windows-SysAdmin-ProSuite.psd1" -Recurse | Select-Object -First 1
           if (-not $moduleFile) {
-            Write-Error "Error: Windows-SysAdmin-ProSuite.psd1 not found in the 'Source' folder!"
+            Write-Error "Error: Windows-SysAdmin-ProSuite.psd1 not found in ./repo!"
             exit 1
           }
-          Write-Host "Module file: $($moduleFile.FullName)"
-          # Expose environment variable for subsequent steps
+          Write-Host "Module file located at: $($moduleFile.FullName)"
           echo "MODULE_FILE=$($moduleFile.FullName)" >> $Env:GITHUB_ENV
 
+      # 5) Validate PowerShell Module Manifest
       - name: Validate PowerShell Module Manifest
         shell: powershell
         run: |
@@ -79,16 +81,22 @@ jobs:
             exit 1
           }
 
+      # 6) Run Pester Tests
       - name: Run PowerShell Tests
         shell: powershell
         run: |
           try {
-            $modulePath = $Env:MODULE_FILE
+            # Ensure ActiveDirectory is loaded in this session
+            if (-not (Get-Module ActiveDirectory)) {
+              Write-Host "Importing ActiveDirectory in CI session..."
+              Import-Module ActiveDirectory -ErrorAction SilentlyContinue
+            }
+
             Write-Host "Importing module before tests..."
-            Import-Module $modulePath -ErrorAction Stop
+            Import-Module $Env:MODULE_FILE -ErrorAction Stop
 
             Write-Host "Running Pester tests..."
-            Invoke-Pester -Path ./Source/Tests -Output Detailed
+            Invoke-Pester -Path ./repo/Tests -Output Detailed
 
             Write-Host "Pester tests completed successfully."
           }
@@ -97,6 +105,7 @@ jobs:
             exit 1
           }
 
+      # 7) Package the PowerShell Module
       - name: Package PowerShell Module
         shell: powershell
         run: |
@@ -106,8 +115,9 @@ jobs:
           }
           $zipPath = Join-Path -Path './dist' -ChildPath 'Windows-SysAdmin-ProSuite.zip'
           Compress-Archive -Path "$moduleDir/*" -DestinationPath $zipPath -Force
-          Write-Host "Packaging complete at $zipPath."
+          Write-Host "Packaging complete. Archive saved at $zipPath."
 
+      # 8) Upload the Package as an Artifact
       - name: Upload PowerShell Module Package
         uses: actions/upload-artifact@v3
         with:
