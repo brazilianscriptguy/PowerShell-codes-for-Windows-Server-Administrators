@@ -28,7 +28,7 @@ The suite is organized into four main subfolders, grouping scripts by functional
 
 ---
 
-### 2. **GPOs-Templates**
+### 2. **GroupPolicyObjects-Templates**
    A collection of ready-to-use GPO templates designed for seamless import into a new Windows Server Forest and Domain structure.
    
    - **Examples**:
