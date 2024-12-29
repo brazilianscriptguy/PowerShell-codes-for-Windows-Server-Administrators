@@ -92,7 +92,7 @@ Synchronizes the workstation’s time, date, and time zone with the domain contr
 
 ## 📝 Logging and Output
 
-Each script generates detailed logs documenting the steps performed, outcomes, and any errors encountered. Logs are saved in the `C:\ITSM-Logs-WKS\` directory, making them easily accessible for troubleshooting and auditing purposes.  
+Each script generates detailed `.log` files documenting the steps performed, outcomes, and any errors encountered. Logs files are saved in the `C:\ITSM-Logs-WKS\` directory, making them easily accessible for troubleshooting and auditing purposes.  
 
 ---
 
