@@ -1,6 +1,6 @@
 @{
     RootModule        = 'Windows-SysAdmin-ProSuite.psm1'
-    ModuleVersion     = '1.0.3'
+    ModuleVersion     = '1.0.4'
     Author            = 'Luiz Hamilton Silva - @brazilianscriptguy'
     CompanyName       = '@brazilianscriptguy'
     Copyright         = "(c) Luiz Hamilton Silva - @brazilianscriptguy. All rights reserved."
@@ -14,8 +14,8 @@
 
     PrivateData = @{
         Tags = @('active-directory', 'sysadmin', 'itsm', 'windows', 'powershell', 'blueteam', 'eventlogs')
-        ProjectUri = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite'
-        LicenseUri = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/blob/main/.github/LICENSE'
+        ProjectUri   = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite'
+        LicenseUri   = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/blob/main/.github/LICENSE'
         ReleaseNotes = 'https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/releases'
     }
 
