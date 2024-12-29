@@ -16,7 +16,7 @@
 Describe 'Module-ProSuite Validation' {
     $ManifestPath = $Env:MODULE_FILE
     if (-not $ManifestPath) {
-        throw "Environment variable MODULE_FILE is missing!"
+        throw "Environment variable MODULE_FILE is null/empty! Cannot test manifest."
     }
 
     $ModulePath = [System.IO.Path]::ChangeExtension($ManifestPath, '.psm1')
@@ -29,8 +29,8 @@ Describe 'Module-ProSuite Validation' {
     It 'Should export expected commands' {
         Test-Path -Path $ModulePath | Should -BeTrue
 
-        $mod = Import-Module $ModulePath -Force -PassThru
-        $Exported = $mod.ExportedCommands.Keys
+        $Imported = Import-Module $ModulePath -Force -PassThru
+        $Exported = $Imported.ExportedCommands.Keys
         $Expected = @('Get-UserInfo','Test-SysAdminFeature')
         $Exported | Should -ContainEveryItemOf $Expected
     }
