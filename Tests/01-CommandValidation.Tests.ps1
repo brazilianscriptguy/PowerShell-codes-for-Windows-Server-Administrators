@@ -1,26 +1,22 @@
 <#
 .SYNOPSIS
-    Pester Tests: Validate commands in Module-ProSuite
+    Mock-based & Real AD tests for Get-UserInfo
 
 .DESCRIPTION
-    Mocks ActiveDirectory calls for domainless testing.
+    Ensures domainless testing is possible by mocking Get-ADUser. 
+    If domain-joined, tests real AD calls.
 
-.AUTHOR
-    Luiz Hamilton Silva - @brazilianscriptguy
-
-.VERSION
-    Last Updated: December 29, 2024
 #>
 
 Describe 'Get-UserInfo Command Validation' {
 
     BeforeAll {
-        # Ensure the AD module is loaded so Pester can detect the command
+        # 1) Check if AD is installed
         if (-not (Get-Module ActiveDirectory)) {
             Import-Module ActiveDirectory -ErrorAction SilentlyContinue
         }
-
-        # Define the mock AFTER AD is recognized
+        
+        # 2) Define the mock AFTER AD is recognized by Pester
         Mock -CommandName 'Get-ADUser' -ModuleName 'ActiveDirectory' -MockWith {
             param([string]$Identity)
             [PSCustomObject]@{
@@ -30,6 +26,13 @@ Describe 'Get-UserInfo Command Validation' {
                 Department = "MockDept"
             }
         }
+
+        # 3) We do NOT import the .psd1 here; we only import the .psm1 if needed. 
+        #    But if your code calls Import-Module from .psd1, that’s fine. 
+        #    The key is: do NOT re-import 'Get-UserInfo' after the mock is defined or we lose the mock.
+        #    Alternatively, dot-source the .psm1. Example:
+        $ModulePsm1 = [System.IO.Path]::ChangeExtension($Env:MODULE_FILE, '.psm1')
+        . $ModulePsm1
     }
 
     Context 'Mock-based AD tests' {
@@ -46,7 +49,7 @@ Describe 'Get-UserInfo Command Validation' {
     }
 
     Context 'Real AD integration tests' {
-        $comp = Get-WmiObject -Class Win32_ComputerSystem -ErrorAction SilentlyContinue
+        $comp = Get-WmiObject Win32_ComputerSystem -ErrorAction SilentlyContinue
         if (-not $comp) {
             It '[SKIPPED] Could not detect domain membership' -Skip { }
         }
@@ -55,10 +58,10 @@ Describe 'Get-UserInfo Command Validation' {
         }
         else {
             It 'Should retrieve real user info from AD domain' {
-                $RealUser = 'SomeDomainUser'
-                $info = Get-UserInfo -SamAccountName $RealUser
+                $realUser = 'SomeDomainUser'
+                $info = Get-UserInfo -SamAccountName $realUser
                 $info | Should -Not -BeNullOrEmpty
-                $info.SamAccount | Should -Be $RealUser
+                $info.SamAccount | Should -Be $realUser
             }
         }
     }
