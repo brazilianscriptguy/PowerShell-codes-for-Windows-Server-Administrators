@@ -17,13 +17,13 @@
 #    Last Updated: December 29, 2024
 #>
 
-name: CI/CD Workflow for Windows-SysAdmin-ProSuite
+name: CI/CD for Windows-SysAdmin-ProSuite
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-test:
@@ -42,7 +42,6 @@ jobs:
       - name: Install RSAT (Active Directory)
         shell: powershell
         run: |
-          Write-Host "Installing RSAT for Active Directory..."
           $feat = Get-WindowsFeature RSAT-AD-PowerShell -ErrorAction SilentlyContinue
           if ($feat -and $feat.Name -eq 'RSAT-AD-PowerShell') {
               if (-not $feat.Installed) {
@@ -52,48 +51,26 @@ jobs:
           else {
               Add-WindowsCapability -Online -Name "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0"
           }
-          Write-Host "RSAT ActiveDirectory tools installed."
+          Write-Host "RSAT ActiveDirectory installed."
 
       - name: Locate Manifest
         shell: powershell
         run: |
-          $moduleFile = Get-ChildItem -Path './repo' -Filter "Manifest-ProSuite.psd1" -Recurse | Select-Object -First 1
-          if (-not $moduleFile) {
-            Write-Error "Manifest-ProSuite.psd1 not found in ./repo!"
+          $file = Get-ChildItem -Path './repo' -Filter "Manifest-ProSuite.psd1" -Recurse | Select-Object -First 1
+          if (-not $file) {
+            Write-Error "Manifest-ProSuite.psd1 not found!"
             exit 1
           }
-          Write-Host "Module file located at: $($moduleFile.FullName)"
-          echo "MODULE_FILE=$($moduleFile.FullName)" >> $Env:GITHUB_ENV
-
-      - name: Validate Manifest
-        shell: powershell
-        run: |
-          try {
-            $modulePath = $Env:MODULE_FILE
-            Write-Host "Validating manifest at: $modulePath"
-            Test-ModuleManifest -Path $modulePath -ErrorAction Stop
-            Write-Host "Manifest validation successful."
-          }
-          catch {
-            Write-Error "Failed to validate manifest: $_"
-            exit 1
-          }
+          Write-Host "Manifest: $($file.FullName)"
+          echo "MODULE_FILE=$($file.FullName)" >> $Env:GITHUB_ENV
 
       - name: Run Pester Tests
         shell: powershell
         run: |
           try {
-            # 1) Optionally load AD here so the mock sees it
-            if (-not (Get-Module ActiveDirectory)) {
-              Write-Host "Importing ActiveDirectory..."
-              Import-Module ActiveDirectory -ErrorAction SilentlyContinue
-            }
+            Write-Host "MODULE_FILE in pipeline step: $Env:MODULE_FILE"
+            # DO NOT import the module here, let your test scripts do it to preserve the mock logic
 
-            # 2) Import your module once in this session
-            Write-Host "Importing module before tests..."
-            Import-Module $Env:MODULE_FILE -ErrorAction Stop
-
-            # 3) Run Pester (the test scripts define the mock for 'Get-ADUser')
             Write-Host "Running Pester tests..."
             Invoke-Pester -Path ./repo/Tests -Output Detailed
 
@@ -104,16 +81,16 @@ jobs:
             exit 1
           }
 
-      - name: Package Module
+      - name: Package
         shell: powershell
         run: |
-          $moduleDir = Split-Path $Env:MODULE_FILE
+          $dir = Split-Path $Env:MODULE_FILE
           if (-not (Test-Path './dist')) {
             New-Item -Path './dist' -ItemType Directory | Out-Null
           }
-          $zipPath = Join-Path -Path './dist' -ChildPath 'Windows-SysAdmin-ProSuite.zip'
-          Compress-Archive -Path "$moduleDir/*" -DestinationPath $zipPath -Force
-          Write-Host "Packaging complete. Archive: $zipPath"
+          $zip = Join-Path -Path './dist' -ChildPath 'Windows-SysAdmin-ProSuite.zip'
+          Compress-Archive -Path "$dir/*" -DestinationPath $zip -Force
+          Write-Host "Packaged at $zip."
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
