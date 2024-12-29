@@ -1,4 +1,4 @@
-```yaml
+# Build and Release Workflow for Windows-SysAdmin-ProSuite
 name: Build and Release
 
 on:
@@ -96,4 +96,3 @@ jobs:
               release_id: releaseId,
               body: updatedBody
             });
-```
