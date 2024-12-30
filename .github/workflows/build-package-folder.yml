@@ -1,5 +1,5 @@
 # .github/workflows/build-package-folder.yml
-# Build and Release Workflow for Ubuntu-SysAdmin-ProSuite with GitHub Packages
+# Build and Release Workflow for Ubuntu-SysAdmin-ProSuite
 name: Build and Release
 
 on:
@@ -11,7 +11,6 @@ on:
 
 permissions:
   contents: write       # Allows creating and modifying releases
-  packages: write       # Allows publishing to GitHub Packages
 
 jobs:
   build-and-release:
@@ -22,7 +21,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3    # Updated to v3
         with:
-          submodules: true           # Set to true if using Git submodules
+          submodules: true
+          fetch-depth: 0            # Fetch all history and tags
+          # Alternatively:
+          # fetch-tags: true
 
       # Step 2: Install Dependencies
       - name: Install Dependencies
@@ -41,8 +43,8 @@ jobs:
             echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           else
             echo "is_release=false" >> $GITHUB_OUTPUT
-            # Find the latest tag
-            latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+            # Find the latest tag, if any
+            latest_tag=$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || echo "")
             echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           fi
 
@@ -112,7 +114,7 @@ jobs:
                   cp "$dir"/*.ps1 PackageFiles/"$dir"/ || true
                   cp "$dir"/*.vbs PackageFiles/"$dir"/ || true
                   cp "$dir"/*.txt PackageFiles/"$dir"/ || true
-                  cp "$dir"/*.hat PackageFiles/"$dir"/ || true
+                  cp "$dir"/*.hta PackageFiles/"$dir"/ || true
                   cp "$dir"/*.bgi PackageFiles/"$dir"/ || true
               fi
           done
@@ -131,22 +133,8 @@ jobs:
           hash=$(sha256sum "${{ steps.package.outputs.package-path }}" | awk '{print $1}')
           echo "hash=$hash" >> $GITHUB_OUTPUT
 
-      # Step 9: Upload the Package to GitHub Packages (Generic Package)
-      - name: Upload to GitHub Packages
-        if: steps.decide_release.outputs.should_proceed == 'true'
-        run: |
-          PACKAGE_NAME="Package-ProSuite.zip"
-          PACKAGE_VERSION=$(date +'%Y.%m.%d.%H%M%S')
-          PACKAGE_PATH="${{ steps.package.outputs.package-path }}"
-
-          # Create the Generic Package
-          curl -X PUT -H "Authorization: Bearer ${{ secrets.GH_PACKAGES_TOKEN }}" \
-               -H "Content-Type: application/zip" \
-               --data-binary @"$PACKAGE_PATH" \
-               "https://api.github.com/user/packages/generic/Windows-SysAdmin-ProSuite/$PACKAGE_NAME/$PACKAGE_VERSION"
-
-      # Step 10: Publish to GitHub Releases as a Backup
-      - name: Upload Release Asset (Backup)
+      # Step 9: Upload the Package as a GitHub Release Asset (Conditional)
+      - name: Upload Release Asset
         if: steps.decide_release.outputs.should_proceed == 'true' && (github.event_name == 'release' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-release-asset@v1
         env:
@@ -157,7 +145,7 @@ jobs:
           asset_name: Package-ProSuite.zip
           asset_content_type: application/zip
 
-      # Step 11: Update Release Notes with SHA256 Hash (Conditional)
+      # Step 10: Update Release Notes with SHA256 Hash (Conditional)
       - name: Update Release Notes with SHA256 Hash
         if: steps.decide_release.outputs.should_proceed == 'true' && steps.compute_hash.outputs.hash != ''
         uses: actions/github-script@v6    # Updated to v6
