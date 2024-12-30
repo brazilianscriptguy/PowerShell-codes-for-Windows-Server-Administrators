@@ -32,9 +32,10 @@ jobs:
       - name: Generate Version
         id: generate_version
         run: |
-          # Generate a valid version string in the format major.minor.patch
+          # Generate a valid version string in the format major.minor.build
           date_suffix=$(date +'%Y%m%d')
-          version="1.0.${date_suffix}"
+          build_number=$(date +'%H%M%S')
+          version="1.0.${date_suffix}.${build_number}"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
