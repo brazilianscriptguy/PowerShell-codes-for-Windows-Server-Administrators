@@ -5,33 +5,26 @@
     <TargetFramework>net7.0</TargetFramework>
     
     <!-- Package Metadata -->
+    <PackageId>Scripts-PowerShell</PackageId>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
-    <Product>PowerShell Automation Library</Product>
+    <Product>Scripts-PowerShell</Product>
     <Description>Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy, efficiency, security, scalability, and adaptability, optimizing daily operations, performance, and system compliance.</Description>
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-    
-    <!-- Versioning -->
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <PackageReleaseNotes>This is the initial release of the PowerShell Automation Library.</PackageReleaseNotes>
-    
-    <!-- Optional: Make the package CLS-compliant -->
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <!-- Specify files to include in the package -->
   <ItemGroup>
     <!-- Include all PowerShell scripts -->
-    <Content Include="**/*.ps1" PackagePath="content/" />
+    <Content Include="*.ps1" PackagePath="content/" />
     <!-- Include VBScript files -->
-    <Content Include="**/*.vbs" PackagePath="content/" />
+    <Content Include="*.vbs" PackagePath="content/" />
     <!-- Include any .txt, .hta, .bgi files -->
-    <Content Include="**/*.txt" PackagePath="content/" />
-    <Content Include="**/*.hta" PackagePath="content/" />
-    <Content Include="**/*.bgi" PackagePath="content/" />
+    <Content Include="*.txt" PackagePath="content/" />
+    <Content Include="*.hta" PackagePath="content/" />
+    <Content Include="*.bgi" PackagePath="content/" />
     <!-- Include LICENSE and README -->
     <Content Include="LICENSE" PackagePath="content/" />
     <Content Include="README.md" PackagePath="content/" />
