@@ -30,13 +30,12 @@ jobs:
 
       # Step 3: Generate Version
       - name: Generate Version
-      id: generate_version
-      run: |
-      # Generate a valid version string in the format Major.Minor.Build
-      version="1.0.$(date +'%Y%m%d%H%M%S')"
-      echo "version=$version" >> $GITHUB_ENV
-      echo "Generated version: $version"
-
+        id: generate_version
+        run: |
+          # Generate a valid version string in the format Major.Minor.Build
+          version="1.0.$(date +'%Y%m%d%H%M%S')"
+          echo "version=$version" >> $GITHUB_ENV
+          echo "Generated version: $version"
 
       # Step 4: Prepare Files for Packaging
       - name: Prepare Files
@@ -65,7 +64,7 @@ jobs:
       - name: Update Project File
         run: |
           echo "Adding scripts to nuget.package.csproj..."
-          cat > nuget.package.csproj <<- 'EOF'
+          cat > nuget.package.csproj <<- EOF
           <Project Sdk="Microsoft.NET.Sdk">
             <PropertyGroup>
               <TargetFramework>net7.0</TargetFramework>
@@ -84,7 +83,7 @@ jobs:
 
       # Step 6: Restore Dependencies
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore nuget.package.csproj
 
       # Step 7: Build and Pack the NuGet Package
       - name: Build and Pack
@@ -102,4 +101,4 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Publishing package to GitHub Packages..."
-          dotnet nuget push ./artifacts/Scripts-PowerShell.*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
+          dotnet nuget push ./artifacts/*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
