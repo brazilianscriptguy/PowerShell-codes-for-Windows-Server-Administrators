@@ -1,10 +1,10 @@
+# .github/workflows/publish-nuget-package.yml
 name: Publish NuGet Package
 
 on:
-  workflow_dispatch: # Allows manual triggering of the workflow
   push:
     tags:
-      - 'v*' # Trigger on tags starting with 'v'
+      - 'v*'
 
 permissions:
   contents: write
@@ -15,30 +15,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
-      - name: Checkout repository
+      # Step 1: Checkout the repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
       # Step 2: Set up .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.0' # Specify your desired .NET SDK version
+          dotnet-version: '7.0'
 
-      # Step 3: Restore dependencies
+      # Step 3: Update Package Version
+      - name: Update Package Version
+        run: |
+          version="1.0.$(date +'%Y%m%d%H%M%S')"
+          sed -i "s|<Version>.*</Version>|<Version>${version}</Version>|" nuget.package.csproj
+
+      # Step 4: Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
 
-      # Step 4: Build the project
+      # Step 5: Build the project
       - name: Build the project
         run: dotnet build --configuration Release --no-restore
 
-      # Step 5: Pack the NuGet package
+      # Step 6: Pack the NuGet package
       - name: Pack the NuGet package
         run: dotnet pack --configuration Release --no-build --output ./artifacts
 
-      # Step 6: Publish to GitHub Packages
+      # Step 7: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet nuget push ./artifacts/*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github"
+        run: |
+          dotnet nuget push ./artifacts/*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
