@@ -1,0 +1,14 @@
+name: Test PowerShell
+
+on: push
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Set up PowerShell
+        uses: actions/setup-powershell@v3
+        with:
+          pwsh-version: '7.3.0'
+      - name: Run PowerShell
+        run: pwsh -Command "Get-Host"
