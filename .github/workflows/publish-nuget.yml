@@ -3,18 +3,18 @@ name: Publish NuGet Package
 on:
   push:
     tags:
-      - 'v*' # Triggers when a new tag matching 'v*' is pushed
+      - 'v*' # Trigger on tags starting with 'v'
 
 permissions:
   contents: write
   packages: write
 
 jobs:
-  publish-nuget:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
+      # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -22,20 +22,22 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.0' # Use the desired .NET version
+          dotnet-version: '7.0' # Specify your desired .NET SDK version
 
       # Step 3: Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
 
       # Step 4: Build the project
-      - name: Build project
+      - name: Build the project
         run: dotnet build --configuration Release --no-restore
 
-      # Step 5: Pack the project
-      - name: Create NuGet package
+      # Step 5: Pack the NuGet package
+      - name: Pack the NuGet package
         run: dotnet pack --configuration Release --no-build --output ./artifacts
 
-      # Step 6: Publish the package to GitHub Packages
+      # Step 6: Publish to GitHub Packages
       - name: Publish to GitHub Packages
-        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github"
