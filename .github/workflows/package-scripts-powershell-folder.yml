@@ -15,20 +15,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
-      # Step 2: Set up .NET
       - name: Set Up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
 
-      # Step 3: Generate Version
       - name: Generate Version
         id: generate_version
         run: |
@@ -39,9 +36,9 @@ jobs:
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
 
-      # Step 4: Prepare Files
       - name: Prepare Files
         run: |
+          echo "Preparing Scripts-PowerShell folder..."
           mkdir -p Scripts-PowerShell
           cp LICENSE README.md Scripts-PowerShell/
           for dir in */ ; do
@@ -51,8 +48,9 @@ jobs:
                   cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || echo "Skipping $dir"
               fi
           done
+          echo "Prepared files:"
+          ls -R Scripts-PowerShell
 
-      # Step 5: Create Project File
       - name: Create Project File
         run: |
           echo "Creating nuget.package.csproj..."
@@ -73,4 +71,33 @@ jobs:
               <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
               <Version>${{ env.version }}</Version>
               <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-              <NoBuild>tru
+              <NoBuild>true</NoBuild>
+              <PackageOutputPath>./artifacts</PackageOutputPath>
+              <NoWarn>NU5110;NU5111;NU5123</NoWarn>
+            </PropertyGroup>
+            <ItemGroup>
+              <None Include="Scripts-PowerShell/**" PackagePath="content/" />
+              <None Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
+            </ItemGroup>
+          </Project>
+          EOF
+
+      - name: Build and Pack
+        run: |
+          mkdir -p ./artifacts
+          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts || exit 1
+          echo "Checking artifacts directory..."
+          ls ./artifacts
+          package_file=$(find ./artifacts -name "Scripts-PowerShell*.nupkg")
+          if [[ -z "$package_file" ]]; then
+              echo "Error: Package not found in ./artifacts"
+              exit 1
+          fi
+          echo "Package successfully created: $package_file"
+
+      - name: Publish to GitHub Packages
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Publishing package to GitHub Packages..."
+          dotnet nuget push ./artifacts/Scripts-PowerShell*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
