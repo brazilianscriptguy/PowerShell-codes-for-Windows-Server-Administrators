@@ -13,11 +13,13 @@
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
     <Version>$(version)</Version>
-    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo> <!-- Disable Assembly Info Generation -->
+    <NoBuild>true</NoBuild> <!-- Disable Build Requirement -->
   </PropertyGroup>
 
+  <!-- Include necessary files for the NuGet package -->
   <ItemGroup>
-    <!-- Include all relevant files -->
     <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
   </ItemGroup>
+
 </Project>
