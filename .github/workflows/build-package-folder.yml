@@ -14,17 +14,15 @@ permissions:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-latest    # Changed from windows-latest to ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Check out the repository, including submodules if any
       - name: Checkout repository
-        uses: actions/checkout@v3    # Updated to v3
+        uses: actions/checkout@v3
         with:
           submodules: true
-          fetch-depth: 0            # Fetch all history and tags
-          # Alternatively:
-          # fetch-tags: true
+          fetch-depth: 0
 
       # Step 2: Install Dependencies
       - name: Install Dependencies
@@ -36,14 +34,12 @@ jobs:
       - name: Determine Trigger and Latest Release
         id: determine
         run: |
-          # Determine if the trigger was a release event
           if [ "${GITHUB_EVENT_NAME}" = "release" ] && [ "${GITHUB_EVENT_ACTION}" = "published" ]; then
             echo "is_release=true" >> $GITHUB_OUTPUT
             latest_tag="${GITHUB_REF#refs/tags/}"
             echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           else
             echo "is_release=false" >> $GITHUB_OUTPUT
-            # Find the latest tag, if any
             latest_tag=$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || echo "")
             echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           fi
@@ -53,10 +49,8 @@ jobs:
         id: count_commits
         run: |
           if [ "${{ steps.determine.outputs.latest_tag }}" = "" ]; then
-            # No releases yet, count all commits
             commit_count=$(git rev-list --count HEAD)
           else
-            # Count commits since the latest tag
             commit_count=$(git rev-list ${{ steps.determine.outputs.latest_tag }}..HEAD --count)
           fi
           echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
@@ -66,15 +60,11 @@ jobs:
         id: decide_release
         run: |
           if [ "${{ steps.determine.outputs.is_release }}" = "true" ]; then
-            # If triggered by a release event, proceed with existing release steps
+            echo "should_proceed=true" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.count_commits.outputs.commit_count }}" -ge 20 ]; then
             echo "should_proceed=true" >> $GITHUB_OUTPUT
           else
-            # If triggered by schedule or manual, check commit count
-            if [ "${{ steps.count_commits.outputs.commit_count }}" -ge 20 ]; then
-              echo "should_proceed=true" >> $GITHUB_OUTPUT
-            else
-              echo "should_proceed=false" >> $GITHUB_OUTPUT
-            fi
+            echo "should_proceed=false" >> $GITHUB_OUTPUT
           fi
 
       # Step 6: Create a New Release (Conditional)
@@ -95,32 +85,39 @@ jobs:
       - name: Build and package artifacts
         id: package
         run: |
-          # Create the main folder 'PackageFiles'
-          mkdir -p PackageFiles
+          # Create the main folder 'Scripts-PowerShell'
+          mkdir -p Scripts-PowerShell
 
-          # Copy specified files to 'PackageFiles'
-          cp README.md PackageFiles/ || true
-          cp Core-ScriptLibrary/*.ps1 PackageFiles/ || true
-          cp Core-ScriptLibrary/*.vbs PackageFiles/ || true
-          cp Core-ScriptLibrary/*.txt PackageFiles/ || true
-          cp Core-ScriptLibrary/*.hta PackageFiles/ || true
-          cp Core-ScriptLibrary/*.bgi PackageFiles/ || true
+          # Copy LICENSE and README.md to 'Scripts-PowerShell'
+          cp LICENSE Scripts-PowerShell/ || true
+          cp README.md Scripts-PowerShell/ || true
 
-          # Iterate over all subdirectories (sub-repositories) in the main repository
+          # Copy specific files from Core-ScriptLibrary
+          cp Core-ScriptLibrary/*.ps1 Scripts-PowerShell/ || true
+          cp Core-ScriptLibrary/*.vbs Scripts-PowerShell/ || true
+          cp Core-ScriptLibrary/*.txt Scripts-PowerShell/ || true
+          cp Core-ScriptLibrary/*.hta Scripts-PowerShell/ || true
+          cp Core-ScriptLibrary/*.bgi Scripts-PowerShell/ || true
+
+          # Copy 'Launch-Script-AutomaticMenu.ps1' explicitly
+          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || true
+
+          # Iterate over subdirectories and copy specified files
           for dir in */ ; do
-              dir=${dir%/}  # Remove trailing slash
-              if [[ "$dir" != "PackageFiles" && "$dir" != ".git" ]]; then
-                  mkdir -p PackageFiles/"$dir"
-                  cp "$dir"/*.ps1 PackageFiles/"$dir"/ || true
-                  cp "$dir"/*.vbs PackageFiles/"$dir"/ || true
-                  cp "$dir"/*.txt PackageFiles/"$dir"/ || true
-                  cp "$dir"/*.hta PackageFiles/"$dir"/ || true
-                  cp "$dir"/*.bgi PackageFiles/"$dir"/ || true
+              dir=${dir%/}
+              if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" ]]; then
+                  mkdir -p Scripts-PowerShell/"$dir"
+                  cp "$dir"/README.md Scripts-PowerShell/"$dir"/ || true
+                  cp "$dir"/*.ps1 Scripts-PowerShell/"$dir"/ || true
+                  cp "$dir"/*.vbs Scripts-PowerShell/"$dir"/ || true
+                  cp "$dir"/*.txt Scripts-PowerShell/"$dir"/ || true
+                  cp "$dir"/*.hta Scripts-PowerShell/"$dir"/ || true
+                  cp "$dir"/*.bgi Scripts-PowerShell/"$dir"/ || true
               fi
           done
 
-          # Compress the 'PackageFiles' folder into a ZIP file
-          zip -r Package-ProSuite.zip PackageFiles
+          # Compress the 'Scripts-PowerShell' folder into a ZIP file
+          zip -r Package-ProSuite.zip Scripts-PowerShell
 
           # Output the path to the ZIP file for later steps
           package_path=$(pwd)/Package-ProSuite.zip
@@ -135,7 +132,7 @@ jobs:
 
       # Step 9: Upload the Package as a GitHub Release Asset (Conditional)
       - name: Upload Release Asset
-        if: steps.decide_release.outputs.should_proceed == 'true' && (github.event_name == 'release' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        if: steps.decide_release.outputs.should_proceed == 'true'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -148,7 +145,7 @@ jobs:
       # Step 10: Update Release Notes with SHA256 Hash (Conditional)
       - name: Update Release Notes with SHA256 Hash
         if: steps.decide_release.outputs.should_proceed == 'true' && steps.compute_hash.outputs.hash != ''
-        uses: actions/github-script@v6    # Updated to v6
+        uses: actions/github-script@v6
         with:
           script: |
             const hash = '${{ steps.compute_hash.outputs.hash }}';
