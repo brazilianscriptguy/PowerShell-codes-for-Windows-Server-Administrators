@@ -28,8 +28,13 @@
     <Content Include="Scripts-PowerShell/**/*.hta" PackagePath="content/" Condition="Exists('Scripts-PowerShell/**/*.hta')" />
     <Content Include="Scripts-PowerShell/**/*.bgi" PackagePath="content/" Condition="Exists('Scripts-PowerShell/**/*.bgi')" />
     <!-- Include LICENSE and README -->
-    <Content Include="Scripts-PowerShell/LICENSE" PackagePath="content/" />
-    <Content Include="Scripts-PowerShell/README.md" PackagePath="content/" />
+    <Content Include="Scripts-PowerShell/LICENSE" PackagePath="content/" Condition="Exists('Scripts-PowerShell/LICENSE')" />
+    <Content Include="Scripts-PowerShell/README.md" PackagePath="content/" Condition="Exists('Scripts-PowerShell/README.md')" />
+  </ItemGroup>
+
+  <!-- Ensure the scripts are marked as package content -->
+  <ItemGroup>
+    <None Include="Scripts-PowerShell/**" PackagePath="content/" />
   </ItemGroup>
 
 </Project>
