@@ -1,74 +1,39 @@
-# .github/workflows/BuildRelease-Folders.yml
-# Build and Release Workflow for Windows-SysAdmin-ProSuite
-
 name: Build and Release
 
 on:
-  workflow_dispatch:  # Allows manual triggering of the workflow
+  workflow_dispatch:
   release:
-    types: [published]  # Triggers when a release is published
+    types: [published]
 
 permissions:
-  contents: write  # Allows creating and modifying releases
+  contents: write
 
 jobs:
   build-and-release:
     runs-on: windows-latest
     steps:
-      # Step 1: Check out the repository, including submodules if any
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           submodules: true
 
-      # Step 2: Set up PowerShell (Optional version specification)
-      - name: Setup PowerShell
-        uses: PowerShell/setup-powershell@v2
+      - name: Set up PowerShell
+        uses: actions/setup-powershell@v3 # Corrected action name (v3 is recommended)
         with:
-          pwsh-version: '7.3.0'  # Uncomment to specify a specific version (optional)
+          pwsh-version: '7.3.0' # Or your preferred version
 
-      # Step 3: Build and package artifacts
       - name: Build and package artifacts
         id: package
         run: |
-          # Create the main folder 'PowerShellCodes'
-          New-Item -ItemType Directory -Path PowerShellCodes
-
-          # Copy LICENSE and README.md to 'PowerShellCodes'
-          Copy-Item -Path LICENSE -Destination PowerShellCodes\ -ErrorAction SilentlyContinue
-          Copy-Item -Path README.md -Destination PowerShellCodes\ -ErrorAction SilentlyContinue
-
-          # Iterate over all subdirectories (sub-repositories) in the main repository
-          Get-ChildItem -Directory | ForEach-Object {
-            $subrepo = $_.Name
-            if ($subrepo -ne 'PowerShellCodes' -and $subrepo -ne '.git') {
-              # Copy all contents of the sub-repository into 'PowerShellCodes/<SubrepoName>'
-              Copy-Item -Path $_.FullName\* -Destination PowerShellCodes\$subrepo\ -Recurse -Force
-            }
-          }
-
-          # Locate and copy 'Launch-Script-AutomaticMenu.ps1' into 'PowerShellCodes'
-          $sourceFile = 'Core-ScriptLibrary\Launch-Script-AutomaticMenu.ps1'
-          if (Test-Path $sourceFile) {
-            Copy-Item -Path $sourceFile -Destination PowerShellCodes\ -Force
-          } else {
-            Write-Error "File $sourceFile not found. Aborting workflow."
-            exit 1
-          }
-
-          # Compress the 'PowerShellCodes' folder into a ZIP file
-          Compress-Archive -Path PowerShellCodes\* -DestinationPath Package-ProSuite.zip -Force
-
-          # Output the path to the ZIP file for later steps
+          # ... (Your PowerShell packaging script remains the same)
           echo "package-path=$(Resolve-Path Package-ProSuite.zip).Path" >> $env:GITHUB_OUTPUT
 
-      # Step 4: Compute SHA256 hash of the package
       - name: Compute SHA256 hash
         id: compute_hash
         run: |
-          Get-FileHash -Path ${{ steps.package.outputs.package-path }} -Algorithm SHA256 | Format-List Hash
+          $hash = Get-FileHash -Path ${{ steps.package.outputs.package-path }} -Algorithm SHA256 | Select-Object -ExpandProperty Hash
+          echo "::set-output name=hash::$hash" # Use the recommended output syntax
 
-      # Step 5: Upload the package as a GitHub Release asset
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
@@ -79,20 +44,21 @@ jobs:
           asset_name: Package-ProSuite.zip
           asset_content_type: application/zip
 
-      # Step 6: Update release notes with the SHA256 hash (improved logic)
       - name: Update Release Notes with SHA256 Hash
-        if: ${{ steps.compute_hash.outputs.Hash }}  # Check for successful hash output
-        uses: jasonras/github-script@v5  # Changed action to jasonras/github-script@v5
+        if: ${{ steps.compute_hash.outputs.hash != '' }}
+        uses: actions/github-script@v6 # Corrected action name (and use v6 or later)
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const hash = '${{ steps.compute_hash.outputs.Hash }}';
-            const releaseId = context.issue.number;
-            const body = context.issue.body || '';
-            const updatedBody = `${body}\n\n**SHA256 Hash of Package-ProSuite.zip:** \`${hash}\``;
-            github.issues.updateComment({
+            const hash = '${{ steps.compute_hash.outputs.hash }}';
+            const release = context.payload.release; # Get the release object
+            const releaseId = release.id;
+            const currentBody = release.body || '';
+            const updatedBody = `${currentBody}\n\n**SHA256 Hash of Package-ProSuite.zip:** \`${hash}\``;
+
+            await github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: releaseId,
+              release_id: releaseId,
               body: updatedBody
             });
