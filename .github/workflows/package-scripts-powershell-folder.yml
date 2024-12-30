@@ -45,9 +45,21 @@ jobs:
         run: |
           echo "Preparing the Scripts-PowerShell folder..."
           mkdir -p Scripts-PowerShell
-          cp -r Core-ScriptLibrary/* Windows-SysAdmin-ProSuite/ || echo "Core-ScriptLibrary not found, skipping."
-          cp LICENSE Windows-SysAdmin-ProSuite/ || echo "LICENSE not found, skipping."
-          cp README.md Windows-SysAdmin-ProSuite/ || echo "README.md not found, skipping."
+          cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found, skipping."
+          cp README.md Scripts-PowerShell/ || echo "README.md not found, skipping."
+
+          # Copy all folders and files except exclusions
+          for dir in */ ; do
+              dir=${dir%/}
+              if [[ "$dir" != ".github" && "$dir" != "Scripts-PowerShell" ]]; then
+                  echo "Processing directory: $dir"
+                  mkdir -p Scripts-PowerShell/"$dir"
+                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || echo "No files found in $dir, skipping."
+              fi
+          done
+
+          # Exclude specific folders
+          rm -rf Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/ || echo "SysAdmin-Tools/GroupPolicyObjects-Templates/ not found, skipping."
 
       # Step 5: Update Project File
       - name: Update Project File
@@ -71,8 +83,8 @@ jobs:
               <NoWarn>NU5110;NU5111;NU5123</NoWarn>
             </PropertyGroup>
             <ItemGroup>
-              <None Include="Windows-SysAdmin-ProSuite/**/*.*" Pack="true" PackagePath="content/" />
-              <None Remove="Windows-SysAdmin-ProSuite/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
+              <None Include="LICENSE;README.md" Pack="true" PackagePath="content/Scripts-PowerShell/" />
+              <None Include="**/*.*" Exclude="**/*.config;**/.github/**;SysAdmin-Tools/GroupPolicyObjects-Templates/**" Pack="true" PackagePath="content/Scripts-PowerShell/" />
             </ItemGroup>
           </Project>
           EOF
