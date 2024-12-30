@@ -1,5 +1,5 @@
-# .github/workflows/build-release-folders.yml
-# Build and Release Workflow for Ubuntu-SysAdmin-ProSuite
+# .github/workflows/build-package-folder.yml
+# Build and Release Workflow for Ubuntu-SysAdmin-ProSuite with GitHub Packages
 name: Build and Release
 
 on:
@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write       # Allows creating and modifying releases
+  packages: write       # Allows publishing to GitHub Packages
 
 jobs:
   build-and-release:
@@ -40,16 +41,9 @@ jobs:
             echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           else
             echo "is_release=false" >> $GITHUB_OUTPUT
-            # Check if any tags exist
-            if git tag | grep -q .; then
-              # Find the latest tag
-              latest_tag=$(git describe --tags --abbrev=0)
-              echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
-            else
-              # No tags exist
-              latest_tag=""
-              echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
-            fi
+            # Find the latest tag
+            latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+            echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           fi
 
       # Step 4: Count Commits Since Latest Release
@@ -99,33 +93,32 @@ jobs:
       - name: Build and package artifacts
         id: package
         run: |
-          # Create the main folder 'PowerShellCodes'
-          mkdir -p PowerShellCodes
+          # Create the main folder 'PackageFiles'
+          mkdir -p PackageFiles
 
-          # Copy LICENSE and README.md to 'PowerShellCodes'
-          cp LICENSE PowerShellCodes/ || true
-          cp README.md PowerShellCodes/ || true
+          # Copy specified files to 'PackageFiles'
+          cp README.md PackageFiles/ || true
+          cp Core-ScriptLibrary/*.ps1 PackageFiles/ || true
+          cp Core-ScriptLibrary/*.vbs PackageFiles/ || true
+          cp Core-ScriptLibrary/*.txt PackageFiles/ || true
+          cp Core-ScriptLibrary/*.hta PackageFiles/ || true
+          cp Core-ScriptLibrary/*.bgi PackageFiles/ || true
 
           # Iterate over all subdirectories (sub-repositories) in the main repository
           for dir in */ ; do
               dir=${dir%/}  # Remove trailing slash
-              if [[ "$dir" != "PowerShellCodes" && "$dir" != ".git" ]]; then
-                  mkdir -p PowerShellCodes/"$dir"
-                  cp -r "$dir"/* PowerShellCodes/"$dir"/ || true
+              if [[ "$dir" != "PackageFiles" && "$dir" != ".git" ]]; then
+                  mkdir -p PackageFiles/"$dir"
+                  cp "$dir"/*.ps1 PackageFiles/"$dir"/ || true
+                  cp "$dir"/*.vbs PackageFiles/"$dir"/ || true
+                  cp "$dir"/*.txt PackageFiles/"$dir"/ || true
+                  cp "$dir"/*.hat PackageFiles/"$dir"/ || true
+                  cp "$dir"/*.bgi PackageFiles/"$dir"/ || true
               fi
           done
 
-          # Locate and copy 'Launch-Script-AutomaticMenu.ps1' into 'PowerShellCodes'
-          source_file="Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1"
-          if [[ -f "$source_file" ]]; then
-              cp "$source_file" PowerShellCodes/ || true
-          else
-              echo "File $source_file not found. Aborting workflow."
-              exit 1
-          fi
-
-          # Compress the 'PowerShellCodes' folder into a ZIP file
-          zip -r Package-ProSuite.zip PowerShellCodes
+          # Compress the 'PackageFiles' folder into a ZIP file
+          zip -r Package-ProSuite.zip PackageFiles
 
           # Output the path to the ZIP file for later steps
           package_path=$(pwd)/Package-ProSuite.zip
@@ -138,8 +131,22 @@ jobs:
           hash=$(sha256sum "${{ steps.package.outputs.package-path }}" | awk '{print $1}')
           echo "hash=$hash" >> $GITHUB_OUTPUT
 
-      # Step 9: Upload the Package as a GitHub Release Asset (Conditional)
-      - name: Upload Release Asset
+      # Step 9: Upload the Package to GitHub Packages (Generic Package)
+      - name: Upload to GitHub Packages
+        if: steps.decide_release.outputs.should_proceed == 'true'
+        run: |
+          PACKAGE_NAME="Package-ProSuite.zip"
+          PACKAGE_VERSION=$(date +'%Y.%m.%d.%H%M%S')
+          PACKAGE_PATH="${{ steps.package.outputs.package-path }}"
+
+          # Create the Generic Package
+          curl -X PUT -H "Authorization: Bearer ${{ secrets.GH_PACKAGES_TOKEN }}" \
+               -H "Content-Type: application/zip" \
+               --data-binary @"$PACKAGE_PATH" \
+               "https://api.github.com/user/packages/generic/Windows-SysAdmin-ProSuite/$PACKAGE_NAME/$PACKAGE_VERSION"
+
+      # Step 10: Publish to GitHub Releases as a Backup
+      - name: Upload Release Asset (Backup)
         if: steps.decide_release.outputs.should_proceed == 'true' && (github.event_name == 'release' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-release-asset@v1
         env:
@@ -150,7 +157,7 @@ jobs:
           asset_name: Package-ProSuite.zip
           asset_content_type: application/zip
 
-      # Step 10: Update Release Notes with SHA256 Hash (Conditional)
+      # Step 11: Update Release Notes with SHA256 Hash (Conditional)
       - name: Update Release Notes with SHA256 Hash
         if: steps.decide_release.outputs.should_proceed == 'true' && steps.compute_hash.outputs.hash != ''
         uses: actions/github-script@v6    # Updated to v6
