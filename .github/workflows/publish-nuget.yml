@@ -1,16 +1,17 @@
-name: Build and Publish NuGet Package
+name: Publish NuGet Package
 
 on:
+  workflow_dispatch: # Allows manual triggering of the workflow
   push:
     tags:
-      - 'v*'  # Triggers on tags starting with 'v'
+      - 'v*' # Trigger on tags starting with 'v'
 
 permissions:
   contents: write
   packages: write
 
 jobs:
-  build-and-publish:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +23,7 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.0'  # Your target .NET version
+          dotnet-version: '7.0' # Specify your desired .NET SDK version
 
       # Step 3: Restore dependencies
       - name: Restore dependencies
