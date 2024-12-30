@@ -1,0 +1,41 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers when a new tag matching 'v*' is pushed
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish-nuget:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up .NET
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0' # Use the desired .NET version
+
+      # Step 3: Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Step 4: Build the project
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      # Step 5: Pack the project
+      - name: Create NuGet package
+        run: dotnet pack --configuration Release --no-build --output ./artifacts
+
+      # Step 6: Publish the package to GitHub Packages
+      - name: Publish to GitHub Packages
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
