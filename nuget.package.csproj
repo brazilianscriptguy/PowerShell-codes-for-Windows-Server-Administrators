@@ -1,10 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- Target Framework -->
     <TargetFramework>net7.0</TargetFramework>
+
+    <!-- Package Metadata -->
     <PackageId>Scripts-PowerShell</PackageId>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
+    <Product>Scripts-PowerShell</Product>
     <Description>
       Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, 
       and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy, 
@@ -12,17 +16,25 @@
     </Description>
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IncludeContentInPack>true</IncludeContentInPack>
-    <ContentTargetFolders>content;contentFiles</ContentTargetFolders>
+
+    <!-- Suppress Warnings -->
+    <NoWarn>NU5110;NU5111;NU5123</NoWarn>
+
+    <!-- Version and Build Options -->
+    <Version Condition="'$(Version)' == ''">1.0.0</Version>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NoBuild>true</NoBuild>
+    <PackageOutputPath>./artifacts</PackageOutputPath>
   </PropertyGroup>
 
+  <!-- Include Necessary Files for the NuGet Package -->
   <ItemGroup>
-    <!-- Include all files under Scripts-PowerShell -->
-    <None Include="Scripts-PowerShell\**\*" Pack="true" PackagePath="Scripts-PowerShell\%(RecursiveDir)%(Filename)%(Extension)" />
-    <!-- Exclude unwanted files -->
-    <None Remove="Scripts-PowerShell\.github\**" />
-    <None Remove="Scripts-PowerShell\SysAdmin-Tools\GroupPolicyObjects-Templates\**" />
+    <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
+  </ItemGroup>
+
+  <!-- Exclude Problematic Long Path Folders -->
+  <ItemGroup>
+    <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
   </ItemGroup>
 
 </Project>
