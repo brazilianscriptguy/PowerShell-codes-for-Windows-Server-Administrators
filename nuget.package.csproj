@@ -8,8 +8,8 @@
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
     <Product>PowerShell Automation Library</Product>
-    <Description>A library of reusable PowerShell scripts and utilities for system administrators.</Description>
-    <PackageTags>PowerShell;Automation;SysAdmin</PackageTags>
+    <Description>Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy, efficiency, security, scalability, and adaptability, optimizing daily operations, performance, and system compliance.</Description>
+    <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
     
     <!-- Versioning -->
@@ -22,9 +22,19 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <!-- Add dependencies if needed -->
+  <!-- Specify files to include in the package -->
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <!-- Include all PowerShell scripts -->
+    <Content Include="*.ps1" PackagePath="content/" />
+    <!-- Include VBScript files -->
+    <Content Include="*.vbs" PackagePath="content/" />
+    <!-- Include any .txt, .hta, .bgi files -->
+    <Content Include="*.txt" PackagePath="content/" />
+    <Content Include="*.hta" PackagePath="content/" />
+    <Content Include="*.bgi" PackagePath="content/" />
+    <!-- Include LICENSE and README -->
+    <Content Include="LICENSE" PackagePath="content/" />
+    <Content Include="README.md" PackagePath="content/" />
   </ItemGroup>
 
 </Project>
