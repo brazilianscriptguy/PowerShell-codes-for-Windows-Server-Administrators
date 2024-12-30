@@ -40,9 +40,16 @@ jobs:
             echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           else
             echo "is_release=false" >> $GITHUB_OUTPUT
-            # Find the latest tag
-            latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-            echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+            # Check if any tags exist
+            if git tag | grep -q .; then
+              # Find the latest tag
+              latest_tag=$(git describe --tags --abbrev=0)
+              echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+            else
+              # No tags exist
+              latest_tag=""
+              echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+            fi
           fi
 
       # Step 4: Count Commits Since Latest Release
