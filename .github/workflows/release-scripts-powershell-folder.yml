@@ -1,120 +1,112 @@
-# .github/workflows/release-scripts-powershell-folder.yml
-# Build and Release Workflow for Ubuntu-SysAdmin-ProSuite
-name: Build and Release
+name: Publish NuGet Package
 
 on:
-  workflow_dispatch:
-  release:
-    types: [published]
-  schedule:
-    - cron: '0 0 * * *'
+  workflow_dispatch:  # Allows manual triggering of the workflow
+  push:
+    tags:
+      - 'v*'  # Trigger on tags starting with 'v'
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
-  build-and-release:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
-      - name: Checkout repository
+      # Step 1: Checkout the repository
+      - name: Checkout code
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
-      # Step 2: Install Dependencies
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y zip jq
-
-      # Step 3: Generate a Tag Name and Release Name
-      - name: Generate Tag and Release Names
-        id: generate_names
-        run: |
-          TAG_NAME="v$(date +'%Y.%m.%d.%H%M%S')"
-          RELEASE_NAME="Release $(date +'%Y-%m-%d %H:%M:%S')"
-          echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
-          echo "release_name=$RELEASE_NAME" >> $GITHUB_ENV
-
-      # Step 4: Create a New Release
-      - name: Create New Release
-        if: github.event_name != 'release'
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Step 2: Set up .NET
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
         with:
-          tag_name: ${{ env.tag_name }}
-          release_name: ${{ env.release_name }}
-          body: "Automatically created release after 20 commits."
-          draft: false
-          prerelease: false
+          dotnet-version: '7.0'
 
-      # Step 5: Build and Package Artifacts
-      - name: Build and package artifacts
-        id: package
+      # Step 3: Generate Version
+      - name: Generate Version
+        id: generate_version
         run: |
-          # Create the main folder 'Scripts-PowerShell'
+          # Generate a valid version string in the format Major.Minor.Build.Revision
+          major=1
+          minor=0
+          build=$(date +'%Y%m%d')
+          revision=$(date +'%H%M')
+          version="$major.$minor.$build.$revision"
+          echo "version=$version" >> $GITHUB_ENV
+          echo "Generated version: $version"
+
+      # Step 4: Prepare Files for Packaging
+      - name: Prepare Files
+        run: |
+          echo "Preparing the Scripts-PowerShell folder..."
           mkdir -p Scripts-PowerShell
 
-          # Copy LICENSE and README.md from the main repository to 'Scripts-PowerShell'
-          cp LICENSE Scripts-PowerShell/ || true
-          cp README.md Scripts-PowerShell/ || true
+          # Copy LICENSE and README.md
+          cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found, skipping."
+          cp README.md Scripts-PowerShell/ || echo "README.md not found, skipping."
 
-          # Copy 'Launch-Script-AutomaticMenu.ps1' to the root of 'Scripts-PowerShell'
-          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || true
+          # Copy Launch-Script-AutomaticMenu.ps1
+          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || echo "Launch-Script-AutomaticMenu.ps1 not found, skipping."
 
-          # Iterate over all subdirectories in the main repository and copy their contents
+          # Gather files from sub-repositories
           for dir in */ ; do
-              dir=${dir%/}  # Remove trailing slash
+              dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" ]]; then
+                  echo "Processing directory: $dir"
                   mkdir -p Scripts-PowerShell/"$dir"
-                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || true
+                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || echo "No files found in $dir, skipping."
               fi
           done
 
-          # Compress the 'Scripts-PowerShell' folder into a ZIP file
-          zip -r Scripts-PowerShell-Folder.zip Scripts-PowerShell
-
-          # Output the path to the ZIP file for later steps
-          package_path=$(pwd)/Scripts-PowerShell-Folder.zip
-          echo "package_path=$package_path" >> $GITHUB_ENV
-
-      # Step 6: Compute SHA256 Hash of the Package
-      - name: Compute SHA256 hash
-        id: compute_hash
+      # Step 5: Update the Project File to Include Scripts
+      - name: Update Project File
         run: |
-          hash=$(sha256sum "${{ env.package_path }}" | awk '{print $1}')
-          echo "hash=$hash" >> $GITHUB_ENV
+          echo "Adding scripts to nuget.package.csproj..."
+          cat > nuget.package.csproj <<- 'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>net7.0</TargetFramework>
+              <PackageId>Scripts-PowerShell</PackageId>
+              <Authors>Luiz Hamilton Silva</Authors>
+              <Company>Brazilianscriptguy</Company>
+              <Product>Scripts-PowerShell</Product>
+              <Description>Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, and simplifies script creation.</Description>
+              <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
+              <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
+              <Version>${{ env.version }}</Version>
+              <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+              <NoBuild>true</NoBuild>
+            </PropertyGroup>
+            <ItemGroup>
+              <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
+            </ItemGroup>
+          </Project>
+          EOF
 
-      # Step 7: Upload the Package as a GitHub Release Asset
-      - name: Upload Release Asset
-        if: github.event_name == 'release' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        uses: actions/upload-release-asset@v1
+      # Step 6: Restore Dependencies
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      # Step 7: Build and Pack the NuGet Package
+      - name: Build and Pack
+        run: |
+          echo "Packing the NuGet package..."
+          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts || {
+            echo "Error: Failed to pack NuGet package.";
+            exit 1;
+          }
+          echo "Package successfully created in ./artifacts"
+
+      # Step 8: Publish to GitHub Packages
+      - name: Publish to GitHub Packages
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.package_path }}
-          asset_name: Scripts-PowerShell-Folder.zip
-          asset_content_type: application/zip
-
-      # Step 8: Update Release Notes with SHA256 Hash
-      - name: Update Release Notes with SHA256 Hash
-        if: steps.compute_hash.outputs.hash != ''
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const hash = '${{ env.hash }}';
-            const releaseId = ${{ steps.create_release.outputs.id }};
-            const currentBody = '${{ steps.create_release.outputs.body }}';
-            const updatedBody = `${currentBody}\n\n**SHA256 Hash of Scripts-PowerShell-Folder.zip:** \`${hash}\``;
-            await github.rest.repos.updateRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: releaseId,
-              body: updatedBody
-            });
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Publishing package to GitHub Packages..."
+          dotnet nuget push ./artifacts/Scripts-PowerShell.*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
