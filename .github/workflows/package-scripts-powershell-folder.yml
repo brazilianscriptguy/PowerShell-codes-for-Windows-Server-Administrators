@@ -52,10 +52,10 @@ jobs:
           cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found, skipping."
           cp README.md Scripts-PowerShell/ || echo "README.md not found, skipping."
 
-          # Copy Launch-Script-AutomaticMenu.ps1
-          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || echo "Launch-Script-AutomaticMenu.ps1 not found, skipping."
+          # Copy PowerShell scripts and other relevant files
+          cp -r Core-ScriptLibrary/*.ps1 Scripts-PowerShell/ || echo "No PowerShell scripts found, skipping."
 
-          # Gather files from sub-repositories
+          # Copy additional folders and files
           for dir in */ ; do
               dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" ]]; then
@@ -65,7 +65,7 @@ jobs:
               fi
           done
 
-      # Step 5: Update the Project File for NuGet Packaging
+      # Step 5: Create the Project File for NuGet Packaging
       - name: Update Project File
         run: |
           echo "Creating nuget.package.csproj..."
