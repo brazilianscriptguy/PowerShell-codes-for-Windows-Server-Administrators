@@ -29,6 +29,7 @@
 
   <!-- Include Necessary Files for the NuGet Package -->
   <ItemGroup>
+    <!-- Ensure all file types in Scripts-PowerShell are included -->
     <None Include="Scripts-PowerShell/**/*.*" Pack="true" PackagePath="content/" />
   </ItemGroup>
 
