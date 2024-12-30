@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <PackageId>Scripts-PowerShell</PackageId>
-    <Version>${{ env.version }}</Version>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
     <Description>
