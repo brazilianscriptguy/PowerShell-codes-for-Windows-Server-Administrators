@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the Repository
+      # Step 1: Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
@@ -38,6 +38,7 @@ jobs:
           revision=$(date +'%H%M')
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
+          echo "Generated version: $version"
 
       # Step 4: Prepare Files
       - name: Prepare Files
@@ -45,37 +46,23 @@ jobs:
           echo "Preparing Scripts-PowerShell directory..."
           mkdir -p Scripts-PowerShell
           
-          # Copy LICENSE and README.md if they exist
-          if [[ -f LICENSE ]]; then
-              cp LICENSE Scripts-PowerShell/
-          else
-              echo "LICENSE file not found."
-          fi
-
-          if [[ -f README.md ]]; then
-              cp README.md Scripts-PowerShell/
-          else
-              echo "README.md file not found."
-          fi
-
-          # Process all directories except excluded ones
+          # Copy LICENSE and README.md
+          cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found"
+          cp README.md Scripts-PowerShell/ || echo "README.md not found"
+          
+          # Copy non-excluded directories
           for dir in */ ; do
-              dir=${dir%/}  # Remove trailing slash
+              dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
-                  echo "Processing directory: $dir"
                   mkdir -p "Scripts-PowerShell/$dir"
-                  cp -r "$dir"/* "Scripts-PowerShell/$dir/" || echo "Skipping directory: $dir"
+                  cp -r "$dir/"* "Scripts-PowerShell/$dir/" || echo "Skipping $dir"
               fi
           done
 
-          echo "Files prepared in Scripts-PowerShell directory:"
+          echo "Prepared files:"
           find Scripts-PowerShell -type f
 
-      # Step 5: Restore Dependencies
-      - name: Restore Dependencies
-        run: dotnet restore || echo "Skipping restore."
-
-      # Step 6: Build and Pack NuGet Package
+      # Step 5: Build and Pack NuGet Package
       - name: Build and Pack
         run: |
           echo "Packing the NuGet package..."
@@ -90,7 +77,7 @@ jobs:
           fi
           echo "Package successfully created: $package_file"
 
-      # Step 7: Publish Package to GitHub Packages
+      # Step 6: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
