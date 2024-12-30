@@ -15,17 +15,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
+      # Step 2: Set up .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
 
+      # Step 3: Generate Version
       - name: Generate Version
         id: generate_version
         run: |
@@ -37,49 +40,47 @@ jobs:
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
+      # Step 4: Prepare Files
       - name: Prepare Files
         run: |
           echo "Preparing Scripts-PowerShell directory..."
           mkdir -p Scripts-PowerShell
-          cp LICENSE README.md Scripts-PowerShell/ || echo "Files missing: LICENSE or README.md"
+          
+          # Copy LICENSE and README.md
+          if [[ -f LICENSE ]]; then
+              cp LICENSE Scripts-PowerShell/
+          else
+              echo "LICENSE file not found."
+          fi
+          if [[ -f README.md ]]; then
+              cp README.md Scripts-PowerShell/
+          else
+              echo "README.md file not found."
+          fi
+
+          # Copy directories, excluding .github and specific unwanted folders
           for dir in */ ; do
-              dir=${dir%/}
-              if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" ]]; then
-                  mkdir -p Scripts-PowerShell/"$dir"
-                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || echo "Skipping $dir"
+              dir=${dir%/}  # Remove trailing slash
+              if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
+                  echo "Processing directory: $dir"
+                  mkdir -p "Scripts-PowerShell/$dir"
+                  # Copy files recursively while excluding hidden files
+                  find "$dir" -type f ! -name '.*' -exec cp --parents {} "Scripts-PowerShell/" \; || echo "Skipping directory: $dir"
               fi
           done
 
-      - name: Create Project File
-        run: |
-          cat > nuget.package.csproj <<- EOF
-          <Project Sdk="Microsoft.NET.Sdk">
-            <PropertyGroup>
-              <TargetFramework>net7.0</TargetFramework>
-              <PackageId>Scripts-PowerShell</PackageId>
-              <Version>${{ env.version }}</Version>
-              <Authors>Luiz Hamilton Silva</Authors>
-              <Company>Brazilianscriptguy</Company>
-              <Description>
-                Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks.
-              </Description>
-              <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
-              <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-              <NoWarn>NU5110;NU5111;NU5123</NoWarn>
-              <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-            </PropertyGroup>
-            <ItemGroup>
-              <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
-            </ItemGroup>
-          </Project>
-          EOF
+          echo "Files prepared in Scripts-PowerShell directory:"
+          find Scripts-PowerShell -type f
 
+      # Step 5: Restore Dependencies
       - name: Restore Dependencies
         run: dotnet restore || echo "Skipping restore."
 
+      # Step 6: Build Project
       - name: Build Project
         run: dotnet build nuget.package.csproj --configuration Release
 
+      # Step 7: Pack NuGet Package
       - name: Pack NuGet Package
         run: |
           mkdir -p ./artifacts
@@ -93,6 +94,7 @@ jobs:
           fi
           echo "Package successfully created: $package_file"
 
+      # Step 8: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
