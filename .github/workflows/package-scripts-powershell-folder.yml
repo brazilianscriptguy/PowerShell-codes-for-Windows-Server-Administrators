@@ -38,34 +38,32 @@ jobs:
           revision=$(date +'%H%M')
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
-          echo "Generated version: $version"
 
       # Step 4: Prepare Files
       - name: Prepare Files
         run: |
           echo "Preparing Scripts-PowerShell directory..."
           mkdir -p Scripts-PowerShell
-          
-          # Copy LICENSE and README.md
-          cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found"
-          cp README.md Scripts-PowerShell/ || echo "README.md not found"
 
-          # Copy directories, excluding .github and specific unwanted folders
+          # Copy LICENSE and README.md
+          cp LICENSE README.md Scripts-PowerShell/ || echo "LICENSE or README.md not found"
+
+          # Copy all relevant files and directories
           for dir in */ ; do
               dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
                   echo "Processing directory: $dir"
                   mkdir -p "Scripts-PowerShell/$dir"
-                  find "$dir" -type f ! -name '.*' -exec cp --parents {} "Scripts-PowerShell/" \; || echo "Skipping directory: $dir"
+                  find "$dir" -type f ! -name '.*' -exec cp --parents {} "Scripts-PowerShell/" \;
               fi
           done
 
-          echo "Files prepared in Scripts-PowerShell directory:"
+          echo "Files prepared:"
           find Scripts-PowerShell -type f
 
       # Step 5: Restore Dependencies
       - name: Restore Dependencies
-        run: dotnet restore -p:Version=${{ env.version }} || echo "Skipping restore."
+        run: dotnet restore nuget.package.csproj -p:Version=${{ env.version }} || echo "Skipping restore."
 
       # Step 6: Build Project
       - name: Build Project
@@ -75,6 +73,7 @@ jobs:
       # Step 7: Pack NuGet Package
       - name: Pack NuGet Package
         run: |
+          echo "Packing the NuGet package..."
           mkdir -p ./artifacts
           dotnet pack nuget.package.csproj --configuration Release --output ./artifacts -p:Version=${{ env.version }} || exit 1
           echo "Checking artifacts directory..."
