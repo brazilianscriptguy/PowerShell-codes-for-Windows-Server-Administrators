@@ -29,11 +29,11 @@
 
   <!-- Include Necessary Files for the NuGet Package -->
   <ItemGroup>
-    <Content Include="Scripts-PowerShell/**/*.*" PackagePath="content/" />
+    <None Include="Scripts-PowerShell/**/*.*" Pack="true" PackagePath="content/" />
   </ItemGroup>
 
   <!-- Exclude Problematic Long Path Folders -->
   <ItemGroup>
-    <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
+    <None Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
   </ItemGroup>
 </Project>
