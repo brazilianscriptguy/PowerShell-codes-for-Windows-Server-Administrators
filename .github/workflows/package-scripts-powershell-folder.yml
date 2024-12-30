@@ -16,14 +16,14 @@ jobs:
 
     steps:
       # Step 1: Checkout the repository
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
       # Step 2: Set up .NET
-      - name: Set up .NET
+      - name: Set Up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
@@ -32,8 +32,9 @@ jobs:
       - name: Generate Version
         id: generate_version
         run: |
-          # Generate a valid version string in the format Major.Minor.Build
-          version="1.0.$(date +'%Y%m%d%H%M%S')"
+          # Generate a valid version string in the format major.minor.patch
+          date_suffix=$(date +'%Y%m%d')
+          version="1.0.${date_suffix}"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
@@ -64,7 +65,7 @@ jobs:
       - name: Update Project File
         run: |
           echo "Adding scripts to nuget.package.csproj..."
-          cat > nuget.package.csproj <<- EOF
+          cat > nuget.package.csproj <<- 'EOF'
           <Project Sdk="Microsoft.NET.Sdk">
             <PropertyGroup>
               <TargetFramework>net7.0</TargetFramework>
