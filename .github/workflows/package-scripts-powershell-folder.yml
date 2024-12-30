@@ -100,10 +100,18 @@ jobs:
       - name: Build and Pack
         run: |
           echo "Packing the NuGet package..."
+          mkdir -p ./artifacts  # Ensure the artifacts directory exists
           dotnet pack nuget.package.csproj --configuration Release --output ./artifacts || {
             echo "Error: Failed to pack NuGet package.";
             exit 1;
           }
+
+          # Verify the package exists
+          if [[ ! -f ./artifacts/Scripts-PowerShell*.nupkg ]]; then
+              echo "Error: NuGet package not found in ./artifacts";
+              ls ./artifacts
+              exit 1;
+          fi
           echo "Package successfully created in ./artifacts"
 
       # Step 8: Publish to GitHub Packages
@@ -112,4 +120,5 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Publishing package to GitHub Packages..."
+          ls ./artifacts  # Debug output to verify package presence
           dotnet nuget push ./artifacts/Scripts-PowerShell*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
