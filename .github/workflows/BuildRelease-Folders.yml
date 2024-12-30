@@ -1,4 +1,4 @@
-# .github/workflows/build-and-release.yml
+# .github/workflows/BuildRelease-Folders.yml
 # Build and Release Workflow for Windows-SysAdmin-ProSuite
 name: Build and Release
 
@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: write       # Allows creating and modifying releases
-  metadata: read        # As per your provided log
 
 jobs:
   build-and-release:
