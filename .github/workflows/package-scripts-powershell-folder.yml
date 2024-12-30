@@ -32,13 +32,12 @@ jobs:
       - name: Generate Version
         id: generate_version
         run: |
-          # Generate version string in the format major.minor.build.revision
-          major="1"
-          minor="0"
-          build=$(date +'%j')          # Day of the year (001-365)
-          hour=$(date +'%H')           # Hour (00-23)
-          revision=$(date +'%M')       # Minute (00-59)
-          version="${major}.${minor}.${build}.${hour}${revision}"
+          # Generate version string in the format Major.Minor.Build.Revision
+          major=1
+          minor=0
+          build=$(date +'%Y%m%d')
+          revision=$(date +'%H%M')
+          version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
@@ -53,9 +52,9 @@ jobs:
           cp README.md Scripts-PowerShell/ || echo "README.md not found, skipping."
 
           # Copy PowerShell scripts and other relevant files
-          cp -r Core-ScriptLibrary/*.ps1 Scripts-PowerShell/ || echo "No PowerShell scripts found, skipping."
+          find Core-ScriptLibrary -name '*.ps1' -exec cp {} Scripts-PowerShell/ \;
 
-          # Copy additional folders and files
+          # Gather files from sub-repositories
           for dir in */ ; do
               dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" ]]; then
@@ -65,16 +64,16 @@ jobs:
               fi
           done
 
-      # Step 5: Create the Project File for NuGet Packaging
+      # Step 5: Update the Project File for NuGet Packaging
       - name: Update Project File
         run: |
           echo "Creating nuget.package.csproj..."
-          cat > nuget.package.csproj <<- EOF
+          cat > nuget.package.csproj <<- 'EOF'
           <Project Sdk="Microsoft.NET.Sdk">
             <PropertyGroup>
               <TargetFramework>net7.0</TargetFramework>
               <Version>${{ env.version }}</Version>
-              <PackageId>Scripts-PowerShell</PackageId> <!-- Set correct package name -->
+              <PackageId>Scripts-PowerShell</PackageId>
               <Authors>Luiz Hamilton Silva</Authors>
               <Company>Brazilianscriptguy</Company>
               <Description>
@@ -84,10 +83,10 @@ jobs:
               </Description>
               <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
               <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-              <NoWarn>NU5110;NU5111;NU5123</NoWarn> <!-- Suppress warnings -->
+              <NoWarn>NU5110;NU5111;NU5123</NoWarn>
             </PropertyGroup>
             <ItemGroup>
-              <Content Include="Scripts-PowerShell/**" Exclude="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" PackagePath="content/" />
+              <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
             </ItemGroup>
           </Project>
           EOF
