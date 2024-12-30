@@ -36,53 +36,46 @@ jobs:
           echo "version=$version" >> $GITHUB_ENV
 
       # Step 4: Prepare Files for Packaging
-      - name: Prepare files
+      - name: Prepare Files
         run: |
+          echo "Preparing the Scripts-PowerShell folder..."
           mkdir -p Scripts-PowerShell
 
-          # Copy LICENSE and README.md
-          cp LICENSE Scripts-PowerShell/ || true
-          cp README.md Scripts-PowerShell/ || true
+          echo "Copying LICENSE and README.md..."
+          cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found, skipping."
+          cp README.md Scripts-PowerShell/ || echo "README.md not found, skipping."
 
-          # Copy specific file to the root of Scripts-PowerShell
-          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || true
+          echo "Copying Launch-Script-AutomaticMenu.ps1..."
+          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || echo "Launch-Script-AutomaticMenu.ps1 not found, skipping."
 
-          # Gather files from sub-repositories
+          echo "Gathering files from sub-repositories..."
           for dir in */ ; do
               dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" ]]; then
+                  echo "Processing directory: $dir"
                   mkdir -p Scripts-PowerShell/"$dir"
-                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || true
+                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || echo "No files found in $dir, skipping."
               fi
           done
 
       # Step 5: Build and Package Artifacts
-- name: Build and package artifacts
-  run: |
-    # Prepare the Scripts-PowerShell folder
-    mkdir -p Scripts-PowerShell
-
-    # Copy necessary files to Scripts-PowerShell
-    cp LICENSE Scripts-PowerShell/ || true
-    cp README.md Scripts-PowerShell/ || true
-    cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || true
-
-    # Copy all files from subdirectories
-    for dir in */ ; do
-        dir=${dir%/}
-        if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" ]]; then
-            mkdir -p Scripts-PowerShell/"$dir"
-            cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || true
-        fi
-    done
-
-    # Pack the NuGet package
-    dotnet pack nuget.package.csproj --configuration Release --output ./artifacts
-
+      - name: Build and Package Artifacts
+        run: |
+          echo "Packaging the NuGet package..."
+          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts || {
+              echo "Error: Failed to pack NuGet package.";
+              exit 1;
+          }
+          echo "Package successfully created in ./artifacts"
 
       # Step 6: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet nuget push ./artifacts/Scripts-PowerShell.*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
+          echo "Publishing package to GitHub Packages..."
+          dotnet nuget push ./artifacts/Scripts-PowerShell.*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate || {
+              echo "Error: Failed to publish package.";
+              exit 1;
+          }
+          echo "Package successfully published to GitHub Packages."
