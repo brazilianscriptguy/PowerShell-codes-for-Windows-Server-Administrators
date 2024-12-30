@@ -29,12 +29,8 @@
 
   <!-- Include Necessary Files for the NuGet Package -->
   <ItemGroup>
-    <!-- Ensure all file types in Scripts-PowerShell are included -->
-    <None Include="Windows-SysAdmin-ProSuite/**/*.*" Pack="true" PackagePath="content/" />
+    <None Include="LICENSE;README.md" Pack="true" PackagePath="content/Scripts-PowerShell/" />
+    <None Include="**/*.*" Exclude="**/*.config;**/.github/**;SysAdmin-Tools/GroupPolicyObjects-Templates/**" Pack="true" PackagePath="content/Scripts-PowerShell/" />
   </ItemGroup>
 
-  <!-- Exclude Problematic Long Path Folders -->
-  <ItemGroup>
-    <None Remove="Windows-SysAdmin-ProSuite/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
-  </ItemGroup>
 </Project>
