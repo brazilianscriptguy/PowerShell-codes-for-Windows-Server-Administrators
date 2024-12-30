@@ -73,33 +73,4 @@ jobs:
               <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
               <Version>${{ env.version }}</Version>
               <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-              <NoBuild>true</NoBuild>
-              <PackageOutputPath>./artifacts</PackageOutputPath>
-              <NoWarn>NU5110;NU5111;NU5123</NoWarn>
-            </PropertyGroup>
-            <ItemGroup>
-              <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
-              <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
-            </ItemGroup>
-          </Project>
-          EOF
-
-      # Step 6: Build and Pack the NuGet Package
-      - name: Build and Pack
-        run: |
-          mkdir -p ./artifacts
-          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts || exit 1
-          package_file=$(find ./artifacts -name "Scripts-PowerShell*.nupkg")
-          if [[ -z "$package_file" ]]; then
-              echo "Error: Package not found"
-              ls ./artifacts
-              exit 1
-          fi
-          echo "Package successfully created: $package_file"
-
-      # Step 7: Publish to GitHub Packages
-      - name: Publish to GitHub Packages
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          dotnet nuget push ./artifacts/Scripts-PowerShell*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
+              <NoBuild>tru
