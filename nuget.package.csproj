@@ -12,7 +12,7 @@
     <Description>Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy, efficiency, security, scalability, and adaptability, optimizing daily operations, performance, and system compliance.</Description>
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-    <Version>$(version)</Version>
+    <Version Condition="'$(version)' == ''">1.0.0</Version>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo> <!-- Disable Assembly Info Generation -->
     <NoBuild>true</NoBuild> <!-- Disable Build Requirement -->
   </PropertyGroup>
@@ -22,11 +22,11 @@
     <!-- Include all PowerShell scripts -->
     <Content Include="Scripts-PowerShell/**/*.ps1" PackagePath="content/" />
     <!-- Include VBScript files -->
-    <Content Include="Scripts-PowerShell/**/*.vbs" PackagePath="content/" />
+    <Content Include="Scripts-PowerShell/**/*.vbs" PackagePath="content/" Condition="Exists('Scripts-PowerShell/**/*.vbs')" />
     <!-- Include .txt, .hta, .bgi files -->
-    <Content Include="Scripts-PowerShell/**/*.txt" PackagePath="content/" />
-    <Content Include="Scripts-PowerShell/**/*.hta" PackagePath="content/" />
-    <Content Include="Scripts-PowerShell/**/*.bgi" PackagePath="content/" />
+    <Content Include="Scripts-PowerShell/**/*.txt" PackagePath="content/" Condition="Exists('Scripts-PowerShell/**/*.txt')" />
+    <Content Include="Scripts-PowerShell/**/*.hta" PackagePath="content/" Condition="Exists('Scripts-PowerShell/**/*.hta')" />
+    <Content Include="Scripts-PowerShell/**/*.bgi" PackagePath="content/" Condition="Exists('Scripts-PowerShell/**/*.bgi')" />
     <!-- Include LICENSE and README -->
     <Content Include="Scripts-PowerShell/LICENSE" PackagePath="content/" />
     <Content Include="Scripts-PowerShell/README.md" PackagePath="content/" />
