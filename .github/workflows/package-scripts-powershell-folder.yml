@@ -28,18 +28,14 @@ jobs:
         with:
           dotnet-version: '7.0'
 
-      # Step 3: Generate Version and Package Name
+      # Step 3: Generate Version
       - name: Generate Version
         id: generate_version
         run: |
           version=$(date +'%Y%m%d.%H%M%S')
           echo "version=$version" >> $GITHUB_ENV
 
-      # Step 4: Restore dependencies
-      - name: Restore dependencies
-        run: dotnet restore nuget.package.csproj
-
-      # Step 5: Prepare Files for Packaging
+      # Step 4: Prepare Files for Packaging
       - name: Prepare files
         run: |
           mkdir -p Scripts-PowerShell
@@ -60,11 +56,11 @@ jobs:
               fi
           done
 
-      # Step 6: Build and Pack the NuGet package
-      - name: Build and Pack NuGet Package
-        run: dotnet pack nuget.package.csproj --configuration Release --no-build --output ./artifacts
+      # Step 5: Pack the NuGet Package
+      - name: Pack the NuGet package
+        run: dotnet pack nuget.package.csproj --configuration Release --output ./artifacts
 
-      # Step 7: Publish to GitHub Packages
+      # Step 6: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
