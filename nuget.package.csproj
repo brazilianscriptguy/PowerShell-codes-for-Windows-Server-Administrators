@@ -29,7 +29,8 @@
 
   <!-- Include Necessary Files for the NuGet Package -->
   <ItemGroup>
-    <None Include="LICENSE;README.md" Pack="true" PackagePath="content/Scripts-PowerShell/" />
+    <None Include="LICENSE" Pack="true" PackagePath="content/Scripts-PowerShell/" />
+    <None Include="README.md" Pack="true" PackagePath="content/Scripts-PowerShell/" />
     <None Include="**/*.*" Exclude="**/*.config;**/.github/**;SysAdmin-Tools/GroupPolicyObjects-Templates/**" Pack="true" PackagePath="content/Scripts-PowerShell/" />
   </ItemGroup>
 
