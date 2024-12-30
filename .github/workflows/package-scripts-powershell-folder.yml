@@ -32,11 +32,12 @@ jobs:
       - name: Generate Version
         id: generate_version
         run: |
-          # Generate version string in the format major.minor.build.revision
           major="1"
           minor="0"
-          build=$(date +'%Y%m%d')   # Date in YYYYMMDD format
-          revision=$(date +'%H%M') # Hour and minute
+          build=$(date +'%j')          # Day of the year (001-365)
+          hour=$(date +'%H')           # Hour (00-23)
+          minute=$(date +'%M')         # Minute (00-59)
+          revision=$((hour * 100 + minute))  # Combine hour and minute
           version="${major}.${minor}.${build}.${revision}"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
