@@ -50,7 +50,7 @@ jobs:
           cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found"
           cp README.md Scripts-PowerShell/ || echo "README.md not found"
 
-          # Copy all valid directories except exclusions
+          # Process all valid directories
           for dir in */ ; do
               dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
@@ -68,7 +68,7 @@ jobs:
         run: |
           echo "Packing the NuGet package..."
           mkdir -p ./artifacts
-          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts -p:Version=${{ env.version }} || exit 1
+          dotnet pack nuget.package.csproj --output ./artifacts -p:Version=${{ env.version }} || exit 1
           echo "Checking artifacts directory..."
           ls ./artifacts
           package_file=$(find ./artifacts -name "Scripts-PowerShell*.nupkg")
