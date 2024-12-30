@@ -39,19 +39,38 @@ jobs:
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
 
-      # Step 4: Prepare Files for Packaging
+      # Step 4: Prepare Files
       - name: Prepare Files
         run: |
           echo "Preparing Scripts-PowerShell directory..."
           mkdir -p Scripts-PowerShell
-          cp LICENSE README.md Scripts-PowerShell/
+          
+          # Copy LICENSE and README.md if they exist
+          if [[ -f LICENSE ]]; then
+              cp LICENSE Scripts-PowerShell/
+          else
+              echo "LICENSE file not found."
+          fi
+
+          if [[ -f README.md ]]; then
+              cp README.md Scripts-PowerShell/
+          else
+              echo "README.md file not found."
+          fi
+
+          # Process all directories except excluded ones
           for dir in */ ; do
-              dir=${dir%/}
-              if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" ]]; then
-                  mkdir -p Scripts-PowerShell/"$dir"
-                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || echo "Skipping $dir"
+              dir=${dir%/}  # Remove trailing slash
+              if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
+                  echo "Processing directory: $dir"
+                  mkdir -p "Scripts-PowerShell/$dir"
+                  # Copy files recursively, excluding hidden files and folders
+                  find "$dir" -type f ! -name '.*' -exec cp --parents {} "Scripts-PowerShell/" \; || echo "Skipping directory: $dir"
               fi
           done
+
+          echo "Files prepared in Scripts-PowerShell directory:"
+          find Scripts-PowerShell -type f
 
       # Step 5: Restore Dependencies (Optional for Project Structure)
       - name: Restore Dependencies
