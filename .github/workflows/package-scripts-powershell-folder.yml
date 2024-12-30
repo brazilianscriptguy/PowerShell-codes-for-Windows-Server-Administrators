@@ -62,22 +62,22 @@ jobs:
       - name: Update Project File
         run: |
           echo "Adding scripts to nuget.package.csproj..."
-          cat <<EOF > nuget.package.csproj
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <Version>${{ env.version }}</Version>
-    <Authors>Luiz Hamilton Silva</Authors>
-    <Company>Brazilianscriptguy</Company>
-    <Description>Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, and simplifies script creation.</Description>
-    <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
-    <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-  </PropertyGroup>
-  <ItemGroup>
-    <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
-  </ItemGroup>
-</Project>
-EOF
+          cat > nuget.package.csproj <<- 'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>net7.0</TargetFramework>
+              <Version>${{ env.version }}</Version>
+              <Authors>Luiz Hamilton Silva</Authors>
+              <Company>Brazilianscriptguy</Company>
+              <Description>Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, and simplifies script creation.</Description>
+              <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
+              <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
+            </PropertyGroup>
+            <ItemGroup>
+              <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
+            </ItemGroup>
+          </Project>
+          EOF
 
       # Step 6: Restore Dependencies
       - name: Restore Dependencies
@@ -87,7 +87,11 @@ EOF
       - name: Build and Pack
         run: |
           echo "Packing the NuGet package..."
-          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts
+          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts || {
+            echo "Error: Failed to pack NuGet package.";
+            exit 1;
+          }
+          echo "Package successfully created in ./artifacts"
 
       # Step 8: Publish to GitHub Packages
       - name: Publish to GitHub Packages
