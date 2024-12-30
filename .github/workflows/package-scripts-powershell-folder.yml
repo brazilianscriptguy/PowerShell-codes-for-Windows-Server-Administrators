@@ -91,7 +91,7 @@ jobs:
         run: |
           echo "Packing the NuGet package..."
           mkdir -p ./artifacts
-          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts --no-build || exit 1
+          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts || exit 1
           echo "Checking artifacts directory..."
           ls ./artifacts
           package_file=$(find ./artifacts -name "Scripts-PowerShell*.nupkg")
