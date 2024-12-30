@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Target Framework -->
     <TargetFramework>net7.0</TargetFramework>
 
     <!-- Package Metadata -->
@@ -16,27 +15,21 @@
     </Description>
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-
-    <!-- Suppress Warnings -->
-    <NoWarn>NU5110;NU5111;NU5123</NoWarn>
-
-    <!-- Version and Build Options -->
-    <Version Condition="'$(Version)' == ''">1.0.0</Version>
+    <PackageOutputPath>./artifacts</PackageOutputPath>
+    <Version>$(Version)</Version>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NoBuild>true</NoBuild>
-    <PackageOutputPath>./artifacts</PackageOutputPath>
+    <NoWarn>NU5110;NU5111;NU5123</NoWarn>
   </PropertyGroup>
 
-  <!-- Include Necessary Files for the NuGet Package -->
   <ItemGroup>
-    <!-- Include all relevant files under Scripts-PowerShell -->
+    <!-- Include all processed files -->
     <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
   </ItemGroup>
 
-  <!-- Exclude Specific Directories and Files -->
   <ItemGroup>
+    <!-- Exclude unwanted directories -->
     <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
     <Content Remove="Scripts-PowerShell/.github/**" />
   </ItemGroup>
-
 </Project>
