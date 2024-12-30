@@ -47,7 +47,7 @@ jobs:
 
       # Step 6: Pack the NuGet package
       - name: Pack the NuGet package
-        run: dotnet pack --configuration Release --no-build --output ./artifacts
+        run: dotnet pack nuget.package.csproj --configuration Release --no-build --output ./artifacts
 
       # Step 7: Publish to GitHub Packages
       - name: Publish to GitHub Packages
