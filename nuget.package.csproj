@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <PackageId>Scripts-PowerShell</PackageId>
@@ -15,7 +16,12 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <!-- Include Necessary Files -->
   <ItemGroup>
-    <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
+    <!-- Include all files from Scripts-PowerShell -->
+    <Content Include="Scripts-PowerShell/**/*.*" PackagePath="content/" />
+    <!-- Exclude unnecessary or problematic files -->
+    <Content Remove="Scripts-PowerShell/.github/**" />
+    <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
   </ItemGroup>
 </Project>
