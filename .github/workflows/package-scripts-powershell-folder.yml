@@ -74,6 +74,7 @@ jobs:
             <PropertyGroup>
               <TargetFramework>net7.0</TargetFramework>
               <Version>${{ env.version }}</Version>
+              <PackageId>Scripts-PowerShell</PackageId> <!-- Set correct package name -->
               <Authors>Luiz Hamilton Silva</Authors>
               <Company>Brazilianscriptguy</Company>
               <Description>
