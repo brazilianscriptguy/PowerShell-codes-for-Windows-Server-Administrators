@@ -1,39 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Package Metadata -->
+    <!-- Target Framework -->
     <TargetFramework>net7.0</TargetFramework>
+
+    <!-- Package Metadata -->
     <PackageId>Scripts-PowerShell</PackageId>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
     <Product>Scripts-PowerShell</Product>
     <Description>
-      Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, 
-      and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy, 
+      Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis,
+      and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy,
       efficiency, scalability, and adaptability.
     </Description>
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
 
-    <!-- Version -->
-    <Version>$(Version)</Version>
-
     <!-- Suppress Warnings -->
     <NoWarn>NU5110;NU5111;NU5123</NoWarn>
 
-    <!-- Build Options -->
+    <!-- Version and Build Options -->
+    <Version Condition="'$(Version)' == ''">1.0.0</Version>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NoBuild>true</NoBuild>
     <PackageOutputPath>./artifacts</PackageOutputPath>
   </PropertyGroup>
 
-  <!-- Include Files for the NuGet Package -->
+  <!-- Include Necessary Files for the NuGet Package -->
   <ItemGroup>
-    <None Include="Scripts-PowerShell/**" PackagePath="content/" />
+    <!-- Include all relevant files under Scripts-PowerShell -->
+    <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
   </ItemGroup>
 
-  <!-- Exclude Specific Folders -->
+  <!-- Exclude Specific Directories and Files -->
   <ItemGroup>
-    <None Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
+    <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
+    <Content Remove="Scripts-PowerShell/.github/**" />
   </ItemGroup>
+
 </Project>
