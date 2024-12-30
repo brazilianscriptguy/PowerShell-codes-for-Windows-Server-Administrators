@@ -38,6 +38,7 @@ jobs:
           revision=$(date +'%H%M')
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
+          echo "Generated version: $version"
 
       # Step 4: Prepare Files
       - name: Prepare Files
@@ -45,38 +46,50 @@ jobs:
           echo "Preparing Scripts-PowerShell directory..."
           mkdir -p Scripts-PowerShell
           
-          # Copy LICENSE and README.md if they exist
-          if [[ -f LICENSE ]]; then
-              cp LICENSE Scripts-PowerShell/
-          else
-              echo "LICENSE file not found."
-          fi
+          if [[ -f LICENSE ]]; then cp LICENSE Scripts-PowerShell/; fi
+          if [[ -f README.md ]]; then cp README.md Scripts-PowerShell/; fi
 
-          if [[ -f README.md ]]; then
-              cp README.md Scripts-PowerShell/
-          else
-              echo "README.md file not found."
-          fi
-
-          # Process all directories except excluded ones
           for dir in */ ; do
-              dir=${dir%/}  # Remove trailing slash
+              dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
-                  echo "Processing directory: $dir"
                   mkdir -p "Scripts-PowerShell/$dir"
-                  # Copy files recursively, excluding hidden files and folders
-                  find "$dir" -type f ! -name '.*' -exec cp --parents {} "Scripts-PowerShell/" \; || echo "Skipping directory: $dir"
+                  find "$dir" -type f ! -name '.*' -exec cp --parents {} "Scripts-PowerShell/" \; || echo "Skipping $dir"
               fi
           done
 
           echo "Files prepared in Scripts-PowerShell directory:"
           find Scripts-PowerShell -type f
 
-      # Step 5: Restore Dependencies (Optional for Project Structure)
+      # Step 5: Create Project File
+      - name: Create Project File
+        run: |
+          echo "Creating nuget.package.csproj..."
+          cat > nuget.package.csproj <<- EOF
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>net7.0</TargetFramework>
+              <PackageId>Scripts-PowerShell</PackageId>
+              <Version>${{ env.version }}</Version>
+              <Authors>Luiz Hamilton Silva</Authors>
+              <Company>Brazilianscriptguy</Company>
+              <Description>Comprehensive suite of PowerShell and VBScript tools.</Description>
+              <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
+              <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
+              <NoWarn>NU5110;NU5111;NU5123</NoWarn>
+              <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+              <NoBuild>true</NoBuild>
+            </PropertyGroup>
+            <ItemGroup>
+              <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
+            </ItemGroup>
+          </Project>
+          EOF
+
+      # Step 6: Restore Dependencies
       - name: Restore Dependencies
         run: dotnet restore || echo "Skipping restore."
 
-      # Step 6: Build and Pack NuGet Package
+      # Step 7: Build and Pack NuGet Package
       - name: Build and Pack
         run: |
           echo "Packing the NuGet package..."
@@ -91,7 +104,7 @@ jobs:
           fi
           echo "Package successfully created: $package_file"
 
-      # Step 7: Publish Package to GitHub Packages
+      # Step 8: Publish Package to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
