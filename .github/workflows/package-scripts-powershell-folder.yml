@@ -83,7 +83,7 @@ jobs:
               </Description>
               <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
               <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-              <NoWarn>NU5110;NU5123</NoWarn>
+              <NoWarn>NU5110;NU5111;NU5123</NoWarn> <!-- Suppress warnings -->
             </PropertyGroup>
             <ItemGroup>
               <Content Include="Scripts-PowerShell/**" Exclude="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" PackagePath="content/" />
@@ -112,4 +112,4 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Publishing package to GitHub Packages..."
-          dotnet nuget push ./artifacts/*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
+          dotnet nuget push ./artifacts/Scripts-PowerShell*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
