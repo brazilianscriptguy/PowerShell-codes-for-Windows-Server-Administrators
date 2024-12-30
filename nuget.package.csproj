@@ -25,11 +25,11 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NoBuild>true</NoBuild>
     <PackageOutputPath>./artifacts</PackageOutputPath>
-    <PackageId>Scripts-PowerShell</PackageId>
   </PropertyGroup>
 
   <!-- Include Necessary Files for the NuGet Package -->
   <ItemGroup>
+    <!-- Explicitly include PowerShell and VBScript files -->
     <Content Include="Scripts-PowerShell/**/*.ps1" PackagePath="content/" />
     <Content Include="Scripts-PowerShell/**/*.vbs" PackagePath="content/" />
     <Content Include="Scripts-PowerShell/**/*.txt" PackagePath="content/" />
