@@ -15,37 +15,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
+      # Step 2: Set Up .NET
       - name: Set Up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
 
+      # Step 3: Generate Version
       - name: Generate Version
         id: generate_version
         run: |
           major=1
           minor=0
           build=$(date +'%j')
-          revision=$((10#$(date +'%H') * 100 + 10#$(date +'%M')))
+          revision=$(date +'%H%M')
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
+      # Step 4: Prepare Files
       - name: Prepare Files
         run: |
           echo "Preparing the Scripts-PowerShell folder..."
           mkdir -p Scripts-PowerShell
-
           cp -r Core-ScriptLibrary/* Scripts-PowerShell/ || echo "Core-ScriptLibrary not found, skipping."
           cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found, skipping."
           cp README.md Scripts-PowerShell/ || echo "README.md not found, skipping."
 
+      # Step 5: Update Project File
       - name: Update Project File
         run: |
           echo "Creating nuget.package.csproj..."
@@ -67,15 +71,17 @@ jobs:
               <NoWarn>NU5110;NU5111;NU5123</NoWarn>
             </PropertyGroup>
             <ItemGroup>
-              <Content Include="Scripts-PowerShell/**/*.*" PackagePath="content/" />
-              <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
+              <None Include="Scripts-PowerShell/**/*.*" Pack="true" PackagePath="content/" />
+              <None Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
             </ItemGroup>
           </Project>
           EOF
 
+      # Step 6: Restore Dependencies
       - name: Restore Dependencies
         run: dotnet restore nuget.package.csproj
 
+      # Step 7: Build and Pack
       - name: Build and Pack
         run: |
           echo "Packing the NuGet package..."
@@ -93,8 +99,10 @@ jobs:
           fi
           echo "Package successfully created: $package_file"
 
+      # Step 8: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "Publishing package to GitHub Packages..."
           dotnet nuget push ./artifacts/Scripts-PowerShell.*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
