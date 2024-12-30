@@ -65,8 +65,7 @@ jobs:
 
       # Step 5: Restore Dependencies
       - name: Restore Dependencies
-        run: |
-          dotnet restore -p:Version=${{ env.version }} || echo "Skipping restore."
+        run: dotnet restore -p:Version=${{ env.version }} || echo "Skipping restore."
 
       # Step 6: Build Project
       - name: Build Project
