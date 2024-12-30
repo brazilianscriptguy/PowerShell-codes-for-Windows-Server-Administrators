@@ -83,7 +83,8 @@ jobs:
               <NoWarn>NU5110;NU5111;NU5123</NoWarn>
             </PropertyGroup>
             <ItemGroup>
-              <None Include="LICENSE;README.md" Pack="true" PackagePath="content/Scripts-PowerShell/" />
+              <None Include="LICENSE" Pack="true" PackagePath="content/Scripts-PowerShell/" />
+              <None Include="README.md" Pack="true" PackagePath="content/Scripts-PowerShell/" />
               <None Include="**/*.*" Exclude="**/*.config;**/.github/**;SysAdmin-Tools/GroupPolicyObjects-Templates/**" Pack="true" PackagePath="content/Scripts-PowerShell/" />
             </ItemGroup>
           </Project>
