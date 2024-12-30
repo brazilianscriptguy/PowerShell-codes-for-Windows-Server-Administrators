@@ -20,7 +20,7 @@ jobs:
       - name: Set up PowerShell
         uses: actions/setup-powershell@v3
         with:
-          pwsh-version: '7.3.0' # Or your preferred version
+          pwsh-version: '7.5.1' # Or your preferred version
 
       - name: Build and package artifacts
         id: package
