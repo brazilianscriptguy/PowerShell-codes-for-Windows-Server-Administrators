@@ -19,7 +19,17 @@
 
   <!-- Include necessary files for the NuGet package -->
   <ItemGroup>
-    <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
+    <!-- Include all PowerShell scripts -->
+    <Content Include="Scripts-PowerShell/**/*.ps1" PackagePath="content/" />
+    <!-- Include VBScript files -->
+    <Content Include="Scripts-PowerShell/**/*.vbs" PackagePath="content/" />
+    <!-- Include .txt, .hta, .bgi files -->
+    <Content Include="Scripts-PowerShell/**/*.txt" PackagePath="content/" />
+    <Content Include="Scripts-PowerShell/**/*.hta" PackagePath="content/" />
+    <Content Include="Scripts-PowerShell/**/*.bgi" PackagePath="content/" />
+    <!-- Include LICENSE and README -->
+    <Content Include="Scripts-PowerShell/LICENSE" PackagePath="content/" />
+    <Content Include="Scripts-PowerShell/README.md" PackagePath="content/" />
   </ItemGroup>
 
 </Project>
