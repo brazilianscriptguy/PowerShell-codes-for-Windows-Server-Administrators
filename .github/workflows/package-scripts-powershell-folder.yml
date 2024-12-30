@@ -1,0 +1,72 @@
+name: Publish NuGet Package
+
+on:
+  workflow_dispatch:  # Allows manual triggering of the workflow
+  push:
+    tags:
+      - 'v*'  # Trigger on tags starting with 'v'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      # Step 2: Set up .NET
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0'
+
+      # Step 3: Generate Version and Package Name
+      - name: Generate Version
+        id: generate_version
+        run: |
+          version=$(date +'%Y%m%d.%H%M%S')
+          echo "version=$version" >> $GITHUB_ENV
+
+      # Step 4: Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore nuget.package.csproj
+
+      # Step 5: Prepare Files for Packaging
+      - name: Prepare files
+        run: |
+          mkdir -p Scripts-PowerShell
+
+          # Copy LICENSE and README.md
+          cp LICENSE Scripts-PowerShell/ || true
+          cp README.md Scripts-PowerShell/ || true
+
+          # Copy specific file to the root of Scripts-PowerShell
+          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || true
+
+          # Gather files from sub-repositories
+          for dir in */ ; do
+              dir=${dir%/}
+              if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" ]]; then
+                  mkdir -p Scripts-PowerShell/"$dir"
+                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || true
+              fi
+          done
+
+      # Step 6: Build and Pack the NuGet package
+      - name: Build and Pack NuGet Package
+        run: dotnet pack nuget.package.csproj --configuration Release --no-build --output ./artifacts
+
+      # Step 7: Publish to GitHub Packages
+      - name: Publish to GitHub Packages
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dotnet nuget push ./artifacts/Scripts-PowerShell.*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
