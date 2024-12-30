@@ -56,7 +56,7 @@ jobs:
       - name: Create Project File
         run: |
           echo "Creating nuget.package.csproj..."
-          cat > nuget.package.csproj <<- EOF
+          cat > nuget.package.csproj <<- 'EOF'
           <Project Sdk="Microsoft.NET.Sdk">
             <PropertyGroup>
               <TargetFramework>net7.0</TargetFramework>
