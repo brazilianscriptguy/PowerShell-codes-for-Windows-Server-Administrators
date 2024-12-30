@@ -21,7 +21,7 @@ jobs:
         with:
           submodules: true           # Set to true if using Git submodules
 
-      # Step 2: Set up necessary tools
+      # Step 2: Install Dependencies
       - name: Install Dependencies
         run: |
           sudo apt-get update
@@ -70,8 +70,9 @@ jobs:
           hash=$(sha256sum "${{ steps.package.outputs.package-path }}" | awk '{print $1}')
           echo "hash=$hash" >> $GITHUB_OUTPUT
 
-      # Step 5: Upload the package as a GitHub Release asset
+      # Step 5: Upload the package as a GitHub Release asset (Only on Release Events)
       - name: Upload Release Asset
+        if: github.event_name == 'release' && github.event.action == 'published'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -81,9 +82,9 @@ jobs:
           asset_name: Package-ProSuite.zip
           asset_content_type: application/zip
 
-      # Step 6: Update release notes with the SHA256 hash
+      # Step 6: Update release notes with the SHA256 hash (Only on Release Events)
       - name: Update Release Notes with SHA256 Hash
-        if: ${{ steps.compute_hash.outputs.hash != '' }}
+        if: github.event_name == 'release' && github.event.action == 'published' && steps.compute_hash.outputs.hash != ''
         uses: actions/github-script@v6    # Updated to v6
         with:
           script: |
