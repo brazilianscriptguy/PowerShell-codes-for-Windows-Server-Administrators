@@ -36,8 +36,8 @@ jobs:
         run: |
           TAG_NAME="v$(date +'%Y.%m.%d.%H%M%S')"
           RELEASE_NAME="Release $(date +'%Y-%m-%d %H:%M:%S')"
-          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-          echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
+          echo "release_name=$RELEASE_NAME" >> $GITHUB_ENV
 
       # Step 4: Create a New Release
       - name: Create New Release
@@ -47,8 +47,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.generate_names.outputs.tag_name }}
-          release_name: ${{ steps.generate_names.outputs.release_name }}
+          tag_name: ${{ env.tag_name }}
+          release_name: ${{ env.release_name }}
           body: "Automatically created release after 20 commits."
           draft: false
           prerelease: false
@@ -80,14 +80,14 @@ jobs:
           done
           zip -r Package-ProSuite.zip Scripts-PowerShell
           package_path=$(pwd)/Package-ProSuite.zip
-          echo "package-path=$package_path" >> $GITHUB_OUTPUT
+          echo "package_path=$package_path" >> $GITHUB_ENV
 
       # Step 6: Compute SHA256 Hash of the Package
       - name: Compute SHA256 hash
         id: compute_hash
         run: |
-          hash=$(sha256sum "${{ steps.package.outputs.package-path }}" | awk '{print $1}')
-          echo "hash=$hash" >> $GITHUB_OUTPUT
+          hash=$(sha256sum "${{ env.package_path }}" | awk '{print $1}')
+          echo "hash=$hash" >> $GITHUB_ENV
 
       # Step 7: Upload the Package as a GitHub Release Asset
       - name: Upload Release Asset
@@ -97,7 +97,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.package.outputs.package-path }}
+          asset_path: ${{ env.package_path }}
           asset_name: Package-ProSuite.zip
           asset_content_type: application/zip
 
@@ -107,7 +107,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const hash = '${{ steps.compute_hash.outputs.hash }}';
+            const hash = '${{ env.hash }}';
             const releaseId = ${{ steps.create_release.outputs.id }};
             const currentBody = '${{ steps.create_release.outputs.body }}';
             const updatedBody = `${currentBody}\n\n**SHA256 Hash of Package-ProSuite.zip:** \`${hash}\``;
