@@ -44,34 +44,40 @@ jobs:
         run: |
           echo "Preparing Scripts-PowerShell directory..."
           mkdir -p Scripts-PowerShell
+          
+          # Copy LICENSE and README.md if they exist
+          if [[ -f LICENSE ]]; then
+              cp LICENSE Scripts-PowerShell/
+          else
+              echo "LICENSE file not found."
+          fi
 
-          # Copy LICENSE and README.md
-          cp LICENSE README.md Scripts-PowerShell/ || echo "LICENSE or README.md not found"
+          if [[ -f README.md ]]; then
+              cp README.md Scripts-PowerShell/
+          else
+              echo "README.md file not found."
+          fi
 
-          # Copy all relevant files and directories
+          # Process all directories except excluded ones
           for dir in */ ; do
-              dir=${dir%/}
+              dir=${dir%/}  # Remove trailing slash
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
                   echo "Processing directory: $dir"
                   mkdir -p "Scripts-PowerShell/$dir"
-                  find "$dir" -type f ! -name '.*' -exec cp --parents {} "Scripts-PowerShell/" \;
+                  # Copy files recursively, excluding hidden files and folders
+                  find "$dir" -type f ! -name '.*' -exec cp --parents {} "Scripts-PowerShell/" \; || echo "Skipping directory: $dir"
               fi
           done
 
-          echo "Files prepared:"
+          echo "Files prepared in Scripts-PowerShell directory:"
           find Scripts-PowerShell -type f
 
       # Step 5: Restore Dependencies
       - name: Restore Dependencies
-        run: dotnet restore nuget.package.csproj -p:Version=${{ env.version }} || echo "Skipping restore."
+        run: dotnet restore || echo "Skipping restore."
 
-      # Step 6: Build Project
-      - name: Build Project
-        run: |
-          dotnet build nuget.package.csproj --configuration Release -p:Version=${{ env.version }}
-
-      # Step 7: Pack NuGet Package
-      - name: Pack NuGet Package
+      # Step 6: Build and Pack NuGet Package
+      - name: Build and Pack
         run: |
           echo "Packing the NuGet package..."
           mkdir -p ./artifacts
@@ -85,7 +91,7 @@ jobs:
           fi
           echo "Package successfully created: $package_file"
 
-      # Step 8: Publish to GitHub Packages
+      # Step 7: Publish Package to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
