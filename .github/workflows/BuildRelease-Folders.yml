@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write       # Allows creating and modifying releases
+  metadata: read        # As per your provided log
 
 jobs:
   build-and-release:
