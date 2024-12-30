@@ -47,24 +47,15 @@ jobs:
           mkdir -p Scripts-PowerShell
           
           # Copy LICENSE and README.md
-          if [[ -f LICENSE ]]; then
-              cp LICENSE Scripts-PowerShell/
-          else
-              echo "LICENSE file not found."
-          fi
-          if [[ -f README.md ]]; then
-              cp README.md Scripts-PowerShell/
-          else
-              echo "README.md file not found."
-          fi
+          cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found"
+          cp README.md Scripts-PowerShell/ || echo "README.md not found"
 
           # Copy directories, excluding .github and specific unwanted folders
           for dir in */ ; do
-              dir=${dir%/}  # Remove trailing slash
+              dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
                   echo "Processing directory: $dir"
                   mkdir -p "Scripts-PowerShell/$dir"
-                  # Copy files recursively while excluding hidden files
                   find "$dir" -type f ! -name '.*' -exec cp --parents {} "Scripts-PowerShell/" \; || echo "Skipping directory: $dir"
               fi
           done
@@ -74,17 +65,19 @@ jobs:
 
       # Step 5: Restore Dependencies
       - name: Restore Dependencies
-        run: dotnet restore || echo "Skipping restore."
+        run: |
+          dotnet restore -p:Version=${{ env.version }} || echo "Skipping restore."
 
       # Step 6: Build Project
       - name: Build Project
-        run: dotnet build nuget.package.csproj --configuration Release
+        run: |
+          dotnet build nuget.package.csproj --configuration Release -p:Version=${{ env.version }}
 
       # Step 7: Pack NuGet Package
       - name: Pack NuGet Package
         run: |
           mkdir -p ./artifacts
-          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts || exit 1
+          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts -p:Version=${{ env.version }} || exit 1
           echo "Checking artifacts directory..."
           ls ./artifacts
           package_file=$(find ./artifacts -name "Scripts-PowerShell*.nupkg")
