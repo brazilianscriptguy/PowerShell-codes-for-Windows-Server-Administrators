@@ -32,20 +32,20 @@ jobs:
           date_suffix=$(date +'%Y%m%d')
           time_suffix=$(date +'%H%M')
           version="1.0.${date_suffix}.${time_suffix}"
-          sed -i "s|<Version>.*</Version>|<Version>${version}</Version>|" nuget.package.csproj
+          sed -i "s|<Version>.*</Version>|<Version>${version}</Version>|" package-scripts-powershell-folder.yml.csproj
           echo "Generated version: ${version}"
 
       # Step 4: Restore dependencies
       - name: Restore dependencies
-        run: dotnet restore nuget.package.csproj
+        run: dotnet restore package-scripts-powershell-folder.yml.csproj
 
       # Step 5: Build the project
       - name: Build the project
-        run: dotnet build nuget.package.csproj --configuration Release --no-restore
+        run: dotnet build package-scripts-powershell-folder.yml.csproj --configuration Release --no-restore
 
       # Step 6: Pack the NuGet package
       - name: Pack the NuGet package
-        run: dotnet pack nuget.package.csproj --configuration Release --no-build --output ./artifacts
+        run: dotnet pack package-scripts-powershell-folder.yml.csproj --configuration Release --no-build --output ./artifacts
 
       # Step 7: Publish to GitHub Packages
       - name: Publish to GitHub Packages
