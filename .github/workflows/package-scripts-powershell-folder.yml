@@ -36,7 +36,7 @@ jobs:
           major="1"
           minor="0"
           build=$(date +'%Y%m%d') # Date as build number
-          revision=$(date +'%H')  # Hour as revision number
+          revision=$(date +'%H%M')  # Hour and minutes as revision number
           version="${major}.${minor}.${build}.${revision}"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
@@ -64,10 +64,10 @@ jobs:
               fi
           done
 
-      # Step 5: Update the Project File to Include Scripts
-      - name: Update Project File
+      # Step 5: Validate the Project File for NuGet Packaging
+      - name: Validate Project File
         run: |
-          echo "Adding scripts to nuget.package.csproj..."
+          echo "Creating nuget.package.csproj..."
           cat > nuget.package.csproj <<- EOF
           <Project Sdk="Microsoft.NET.Sdk">
             <PropertyGroup>
@@ -84,6 +84,7 @@ jobs:
             </ItemGroup>
           </Project>
           EOF
+          echo "Project file created."
 
       # Step 6: Restore Dependencies
       - name: Restore Dependencies
