@@ -1,4 +1,4 @@
-# .github/workflows/build-package-folder.yml
+# .github/workflows/build-Scripts-PowerShell-Folder.yml
 # Build and Release Workflow for Ubuntu-SysAdmin-ProSuite
 name: Build and Release
 
@@ -78,8 +78,8 @@ jobs:
                   cp "$dir"/*.bgi Scripts-PowerShell/"$dir"/ || true
               fi
           done
-          zip -r Package-ProSuite.zip Scripts-PowerShell
-          package_path=$(pwd)/Package-ProSuite.zip
+          zip -r Scripts-PowerShell-Folder.zip Scripts-PowerShell
+          package_path=$(pwd)/Scripts-PowerShell-Folder.zip
           echo "package_path=$package_path" >> $GITHUB_ENV
 
       # Step 6: Compute SHA256 Hash of the Package
@@ -98,7 +98,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.package_path }}
-          asset_name: Package-ProSuite.zip
+          asset_name: Scripts-PowerShell-Folder.zip
           asset_content_type: application/zip
 
       # Step 8: Update Release Notes with SHA256 Hash
@@ -110,7 +110,7 @@ jobs:
             const hash = '${{ env.hash }}';
             const releaseId = ${{ steps.create_release.outputs.id }};
             const currentBody = '${{ steps.create_release.outputs.body }}';
-            const updatedBody = `${currentBody}\n\n**SHA256 Hash of Package-ProSuite.zip:** \`${hash}\``;
+            const updatedBody = `${currentBody}\n\n**SHA256 Hash of Scripts-PowerShell-Folder.zip:** \`${hash}\``;
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
