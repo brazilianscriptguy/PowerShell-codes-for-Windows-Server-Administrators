@@ -16,11 +16,11 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <!-- Include Necessary Files -->
+  <!-- Include all necessary files in the NuGet package -->
   <ItemGroup>
-    <!-- Include all files from Scripts-PowerShell -->
-    <Content Include="Scripts-PowerShell/**/*.*" PackagePath="content/" />
-    <!-- Exclude unnecessary or problematic files -->
+    <!-- Include files recursively under Scripts-PowerShell -->
+    <Content Include="Scripts-PowerShell/**/*.*" PackagePath="content/Scripts-PowerShell/" />
+    <!-- Exclude problematic files -->
     <Content Remove="Scripts-PowerShell/.github/**" />
     <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
   </ItemGroup>
