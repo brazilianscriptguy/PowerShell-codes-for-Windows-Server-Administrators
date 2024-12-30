@@ -29,14 +29,14 @@
 
   <!-- Include Necessary Files for the NuGet Package -->
   <ItemGroup>
-    <!-- Explicitly include PowerShell and VBScript files -->
+    <!-- Include all relevant file types -->
     <Content Include="Scripts-PowerShell/**/*.ps1" PackagePath="content/" />
-    <Content Include="Scripts-PowerShell/**/*.vbs" PackagePath="content/" />
-    <Content Include="Scripts-PowerShell/**/*.txt" PackagePath="content/" />
-    <Content Include="Scripts-PowerShell/**/*.hta" PackagePath="content/" />
-    <Content Include="Scripts-PowerShell/**/*.bgi" PackagePath="content/" />
-    <Content Include="Scripts-PowerShell/LICENSE" PackagePath="content/" />
-    <Content Include="Scripts-PowerShell/README.md" PackagePath="content/" />
+    <Content Include="Scripts-PowerShell/**/*.vbs" PackagePath="content/" Condition="Exists('Scripts-PowerShell/**/*.vbs')" />
+    <Content Include="Scripts-PowerShell/**/*.txt" PackagePath="content/" Condition="Exists('Scripts-PowerShell/**/*.txt')" />
+    <Content Include="Scripts-PowerShell/**/*.hta" PackagePath="content/" Condition="Exists('Scripts-PowerShell/**/*.hta')" />
+    <Content Include="Scripts-PowerShell/**/*.bgi" PackagePath="content/" Condition="Exists('Scripts-PowerShell/**/*.bgi')" />
+    <Content Include="Scripts-PowerShell/LICENSE" PackagePath="content/" Condition="Exists('Scripts-PowerShell/LICENSE')" />
+    <Content Include="Scripts-PowerShell/README.md" PackagePath="content/" Condition="Exists('Scripts-PowerShell/README.md')" />
   </ItemGroup>
 
   <!-- Exclude Problematic Long Path Folders -->
