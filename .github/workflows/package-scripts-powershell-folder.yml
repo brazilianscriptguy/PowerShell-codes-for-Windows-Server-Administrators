@@ -32,14 +32,14 @@ jobs:
       - name: Generate Version
         id: generate_version
         run: |
-          # Use the major.minor.build.revision format
+          # Default NuGet-compatible version format: major.minor.build.revision
           major="1"
           minor="0"
-          build=$(date +'%Y%m%d') # Date as build number
-          revision=$(date +'%H%M')  # Hour and minutes as revision number
-          version="${major}.${minor}.${build}"
-          echo "version=$version" >> $GITHUB_ENV
+          build=$(date +'%Y%m%d') # Date as build number (YYYYMMDD)
+          revision=$(date +'%H%M')  # Hour and minutes for uniqueness
+          version="${major}.${minor}.${build}.${revision}"
           echo "Generated version: $version"
+          echo "version=$version" >> $GITHUB_ENV
 
       # Step 4: Prepare Files for Packaging
       - name: Prepare Files
@@ -84,7 +84,7 @@ jobs:
             </ItemGroup>
           </Project>
           EOF
-          echo "Project file created."
+          echo "nuget.package.csproj created."
 
       # Step 6: Restore Dependencies
       - name: Restore Dependencies
