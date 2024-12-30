@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Check out the repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
@@ -32,7 +32,6 @@ jobs:
       - name: Generate Version
         id: generate_version
         run: |
-          # Generate a valid version string in the format major.minor.build.revision
           date_suffix=$(date +'%Y%m%d')
           build_number=$(date +'%H%M')
           version="1.0.${date_suffix}.${build_number}"
@@ -50,7 +49,11 @@ jobs:
           cp README.md Scripts-PowerShell/ || echo "README.md not found, skipping."
 
           # Copy Launch-Script-AutomaticMenu.ps1
-          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || echo "Launch-Script-AutomaticMenu.ps1 not found, skipping."
+          if [ -f Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 ]; then
+            cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/
+          else
+            echo "Launch-Script-AutomaticMenu.ps1 not found, skipping."
+          fi
 
           # Gather files from sub-repositories
           for dir in */ ; do
@@ -65,7 +68,6 @@ jobs:
       # Step 5: Update the Project File to Include Scripts
       - name: Update Project File
         run: |
-          echo "Adding scripts to nuget.package.csproj..."
           cat > nuget.package.csproj <<- EOF
           <Project Sdk="Microsoft.NET.Sdk">
             <PropertyGroup>
@@ -90,17 +92,21 @@ jobs:
       # Step 7: Build and Pack the NuGet Package
       - name: Build and Pack
         run: |
-          echo "Packing the NuGet package..."
           dotnet pack nuget.package.csproj --configuration Release --output ./artifacts || {
             echo "Error: Failed to pack NuGet package.";
             exit 1;
           }
-          echo "Package successfully created in ./artifacts"
 
       # Step 8: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Publishing package to GitHub Packages..."
           dotnet nuget push ./artifacts/*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
+
+      # Step 9: Cleanup (Optional)
+      - name: Cleanup Temporary Files
+        if: always()
+        run: |
+          rm -rf Scripts-PowerShell
+          rm nuget.package.csproj
