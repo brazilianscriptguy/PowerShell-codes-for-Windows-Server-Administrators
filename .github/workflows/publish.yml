@@ -45,15 +45,16 @@ jobs:
         run: |
           echo "Preparing Scripts-PowerShell directory..."
           mkdir -p Scripts-PowerShell
-          
+
           # Copy LICENSE and README.md
           cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found"
           cp README.md Scripts-PowerShell/ || echo "README.md not found"
-          
-          # Copy non-excluded directories
+
+          # Copy all valid directories except exclusions
           for dir in */ ; do
               dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
+                  echo "Processing directory: $dir"
                   mkdir -p "Scripts-PowerShell/$dir"
                   cp -r "$dir/"* "Scripts-PowerShell/$dir/" || echo "Skipping $dir"
               fi
@@ -77,7 +78,7 @@ jobs:
           fi
           echo "Package successfully created: $package_file"
 
-      # Step 6: Publish to GitHub Packages
+      # Step 6: Publish Package to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
