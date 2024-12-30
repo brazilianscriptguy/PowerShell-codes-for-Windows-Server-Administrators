@@ -25,13 +25,13 @@
   <!-- Specify files to include in the package -->
   <ItemGroup>
     <!-- Include all PowerShell scripts -->
-    <Content Include="*.ps1" PackagePath="content/" />
+    <Content Include="**/*.ps1" PackagePath="content/" />
     <!-- Include VBScript files -->
-    <Content Include="*.vbs" PackagePath="content/" />
+    <Content Include="**/*.vbs" PackagePath="content/" />
     <!-- Include any .txt, .hta, .bgi files -->
-    <Content Include="*.txt" PackagePath="content/" />
-    <Content Include="*.hta" PackagePath="content/" />
-    <Content Include="*.bgi" PackagePath="content/" />
+    <Content Include="**/*.txt" PackagePath="content/" />
+    <Content Include="**/*.hta" PackagePath="content/" />
+    <Content Include="**/*.bgi" PackagePath="content/" />
     <!-- Include LICENSE and README -->
     <Content Include="LICENSE" PackagePath="content/" />
     <Content Include="README.md" PackagePath="content/" />
