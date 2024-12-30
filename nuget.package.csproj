@@ -1,13 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- Target Framework -->
     <TargetFramework>net7.0</TargetFramework>
-
-    <!-- Package Metadata -->
     <PackageId>Scripts-PowerShell</PackageId>
+    <Version>1.0.0</Version>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
-    <Product>Scripts-PowerShell</Product>
     <Description>
       Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, 
       and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy, 
@@ -15,26 +12,10 @@
     </Description>
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-
-    <!-- Suppress Warnings -->
     <NoWarn>NU5110;NU5111;NU5123</NoWarn>
-
-    <!-- Packaging Settings -->
-    <Version>${{ env.version }}</Version>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <NoBuild>true</NoBuild>
-    <PackageOutputPath>./artifacts</PackageOutputPath>
   </PropertyGroup>
-
-  <!-- Include Scripts for the NuGet Package -->
   <ItemGroup>
-    <None Include="Scripts-PowerShell/**/*" PackagePath="content/" />
-    <None Include="LICENSE" PackagePath="content/" />
-    <None Include="README.md" PackagePath="content/" />
-  </ItemGroup>
-
-  <!-- Exclude Unnecessary Folders -->
-  <ItemGroup>
-    <None Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**/*" />
+    <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
   </ItemGroup>
 </Project>
