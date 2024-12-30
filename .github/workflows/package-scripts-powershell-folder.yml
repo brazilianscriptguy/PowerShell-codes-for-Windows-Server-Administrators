@@ -15,20 +15,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
-      # Step 2: Set up .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
 
-      # Step 3: Generate Version
       - name: Generate Version
         id: generate_version
         run: |
@@ -39,13 +36,11 @@ jobs:
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
 
-      # Step 4: Prepare Files
       - name: Prepare Files
         run: |
           echo "Preparing Scripts-PowerShell directory..."
           mkdir -p Scripts-PowerShell
           
-          # Copy LICENSE and README.md if they exist
           if [[ -f LICENSE ]]; then
               cp LICENSE Scripts-PowerShell/
           else
@@ -58,13 +53,11 @@ jobs:
               echo "README.md file not found."
           fi
 
-          # Process all directories except excluded ones
           for dir in */ ; do
-              dir=${dir%/}  # Remove trailing slash
+              dir=${dir%/}
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
                   echo "Processing directory: $dir"
                   mkdir -p "Scripts-PowerShell/$dir"
-                  # Copy files recursively, excluding hidden files and folders
                   find "$dir" -type f ! -name '.*' -exec cp --parents {} "Scripts-PowerShell/" \; || echo "Skipping directory: $dir"
               fi
           done
@@ -72,20 +65,16 @@ jobs:
           echo "Files prepared in Scripts-PowerShell directory:"
           find Scripts-PowerShell -type f
 
-      # Step 5: Restore Dependencies
       - name: Restore Dependencies
-        run: dotnet restore || echo "Skipping restore."
+        run: dotnet restore
 
-      # Step 6: Build Project
       - name: Build Project
-        run: dotnet build nuget.package.csproj --configuration Release -p:Version=${{ env.version }} || exit 1
+        run: dotnet build nuget.package.csproj --configuration Release -p:Version=${{ env.version }}
 
-      # Step 7: Build and Pack NuGet Package
-      - name: Build and Pack
+      - name: Pack NuGet Package
         run: |
           echo "Packing the NuGet package..."
-          mkdir -p ./artifacts
-          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts -p:Version=${{ env.version }} || exit 1
+          dotnet pack nuget.package.csproj --configuration Release --output ./artifacts -p:Version=${{ env.version }}
           echo "Checking artifacts directory..."
           ls ./artifacts
           package_file=$(find ./artifacts -name "Scripts-PowerShell*.nupkg")
@@ -95,7 +84,6 @@ jobs:
           fi
           echo "Package successfully created: $package_file"
 
-      # Step 8: Publish Package to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
