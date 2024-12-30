@@ -108,12 +108,13 @@ jobs:
           }
 
           # Verify the package exists
-          if [[ ! -f ./artifacts/Scripts-PowerShell*.nupkg ]]; then
+          package_file=$(find ./artifacts -name "Scripts-PowerShell*.nupkg")
+          if [[ -z "$package_file" ]]; then
               echo "Error: NuGet package not found in ./artifacts";
               ls ./artifacts
               exit 1;
           fi
-          echo "Package successfully created in ./artifacts"
+          echo "Package successfully created: $package_file"
 
       # Step 8: Publish to GitHub Packages
       - name: Publish to GitHub Packages
