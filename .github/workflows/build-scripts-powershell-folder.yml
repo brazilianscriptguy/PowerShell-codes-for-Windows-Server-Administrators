@@ -1,4 +1,4 @@
-# .github/workflows/build-Scripts-PowerShell-Folder.yml
+# .github/workflows/build-scripts-powershell-folder.yml
 # Build and Release Workflow for Ubuntu-SysAdmin-ProSuite
 name: Build and Release
 
