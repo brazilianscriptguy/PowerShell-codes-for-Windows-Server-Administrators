@@ -1,10 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Target Framework -->
-    <TargetFramework>net7.0</TargetFramework>
-
     <!-- Package Metadata -->
+    <TargetFramework>net7.0</TargetFramework>
     <PackageId>Scripts-PowerShell</PackageId>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
@@ -17,24 +15,25 @@
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
 
+    <!-- Version -->
+    <Version>$(Version)</Version>
+
     <!-- Suppress Warnings -->
     <NoWarn>NU5110;NU5111;NU5123</NoWarn>
 
-    <!-- Version and Build Options -->
-    <Version Condition="'$(Version)' == ''">1.0.0</Version>
+    <!-- Build Options -->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NoBuild>true</NoBuild>
     <PackageOutputPath>./artifacts</PackageOutputPath>
   </PropertyGroup>
 
-  <!-- Include Necessary Files for the NuGet Package -->
+  <!-- Include Files for the NuGet Package -->
   <ItemGroup>
-    <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
+    <None Include="Scripts-PowerShell/**" PackagePath="content/" />
   </ItemGroup>
 
-  <!-- Exclude Problematic Long Path Folders -->
+  <!-- Exclude Specific Folders -->
   <ItemGroup>
-    <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
+    <None Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
   </ItemGroup>
-
 </Project>
