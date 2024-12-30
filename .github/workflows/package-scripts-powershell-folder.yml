@@ -28,28 +28,26 @@ jobs:
       # Step 3: Update Package Version
       - name: Update Package Version
         run: |
-          # Generate a valid version string in the format Major.Minor.Patch[-PreReleaseLabel]
-          date_suffix=$(date +'%Y%m%d')
-          time_suffix=$(date +'%H%M')
-          version="1.0.${date_suffix}.${time_suffix}"
-          sed -i "s|<Version>.*</Version>|<Version>${version}</Version>|" package-scripts-powershell-folder.yml.csproj
-          echo "Generated version: ${version}"
+          # Generate a timestamp version string in the format YYYYMMDD.HHmmSS
+          timestamp=$(date +'%Y%m%d.%H%M%S')
+          sed -i "s|<Version>.*</Version>|<Version>${timestamp}</Version>|" nuget.package.csproj
+          echo "Generated version: ${timestamp}"
 
       # Step 4: Restore dependencies
       - name: Restore dependencies
-        run: dotnet restore package-scripts-powershell-folder.yml.csproj
+        run: dotnet restore nuget.package.csproj
 
       # Step 5: Build the project
       - name: Build the project
-        run: dotnet build package-scripts-powershell-folder.yml.csproj --configuration Release --no-restore
+        run: dotnet build nuget.package.csproj --configuration Release --no-restore
 
       # Step 6: Pack the NuGet package
       - name: Pack the NuGet package
-        run: dotnet pack package-scripts-powershell-folder.yml.csproj --configuration Release --no-build --output ./artifacts
+        run: dotnet pack nuget.package.csproj --configuration Release --no-build --output ./artifacts
 
       # Step 7: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet nuget push ./artifacts/*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
+          dotnet nuget push ./artifacts/Scripts-PowerShell.*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
