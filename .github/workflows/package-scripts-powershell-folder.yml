@@ -37,7 +37,7 @@ jobs:
           minor="0"
           build=$(date +'%Y%m%d') # Date as build number
           revision=$(date +'%H%M')  # Hour and minutes as revision number
-          version="${major}.${minor}.${build}.${revision}"
+          version="${major}.${minor}.${build}"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
@@ -64,8 +64,8 @@ jobs:
               fi
           done
 
-      # Step 5: Validate the Project File for NuGet Packaging
-      - name: Validate Project File
+      # Step 5: Update the Project File for NuGet Packaging
+      - name: Update Project File
         run: |
           echo "Creating nuget.package.csproj..."
           cat > nuget.package.csproj <<- EOF
