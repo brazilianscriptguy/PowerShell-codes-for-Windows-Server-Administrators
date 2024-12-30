@@ -57,28 +57,29 @@ jobs:
       - name: Build and package artifacts
         id: package
         run: |
+          # Create the main folder 'Scripts-PowerShell'
           mkdir -p Scripts-PowerShell
+
+          # Copy LICENSE and README.md from the main repository to 'Scripts-PowerShell'
           cp LICENSE Scripts-PowerShell/ || true
           cp README.md Scripts-PowerShell/ || true
-          cp Core-ScriptLibrary/*.ps1 Scripts-PowerShell/ || true
-          cp Core-ScriptLibrary/*.vbs Scripts-PowerShell/ || true
-          cp Core-ScriptLibrary/*.txt Scripts-PowerShell/ || true
-          cp Core-ScriptLibrary/*.hta Scripts-PowerShell/ || true
-          cp Core-ScriptLibrary/*.bgi Scripts-PowerShell/ || true
+
+          # Copy 'Launch-Script-AutomaticMenu.ps1' to the root of 'Scripts-PowerShell'
           cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || true
+
+          # Iterate over all subdirectories in the main repository and copy their contents
           for dir in */ ; do
-              dir=${dir%/}
+              dir=${dir%/}  # Remove trailing slash
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" ]]; then
                   mkdir -p Scripts-PowerShell/"$dir"
-                  cp "$dir"/README.md Scripts-PowerShell/"$dir"/ || true
-                  cp "$dir"/*.ps1 Scripts-PowerShell/"$dir"/ || true
-                  cp "$dir"/*.vbs Scripts-PowerShell/"$dir"/ || true
-                  cp "$dir"/*.txt Scripts-PowerShell/"$dir"/ || true
-                  cp "$dir"/*.hta Scripts-PowerShell/"$dir"/ || true
-                  cp "$dir"/*.bgi Scripts-PowerShell/"$dir"/ || true
+                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || true
               fi
           done
+
+          # Compress the 'Scripts-PowerShell' folder into a ZIP file
           zip -r Scripts-PowerShell-Folder.zip Scripts-PowerShell
+
+          # Output the path to the ZIP file for later steps
           package_path=$(pwd)/Scripts-PowerShell-Folder.zip
           echo "package_path=$package_path" >> $GITHUB_ENV
 
