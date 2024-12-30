@@ -6,6 +6,8 @@ on:
   workflow_dispatch:    # Allows manual triggering of the workflow
   release:
     types: [published]  # Triggers when a release is published
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
 permissions:
   contents: write       # Allows creating and modifying releases
@@ -25,9 +27,68 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip
+          sudo apt-get install -y zip jq
 
-      # Step 3: Build and package artifacts
+      # Step 3: Determine Trigger Event and Latest Release
+      - name: Determine Trigger and Latest Release
+        id: determine
+        run: |
+          # Determine if the trigger was a release event
+          if [ "${GITHUB_EVENT_NAME}" = "release" ] && [ "${GITHUB_EVENT_ACTION}" = "published" ]; then
+            echo "is_release=true" >> $GITHUB_OUTPUT
+            latest_tag="${GITHUB_REF#refs/tags/}"
+            echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+          else
+            echo "is_release=false" >> $GITHUB_OUTPUT
+            # Find the latest tag
+            latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+            echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+          fi
+
+      # Step 4: Count Commits Since Latest Release
+      - name: Count Commits Since Latest Release
+        id: count_commits
+        run: |
+          if [ "${{ steps.determine.outputs.latest_tag }}" = "" ]; then
+            # No releases yet, count all commits
+            commit_count=$(git rev-list --count HEAD)
+          else
+            # Count commits since the latest tag
+            commit_count=$(git rev-list ${{ steps.determine.outputs.latest_tag }}..HEAD --count)
+          fi
+          echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
+
+      # Step 5: Decide Whether to Create a Release
+      - name: Decide to Create Release
+        id: decide_release
+        run: |
+          if [ "${{ steps.determine.outputs.is_release }}" = "true" ]; then
+            # If triggered by a release event, proceed with existing release steps
+            echo "should_proceed=true" >> $GITHUB_OUTPUT
+          else
+            # If triggered by schedule or manual, check commit count
+            if [ "${{ steps.count_commits.outputs.commit_count }}" -ge 20 ]; then
+              echo "should_proceed=true" >> $GITHUB_OUTPUT
+            else
+              echo "should_proceed=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      # Step 6: Create a New Release (Conditional)
+      - name: Create New Release
+        if: steps.decide_release.outputs.should_proceed == 'true' && github.event_name != 'release'
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "v$(date +'%Y.%m.%d.%H%M%S')"
+          release_name: "Release $(date +'%Y-%m-%d %H:%M:%S')"
+          body: "Automatically created release after 20 commits."
+          draft: false
+          prerelease: false
+
+      # Step 7: Build and Package Artifacts
       - name: Build and package artifacts
         id: package
         run: |
@@ -63,34 +124,34 @@ jobs:
           package_path=$(pwd)/Package-ProSuite.zip
           echo "package-path=$package_path" >> $GITHUB_OUTPUT
 
-      # Step 4: Compute SHA256 hash of the package
+      # Step 8: Compute SHA256 Hash of the Package
       - name: Compute SHA256 hash
         id: compute_hash
         run: |
           hash=$(sha256sum "${{ steps.package.outputs.package-path }}" | awk '{print $1}')
           echo "hash=$hash" >> $GITHUB_OUTPUT
 
-      # Step 5: Upload the package as a GitHub Release asset (Only on Release Events)
+      # Step 9: Upload the Package as a GitHub Release Asset (Conditional)
       - name: Upload Release Asset
-        if: github.event_name == 'release' && github.event.action == 'published'
+        if: steps.decide_release.outputs.should_proceed == 'true' && (github.event_name == 'release' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.release.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ steps.package.outputs.package-path }}
           asset_name: Package-ProSuite.zip
           asset_content_type: application/zip
 
-      # Step 6: Update release notes with the SHA256 hash (Only on Release Events)
+      # Step 10: Update Release Notes with SHA256 Hash (Conditional)
       - name: Update Release Notes with SHA256 Hash
-        if: github.event_name == 'release' && github.event.action == 'published' && steps.compute_hash.outputs.hash != ''
+        if: steps.decide_release.outputs.should_proceed == 'true' && steps.compute_hash.outputs.hash != ''
         uses: actions/github-script@v6    # Updated to v6
         with:
           script: |
             const hash = '${{ steps.compute_hash.outputs.hash }}';
-            const releaseId = context.payload.release.id;
-            const currentBody = context.payload.release.body || '';
+            const releaseId = ${{ steps.create_release.outputs.id }};
+            const currentBody = '${{ steps.create_release.outputs.body }}';
             const updatedBody = `${currentBody}\n\n**SHA256 Hash of Package-ProSuite.zip:** \`${hash}\``;
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
