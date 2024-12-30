@@ -76,7 +76,11 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore || echo "Skipping restore."
 
-      # Step 6: Build and Pack NuGet Package
+      # Step 6: Build Project
+      - name: Build Project
+        run: dotnet build nuget.package.csproj --configuration Release -p:Version=${{ env.version }} || exit 1
+
+      # Step 7: Build and Pack NuGet Package
       - name: Build and Pack
         run: |
           echo "Packing the NuGet package..."
@@ -91,7 +95,7 @@ jobs:
           fi
           echo "Package successfully created: $package_file"
 
-      # Step 7: Publish Package to GitHub Packages
+      # Step 8: Publish Package to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
