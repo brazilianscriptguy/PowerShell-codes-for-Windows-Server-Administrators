@@ -56,9 +56,29 @@ jobs:
               fi
           done
 
-      # Step 5: Pack the NuGet Package
-      - name: Pack the NuGet package
-        run: dotnet pack nuget.package.csproj --configuration Release --output ./artifacts
+      # Step 5: Build and Package Artifacts
+- name: Build and package artifacts
+  run: |
+    # Prepare the Scripts-PowerShell folder
+    mkdir -p Scripts-PowerShell
+
+    # Copy necessary files to Scripts-PowerShell
+    cp LICENSE Scripts-PowerShell/ || true
+    cp README.md Scripts-PowerShell/ || true
+    cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || true
+
+    # Copy all files from subdirectories
+    for dir in */ ; do
+        dir=${dir%/}
+        if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" ]]; then
+            mkdir -p Scripts-PowerShell/"$dir"
+            cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || true
+        fi
+    done
+
+    # Pack the NuGet package
+    dotnet pack nuget.package.csproj --configuration Release --output ./artifacts
+
 
       # Step 6: Publish to GitHub Packages
       - name: Publish to GitHub Packages
