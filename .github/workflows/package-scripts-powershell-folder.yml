@@ -32,14 +32,14 @@ jobs:
       - name: Generate Version
         id: generate_version
         run: |
-          # Default NuGet-compatible version format: major.minor.build.revision
+          # Generate version string in the format major.minor.build.revision
           major="1"
           minor="0"
-          build=$(date +'%Y%m%d') # Date as build number (YYYYMMDD)
-          revision=$(date +'%H%M')  # Hour and minutes for uniqueness
+          build=$(date +'%Y%m%d')   # Date in YYYYMMDD format
+          revision=$(date +'%H')   # Hour of the day
           version="${major}.${minor}.${build}.${revision}"
-          echo "Generated version: $version"
           echo "version=$version" >> $GITHUB_ENV
+          echo "Generated version: $version"
 
       # Step 4: Prepare Files for Packaging
       - name: Prepare Files
