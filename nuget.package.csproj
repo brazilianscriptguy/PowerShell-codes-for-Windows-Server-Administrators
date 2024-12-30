@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <!-- Target Framework -->
     <TargetFramework>net7.0</TargetFramework>
@@ -29,8 +28,9 @@
 
   <!-- Include Necessary Files for the NuGet Package -->
   <ItemGroup>
-    <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
-    <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
+    <None Include="LICENSE" PackagePath="content/" />
+    <None Include="README.md" PackagePath="content/" />
+    <None Include="Scripts-PowerShell/**" PackagePath="content/" />
+    <None Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
   </ItemGroup>
-
 </Project>
