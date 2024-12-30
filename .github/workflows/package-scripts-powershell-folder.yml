@@ -82,6 +82,11 @@ jobs:
           </Project>
           EOF
 
+      - name: Restore Dependencies
+        run: |
+          echo "Restoring NuGet packages..."
+          dotnet restore nuget.package.csproj || exit 1
+
       - name: Build and Pack
         run: |
           echo "Packing the NuGet package..."
