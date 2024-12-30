@@ -1,4 +1,4 @@
-# .github/workflows/publish-nuget-package.yml
+# .github/workflows/package-scripts-powershell-folder.yml
 name: Publish NuGet Package
 
 on:
