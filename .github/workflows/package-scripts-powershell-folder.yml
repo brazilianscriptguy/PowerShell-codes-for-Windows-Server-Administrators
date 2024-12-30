@@ -31,30 +31,24 @@ jobs:
         run: |
           major=1
           minor=0
-          build=$(date +'%j')       # Day of the year (001-365)
-          revision=$((10#$(date +'%H') * 100 + 10#$(date +'%M')))  # Hour and minute as revision
-          if (( revision > 65535 )); then
-              revision=$((revision % 65536))  # Ensure revision fits within 0-65535
-          fi
+          build=$(date +'%j')
+          revision=$((10#$(date +'%H') * 100 + 10#$(date +'%M')))
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
       - name: Prepare Files
         run: |
+          echo "Preparing the Scripts-PowerShell folder..."
           mkdir -p Scripts-PowerShell
+
+          cp -r Core-ScriptLibrary/* Scripts-PowerShell/ || echo "Core-ScriptLibrary not found, skipping."
           cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found, skipping."
           cp README.md Scripts-PowerShell/ || echo "README.md not found, skipping."
-          for dir in */; do
-              dir=${dir%/}
-              if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" ]]; then
-                  mkdir -p Scripts-PowerShell/"$dir"
-                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || echo "No files found in $dir, skipping."
-              fi
-          done
 
       - name: Update Project File
         run: |
+          echo "Creating nuget.package.csproj..."
           cat > nuget.package.csproj <<- EOF
           <Project Sdk="Microsoft.NET.Sdk">
             <PropertyGroup>
@@ -73,21 +67,31 @@ jobs:
               <NoWarn>NU5110;NU5111;NU5123</NoWarn>
             </PropertyGroup>
             <ItemGroup>
-              <Content Include="Scripts-PowerShell/**" Exclude="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" PackagePath="content/" />
+              <Content Include="Scripts-PowerShell/**/*.*" PackagePath="content/" />
+              <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
             </ItemGroup>
           </Project>
           EOF
 
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore nuget.package.csproj
 
       - name: Build and Pack
         run: |
+          echo "Packing the NuGet package..."
           mkdir -p ./artifacts
           dotnet pack nuget.package.csproj --configuration Release --output ./artifacts || {
             echo "Error: Failed to pack NuGet package.";
             exit 1;
           }
+
+          package_file=$(find ./artifacts -name "Scripts-PowerShell*.nupkg")
+          if [[ -z "$package_file" ]]; then
+              echo "Error: NuGet package not found in ./artifacts";
+              ls ./artifacts
+              exit 1;
+          fi
+          echo "Package successfully created: $package_file"
 
       - name: Publish to GitHub Packages
         env:
