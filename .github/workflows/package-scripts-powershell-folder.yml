@@ -32,9 +32,9 @@ jobs:
       - name: Generate Version
         id: generate_version
         run: |
-          # Generate a valid version string in the format major.minor.build
+          # Generate a valid version string in the format major.minor.build.revision
           date_suffix=$(date +'%Y%m%d')
-          build_number=$(date +'%H%M%S')
+          build_number=$(date +'%H%M')
           version="1.0.${date_suffix}.${build_number}"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
@@ -66,7 +66,7 @@ jobs:
       - name: Update Project File
         run: |
           echo "Adding scripts to nuget.package.csproj..."
-          cat > nuget.package.csproj <<- 'EOF'
+          cat > nuget.package.csproj <<- EOF
           <Project Sdk="Microsoft.NET.Sdk">
             <PropertyGroup>
               <TargetFramework>net7.0</TargetFramework>
