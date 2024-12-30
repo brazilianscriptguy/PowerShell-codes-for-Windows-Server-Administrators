@@ -34,7 +34,7 @@ jobs:
           time_suffix=$(date +'%H%M')
           version="1.0.${date_suffix}.${time_suffix}"
           # Ensure the version follows the format Major.Minor.Patch
-          sed -i "s|<Version>.*</Version>|<Version>${version}</Version>|" nuget.package.csproj
+          sed -i "s|<Version>.*</Version>|<Version>${version}</Version>|" Windows-SysAdmin-ProSuite.csproj
           echo "Generated version: ${version}"
 
       # Step 4: Restore dependencies
@@ -47,7 +47,7 @@ jobs:
 
       # Step 6: Pack the NuGet package
       - name: Pack the NuGet package
-        run: dotnet pack nuget.package.csproj --configuration Release --no-build --output ./artifacts
+        run: dotnet pack Windows-SysAdmin-ProSuite.csproj --configuration Release --no-build --output ./artifacts
 
       # Step 7: Publish to GitHub Packages
       - name: Publish to GitHub Packages
