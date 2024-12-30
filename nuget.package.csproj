@@ -1,23 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- No Build Configuration -->
+    <NoBuild>true</NoBuild>
     <TargetFramework>net7.0</TargetFramework>
 
-    <!-- NuGet Package Metadata -->
+    <!-- Package Metadata -->
     <PackageId>Scripts-PowerShell</PackageId>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
     <Product>Scripts-PowerShell</Product>
     <Description>
-      Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis,
-      and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy,
+      Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, 
+      and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy, 
       efficiency, scalability, and adaptability.
     </Description>
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-    <Version>$(Version)</Version>
     <PackageOutputPath>./artifacts</PackageOutputPath>
-    <NoBuild>true</NoBuild>
+    <Version>$(Version)</Version>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NoWarn>NU5110;NU5111;NU5123</NoWarn>
   </PropertyGroup>
@@ -29,7 +30,7 @@
     <Content Include="README.md" PackagePath="content/" />
   </ItemGroup>
 
-  <!-- Exclude Unwanted Files -->
+  <!-- Exclude Unnecessary Files -->
   <ItemGroup>
     <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
     <Content Remove=".github/**" />
