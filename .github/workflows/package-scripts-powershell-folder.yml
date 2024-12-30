@@ -122,5 +122,4 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Publishing package to GitHub Packages..."
-          ls ./artifacts  # Debug output to verify package presence
           dotnet nuget push ./artifacts/Scripts-PowerShell*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
