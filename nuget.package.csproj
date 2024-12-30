@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
 
-    <!-- Package Metadata -->
+    <!-- NuGet Package Metadata -->
     <PackageId>Scripts-PowerShell</PackageId>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
@@ -15,21 +15,24 @@
     </Description>
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-    <PackageOutputPath>./artifacts</PackageOutputPath>
     <Version>$(Version)</Version>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageOutputPath>./artifacts</PackageOutputPath>
     <NoBuild>true</NoBuild>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NoWarn>NU5110;NU5111;NU5123</NoWarn>
   </PropertyGroup>
 
+  <!-- Include Necessary Files -->
   <ItemGroup>
-    <!-- Include all processed files -->
     <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
+    <Content Include="LICENSE" PackagePath="content/" />
+    <Content Include="README.md" PackagePath="content/" />
   </ItemGroup>
 
+  <!-- Exclude Unwanted Files -->
   <ItemGroup>
-    <!-- Exclude unwanted directories -->
     <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
-    <Content Remove="Scripts-PowerShell/.github/**" />
+    <Content Remove=".github/**" />
   </ItemGroup>
+
 </Project>
