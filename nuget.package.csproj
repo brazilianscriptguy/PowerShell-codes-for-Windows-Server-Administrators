@@ -12,15 +12,17 @@
     </Description>
     <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-    <NoWarn>NU5110;NU5111;NU5123</NoWarn>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <PackageOutputPath>./artifacts</PackageOutputPath>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <ContentTargetFolders>content;contentFiles</ContentTargetFolders>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Include all files under Scripts-PowerShell -->
-    <Content Include="Scripts-PowerShell/**/*.*" PackagePath="Scripts-PowerShell/" />
-    <Content Remove="Scripts-PowerShell/.github/**" />
-    <Content Remove="Scripts-PowerShell/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
+    <None Include="Scripts-PowerShell\**\*" Pack="true" PackagePath="Scripts-PowerShell\%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Exclude unwanted files -->
+    <None Remove="Scripts-PowerShell\.github\**" />
+    <None Remove="Scripts-PowerShell\SysAdmin-Tools\GroupPolicyObjects-Templates\**" />
   </ItemGroup>
+
 </Project>
