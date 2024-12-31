@@ -15,20 +15,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
-      # Set up .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
 
-      # Generate Valid Version
       - name: Generate Valid Version
         id: generate_version
         run: |
@@ -40,7 +37,6 @@ jobs:
           echo "Generated version: $version"
           echo "version=$version" >> $GITHUB_ENV
 
-      # Generate Placeholder DLL
       - name: Generate Placeholder .dll (if missing)
         run: |
           set -euo pipefail
@@ -57,16 +53,6 @@ jobs:
               echo "Placeholder .dll generated."
           fi
 
-      # Verify Placeholder DLL
-      - name: Verify Placeholder DLL
-        run: |
-          if [ ! -f "bin/Debug/net7.0/PlaceholderDll.dll" ]; then
-            echo "Error: PlaceholderDll.dll not found."
-            exit 1
-          fi
-          echo "PlaceholderDll.dll is present."
-
-      # Prepare NuGet Package Files
       - name: Prepare NuGet Package Files
         run: |
           set -euo pipefail
@@ -80,15 +66,12 @@ jobs:
           cp LICENSE NuGetPackageContent/ || true
           echo "Files prepared for packaging."
 
-      # Pack NuGet Package
       - name: Pack NuGet Package
         run: |
           set -euo pipefail
           echo "Packing the NuGet package..."
           mkdir -p ./artifacts  # Ensure artifacts directory exists
-
-          # Pack the NuGet package
-          dotnet pack nuget.package.csproj --output ./artifacts -p:NoBuild=true -p:PackageVersion=${{ env.version }}
+          nuget pack nuget.package.nuspec -OutputDirectory ./artifacts
 
           echo "Checking artifacts directory..."
           ls ./artifacts
@@ -103,16 +86,14 @@ jobs:
           echo "Package successfully created: $package_file"
           echo "package_path=$package_file" >> $GITHUB_ENV
 
-      # Inspect NuGet Package Contents
       - name: Inspect NuGet Package Contents
         run: |
           echo "Inspecting the NuGet package contents..."
           package_file="${{ env.package_path }}"
           unzip -l "$package_file"
 
-      # Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet nuget push ${{ env.package_path }} --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
+          nuget push ${{ env.package_path }} -ApiKey $NUGET_AUTH_TOKEN -Source "github" --SkipDuplicate
