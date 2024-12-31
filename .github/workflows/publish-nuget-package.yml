@@ -11,7 +11,7 @@ permissions:
   packages: write
 
 jobs:
-  publish:
+  publish-nuget:
     runs-on: ubuntu-latest
 
     steps:
@@ -40,31 +40,8 @@ jobs:
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
-      # Step 4: Prepare Files
-      - name: Prepare Files
-        run: |
-          echo "Preparing Windows-SysAdmin-ProSuite directory..."
-          mkdir -p Windows-SysAdmin-ProSuite
-
-          # Copy LICENSE and README.md
-          cp LICENSE Windows-SysAdmin-ProSuite/ || echo "LICENSE not found"
-          cp README.md Windows-SysAdmin-ProSuite/ || echo "README.md not found"
-
-          # Process all valid directories
-          for dir in */ ; do
-              dir=${dir%/}
-              if [[ "$dir" != "Windows-SysAdmin-ProSuite" && "$dir" != ".github" ]]; then
-                  echo "Processing directory: $dir"
-                  mkdir -p "Windows-SysAdmin-ProSuite/$dir"
-                  cp -r "$dir/"* "Windows-SysAdmin-ProSuite/$dir/" || echo "Skipping $dir"
-              fi
-          done
-
-          echo "Prepared files:"
-          find Windows-SysAdmin-ProSuite -type f
-
-      # Step 5: Build and Pack NuGet Package
-      - name: Build and Pack
+      # Step 4: Pack NuGet Package
+      - name: Pack NuGet Package
         run: |
           set -euo pipefail
           echo "Packing the NuGet package..."
@@ -88,7 +65,7 @@ jobs:
           # Export package path as environment variable
           echo "package_path=$package_file" >> $GITHUB_ENV
 
-      # Step 6: Publish Package to GitHub Packages
+      # Step 5: Publish Package to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
