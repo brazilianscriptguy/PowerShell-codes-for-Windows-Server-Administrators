@@ -53,7 +53,7 @@ jobs:
           # Process all valid directories
           for dir in */ ; do
               dir=${dir%/}
-              if [[ "$dir" != "Windows-SysAdmin-ProSuite" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
+              if [[ "$dir" != "Windows-SysAdmin-ProSuite" && "$dir" != ".github" ]]; then
                   echo "Processing directory: $dir"
                   mkdir -p "Windows-SysAdmin-ProSuite/$dir"
                   cp -r "$dir/"* "Windows-SysAdmin-ProSuite/$dir/" || echo "Skipping $dir"
@@ -70,9 +70,8 @@ jobs:
           echo "Packing the NuGet package..."
           mkdir -p ./artifacts  # Ensure artifacts directory exists
 
-          # Build and pack the NuGet package with the generated version
-          dotnet restore nuget.package.csproj
-          dotnet pack nuget.package.csproj --output ./artifacts -p:PackageVersion=${{ env.version }}
+          # Pack the NuGet package without compiling
+          dotnet pack nuget.package.csproj --output ./artifacts -p:NoBuild=true -p:PackageVersion=${{ env.version }}
           
           echo "Checking artifacts directory..."
           ls ./artifacts  # List contents of artifacts directory
