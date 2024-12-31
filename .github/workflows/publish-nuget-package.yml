@@ -1,10 +1,10 @@
 name: Publish NuGet Package
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual triggering of the workflow
   push:
     tags:
-      - 'v*'
+      - 'v*'  # Triggers the workflow on push events with tags matching 'v*'
 
 permissions:
   contents: write
@@ -20,29 +20,36 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: true
-          fetch-depth: 0
+          fetch-depth: 0  # Fetch all history for accurate tag detection
 
       # Step 2: Set up .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.0'
+          dotnet-version: '7.0'  # Specifies the .NET version to use
 
       # Step 3: Generate Version
       - name: Generate Version
         id: generate_version
         run: |
+          set -euo pipefail  # Enable strict error handling
+
+          # Define version components
           major=1
           minor=0
           build=$(date +'%Y%m%d')
           revision=$(date +'%H%M')
           version="$major.$minor.$build.$revision"
+
+          # Export version as environment variable
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
       # Step 4: Prepare Files
       - name: Prepare Files
         run: |
+          set -euo pipefail  # Enable strict error handling
+
           echo "Preparing Scripts-PowerShell directory..."
           mkdir -p Scripts-PowerShell
 
@@ -52,7 +59,7 @@ jobs:
 
           # Process all valid directories
           for dir in */ ; do
-              dir=${dir%/}
+              dir=${dir%/}  # Remove trailing slash
               if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
                   echo "Processing directory: $dir"
                   mkdir -p "Scripts-PowerShell/$dir"
@@ -61,26 +68,70 @@ jobs:
           done
 
           echo "Prepared files:"
-          find Scripts-PowerShell -type f
+          find Scripts-PowerShell -type f  # List all files in Scripts-PowerShell
 
       # Step 5: Build and Pack NuGet Package
       - name: Build and Pack
+        id: build_and_pack
         run: |
+          set -euo pipefail  # Enable strict error handling
+
           echo "Packing the NuGet package..."
-          mkdir -p ./artifacts
-          dotnet pack nuget.package.csproj --output ./artifacts -p:Version=${{ env.version }} || exit 1
+          mkdir -p ./artifacts  # Ensure artifacts directory exists
+
+          # Build and pack the NuGet package with the generated version
+          dotnet pack nuget.package.csproj --output ./artifacts -p:Version=${{ env.version }} || { echo "dotnet pack failed"; exit 1; }
+
           echo "Checking artifacts directory..."
-          ls ./artifacts
-          package_file=$(find ./artifacts -name "Scripts-PowerShell*.nupkg")
+          ls ./artifacts  # List contents of artifacts directory
+
+          # Find the package file
+          package_file=$(find ./artifacts -maxdepth 1 -name "Scripts-PowerShell*.nupkg" | head -n 1)
           if [[ -z "$package_file" ]]; then
               echo "Error: Package not found in ./artifacts"
               exit 1
           fi
+
           echo "Package successfully created: $package_file"
+
+          # Export package path as environment variable
+          echo "package_path=$package_file" >> $GITHUB_ENV
 
       # Step 6: Publish Package to GitHub Packages
       - name: Publish to GitHub Packages
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use GitHub Token for authentication
         run: |
-          dotnet nuget push ./artifacts/Scripts-PowerShell*.nupkg --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
+          set -euo pipefail  # Enable strict error handling
+
+          echo "Publishing NuGet package to GitHub Packages..."
+          dotnet nuget push "${{ env.package_path }}" \
+            --api-key $NUGET_AUTH_TOKEN \
+            --source "github" \
+            --skip-duplicate || { echo "Failed to publish package"; exit 1; }
+
+          echo "NuGet package published successfully."
+
+      # Optional: Notify Slack on Success
+      - name: Notify Slack on Success
+        if: success()  # Only run if previous steps succeeded
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "✅ NuGet package ${{ github.ref_name }} published successfully."
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      # Optional: Notify Slack on Failure
+      - name: Notify Slack on Failure
+        if: failure()  # Only run if previous steps failed
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "❌ NuGet package ${{ github.ref_name }} failed to publish."
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
