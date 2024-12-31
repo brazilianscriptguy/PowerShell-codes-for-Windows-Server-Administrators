@@ -15,32 +15,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
+      # Step 2: Set up .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
 
-      - name: Generate Version
+      # Step 3: Generate Valid Version
+      - name: Generate Valid Version
         id: generate_version
         run: |
           set -euo pipefail
           major=1
           minor=0
-          build=$(date +'%j')  # Day of the year (001-365)
-          revision=$(date +'%H%M')  # HHMM format
-          if [ "$revision" -ge 65535 ]; then
-              revision=$((revision % 65535))
-          fi
+          build=$(date +'%y%m%d')
+          revision=$(date +'%H%M')
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
+      # Step 4: Generate Placeholder .dll (if missing)
       - name: Generate Placeholder .dll (if missing)
         run: |
           set -euo pipefail
@@ -49,13 +50,13 @@ jobs:
               mkdir -p PlaceholderDll
               cd PlaceholderDll
               dotnet new classlib -n PlaceholderDll
-              # Inject the version into the csproj file
-              sed -i "s|<PropertyGroup>|<PropertyGroup><Version>${{ env.version }}</Version>|" PlaceholderDll/PlaceholderDll.csproj
+              sed -i 's/<PropertyGroup>/<PropertyGroup><Version>1.0.0<\/Version>/' PlaceholderDll/PlaceholderDll.csproj
               dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../bin/Debug/net7.0
               cd ..
-              echo "Placeholder .dll generated and stored in bin/Debug/net7.0/PlaceholderDll.dll"
+              echo "Placeholder .dll generated."
           fi
 
+      # Step 5: Pack NuGet Package
       - name: Pack NuGet Package
         run: |
           set -euo pipefail
@@ -63,12 +64,12 @@ jobs:
           mkdir -p ./artifacts  # Ensure artifacts directory exists
 
           # Pack the NuGet package
-          dotnet pack nuget.package.csproj --output ./artifacts -p:PackageVersion=${{ env.version }}
+          dotnet pack nuget.package.csproj --output ./artifacts -p:NoBuild=true -p:PackageVersion=${{ env.version }}
 
           echo "Checking artifacts directory..."
           ls ./artifacts
 
-          # Find the package file
+          # Verify the package file
           package_file=$(find ./artifacts -maxdepth 1 -name "Windows-SysAdmin-ProSuite*.nupkg" | head -n 1)
           if [[ -z "$package_file" ]]; then
               echo "Error: Package not found in ./artifacts"
@@ -76,10 +77,16 @@ jobs:
           fi
 
           echo "Package successfully created: $package_file"
-
-          # Export package path
           echo "package_path=$package_file" >> $GITHUB_ENV
 
+      # Step 6: Inspect NuGet Package Contents
+      - name: Inspect NuGet Package Contents
+        run: |
+          echo "Inspecting the NuGet package contents..."
+          package_file="${{ env.package_path }}"
+          unzip -l "$package_file"
+
+      # Step 7: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
