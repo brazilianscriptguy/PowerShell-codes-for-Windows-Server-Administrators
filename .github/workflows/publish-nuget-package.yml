@@ -15,19 +15,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout Repository
+      # Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
 
-      # Step 2: Set up .NET
+      # Set up .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
 
-      # Step 3: Generate Version
+      # Generate Valid Version
       - name: Generate Valid Version
         id: generate_version
         run: |
@@ -36,9 +37,16 @@ jobs:
           build=$(date +'%y%m%d')
           revision=$(date +'%H%M')
           version="$major.$minor.$build.$revision"
+          echo "Generated version: $version"
           echo "version=$version" >> $GITHUB_ENV
 
-      # Step 4: Generate Placeholder .dll
+      # Verify Repository Files
+      - name: List Repository Files
+        run: |
+          echo "Repository structure:"
+          ls -R
+
+      # Generate Placeholder DLL (if missing)
       - name: Generate Placeholder .dll (if missing)
         run: |
           set -euo pipefail
@@ -53,18 +61,30 @@ jobs:
               echo "Placeholder .dll generated."
           fi
 
-      # Step 5: Prepare Files for Packaging
-      - name: Prepare Files
+      # Verify Placeholder DLL
+      - name: Verify Placeholder DLL
+        run: |
+          if [ ! -f "bin/Debug/net7.0/PlaceholderDll.dll" ]; then
+            echo "Error: PlaceholderDll.dll not found."
+            exit 1
+          fi
+          echo "PlaceholderDll.dll is present."
+
+      # Prepare NuGet Package Files
+      - name: Prepare NuGet Package Files
         run: |
           set -euo pipefail
           echo "Preparing files for NuGet package..."
           mkdir -p NuGetPackageContent
-          cp -r BlueTeam-Tools Core-ScriptLibrary ITSM-Templates-SVR ITSM-Templates-WKS SysAdmin-Tools NuGetPackageContent/
-          cp LICENSE NuGetPackageContent/
-          cp README.md NuGetPackageContent/
+          cp -r Core-ScriptLibrary NuGetPackageContent/ || true
+          cp -r SysAdmin-Tools NuGetPackageContent/ || true
+          cp -r ITSM-Templates-SVR NuGetPackageContent/ || true
+          cp -r ITSM-Templates-WKS NuGetPackageContent/ || true
+          cp README.md NuGetPackageContent/ || true
+          cp LICENSE NuGetPackageContent/ || true
           echo "Files prepared for packaging."
 
-      # Step 6: Pack NuGet Package
+      # Pack NuGet Package
       - name: Pack NuGet Package
         run: |
           set -euo pipefail
@@ -87,13 +107,14 @@ jobs:
           echo "Package successfully created: $package_file"
           echo "package_path=$package_file" >> $GITHUB_ENV
 
-      # Step 7: Inspect NuGet Package Contents
+      # Inspect NuGet Package Contents
       - name: Inspect NuGet Package Contents
         run: |
           echo "Inspecting the NuGet package contents..."
-          unzip -l "${{ env.package_path }}"
+          package_file="${{ env.package_path }}"
+          unzip -l "$package_file"
 
-      # Step 8: Publish to GitHub Packages
+      # Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
