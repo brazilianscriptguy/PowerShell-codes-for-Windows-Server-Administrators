@@ -40,16 +40,12 @@ jobs:
           echo "Generated version: $version"
           echo "version=$version" >> $GITHUB_ENV
 
-      # Verify Repository Files
-      - name: List Repository Files
-        run: |
-          echo "Repository structure:"
-          ls -R
-
-      # Generate Placeholder DLL (if missing)
+      # Generate Placeholder DLL
       - name: Generate Placeholder .dll (if missing)
         run: |
           set -euo pipefail
+          echo "Ensuring placeholder .dll exists..."
+          mkdir -p bin/Debug/net7.0
           if [ ! -f bin/Debug/net7.0/PlaceholderDll.dll ]; then
               echo "Generating placeholder .dll..."
               mkdir -p PlaceholderDll
