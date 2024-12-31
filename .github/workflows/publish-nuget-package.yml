@@ -56,7 +56,18 @@ jobs:
               echo "Placeholder .dll generated."
           fi
 
-      # Step 5: Pack NuGet Package
+      # Step 5: Prepare NuGet Package Files
+      - name: Prepare NuGet Package Files
+        run: |
+          set -euo pipefail
+          echo "Preparing files for NuGet package..."
+          mkdir -p NuGetPackageContent
+          cp -r Scripts/* NuGetPackageContent/
+          cp README.md NuGetPackageContent/ || true
+          cp LICENSE NuGetPackageContent/ || true
+          echo "Files prepared for packaging."
+
+      # Step 6: Pack NuGet Package
       - name: Pack NuGet Package
         run: |
           set -euo pipefail
@@ -79,14 +90,14 @@ jobs:
           echo "Package successfully created: $package_file"
           echo "package_path=$package_file" >> $GITHUB_ENV
 
-      # Step 6: Inspect NuGet Package Contents
+      # Step 7: Inspect NuGet Package Contents
       - name: Inspect NuGet Package Contents
         run: |
           echo "Inspecting the NuGet package contents..."
           package_file="${{ env.package_path }}"
           unzip -l "$package_file"
 
-      # Step 7: Publish to GitHub Packages
+      # Step 8: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
