@@ -27,7 +27,7 @@
   <ItemGroup>
     <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
     <Content Include="LICENSE" PackagePath="content/" />
-    <Content Include="README.md" PackagePath="content/" />
+    <!-- Removed the root README.md inclusion as it's now handled within Scripts-PowerShell/main-README.md -->
   </ItemGroup>
 
   <!-- Exclude Unnecessary Files -->
