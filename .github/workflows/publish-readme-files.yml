@@ -90,7 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          TAG_NAME="readmes-files-package"
+          TAG_NAME="READMEs-Files-Package"
 
           # Check if release with this tag exists
           if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
