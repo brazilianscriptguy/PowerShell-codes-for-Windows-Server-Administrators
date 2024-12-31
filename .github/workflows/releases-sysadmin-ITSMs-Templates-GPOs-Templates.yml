@@ -14,30 +14,26 @@ permissions:
 jobs:
   cleanup-old-releases:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Dependencies for Cleanup
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq gh
-          gh --version
-          jq --version
-
-      - name: Delete Older Releases and Tags
+      - name: Delete older releases
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh auth setup-git
           gh release list --json tagName,createdAt | jq -r '. | sort_by(.createdAt) | .[0:-1] | .[].tagName' | while read tag; do
             echo "Deleting old release: $tag"
-            gh release delete "$tag" -y
-          done || echo "No old releases found."
+            gh release delete "$tag" -y || echo "Failed to delete release: $tag"
+            git push --delete origin "$tag" || echo "Failed to delete tag: $tag"
+          done
 
   build-and-release-SysAdminToolSet:
     needs: cleanup-old-releases
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -48,32 +44,46 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip gh
+          sudo apt-get install -y zip jq gh
 
-      - name: Handle Existing Tag for SysAdminToolSet
+      - name: Generate Tag and Release Names for SysAdminToolSet
+        id: generate_scripts_names
         run: |
-          if gh release view SysAdminToolSet > /dev/null 2>&1; then
-            echo "Deleting existing tag for SysAdminToolSet."
-            gh release delete SysAdminToolSet -y
-          fi
+          echo "tag_name=SysAdminToolSet" >> $GITHUB_ENV
+          echo "release_name=SysAdminToolSet.zip" >> $GITHUB_ENV
 
       - name: Create New Release for SysAdminToolSet
+        if: github.event_name != 'release'
+        id: create_scripts_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: SysAdminToolSet
-          release_name: SysAdminToolSet.zip
+          tag_name: ${{ env.tag_name }}
+          release_name: ${{ env.release_name }}
           body: "Latest automated specialized release for SysAdminToolSet."
           draft: false
           prerelease: false
 
-      - name: Build and Package SysAdminToolSet
+      - name: Build and package SysAdminToolSet
+        id: package_scripts
         run: |
           mkdir -p SysAdminToolSet
           cp LICENSE SysAdminToolSet/ || true
           cp README.md SysAdminToolSet/ || true
+
+          # Copy only Launch-Script-AutomaticMenu.ps1 to SysAdminToolSet root
           cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/ || true
+
+          # Copy all directories except excluded ones
+          for dir in */ ; do
+              dir=${dir%/}
+              if [[ "$dir" != "SysAdminToolSet" && "$dir" != ".git" && "$dir" != ".github" && "$dir" != "ITSM-Templates-WKS" && "$dir" != "ITSM-Templates-SVR" && "$dir" != "Core-ScriptLibrary" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
+                  mkdir -p SysAdminToolSet/"$dir"
+                  cp -r "$dir"/* SysAdminToolSet/"$dir"/ || true
+              fi
+          done
+
           zip -r SysAdminToolSet.zip SysAdminToolSet
           echo "package_path=$(pwd)/SysAdminToolSet.zip" >> $GITHUB_ENV
 
@@ -82,7 +92,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          upload_url: ${{ steps.create_scripts_release.outputs.upload_url }}
           asset_path: ${{ env.package_path }}
           asset_name: SysAdminToolSet.zip
           asset_content_type: application/zip
@@ -100,16 +110,19 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip gh
+          sudo apt-get install -y zip jq
 
-      - name: Handle Existing Tag for ITSM-Templates-WKS
+      - name: Handle Existing ITSM-Templates-WKS Tag
+        id: handle_itsm_wks_tag
         run: |
           if gh release view ITSM-Templates-WKS > /dev/null 2>&1; then
-            echo "Deleting existing tag for ITSM-Templates-WKS."
-            gh release delete ITSM-Templates-WKS -y
+            echo "Tag ITSM-Templates-WKS exists. Deleting it."
+            gh release delete ITSM-Templates-WKS -y || echo "Failed to delete release."
+            git push --delete origin ITSM-Templates-WKS || echo "Failed to delete tag."
           fi
 
       - name: Create New Release for ITSM-Templates-WKS
+        id: create_itsm_wks_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -120,7 +133,8 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Build and Package ITSM-Templates-WKS
+      - name: Build and package ITSM-Templates-WKS
+        id: package_itsm_wks
         run: |
           zip -r ITSM-Templates-WKS.zip ITSM-Templates-WKS
           echo "package_path=$(pwd)/ITSM-Templates-WKS.zip" >> $GITHUB_ENV
@@ -130,7 +144,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          upload_url: ${{ steps.create_itsm_wks_release.outputs.upload_url }}
           asset_path: ${{ env.package_path }}
           asset_name: ITSM-Templates-WKS.zip
           asset_content_type: application/zip
@@ -148,16 +162,19 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip gh
+          sudo apt-get install -y zip jq gh
 
-      - name: Handle Existing Tag for ITSM-Templates-SVR
+      - name: Handle Existing ITSM-Templates-SVR Tag
+        id: handle_itsm_svr_tag
         run: |
           if gh release view ITSM-Templates-SVR > /dev/null 2>&1; then
-            echo "Deleting existing tag for ITSM-Templates-SVR."
-            gh release delete ITSM-Templates-SVR -y
+            echo "Tag ITSM-Templates-SVR exists. Deleting it."
+            gh release delete ITSM-Templates-SVR -y || echo "Failed to delete release."
+            git push --delete origin ITSM-Templates-SVR || echo "Failed to delete tag."
           fi
 
       - name: Create New Release for ITSM-Templates-SVR
+        id: create_itsm_svr_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -168,7 +185,8 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Build and Package ITSM-Templates-SVR
+      - name: Build and package ITSM-Templates-SVR
+        id: package_itsm_svr
         run: |
           zip -r ITSM-Templates-SVR.zip ITSM-Templates-SVR
           echo "package_path=$(pwd)/ITSM-Templates-SVR.zip" >> $GITHUB_ENV
@@ -178,7 +196,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          upload_url: ${{ steps.create_itsm_svr_release.outputs.upload_url }}
           asset_path: ${{ env.package_path }}
           asset_name: ITSM-Templates-SVR.zip
           asset_content_type: application/zip
@@ -196,16 +214,18 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip gh
+          sudo apt-get install -y zip jq
 
-      - name: Handle Existing Tag for GPOs-Templates
+      - name: Handle Existing GPOs-Templates Tag
         run: |
           if gh release view GPOs-Templates > /dev/null 2>&1; then
-            echo "Deleting existing tag for GPOs-Templates."
-            gh release delete GPOs-Templates -y
+            echo "Tag GPOs-Templates exists. Deleting it."
+            gh release delete GPOs-Templates -y || echo "Failed to delete release."
+            git push --delete origin GPOs-Templates || echo "Failed to delete tag."
           fi
 
       - name: Create New Release for GPOs-Templates
+        id: create_gpos_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -216,10 +236,12 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Build and Package GPOs-Templates
+      - name: Build and package GPOs-Templates
+        id: package_gpos
         run: |
           mkdir -p GPOs-Templates
-          cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/
+          cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/ || true
+          cp SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1 GPOs-Templates/ || true
           zip -r GPOs-Templates.zip GPOs-Templates
           echo "package_path=$(pwd)/GPOs-Templates.zip" >> $GITHUB_ENV
 
@@ -228,7 +250,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          upload_url: ${{ steps.create_gpos_release.outputs.upload_url }}
           asset_path: ${{ env.package_path }}
           asset_name: GPOs-Templates.zip
           asset_content_type: application/zip
