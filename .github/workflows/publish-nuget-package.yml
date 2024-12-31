@@ -1,4 +1,5 @@
-name: Publish NuGet Packages
+
+name: Publish NuGet Package
 
 on:
   workflow_dispatch:
@@ -15,20 +16,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
-      # Step 2: Set up .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
 
-      # Step 3: Generate Version
       - name: Generate Version
         id: generate_version
         run: |
@@ -38,20 +36,32 @@ jobs:
           revision=$(date +'%H%M')
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
-          echo "Generated version: $version"
 
-      # Step 4: Pack NuGet Package
+      - name: Ensure Placeholder .dll Exists
+        run: |
+          set -euo pipefail
+          if [ ! -f Placeholder/PlaceholderDll.dll ]; then
+              echo "Generating placeholder .dll..."
+              mkdir -p PlaceholderDll
+              cd PlaceholderDll
+              dotnet new classlib -n PlaceholderDll
+              dotnet build -o ../Placeholder
+              cd ..
+              cp Placeholder/PlaceholderDll.dll Placeholder/
+              echo "Placeholder .dll generated and stored in Placeholder/PlaceholderDll.dll"
+          fi
+
       - name: Pack NuGet Package
         run: |
           set -euo pipefail
           echo "Packing the NuGet package..."
           mkdir -p ./artifacts  # Ensure artifacts directory exists
 
-          # Pack the NuGet package without compiling
+          # Pack the NuGet package
           dotnet pack nuget.package.csproj --output ./artifacts -p:NoBuild=true -p:PackageVersion=${{ env.version }}
-          
+
           echo "Checking artifacts directory..."
-          ls ./artifacts  # List contents of artifacts directory
+          ls ./artifacts
 
           # Find the package file
           package_file=$(find ./artifacts -maxdepth 1 -name "Windows-SysAdmin-ProSuite*.nupkg" | head -n 1)
@@ -62,10 +72,9 @@ jobs:
 
           echo "Package successfully created: $package_file"
 
-          # Export package path as environment variable
+          # Export package path
           echo "package_path=$package_file" >> $GITHUB_ENV
 
-      # Step 5: Publish Package to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
