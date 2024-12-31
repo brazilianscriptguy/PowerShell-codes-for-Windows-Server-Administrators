@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Windows-SysAdmin-ProSuite</id>
+    <version>1.0.241231.2344</version>
+    <authors>BrazilianScriptGuy</authors>
+    <owners>BrazilianScriptGuy</owners>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/brazilianscriptguy</projectUrl>
+    <description>A comprehensive suite of PowerShell scripts and templates for system administration.</description>
+    <tags>SysAdmin PowerShell Scripts Templates</tags>
+  </metadata>
+  <files>
+    <file src="NuGetPackageContent/**/*" target="content" />
+    <file src="bin/Debug/net7.0/PlaceholderDll.dll" target="lib/net7.0" />
+  </files>
+</package>
