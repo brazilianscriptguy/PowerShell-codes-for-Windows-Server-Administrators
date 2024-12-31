@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0  # Fetch all history for accurate tag detection
@@ -36,6 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           echo "Fetching all 'READMEs-Files-Package' releases..."
           releases=$(gh release list --limit 100 --json tagName,createdAt,name | \
             jq -r '.[] | select(.name == "READMEs-Files-Package") | "\(.createdAt) \(.tagName)"')
@@ -59,7 +60,7 @@ jobs:
           for tag in $releases_to_delete; do
             echo "Deleting old README Files release and tag: $tag"
             gh release delete "$tag" -y || { echo "Failed to delete release: $tag"; exit 1; }
-            git push --delete origin "$tag" || { echo "Failed to delete tag: $tag"; exit 1; }
+            git push --delete origin "$tag" || { echo "Failed to delete remote tag: $tag"; exit 1; }
           done
 
   gather-and-publish-readmes:
@@ -68,7 +69,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
@@ -88,21 +89,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           TAG_NAME="readmes-files-package"
 
           # Check if release with this tag exists
           if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
             echo "Release for tag '${TAG_NAME}' exists. Deleting..."
             gh release delete "${TAG_NAME}" -y || { echo "Failed to delete release: $TAG_NAME"; exit 1; }
-            git push --delete origin "${TAG_NAME}" || { echo "Failed to delete tag: $TAG_NAME"; exit 1; }
-            # Delete the tag locally
-            git tag -d "${TAG_NAME}" || { echo "Failed to delete local tag: $TAG_NAME"; exit 1; }
+            git push --delete origin "${TAG_NAME}" || { echo "Failed to delete remote tag: $TAG_NAME"; exit 1; }
           else
             echo "No existing release for tag '${TAG_NAME}'. Proceeding..."
           fi
 
+          # Delete the local tag if it exists
+          if git rev-parse "${TAG_NAME}" >/dev/null 2>&1; then
+            echo "Deleting local tag '${TAG_NAME}'..."
+            git tag -d "${TAG_NAME}" || { echo "Failed to delete local tag: $TAG_NAME"; exit 1; }
+          else
+            echo "No local tag '${TAG_NAME}' exists. Proceeding..."
+          fi
+
           # Create the tag pointing to the current commit
-          git tag "${TAG_NAME}"
+          git tag "${TAG_NAME}" || { echo "Failed to create tag: $TAG_NAME"; exit 1; }
           git push origin "${TAG_NAME}" || { echo "Failed to push tag: $TAG_NAME"; exit 1; }
 
           # Set TAG_NAME as environment variable
@@ -123,12 +131,14 @@ jobs:
 
       - name: Find and Rename README.md Files
         run: |
+          set -e
+          set -x
           echo "Searching for README.md files..."
           # Create a directory to store renamed READMEs
           mkdir -p readmes
 
           # Find all README.md files excluding the root README.md
-          find . -type f -name "README.md" ! -path "./README.md" | while read -r file; do
+          find . -type f -iname "README.md" ! -path "./README.md" | while read -r file; do
             # Extract the immediate parent directory name
             repo_dir=$(dirname "$file")
             repo_name=$(basename "$repo_dir")
@@ -141,13 +151,13 @@ jobs:
             echo "Copied and renamed $file to readmes/$new_filename"
           done
 
-      - name: Verify Renamed Files
-        run: |
-          echo "Renamed README.md files:"
+          # List the files in readmes directory
+          echo "Files in readmes directory:"
           ls -l readmes/
 
       - name: Check if Readmes Directory has Files
         run: |
+          set -e
           file_count=$(ls -1 readmes/*.md 2>/dev/null | wc -l)
           echo "Number of README files: $file_count"
           if [ "$file_count" -eq 0 ]; then
@@ -157,15 +167,19 @@ jobs:
 
       - name: Package Renamed READMEs into a Zip Archive
         run: |
+          set -e
+          set -x
           echo "Packaging renamed README.md files into READMEs-Files-Package.zip..."
           mkdir -p artifacts
-          # Zip all README files in readmes directory without including the directory itself
-          zip -j artifacts/READMEs-Files-Package.zip readmes/*.md
+          # Zip the readmes directory into a ZIP file
+          zip -r artifacts/READMEs-Files-Package.zip readmes
           echo "Packaging complete."
           echo "package_path=$(pwd)/artifacts/READMEs-Files-Package.zip" >> $GITHUB_ENV
 
       - name: Verify Zip Integrity
         run: |
+          set -e
+          set -x
           echo "Verifying zip integrity..."
           unzip -t artifacts/READMEs-Files-Package.zip
           if [ $? -eq 0 ]; then
