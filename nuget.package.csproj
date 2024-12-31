@@ -1,25 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <NoBuild>true</NoBuild>
     <TargetFramework>net7.0</TargetFramework>
+
+    <!-- Package Metadata -->
     <PackageId>Windows-SysAdmin-ProSuite</PackageId>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
     <Product>Windows-SysAdmin-ProSuite</Product>
     <Description>
-      Comprehensive collection of PowerShell and configuration scripts for managing Windows systems.
+      Comprehensive suite of PowerShell tools for managing Windows Servers and workstations. Automates Active Directory tasks, simplifies ITSM processes, and enhances forensic analysis capabilities.
     </Description>
-    <PackageTags>PowerShell;Automation;SysAdmin</PackageTags>
+    <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;ITSM;Forensics</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
     <PackageOutputPath>./artifacts</PackageOutputPath>
+    <Version>$(Version)</Version>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NoWarn>NU5110;NU5111;NU5123</NoWarn>
   </PropertyGroup>
 
-  <!-- Files to Include -->
+  <!-- Include Necessary Files -->
   <ItemGroup>
-    <None Include="NuGetPackageContent/**" PackagePath="content/" />
-    <None Include="README.md" PackagePath="content/" />
-    <None Include="LICENSE" PackagePath="content/" />
+    <Content Include="README.md" PackagePath="content/" />
+    <Content Include="LICENSE" PackagePath="content/" />
+    <Content Include="Core-ScriptLibrary/**/*" PackagePath="content/Core-ScriptLibrary/" />
+    <Content Include="SysAdmin-Tools/**/*" PackagePath="content/SysAdmin-Tools/" />
+    <Content Include="ITSM-Templates-SVR/**/*" PackagePath="content/ITSM-Templates-SVR/" />
+    <Content Include="ITSM-Templates-WKS/**/*" PackagePath="content/ITSM-Templates-WKS/" />
   </ItemGroup>
+
 </Project>
