@@ -32,8 +32,8 @@ jobs:
           set -euo pipefail
           major=1
           minor=0
-          build=$(date +'%y%m%d')  # Shortened year for compatibility
-          revision=$(date +'%H%M')  # Keep within acceptable numeric range
+          build=$(date +'%y%m%d')  # Shortened year for build
+          revision=$(($(date +'%H') * 60 + $(date +'%M')))  # Ensure revision is <65535
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
@@ -46,8 +46,8 @@ jobs:
               mkdir -p PlaceholderDll
               cd PlaceholderDll
               dotnet new classlib -n PlaceholderDll
-              sed -i 's/<Version>.*<\/Version>/<Version>${{ env.version }}<\/Version>/' PlaceholderDll/PlaceholderDll.csproj
-              dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../Placeholder
+              sed -i "s/<Version>.*<\/Version>/<Version>${{ env.version }}<\/Version>/" PlaceholderDll/PlaceholderDll.csproj
+              dotnet build PlaceholderDll/PlaceholderDll.csproj -p:Version=${{ env.version }} -o ../Placeholder
               cd ..
               echo "Placeholder .dll generated and stored in Placeholder/PlaceholderDll.dll"
           fi
