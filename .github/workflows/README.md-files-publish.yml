@@ -1,0 +1,144 @@
+name: Publish README Files
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+
+permissions:
+  contents: write  # Required for creating releases and uploading assets
+
+jobs:
+  cleanup-old-releases:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3.6.0
+        with:
+          submodules: true
+          fetch-depth: 0  # Fetch all history for accurate tag detection
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq gh
+
+      - name: Configure GitHub CLI for Git Operations
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth setup-git
+
+      - name: Delete Older Releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching all releases..."
+          gh release list --limit 100 --json tagName,createdAt | \
+          jq -r 'sort_by(.createdAt) | .[0:-1] | .[].tagName' | \
+          while read -r tag; do
+            echo "Deleting old release and tag: $tag"
+            gh release delete "$tag" -y || echo "Failed to delete release: $tag"
+            git push --delete origin "$tag" || echo "Failed to delete tag: $tag"
+          done
+
+  gather-and-publish-readmes:
+    needs: cleanup-old-releases
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3.6.0
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      # Step 2: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip jq gh
+
+      # Step 3: Configure GitHub CLI for Git Operations
+      - name: Configure GitHub CLI for Git Operations
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth setup-git
+
+      # Step 4: Handle Existing Release and Tag
+      - name: Handle Existing Release and Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
+            echo "Release for tag '${TAG_NAME}' exists. Deleting..."
+            gh release delete "${TAG_NAME}" -y || echo "Failed to delete release: ${TAG_NAME}"
+            git push --delete origin "${TAG_NAME}" || echo "Failed to delete tag: ${TAG_NAME}"
+          else
+            echo "No existing release for tag '${TAG_NAME}'. Proceeding..."
+          fi
+
+      # Step 5: Create New Release
+      - name: Create New Release
+        id: create_release
+        uses: actions/create-release@v1.6.0
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: "README Files Release ${{ github.ref_name }}"
+          body: |
+            This release contains all `README.md` files from the repository, renamed as `$repository-name-README.md`.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 6: Find and Rename README.md Files
+      - name: Find and Rename README.md Files
+        run: |
+          echo "Searching for README.md files..."
+          # Create a directory to store renamed READMEs
+          mkdir -p readmes
+          
+          # Find all README.md files excluding the root README.md
+          find . -type f -name "README.md" ! -path "./README.md" | while read -r file; do
+            # Extract the immediate parent directory name
+            repo_dir=$(dirname "$file")
+            repo_name=$(basename "$repo_dir")
+            
+            # Define the new filename
+            new_filename="${repo_name}-README.md"
+            
+            # Copy and rename the README.md to the readmes directory
+            cp "$file" "readmes/$new_filename"
+            echo "Copied and renamed $file to readmes/$new_filename"
+          done
+
+      # Step 7: Verify Renamed Files
+      - name: Verify Renamed README.md Files
+        run: |
+          echo "Renamed README.md files:"
+          ls -l readmes/
+
+      # Step 8: Package Renamed Files into a Zip Archive
+      - name: Package Renamed READMEs
+        run: |
+          echo "Packaging renamed README.md files into readmes.zip..."
+          mkdir -p artifacts
+          zip -r artifacts/readmes.zip readmes/
+          echo "Packaging complete."
+
+      # Step 9: Upload Zip Archive as Release Asset
+      - name: Upload README Zip to Release
+        uses: actions/upload-release-asset@v1.1.5
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/readmes.zip
+          asset_name: readmes.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
