@@ -1,0 +1,167 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-old-releases:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq gh
+
+      - name: Configure GitHub CLI for Git Operations
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth setup-git
+
+      - name: Delete Older Releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching all releases..."
+          gh release list --limit 100 --json tagName,createdAt | \
+          jq -r 'sort_by(.createdAt) | .[0:-1] | .[].tagName' | \
+          while read -r tag; do
+            echo "Deleting old release and tag: $tag"
+            gh release delete "$tag" -y || echo "Failed to delete release: $tag"
+            git push --delete origin "$tag" || echo "Failed to delete tag: $tag"
+          done
+
+  build-and-release:
+    needs: cleanup-old-releases
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        release:
+          - name: SysAdminToolSet
+            tag: SysAdminToolSet
+            release_zip: SysAdminToolSet.zip
+            build_steps: |
+              mkdir -p SysAdminToolSet
+              cp LICENSE SysAdminToolSet/ || true
+              cp README.md SysAdminToolSet/ || true
+
+              # Copy only Launch-Script-AutomaticMenu.ps1 to SysAdminToolSet root
+              cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/ || true
+
+              # Use rsync to copy all directories except excluded ones and specific config files
+              rsync -av --exclude='SysAdminToolSet' \
+                      --exclude='.git' \
+                      --exclude='.github' \
+                      --exclude='ITSM-Templates-WKS' \
+                      --exclude='ITSM-Templates-SVR' \
+                      --exclude='Core-ScriptLibrary' \
+                      --exclude='SysAdmin-Tools/GroupPolicyObjects-Templates' \
+                      --exclude='GroupPolicyObjects-Templates' \
+                      --exclude='.editorconfig' \
+                      --exclude='.gitattributes' \
+                      --exclude='.gitignore' \
+                      --exclude='nuget.config' \
+                      --exclude='nuget.package.csproj' \
+                      ./ SysAdminToolSet/
+
+              # **Ensure GroupPolicyObjects-Templates is not present**
+              rm -rf SysAdminToolSet/GroupPolicyObjects-Templates
+
+              # **Ensure specific config files are not present**
+              rm -f SysAdminToolSet/.editorconfig
+              rm -f SysAdminToolSet/.gitattributes
+              rm -f SysAdminToolSet/.gitignore
+              rm -f SysAdminToolSet/nuget.config
+              rm -f SysAdminToolSet/nuget.package.csproj
+
+              zip -r SysAdminToolSet.zip SysAdminToolSet
+
+          - name: ITSM-Templates-WKS
+            tag: ITSM-Templates-WKS
+            release_zip: ITSM-Templates-WKS.zip
+            build_steps: |
+              zip -r ITSM-Templates-WKS.zip ITSM-Templates-WKS
+
+          - name: ITSM-Templates-SVR
+            tag: ITSM-Templates-SVR
+            release_zip: ITSM-Templates-SVR.zip
+            build_steps: |
+              zip -r ITSM-Templates-SVR.zip ITSM-Templates-SVR
+
+          - name: GPOs-Templates
+            tag: GPOs-Templates
+            release_zip: GPOs-Templates.zip
+            build_steps: |
+              mkdir -p GPOs-Templates
+              cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/ || true
+              cp SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1 GPOs-Templates/ || true
+              zip -r GPOs-Templates.zip GPOs-Templates
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip jq gh
+
+      - name: Configure GitHub CLI for Git Operations
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth setup-git
+
+      - name: Handle Existing Release and Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${{ matrix.release.tag }}" > /dev/null 2>&1; then
+            echo "Release for tag '${{ matrix.release.tag }}' exists. Deleting..."
+            gh release delete "${{ matrix.release.tag }}" -y || echo "Failed to delete release: ${{ matrix.release.tag }}"
+            git push --delete origin "${{ matrix.release.tag }}" || echo "Failed to delete tag: ${{ matrix.release.tag }}"
+          else
+            echo "No existing release for tag '${{ matrix.release.tag }}'. Proceeding..."
+          fi
+
+      - name: Create New Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ matrix.release.tag }}
+          release_name: ${{ matrix.release.release_zip }}
+          body: "Latest automated specialized release for ${{ matrix.release.name }}."
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Package ${{ matrix.release.name }}
+        run: |
+          echo "Building and packaging ${{ matrix.release.name }}..."
+          ${{ matrix.release.build_steps }}
+          echo "package_path=$(pwd)/${{ matrix.release.release_zip }}" >> $GITHUB_ENV
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.package_path }}
+          asset_name: ${{ matrix.release.release_zip }}
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
