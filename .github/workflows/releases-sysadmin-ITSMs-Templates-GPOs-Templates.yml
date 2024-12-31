@@ -14,12 +14,18 @@ permissions:
 jobs:
   cleanup-old-releases:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Delete older releases
+      - name: Install Dependencies for Cleanup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq gh
+          gh --version
+          jq --version
+
+      - name: Delete Older Releases and Tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -27,12 +33,11 @@ jobs:
           gh release list --json tagName,createdAt | jq -r '. | sort_by(.createdAt) | .[0:-1] | .[].tagName' | while read tag; do
             echo "Deleting old release: $tag"
             gh release delete "$tag" -y
-          done
+          done || echo "No old releases found."
 
   build-and-release-SysAdminToolSet:
     needs: cleanup-old-releases
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -43,12 +48,12 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip jq gh
+          sudo apt-get install -y zip gh
 
-      - name: Handle Existing SysAdminToolSet Tag
+      - name: Handle Existing Tag for SysAdminToolSet
         run: |
           if gh release view SysAdminToolSet > /dev/null 2>&1; then
-            echo "Deleting existing release and tag for SysAdminToolSet."
+            echo "Deleting existing tag for SysAdminToolSet."
             gh release delete SysAdminToolSet -y
           fi
 
@@ -63,7 +68,7 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Build and package SysAdminToolSet
+      - name: Build and Package SysAdminToolSet
         run: |
           mkdir -p SysAdminToolSet
           cp LICENSE SysAdminToolSet/ || true
@@ -85,7 +90,6 @@ jobs:
   build-and-release-itsm-templates-wks:
     needs: cleanup-old-releases
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -96,12 +100,12 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip jq gh
+          sudo apt-get install -y zip gh
 
-      - name: Handle Existing ITSM-Templates-WKS Tag
+      - name: Handle Existing Tag for ITSM-Templates-WKS
         run: |
           if gh release view ITSM-Templates-WKS > /dev/null 2>&1; then
-            echo "Deleting existing release and tag for ITSM-Templates-WKS."
+            echo "Deleting existing tag for ITSM-Templates-WKS."
             gh release delete ITSM-Templates-WKS -y
           fi
 
@@ -116,7 +120,7 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Build and package ITSM-Templates-WKS
+      - name: Build and Package ITSM-Templates-WKS
         run: |
           zip -r ITSM-Templates-WKS.zip ITSM-Templates-WKS
           echo "package_path=$(pwd)/ITSM-Templates-WKS.zip" >> $GITHUB_ENV
@@ -134,7 +138,6 @@ jobs:
   build-and-release-itsm-templates-svr:
     needs: cleanup-old-releases
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -145,12 +148,12 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip jq gh
+          sudo apt-get install -y zip gh
 
-      - name: Handle Existing ITSM-Templates-SVR Tag
+      - name: Handle Existing Tag for ITSM-Templates-SVR
         run: |
           if gh release view ITSM-Templates-SVR > /dev/null 2>&1; then
-            echo "Deleting existing release and tag for ITSM-Templates-SVR."
+            echo "Deleting existing tag for ITSM-Templates-SVR."
             gh release delete ITSM-Templates-SVR -y
           fi
 
@@ -165,7 +168,7 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Build and package ITSM-Templates-SVR
+      - name: Build and Package ITSM-Templates-SVR
         run: |
           zip -r ITSM-Templates-SVR.zip ITSM-Templates-SVR
           echo "package_path=$(pwd)/ITSM-Templates-SVR.zip" >> $GITHUB_ENV
@@ -183,7 +186,6 @@ jobs:
   build-and-release-GPOs-Templates:
     needs: cleanup-old-releases
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -194,12 +196,12 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip jq gh
+          sudo apt-get install -y zip gh
 
-      - name: Handle Existing GPOs-Templates Tag
+      - name: Handle Existing Tag for GPOs-Templates
         run: |
           if gh release view GPOs-Templates > /dev/null 2>&1; then
-            echo "Deleting existing release and tag for GPOs-Templates."
+            echo "Deleting existing tag for GPOs-Templates."
             gh release delete GPOs-Templates -y
           fi
 
@@ -214,11 +216,10 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Build and package GPOs-Templates
+      - name: Build and Package GPOs-Templates
         run: |
           mkdir -p GPOs-Templates
           cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/
-          cp SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1 GPOs-Templates/
           zip -r GPOs-Templates.zip GPOs-Templates
           echo "package_path=$(pwd)/GPOs-Templates.zip" >> $GITHUB_ENV
 
