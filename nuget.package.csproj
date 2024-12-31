@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
 
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <NoBuild>true</NoBuild> <!-- Prevent build actions -->
-    <TargetFramework>net7.0</TargetFramework> <!-- Required but unused -->
+    <NoBuild>true</NoBuild>
+    <TargetFramework>net7.0</TargetFramework>
     <PackageId>Windows-SysAdmin-ProSuite</PackageId>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
@@ -17,21 +17,13 @@
     <PackageOutputPath>./artifacts</PackageOutputPath>
     <Version>$(Version)</Version>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <NoWarn>NU5110;NU5111;NU5123</NoWarn> <!-- Suppress warnings -->
+    <NoWarn>NU5110;NU5111;NU5123</NoWarn>
   </PropertyGroup>
 
-  <!-- Include scripts and files -->
   <ItemGroup>
+    <Content Include="Placeholder/PlaceholderDll.dll" PackagePath="lib/net7.0/" />
     <Content Include="Scripts/**" PackagePath="content/" />
     <Content Include="LICENSE" PackagePath="content/" />
     <Content Include="README.md" PackagePath="content/" />
   </ItemGroup>
-
-  <!-- Exclude unnecessary files -->
-  <ItemGroup>
-    <Content Remove="bin/**" />
-    <Content Remove="obj/**" />
-    <Content Remove=".github/**" />
-  </ItemGroup>
-
 </Project>
