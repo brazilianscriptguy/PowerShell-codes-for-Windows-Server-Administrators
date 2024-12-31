@@ -1,4 +1,4 @@
-# .github/workflows/releases-SysAdmin-ITSM-wks-ITSM-svr.yml
+# .github/workflows/releases-sysadmin-ITSMs-Templates-GPOs-Templates.yml
 name: Build and Release
 
 on:
