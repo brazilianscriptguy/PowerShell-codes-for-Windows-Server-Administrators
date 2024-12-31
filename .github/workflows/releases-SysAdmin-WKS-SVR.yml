@@ -1,0 +1,195 @@
+# .github/workflows/releases-SysAdmin-WKS-SVR.yml
+# Build and Release Workflow for Ubuntu-SysAdmin-ProSuite
+name: Build and Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release-SysAdminToolSet:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      # Step 2: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip jq
+
+      # Step 3: Create Tag and Release for SysAdminToolSet
+      - name: Generate Tag and Release Names for SysAdminToolSet
+        id: generate_scripts_names
+        run: |
+          echo "tag_name=SysAdminToolSet" >> $GITHUB_ENV
+          echo "release_name=SysAdminToolSet.zip" >> $GITHUB_ENV
+
+      # Step 4: Create a New Release for SysAdminToolSet
+      - name: Create New Release for SysAdminToolSet
+        if: github.event_name != 'release'
+        id: create_scripts_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.tag_name }}
+          release_name: ${{ env.release_name }}
+          body: "Automated release for SysAdminToolSet."
+          draft: false
+          prerelease: false
+
+      # Step 5: Build and Package SysAdminToolSet
+      - name: Build and package SysAdminToolSet
+        id: package_scripts
+        run: |
+          mkdir -p SysAdminToolSet
+          cp LICENSE SysAdminToolSet/ || true
+          cp README.md SysAdminToolSet/ || true
+          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/ || true
+
+          for dir in */ ; do
+              dir=${dir%/}
+              if [[ "$dir" != "SysAdminToolSet" && "$dir" != ".git" && "$dir" != ".github" && "$dir" != "ITSM-Templates-WKS" && "$dir" != "ITSM-Templates-SVR" ]]; then
+                  mkdir -p SysAdminToolSet/"$dir"
+                  cp -r "$dir"/* SysAdminToolSet/"$dir"/ || true
+              fi
+          done
+
+          zip -r SysAdminToolSet.zip SysAdminToolSet
+          echo "package_path=$(pwd)/SysAdminToolSet.zip" >> $GITHUB_ENV
+
+      # Step 6: Upload SysAdminToolSet Release
+      - name: Upload SysAdminToolSet Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_scripts_release.outputs.upload_url }}
+          asset_path: ${{ env.package_path }}
+          asset_name: SysAdminToolSet.zip
+          asset_content_type: application/zip
+
+  build-and-release-itsm-templates-wks:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      # Step 2: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip jq
+
+      # Step 3: Create Tag and Release for ITSM-Templates-WKS
+      - name: Generate Tag and Release Names for ITSM-Templates-WKS
+        id: generate_itsm_wks_names
+        run: |
+          echo "tag_name=ITSM-Templates-WKS" >> $GITHUB_ENV
+          echo "release_name=ITSM-Templates-WKS.zip" >> $GITHUB_ENV
+
+      # Step 4: Create a New Release for ITSM-Templates-WKS
+      - name: Create New Release for ITSM-Templates-WKS
+        if: github.event_name != 'release'
+        id: create_itsm_wks_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.tag_name }}
+          release_name: ${{ env.release_name }}
+          body: "Automated release for ITSM-Templates-WKS."
+          draft: false
+          prerelease: false
+
+      # Step 5: Build and Package ITSM-Templates-WKS
+      - name: Build and package ITSM-Templates-WKS
+        id: package_itsm_wks
+        run: |
+          zip -r ITSM-Templates-WKS.zip ITSM-Templates-WKS
+          echo "package_path=$(pwd)/ITSM-Templates-WKS.zip" >> $GITHUB_ENV
+
+      # Step 6: Upload ITSM-Templates-WKS Release
+      - name: Upload ITSM-Templates-WKS Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_itsm_wks_release.outputs.upload_url }}
+          asset_path: ${{ env.package_path }}
+          asset_name: ITSM-Templates-WKS.zip
+          asset_content_type: application/zip
+
+  build-and-release-itsm-templates-svr:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      # Step 2: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip jq
+
+      # Step 3: Create Tag and Release for ITSM-Templates-SVR
+      - name: Generate Tag and Release Names for ITSM-Templates-SVR
+        id: generate_itsm_svr_names
+        run: |
+          echo "tag_name=ITSM-Templates-SVR" >> $GITHUB_ENV
+          echo "release_name=ITSM-Templates-SVR.zip" >> $GITHUB_ENV
+
+      # Step 4: Create a New Release for ITSM-Templates-SVR
+      - name: Create New Release for ITSM-Templates-SVR
+        if: github.event_name != 'release'
+        id: create_itsm_svr_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.tag_name }}
+          release_name: ${{ env.release_name }}
+          body: "Automated release for ITSM-Templates-SVR."
+          draft: false
+          prerelease: false
+
+      # Step 5: Build and Package ITSM-Templates-SVR
+      - name: Build and package ITSM-Templates-SVR
+        id: package_itsm_svr
+        run: |
+          zip -r ITSM-Templates-SVR.zip ITSM-Templates-SVR
+          echo "package_path=$(pwd)/ITSM-Templates-SVR.zip" >> $GITHUB_ENV
+
+      # Step 6: Upload ITSM-Templates-SVR Release
+      - name: Upload ITSM-Templates-SVR Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_itsm_svr_release.outputs.upload_url }}
+          asset_path: ${{ env.package_path }}
+          asset_name: ITSM-Templates-SVR.zip
+          asset_content_type: application/zip
