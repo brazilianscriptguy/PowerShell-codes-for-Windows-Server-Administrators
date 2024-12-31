@@ -88,7 +88,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG_NAME="readme-files-package"
+          TAG_NAME="readmes-files-package"
 
           # Check if release with this tag exists
           if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
@@ -144,14 +144,21 @@ jobs:
           echo "Renamed README.md files:"
           ls -l readmes/
 
+      - name: Check if Readmes Directory has Files
+        run: |
+          file_count=$(ls -1 readmes/*.md 2>/dev/null | wc -l)
+          echo "Number of README files: $file_count"
+          if [ "$file_count" -eq 0 ]; then
+            echo "No README.md files found to package."
+            exit 1
+          fi
+
       - name: Package Renamed READMEs into a Zip Archive
         run: |
           echo "Packaging renamed README.md files into READMEs-Files-Package.zip..."
           mkdir -p artifacts
-          # Navigate into readmes directory and zip the files
-          cd readmes
-          zip -r ../artifacts/READMEs-Files-Package.zip ./*
-          cd ..
+          # Zip all README files in readmes directory without including the directory itself
+          zip -j artifacts/READMEs-Files-Package.zip readmes/*.md
           echo "Packaging complete."
           echo "package_path=$(pwd)/artifacts/READMEs-Files-Package.zip" >> $GITHUB_ENV
 
