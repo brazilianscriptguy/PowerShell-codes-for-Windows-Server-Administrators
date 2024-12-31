@@ -24,7 +24,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+          gh auth setup-git
           gh release list --json tagName,createdAt | jq -r '. | sort_by(.createdAt) | .[0:-1] | .[].tagName' | while read tag; do
             echo "Deleting old release: $tag"
             gh release delete "$tag" -y
