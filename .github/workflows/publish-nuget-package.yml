@@ -62,9 +62,13 @@ jobs:
           set -euo pipefail
           echo "Preparing files for NuGet package..."
           mkdir -p NuGetPackageContent
-          cp -r Scripts/* NuGetPackageContent/
-          cp README.md NuGetPackageContent/ || true
-          cp LICENSE NuGetPackageContent/ || true
+          if [ -d "Scripts" ]; then
+              cp -r Scripts/* NuGetPackageContent/
+          else
+              echo "Warning: 'Scripts' directory does not exist. Skipping."
+          fi
+          cp README.md NuGetPackageContent/ || echo "README.md not found. Skipping."
+          cp LICENSE NuGetPackageContent/ || echo "LICENSE not found. Skipping."
           echo "Files prepared for packaging."
 
       # Step 6: Pack NuGet Package
