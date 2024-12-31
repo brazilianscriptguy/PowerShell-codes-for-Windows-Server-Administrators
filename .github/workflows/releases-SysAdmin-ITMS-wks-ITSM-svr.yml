@@ -96,6 +96,56 @@ jobs:
           asset_name: SysAdminToolSet.zip
           asset_content_type: application/zip
 
+  build-and-release-itsm-templates-wks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip jq
+
+      - name: Generate Tag and Release Names for ITSM-Templates-WKS
+        id: generate_itsm_wks_names
+        run: |
+          echo "tag_name=ITSM-Templates-WKS" >> $GITHUB_ENV
+          echo "release_name=ITSM-Templates-WKS.zip" >> $GITHUB_ENV
+
+      - name: Create New Release for ITSM-Templates-WKS
+        if: github.event_name != 'release'
+        id: create_itsm_wks_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.tag_name }}
+          release_name: ${{ env.release_name }}
+          body: "Automated release for ITSM-Templates-WKS."
+          draft: false
+          prerelease: false
+
+      - name: Build and package ITSM-Templates-WKS
+        id: package_itsm_wks
+        run: |
+          zip -r ITSM-Templates-WKS.zip ITSM-Templates-WKS
+          echo "package_path=$(pwd)/ITSM-Templates-WKS.zip" >> $GITHUB_ENV
+
+      - name: Upload ITSM-Templates-WKS Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_itsm_wks_release.outputs.upload_url }}
+          asset_path: ${{ env.package_path }}
+          asset_name: ITSM-Templates-WKS.zip
+          asset_content_type: application/zip
+
   build-and-release-itsm-templates-svr:
     runs-on: ubuntu-latest
 
