@@ -5,6 +5,8 @@ on:
   push:
     tags:
       - 'v*'  # Trigger on tags starting with 'v'
+  schedule:
+    - cron: '0 12 * * *'  # Runs daily at 12:00 UTC
 
 permissions:
   contents: write
