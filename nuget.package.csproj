@@ -1,13 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- No Build Configuration -->
+    <NoBuild>true</NoBuild>
     <TargetFramework>net7.0</TargetFramework>
 
     <!-- Package Metadata -->
-    <PackageId>NuGet-Windows-SysAdmin-ProSuite</PackageId>
+    <PackageId>Windows-SysAdmin-ProSuite</PackageId>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
-    <Product>NuGet-Windows-SysAdmin-ProSuite</Product>
+    <Product>Windows-SysAdmin-ProSuite</Product>
     <Description>
       Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, 
       and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy, 
@@ -23,28 +25,15 @@
 
   <!-- Include Necessary Files -->
   <ItemGroup>
-    <!-- Include all files under NuGet-Windows-SysAdmin-ProSuite in contentFiles/any/any/NuGet-Windows-SysAdmin-ProSuite/ -->
-    <None Include="NuGet-Windows-SysAdmin-ProSuite/**" Pack="true">
-      <PackagePath>contentFiles/any/any/NuGet-Windows-SysAdmin-ProSuite/</PackagePath>
-      <BuildAction>None</BuildAction>
-      <CopyToOutput>true</CopyToOutput>
-    </None>
-
-    <!-- Include LICENSE in contentFiles/any/any/ -->
-    <None Include="LICENSE" Pack="true">
-      <PackagePath>contentFiles/any/any/</PackagePath>
-      <BuildAction>None</BuildAction>
-      <CopyToOutput>false</CopyToOutput>
-    </None>
-
-    <!-- The root README.md is handled by the workflow and placed in NuGet-Windows-SysAdmin-ProSuite/main-README.md -->
-    <!-- No need to include it here to avoid duplication -->
+    <Content Include="Windows-SysAdmin-ProSuite/**" PackagePath="content/" />
+    <Content Include="LICENSE" PackagePath="content/" />
+    <Content Include="main-README.md" PackagePath="content/" />
   </ItemGroup>
 
   <!-- Exclude Unnecessary Files -->
   <ItemGroup>
-    <None Remove="NuGet-Windows-SysAdmin-ProSuite/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
-    <None Remove=".github/**" />
+    <Content Remove="Windows-SysAdmin-ProSuite/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
+    <Content Remove=".github/**" />
   </ItemGroup>
 
 </Project>
