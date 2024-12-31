@@ -164,6 +164,10 @@ jobs:
               # Create a directory to store renamed READMEs-Files-Package
               mkdir -p READMEs-Files-Package
 
+              # A) Copy and rename the main README.md to main-README.md
+              cp README.md READMEs-Files-Package/main-README.md
+              echo "Copied and renamed README.md to READMEs-Files-Package/main-README.md"
+
               # Find all README.md files excluding the root README.md
               find . -type f -iname "README.md" ! -path "./README.md" | while read -r file; do
                 # Extract the immediate parent directory name
