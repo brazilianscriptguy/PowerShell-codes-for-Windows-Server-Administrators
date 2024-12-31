@@ -48,28 +48,25 @@ jobs:
   gather-and-publish-readmes:
     needs: cleanup-old-releases
     runs-on: ubuntu-latest
+
     steps:
-      # Step 1: Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3.6.0
         with:
           submodules: true
           fetch-depth: 0
 
-      # Step 2: Install Dependencies
       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y zip jq gh
 
-      # Step 3: Configure GitHub CLI for Git Operations
       - name: Configure GitHub CLI for Git Operations
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh auth setup-git
 
-      # Step 4: Handle Existing Release and Tag
       - name: Handle Existing Release and Tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -83,7 +80,6 @@ jobs:
             echo "No existing release for tag '${TAG_NAME}'. Proceeding..."
           fi
 
-      # Step 5: Create New Release
       - name: Create New Release
         id: create_release
         uses: actions/create-release@v1.6.0
@@ -97,47 +93,44 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 6: Find and Rename README.md Files
       - name: Find and Rename README.md Files
         run: |
           echo "Searching for README.md files..."
           # Create a directory to store renamed READMEs
           mkdir -p readmes
-          
+
           # Find all README.md files excluding the root README.md
           find . -type f -name "README.md" ! -path "./README.md" | while read -r file; do
             # Extract the immediate parent directory name
             repo_dir=$(dirname "$file")
             repo_name=$(basename "$repo_dir")
-            
+
             # Define the new filename
             new_filename="${repo_name}-README.md"
-            
+
             # Copy and rename the README.md to the readmes directory
             cp "$file" "readmes/$new_filename"
             echo "Copied and renamed $file to readmes/$new_filename"
           done
 
-      # Step 7: Verify Renamed Files
-      - name: Verify Renamed README.md Files
+      - name: Verify Renamed Files
         run: |
           echo "Renamed README.md files:"
           ls -l readmes/
 
-      # Step 8: Package Renamed Files into a Zip Archive
-      - name: Package Renamed READMEs
+      - name: Package Renamed READMEs into a Zip Archive
         run: |
           echo "Packaging renamed README.md files into readmes.zip..."
           mkdir -p artifacts
           zip -r artifacts/readmes.zip readmes/
           echo "Packaging complete."
+          echo "package_path=$(pwd)/artifacts/readmes.zip" >> $GITHUB_ENV
 
-      # Step 9: Upload Zip Archive as Release Asset
-      - name: Upload README Zip to Release
+      - name: Upload Zip Archive as Release Asset
         uses: actions/upload-release-asset@v1.1.5
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/readmes.zip
+          asset_path: ${{ env.package_path }}
           asset_name: readmes.zip
           asset_content_type: application/zip
         env:
