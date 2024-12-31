@@ -41,23 +41,8 @@ jobs:
           echo "version=$version" >> $GITHUB_ENV
           echo "Generated version: $version"
 
-      # Step 4: Generate Placeholder .dll (if missing)
-      - name: Generate Placeholder .dll (if missing)
-        run: |
-          set -euo pipefail
-          if [ ! -f bin/Debug/net7.0/PlaceholderDll.dll ]; then
-              echo "Generating placeholder .dll..."
-              mkdir -p PlaceholderDll
-              cd PlaceholderDll
-              dotnet new classlib -n PlaceholderDll
-              sed -i 's/<PropertyGroup>/<PropertyGroup><Version>1.0.0<\/Version>/' PlaceholderDll/PlaceholderDll.csproj
-              dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../bin/Debug/net7.0
-              cd ..
-              echo "Placeholder .dll generated."
-          fi
-
-      # Step 5: Prepare NuGet Package Files
-      - name: Prepare NuGet Package Files
+      # Step 4: Prepare NuGet Package Content
+      - name: Prepare NuGet Package Content
         run: |
           set -euo pipefail
           echo "Preparing files for NuGet package..."
@@ -71,7 +56,7 @@ jobs:
           cp LICENSE NuGetPackageContent/ || echo "LICENSE not found. Skipping."
           echo "Files prepared for packaging."
 
-      # Step 6: Pack NuGet Package
+      # Step 5: Pack NuGet Package
       - name: Pack NuGet Package
         run: |
           set -euo pipefail
@@ -94,14 +79,14 @@ jobs:
           echo "Package successfully created: $package_file"
           echo "package_path=$package_file" >> $GITHUB_ENV
 
-      # Step 7: Inspect NuGet Package Contents
+      # Step 6: Inspect NuGet Package Contents
       - name: Inspect NuGet Package Contents
         run: |
           echo "Inspecting the NuGet package contents..."
           package_file="${{ env.package_path }}"
           unzip -l "$package_file"
 
-      # Step 8: Publish to GitHub Packages
+      # Step 7: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
