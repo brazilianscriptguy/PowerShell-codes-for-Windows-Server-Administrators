@@ -87,6 +87,7 @@ jobs:
           - name: SysAdminToolSet
             tag: SysAdminToolSet
             release_zip: SysAdminToolSet.zip
+            body: "Latest automated specialized release for SysAdminToolSet."
             build_steps: |
               mkdir -p SysAdminToolSet
               cp LICENSE SysAdminToolSet/ || true
@@ -128,6 +129,7 @@ jobs:
           - name: ITSM-Templates-WKS
             tag: ITSM-Templates-WKS
             release_zip: ITSM-Templates-WKS.zip
+            body: "Latest automated specialized release for ITSM-Templates-WKS."
             build_steps: |
               mkdir -p artifacts
               zip -r artifacts/ITSM-Templates-WKS.zip ITSM-Templates-WKS
@@ -135,6 +137,7 @@ jobs:
           - name: ITSM-Templates-SVR
             tag: ITSM-Templates-SVR
             release_zip: ITSM-Templates-SVR.zip
+            body: "Latest automated specialized release for ITSM-Templates-SVR."
             build_steps: |
               mkdir -p artifacts
               zip -r artifacts/ITSM-Templates-SVR.zip ITSM-Templates-SVR
@@ -142,6 +145,7 @@ jobs:
           - name: GPOs-Templates
             tag: GPOs-Templates
             release_zip: GPOs-Templates.zip
+            body: "Latest automated specialized release for GPOs-Templates."
             build_steps: |
               mkdir -p GPOs-Templates
               cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/ || true
@@ -152,6 +156,7 @@ jobs:
           - name: READMEs-Files-Package
             tag: READMEs-Files-Package
             release_zip: READMEs-Files-Package.zip
+            body: "This release contains all README.md files from the repository, renamed as $repository-name-README.md."
             build_steps: |
               set -e
               set -x
@@ -248,7 +253,7 @@ jobs:
           set -x
           echo "Building and packaging ${{ matrix.release.name }}..."
           ${{ matrix.release.build_steps }}
-          echo "package_path=$(pwd)/${{ matrix.release.release_zip }}" >> $GITHUB_ENV
+          echo "package_path=$(pwd)/artifacts/${{ matrix.release.release_zip }}" >> $GITHUB_ENV
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -283,17 +288,3 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-    ```
-
-### **Detailed Breakdown of Enhancements**
-
-1. **Matrix Expansion for `READMEs-Files-Package`**:
-   - **Added Entry**: Included `READMEs-Files-Package` as a new entry in the `matrix.release` array. This ensures it undergoes the same cleanup, build, and release processes as the other specialized packages.
-   - **Build Steps**: Defined comprehensive build steps for `READMEs-Files-Package`, mirroring the structure and robustness of other release build steps.
-   - **Release Description**: Added a `body` field specific to `READMEs-Files-Package` to ensure the correct description is used during release creation.
-
-2. **Consistent Cleanup Process**:
-   - **Managed Tags Update**: Updated the `MANAGED_TAGS` array in the `cleanup-old-releases` job to include `READMEs-Files-Package`. This ensures that older README releases are cleaned up alongside the specialized packages.
-
-   ```bash
-   MANAGED_TAGS=("SysAdminToolSet" "ITSM-Templates-WKS" "ITSM-Templates-SVR" "GPOs-Templates" "READMEs-Files-Package")
