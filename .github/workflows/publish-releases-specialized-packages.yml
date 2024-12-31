@@ -11,12 +11,18 @@ permissions:
   contents: write
 
 jobs:
+  # ================================
+  # Job: Cleanup Old Build Releases
+  # ================================
   cleanup-old-releases:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0  # Fetch all history for accurate tag detection
 
       - name: Install Dependencies
         run: |
@@ -69,6 +75,9 @@ jobs:
             done
           done
 
+  # ================================
+  # Job: Build and Release Specialized Packages
+  # ================================
   build-and-release:
     needs: cleanup-old-releases
     runs-on: ubuntu-latest
@@ -198,3 +207,221 @@ jobs:
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ================================
+  # Job: Cleanup Old README Releases
+  # ================================
+  cleanup-old-readme-releases:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0  # Fetch all history for accurate tag detection
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq gh
+
+      - name: Configure GitHub CLI for Git Operations
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth setup-git
+
+      - name: Delete Older README Files Releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          echo "Fetching all 'READMEs-Files-Package' releases..."
+          releases=$(gh release list --limit 100 --json tagName,createdAt,name | \
+            jq -r '.[] | select(.name == "READMEs-Files-Package") | "\(.createdAt) \(.tagName)"')
+
+          if [ -z "$releases" ]; then
+            echo "No existing 'READMEs-Files-Package' releases found. No cleanup needed."
+            exit 0
+          fi
+
+          # Sort releases by createdAt ascending (oldest first)
+          sorted_releases=$(echo "$releases" | sort)
+
+          # Extract all tag names except the latest release
+          releases_to_delete=$(echo "$sorted_releases" | head -n -1 | awk '{print $2}')
+
+          if [ -z "$releases_to_delete" ]; then
+            echo "Only one 'READMEs-Files-Package' release exists. No older releases to delete."
+            exit 0
+          fi
+
+          for tag in $releases_to_delete; do
+            echo "Deleting old README Files release and tag: $tag"
+            gh release delete "$tag" -y || { echo "Failed to delete release: $tag"; exit 1; }
+            git push --delete origin "$tag" || { echo "Failed to delete remote tag: $tag"; exit 1; }
+          done
+
+  # ================================
+  # Job: Gather and Publish README Files
+  # ================================
+  gather-and-publish-readmes:
+    needs: cleanup-old-readme-releases
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip jq gh
+
+      - name: Configure GitHub CLI for Git Operations
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth setup-git
+
+      - name: Handle Existing README Release and Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          TAG_NAME="readmes-files-package"
+
+          # Check if release with this tag exists
+          if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
+            echo "Release for tag '${TAG_NAME}' exists. Deleting..."
+            gh release delete "${TAG_NAME}" -y || { echo "Failed to delete release: $TAG_NAME"; exit 1; }
+            git push --delete origin "${TAG_NAME}" || { echo "Failed to delete tag: $TAG_NAME"; exit 1; }
+          else
+            echo "No existing release for tag '${TAG_NAME}'. Proceeding..."
+          fi
+
+          # Delete the local tag if it exists
+          if git rev-parse "${TAG_NAME}" >/dev/null 2>&1; then
+            echo "Deleting local tag '${TAG_NAME}'..."
+            git tag -d "${TAG_NAME}" || { echo "Failed to delete local tag: $TAG_NAME"; exit 1; }
+          else
+            echo "No local tag '${TAG_NAME}' exists. Proceeding..."
+          fi
+
+          # Create the tag pointing to the current commit
+          git tag "${TAG_NAME}" || { echo "Failed to create tag: $TAG_NAME"; exit 1; }
+          git push origin "${TAG_NAME}" || { echo "Failed to push tag: $TAG_NAME"; exit 1; }
+
+          # Set TAG_NAME as environment variable
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
+
+      - name: Create New README Release
+        id: create_readme_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: "READMEs-Files-Package"
+          body: |
+            This release contains all `README.md` files from the repository, renamed as `$repository-name-README.md`.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Find and Rename README.md Files
+        run: |
+          set -e
+          set -x
+          echo "Searching for README.md files..."
+          # Create a directory to store renamed READMEs
+          mkdir -p readmes
+
+          # Find all README.md files excluding the root README.md
+          find . -type f -iname "README.md" ! -path "./README.md" | while read -r file; do
+            # Extract the immediate parent directory name
+            repo_dir=$(dirname "$file")
+            repo_name=$(basename "$repo_dir")
+
+            # Define the new filename
+            new_filename="${repo_name}-README.md"
+
+            # Copy and rename the README.md to the readmes directory
+            cp "$file" "readmes/$new_filename"
+            echo "Copied and renamed $file to readmes/$new_filename"
+          done
+
+          # List the files in readmes directory
+          echo "Files in readmes directory:"
+          ls -l readmes/
+
+      - name: Check if Readmes Directory has Files
+        run: |
+          set -e
+          file_count=$(ls -1 readmes/*.md 2>/dev/null | wc -l)
+          echo "Number of README files: $file_count"
+          if [ "$file_count" -eq 0 ]; then
+            echo "No README.md files found to package."
+            exit 1
+          fi
+
+      - name: Package Renamed READMEs into a Zip Archive
+        run: |
+          set -e
+          set -x
+          echo "Packaging renamed README.md files into READMEs-Files-Package.zip..."
+          mkdir -p artifacts
+          # Zip the readmes directory into a ZIP file
+          zip -r artifacts/READMEs-Files-Package.zip readmes
+          echo "Packaging complete."
+          echo "package_path=$(pwd)/artifacts/READMEs-Files-Package.zip" >> $GITHUB_ENV
+
+      - name: Verify Zip Integrity
+        run: |
+          set -e
+          set -x
+          echo "Verifying zip integrity..."
+          unzip -t artifacts/READMEs-Files-Package.zip
+          if [ $? -eq 0 ]; then
+            echo "Zip file is valid."
+          else
+            echo "Zip file is corrupted."
+            exit 1
+          fi
+
+      - name: Upload README Zip to Release
+        uses: actions/upload-release-asset@v1.0.0
+        with:
+          upload_url: ${{ steps.create_readme_release.outputs.upload_url }}
+          asset_path: ${{ env.package_path }}
+          asset_name: READMEs-Files-Package.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Optional: Notify Slack on Success
+      - name: Notify Slack on Success
+        if: success()
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "✅ READMEs-Files-Package release ${{ github.ref_name }} published successfully."
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      # Optional: Notify Slack on Failure
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "❌ READMEs-Files-Package release ${{ github.ref_name }} failed to publish."
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
