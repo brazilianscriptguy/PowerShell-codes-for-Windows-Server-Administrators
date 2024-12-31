@@ -59,14 +59,19 @@ jobs:
               # Copy only Launch-Script-AutomaticMenu.ps1 to SysAdminToolSet root
               cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/ || true
 
-              # Copy all directories except excluded ones, explicitly excluding GroupPolicyObjects-Templates
-              for dir in */ ; do
-                  dir=${dir%/}
-                  if [[ "$dir" != "SysAdminToolSet" && "$dir" != ".git" && "$dir" != ".github" && "$dir" != "ITSM-Templates-WKS" && "$dir" != "ITSM-Templates-SVR" && "$dir" != "Core-ScriptLibrary" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" && "$dir" != "GroupPolicyObjects-Templates" ]]; then
-                      mkdir -p SysAdminToolSet/"$dir"
-                      cp -r "$dir"/* SysAdminToolSet/"$dir"/ || true
-                  fi
-              done
+              # Use rsync to copy all directories except excluded ones
+              rsync -av --exclude='SysAdminToolSet' \
+                      --exclude='.git' \
+                      --exclude='.github' \
+                      --exclude='ITSM-Templates-WKS' \
+                      --exclude='ITSM-Templates-SVR' \
+                      --exclude='Core-ScriptLibrary' \
+                      --exclude='SysAdmin-Tools/GroupPolicyObjects-Templates' \
+                      --exclude='GroupPolicyObjects-Templates' \
+                      ./ SysAdminToolSet/
+
+              # **Ensure GroupPolicyObjects-Templates is not present**
+              rm -rf SysAdminToolSet/GroupPolicyObjects-Templates
 
               zip -r SysAdminToolSet.zip SysAdminToolSet
 
