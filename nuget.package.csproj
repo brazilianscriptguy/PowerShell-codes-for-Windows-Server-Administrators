@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- No Build Configuration -->
-    <NoBuild>true</NoBuild>
+    <!-- Removed NoBuild to allow building during pack -->
     <TargetFramework>net7.0</TargetFramework>
 
     <!-- Package Metadata -->
@@ -28,6 +27,7 @@
     <Content Include="Scripts-PowerShell/**" PackagePath="content/" />
     <Content Include="LICENSE" PackagePath="content/" />
     <!-- Removed the root README.md inclusion as it's now handled within Scripts-PowerShell/main-README.md -->
+    <!-- <Content Include="README.md" PackagePath="content/" /> -->
   </ItemGroup>
 
   <!-- Exclude Unnecessary Files -->
