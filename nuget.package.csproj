@@ -14,15 +14,14 @@
     <PackageTags>PowerShell;Automation;SysAdmin</PackageTags>
     <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
     <PackageOutputPath>./artifacts</PackageOutputPath>
-    <Version>$(Version)</Version>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NoWarn>NU5110;NU5111;NU5123</NoWarn>
   </PropertyGroup>
 
-  <!-- Files to Include -->
+  <!-- Include Files for Packaging -->
   <ItemGroup>
-    <Content Include="NuGetPackageContent/**" PackagePath="content/" />
-    <Content Include="README.md" PackagePath="content/" />
-    <Content Include="LICENSE" PackagePath="content/" />
+    <None Include="NuGetPackageContent/**" PackagePath="content/" />
+    <None Include="README.md" PackagePath="content/" />
+    <None Include="LICENSE" PackagePath="content/" />
   </ItemGroup>
 </Project>
