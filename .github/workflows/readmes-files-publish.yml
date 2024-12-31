@@ -11,7 +11,7 @@ permissions:
   contents: write  # Required for creating releases and uploading assets
 
 jobs:
-  cleanup-old-releases:
+  cleanup-old-readme-releases:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,35 +26,44 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq gh zip
 
-      - name: Cache GitHub CLI
-        uses: actions/cache@v3
-        with:
-          path: ~/.local/share/gh
-          key: ${{ runner.os }}-gh-${{ hashFiles('**/gh_version') }}
-          restore-keys: |
-            ${{ runner.os }}-gh-
-
       - name: Configure GitHub CLI for Git Operations
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh auth setup-git
 
-      - name: Delete Older Releases
+      - name: Delete Older README Files Releases
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Fetching all releases..."
-          gh release list --limit 100 --json tagName,createdAt | \
-          jq -r 'sort_by(.createdAt) | .[0:-1] | .[].tagName' | \
-          while read -r tag; do
-            echo "Deleting old release and tag: $tag"
+          echo "Fetching all 'READMEs-Files-Package' releases..."
+          releases=$(gh release list --limit 100 --json tagName,createdAt,name | \
+            jq -r '.[] | select(.name == "READMEs-Files-Package") | "\(.createdAt) \(.tagName)"')
+
+          if [ -z "$releases" ]; then
+            echo "No existing 'READMEs-Files-Package' releases found. No cleanup needed."
+            exit 0
+          fi
+
+          # Sort releases by createdAt ascending (oldest first)
+          sorted_releases=$(echo "$releases" | sort)
+
+          # Extract all tag names except the latest release
+          releases_to_delete=$(echo "$sorted_releases" | head -n -1 | awk '{print $2}')
+
+          if [ -z "$releases_to_delete" ]; then
+            echo "Only one 'READMEs-Files-Package' release exists. No older releases to delete."
+            exit 0
+          fi
+
+          for tag in $releases_to_delete; do
+            echo "Deleting old README Files release and tag: $tag"
             gh release delete "$tag" -y || echo "Failed to delete release: $tag"
             git push --delete origin "$tag" || echo "Failed to delete tag: $tag"
           done
 
   gather-and-publish-readmes:
-    needs: cleanup-old-releases
+    needs: cleanup-old-readme-releases
     runs-on: ubuntu-latest
 
     steps:
@@ -69,14 +78,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y zip jq gh
 
-      - name: Cache GitHub CLI
-        uses: actions/cache@v3
-        with:
-          path: ~/.local/share/gh
-          key: ${{ runner.os }}-gh-${{ hashFiles('**/gh_version') }}
-          restore-keys: |
-            ${{ runner.os }}-gh-
-
       - name: Configure GitHub CLI for Git Operations
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -87,7 +88,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          TAG_NAME="readme-files-package"
+
+          # Check if release with this tag exists
           if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
             echo "Release for tag '${TAG_NAME}' exists. Deleting..."
             gh release delete "${TAG_NAME}" -y || echo "Failed to delete release: ${TAG_NAME}"
@@ -96,12 +99,19 @@ jobs:
             echo "No existing release for tag '${TAG_NAME}'. Proceeding..."
           fi
 
+          # Create the tag pointing to the current commit
+          git tag "${TAG_NAME}"
+          git push origin "${TAG_NAME}"
+
+          # Set TAG_NAME as environment variable
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
+
       - name: Create New Release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: "README Files Release ${{ github.ref_name }}"
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: "READMEs-Files-Package"
           body: |
             This release contains all `README.md` files from the repository, renamed as `$repository-name-README.md`.
           draft: false
@@ -136,18 +146,32 @@ jobs:
 
       - name: Package Renamed READMEs into a Zip Archive
         run: |
-          echo "Packaging renamed README.md files into readmes.zip..."
+          echo "Packaging renamed README.md files into READMEs-Files-Package.zip..."
           mkdir -p artifacts
-          zip -r artifacts/readmes.zip readmes/
+          # Navigate into readmes directory and zip the files
+          cd readmes
+          zip -r ../artifacts/READMEs-Files-Package.zip ./*
+          cd ..
           echo "Packaging complete."
-          echo "package_path=$(pwd)/artifacts/readmes.zip" >> $GITHUB_ENV
+          echo "package_path=$(pwd)/artifacts/READMEs-Files-Package.zip" >> $GITHUB_ENV
+
+      - name: Verify Zip Integrity
+        run: |
+          echo "Verifying zip integrity..."
+          unzip -t artifacts/READMEs-Files-Package.zip
+          if [ $? -eq 0 ]; then
+            echo "Zip file is valid."
+          else
+            echo "Zip file is corrupted."
+            exit 1
+          fi
 
       - name: Upload README Zip to Release
         uses: actions/upload-release-asset@v1.0.0
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/readmes.zip
-          asset_name: readmes.zip
+          asset_path: ${{ env.package_path }}
+          asset_name: READMEs-Files-Package.zip
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -159,7 +183,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "✅ README Files Release ${{ github.ref_name }} published successfully."
+              "text": "✅ READMEs-Files-Package release ${{ github.ref_name }} published successfully."
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -171,7 +195,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "❌ README Files Release ${{ github.ref_name }} failed to publish."
+              "text": "❌ READMEs-Files-Package release ${{ github.ref_name }} failed to publish."
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
