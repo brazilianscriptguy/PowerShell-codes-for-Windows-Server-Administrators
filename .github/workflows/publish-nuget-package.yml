@@ -32,9 +32,8 @@ jobs:
           set -euo pipefail
           major=1
           minor=0
-          build=$(date +'%y%m%d')  # YYMMDD format ensures build fits within valid range
-          revision=$(date +'%H%M')  # HHMM format ensures revision is valid
-          # Ensure revision fits the range (less than 65535)
+          build=$(date +'%j')  # Day of the year (001-365), fits within 16 bits
+          revision=$(date +'%H%M')  # HHMM format (0000–2359)
           if [ "$revision" -ge 65535 ]; then
               revision=$((revision % 65535))
           fi
@@ -50,6 +49,7 @@ jobs:
               mkdir -p PlaceholderDll
               cd PlaceholderDll
               dotnet new classlib -n PlaceholderDll
+              # Inject the version into the csproj file
               sed -i "s|<PropertyGroup>|<PropertyGroup><Version>${{ env.version }}</Version>|" PlaceholderDll/PlaceholderDll.csproj
               dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../Placeholder
               cd ..
