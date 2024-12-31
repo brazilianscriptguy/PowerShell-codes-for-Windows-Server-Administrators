@@ -13,6 +13,23 @@ permissions:
   contents: write
 
 jobs:
+  cleanup-old-releases:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Delete older releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+          gh release list --json tagName,createdAt | jq -r '. | sort_by(.createdAt) | .[0:-1] | .[].tagName' | while read tag; do
+            echo "Deleting old release: $tag"
+            gh release delete "$tag" -y
+          done
+
   build-and-release-SysAdminToolSet:
     runs-on: ubuntu-latest
 
@@ -28,7 +45,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip jq
+          sudo apt-get install -y zip jq gh
 
       # Step 3: Create Tag and Release for SysAdminToolSet
       - name: Generate Tag and Release Names for SysAdminToolSet
@@ -59,9 +76,13 @@ jobs:
           cp LICENSE SysAdminToolSet/ || true
           cp README.md SysAdminToolSet/ || true
 
+          # Copy Launch-Script-AutomaticMenu.ps1 from Core-ScriptLibrary to SysAdminToolSet root
+          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/ || true
+
+          # Copy all directories except excluded ones
           for dir in */ ; do
               dir=${dir%/}
-              if [[ "$dir" != "SysAdminToolSet" && "$dir" != ".git" && "$dir" != ".github" && "$dir" != "ITSM-Templates-WKS" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" && "$dir" != "Core-ScriptLibrary" ]]; then
+              if [[ "$dir" != "SysAdminToolSet" && "$dir" != ".git" && "$dir" != ".github" && "$dir" != "ITSM-Templates-WKS" && "$dir" != "ITSM-Templates-SVR" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
                   mkdir -p SysAdminToolSet/"$dir"
                   cp -r "$dir"/* SysAdminToolSet/"$dir"/ || true
               fi
@@ -141,27 +162,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
-      # Step 2: Install Dependencies
       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y zip jq
 
-      # Step 3: Create Tag and Release for ITSM-Templates-SVR
       - name: Generate Tag and Release Names for ITSM-Templates-SVR
         id: generate_itsm_svr_names
         run: |
           echo "tag_name=ITSM-Templates-SVR" >> $GITHUB_ENV
           echo "release_name=ITSM-Templates-SVR.zip" >> $GITHUB_ENV
 
-      # Step 4: Create a New Release for ITSM-Templates-SVR
       - name: Create New Release for ITSM-Templates-SVR
         if: github.event_name != 'release'
         id: create_itsm_svr_release
@@ -175,14 +192,12 @@ jobs:
           draft: false
           prerelease: false
 
-      # Step 5: Build and Package ITSM-Templates-SVR
       - name: Build and package ITSM-Templates-SVR
         id: package_itsm_svr
         run: |
           zip -r ITSM-Templates-SVR.zip ITSM-Templates-SVR
           echo "package_path=$(pwd)/ITSM-Templates-SVR.zip" >> $GITHUB_ENV
 
-      # Step 6: Upload ITSM-Templates-SVR Release
       - name: Upload ITSM-Templates-SVR Release Asset
         uses: actions/upload-release-asset@v1
         env:
