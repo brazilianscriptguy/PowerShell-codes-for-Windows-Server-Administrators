@@ -53,11 +53,11 @@ jobs:
           echo "Preparing Windows-SysAdmin-ProSuite directory..."
           mkdir -p Windows-SysAdmin-ProSuite
 
-          # A) Copy and rename the main README.md to main-README.md
+          # Copy and rename the main README.md to main-README.md
           cp README.md Windows-SysAdmin-ProSuite/main-README.md || echo "README.md not found"
           echo "Copied and renamed README.md to Windows-SysAdmin-ProSuite/main-README.md"
 
-          # B) Copy LICENSE
+          # Copy LICENSE
           cp LICENSE Windows-SysAdmin-ProSuite/LICENSE || echo "LICENSE not found"
           echo "Copied LICENSE to Windows-SysAdmin-ProSuite/LICENSE"
 
@@ -98,14 +98,6 @@ jobs:
 
           echo "Package successfully created: $package_file"
 
-          # Inspect the contents of the package (Optional but recommended)
-          echo "Inspecting the NuGet package contents..."
-          dotnet nuget locals all --clear  # Clear local caches
-          mkdir -p temp_package
-          tar -xf "$package_file" -C temp_package
-          echo "Contents of the NuGet package:"
-          find temp_package -type f
-
           # Export package path as environment variable
           echo "package_path=$package_file" >> $GITHUB_ENV
 
@@ -123,27 +115,3 @@ jobs:
             --skip-duplicate || { echo "Failed to publish package"; exit 1; }
 
           echo "NuGet package published successfully."
-
-      # Optional: Notify Slack on Success
-      - name: Notify Slack on Success
-        if: success()  # Only run if previous steps succeeded
-        uses: slackapi/slack-github-action@v1.23.0
-        with:
-          payload: |
-            {
-              "text": "✅ NuGet package ${{ github.ref_name }} published successfully."
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      # Optional: Notify Slack on Failure
-      - name: Notify Slack on Failure
-        if: failure()  # Only run if previous steps failed
-        uses: slackapi/slack-github-action@v1.23.0
-        with:
-          payload: |
-            {
-              "text": "❌ NuGet package ${{ github.ref_name }} failed to publish."
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
