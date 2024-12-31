@@ -1,5 +1,4 @@
 # .github/workflows/releases-SysAdmin-ITSM-wks-ITSM-svr.yml
-# Build and Release Workflow for Ubuntu-SysAdmin-ProSuite
 name: Build and Release
 
 on:
@@ -111,21 +110,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y zip jq
 
-      - name: Generate Tag and Release Names for ITSM-Templates-WKS
-        id: generate_itsm_wks_names
+      - name: Handle Existing ITSM-Templates-WKS Tag
+        id: handle_itsm_wks_tag
         run: |
-          echo "tag_name=ITSM-Templates-WKS" >> $GITHUB_ENV
-          echo "release_name=ITSM-Templates-WKS.zip" >> $GITHUB_ENV
+          if gh release view ITSM-Templates-WKS > /dev/null 2>&1; then
+            echo "Tag ITSM-Templates-WKS exists. Deleting it."
+            gh release delete ITSM-Templates-WKS -y
+          fi
 
       - name: Create New Release for ITSM-Templates-WKS
-        if: github.event_name != 'release'
         id: create_itsm_wks_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.tag_name }}
-          release_name: ${{ env.release_name }}
+          tag_name: ITSM-Templates-WKS
+          release_name: ITSM-Templates-WKS.zip
           body: "Automated release for ITSM-Templates-WKS."
           draft: false
           prerelease: false
