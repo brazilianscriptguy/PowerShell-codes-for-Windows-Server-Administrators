@@ -32,10 +32,11 @@ jobs:
           set -euo pipefail
           major=1
           minor=0
-          build=$(date +'%y%m%d')  # Valid build format: YYMMDD
-          revision=$(date +'%H%M')  # Valid revision format: HHMM
+          build=$(date +'%y%m%d')  # YYMMDD format ensures build fits within valid range
+          revision=$(date +'%H%M')  # HHMM format ensures revision is valid
+          # Ensure revision fits the range (less than 65535)
           if [ "$revision" -ge 65535 ]; then
-              revision=$((revision % 65535))  # Ensure revision fits within .NET limits
+              revision=$((revision % 65535))
           fi
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
