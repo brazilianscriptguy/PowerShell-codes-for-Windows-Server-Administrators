@@ -32,8 +32,8 @@ jobs:
           set -euo pipefail
           major=1
           minor=0
-          build=$(date +'%j')  # Day of the year (001-365), fits within 16 bits
-          revision=$(date +'%H%M')  # HHMM format (0000–2359)
+          build=$(date +'%j')  # Day of the year (001-365)
+          revision=$(date +'%H%M')  # HHMM format
           if [ "$revision" -ge 65535 ]; then
               revision=$((revision % 65535))
           fi
@@ -44,16 +44,16 @@ jobs:
       - name: Generate Placeholder .dll (if missing)
         run: |
           set -euo pipefail
-          if [ ! -f Placeholder/PlaceholderDll.dll ]; then
+          if [ ! -f bin/Debug/net7.0/PlaceholderDll.dll ]; then
               echo "Generating placeholder .dll..."
               mkdir -p PlaceholderDll
               cd PlaceholderDll
               dotnet new classlib -n PlaceholderDll
               # Inject the version into the csproj file
               sed -i "s|<PropertyGroup>|<PropertyGroup><Version>${{ env.version }}</Version>|" PlaceholderDll/PlaceholderDll.csproj
-              dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../Placeholder
+              dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../bin/Debug/net7.0
               cd ..
-              echo "Placeholder .dll generated and stored in Placeholder/PlaceholderDll.dll"
+              echo "Placeholder .dll generated and stored in bin/Debug/net7.0/PlaceholderDll.dll"
           fi
 
       - name: Pack NuGet Package
@@ -63,7 +63,7 @@ jobs:
           mkdir -p ./artifacts  # Ensure artifacts directory exists
 
           # Pack the NuGet package
-          dotnet pack nuget.package.csproj --output ./artifacts -p:NoBuild=true -p:PackageVersion=${{ env.version }}
+          dotnet pack nuget.package.csproj --output ./artifacts -p:PackageVersion=${{ env.version }}
 
           echo "Checking artifacts directory..."
           ls ./artifacts
