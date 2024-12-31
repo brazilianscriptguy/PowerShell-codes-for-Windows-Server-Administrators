@@ -1,4 +1,4 @@
-# .github/workflows/releases-SysAdmin-ITSM-wks-ITSM-svr-gpo.yml
+# .github/workflows/releases-SysAdmin-ITSM-wks-ITSM-svr.yml
 # Build and Release Workflow for Ubuntu-SysAdmin-ProSuite
 name: Build and Release
 
