@@ -29,17 +29,44 @@ jobs:
         run: |
           gh auth setup-git
 
-      - name: Delete Older Releases
+      - name: Delete Older Releases for Managed Tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Fetching all releases..."
-          gh release list --limit 100 --json tagName,createdAt | \
-          jq -r 'sort_by(.createdAt) | .[0:-1] | .[].tagName' | \
-          while read -r tag; do
-            echo "Deleting old release and tag: $tag"
-            gh release delete "$tag" -y || echo "Failed to delete release: $tag"
-            git push --delete origin "$tag" || echo "Failed to delete tag: $tag"
+          set -e  # Exit immediately if a command exits with a non-zero status
+          echo "Fetching managed release tags from the matrix..."
+
+          # Define the list of managed tags based on the matrix
+          MANAGED_TAGS=("SysAdminToolSet" "ITSM-Templates-WKS" "ITSM-Templates-SVR" "GPOs-Templates")
+
+          for tag in "${MANAGED_TAGS[@]}"; do
+            echo "Processing tag: $tag"
+
+            # Fetch all releases with the current tag
+            releases=$(gh release list --tag "$tag" --limit 100 --json name,tagName,createdAt | \
+              jq -r --arg tag "$tag" '.[] | select(.tagName == $tag) | "\(.createdAt) \(.tagName)"')
+
+            if [ -z "$releases" ]; then
+              echo "No releases found for tag '$tag'. Skipping cleanup."
+              continue
+            fi
+
+            # Sort releases by createdAt ascending (oldest first)
+            sorted_releases=$(echo "$releases" | sort)
+
+            # Extract all tag names except the latest release
+            releases_to_delete=$(echo "$sorted_releases" | head -n -1 | awk '{print $2}')
+
+            if [ -z "$releases_to_delete" ]; then
+              echo "Only one release exists for tag '$tag'. No older releases to delete."
+              continue
+            fi
+
+            for old_tag in $releases_to_delete; do
+              echo "Deleting old release and tag: $old_tag"
+              gh release delete "$old_tag" -y || { echo "Failed to delete release: $old_tag"; exit 1; }
+              git push --delete origin "$old_tag" || { echo "Failed to delete tag: $old_tag"; exit 1; }
+            done
           done
 
   build-and-release:
@@ -130,12 +157,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if gh release view "${{ matrix.release.tag }}" > /dev/null 2>&1; then
-            echo "Release for tag '${{ matrix.release.tag }}' exists. Deleting..."
-            gh release delete "${{ matrix.release.tag }}" -y || echo "Failed to delete release: ${{ matrix.release.tag }}"
-            git push --delete origin "${{ matrix.release.tag }}" || echo "Failed to delete tag: ${{ matrix.release.tag }}"
+          set -e
+          TAG_NAME="${{ matrix.release.tag }}"
+
+          # Check if release with this tag exists
+          if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
+            echo "Release for tag '${TAG_NAME}' exists. Deleting..."
+            gh release delete "${TAG_NAME}" -y || { echo "Failed to delete release: $TAG_NAME"; exit 1; }
+            git push --delete origin "${TAG_NAME}" || { echo "Failed to delete tag: $TAG_NAME"; exit 1; }
           else
-            echo "No existing release for tag '${{ matrix.release.tag }}'. Proceeding..."
+            echo "No existing release for tag '${TAG_NAME}'. Proceeding..."
           fi
 
       - name: Create New Release
@@ -152,6 +183,8 @@ jobs:
 
       - name: Build and Package ${{ matrix.release.name }}
         run: |
+          set -e
+          set -x
           echo "Building and packaging ${{ matrix.release.name }}..."
           ${{ matrix.release.build_steps }}
           echo "package_path=$(pwd)/${{ matrix.release.release_zip }}" >> $GITHUB_ENV
