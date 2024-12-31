@@ -1,11 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <!-- No Build Configuration -->
-    <NoBuild>true</NoBuild>
+    <NoBuild>true</NoBuild> <!-- Prevents build-related errors -->
     <TargetFramework>net7.0</TargetFramework>
-
-    <!-- Package Metadata -->
     <PackageId>Windows-SysAdmin-ProSuite</PackageId>
     <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
@@ -23,17 +19,10 @@
     <NoWarn>NU5110;NU5111;NU5123</NoWarn>
   </PropertyGroup>
 
-  <!-- Include Necessary Files -->
+  <!-- Include scripts and config files in the package -->
   <ItemGroup>
-    <Content Include="Windows-SysAdmin-ProSuite/**" PackagePath="content/" />
+    <Content Include="Scripts/**" PackagePath="content/" />
     <Content Include="LICENSE" PackagePath="content/" />
-    <Content Include="main-README.md" PackagePath="content/" />
+    <Content Include="README.md" PackagePath="content/" />
   </ItemGroup>
-
-  <!-- Exclude Unnecessary Files -->
-  <ItemGroup>
-    <Content Remove="Windows-SysAdmin-ProSuite/SysAdmin-Tools/GroupPolicyObjects-Templates/**" />
-    <Content Remove=".github/**" />
-  </ItemGroup>
-
 </Project>
