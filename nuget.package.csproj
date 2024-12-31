@@ -1,29 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <!-- Disable Build -->
     <NoBuild>true</NoBuild>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <TargetFramework>net7.0</TargetFramework>
     <PackageId>Windows-SysAdmin-ProSuite</PackageId>
-    <Authors>Luiz Hamilton</Authors>
+    <Authors>Luiz Hamilton Silva</Authors>
     <Company>Brazilianscriptguy</Company>
+    <Product>Windows-SysAdmin-ProSuite</Product>
     <Description>
-      A comprehensive suite of PowerShell scripts and configuration files for Windows System Administration.
+      Comprehensive collection of PowerShell and configuration scripts for managing Windows systems.
     </Description>
-    <Version>$(Version)</Version>
+    <PackageTags>PowerShell;Automation;SysAdmin</PackageTags>
+    <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
     <PackageOutputPath>./artifacts</PackageOutputPath>
+    <Version>$(Version)</Version>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NoWarn>NU5110;NU5111;NU5123</NoWarn>
   </PropertyGroup>
 
+  <!-- Files to Include -->
   <ItemGroup>
-    <!-- Include Scripts -->
-    <Content Include="Scripts/**" PackagePath="content/" />
-    <!-- Include Config Files -->
-    <Content Include="Config/**" PackagePath="content/" />
-    <!-- Include Documentation -->
-    <Content Include="Docs/**" PackagePath="content/" />
-    <!-- Include README and LICENSE -->
+    <Content Include="NuGetPackageContent/**" PackagePath="content/" />
     <Content Include="README.md" PackagePath="content/" />
     <Content Include="LICENSE" PackagePath="content/" />
   </ItemGroup>
-
 </Project>
