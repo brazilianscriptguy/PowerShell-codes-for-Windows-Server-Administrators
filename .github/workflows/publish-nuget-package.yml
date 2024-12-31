@@ -50,25 +50,29 @@ jobs:
         run: |
           set -euo pipefail  # Enable strict error handling
 
-          echo "Preparing Scripts-PowerShell directory..."
-          mkdir -p Scripts-PowerShell
+          echo "Preparing Windows-SysAdmin-ProSuite directory..."
+          mkdir -p Windows-SysAdmin-ProSuite
 
-          # Copy LICENSE and README.md
-          cp LICENSE Scripts-PowerShell/ || echo "LICENSE not found"
-          cp README.md Scripts-PowerShell/ || echo "README.md not found"
+          # A) Copy and rename the main README.md to main-README.md
+          cp README.md Windows-SysAdmin-ProSuite/main-README.md || echo "README.md not found"
+          echo "Copied and renamed README.md to Windows-SysAdmin-ProSuite/main-README.md"
+
+          # B) Copy LICENSE
+          cp LICENSE Windows-SysAdmin-ProSuite/LICENSE || echo "LICENSE not found"
+          echo "Copied LICENSE to Windows-SysAdmin-ProSuite/LICENSE"
 
           # Process all valid directories
           for dir in */ ; do
               dir=${dir%/}  # Remove trailing slash
-              if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
+              if [[ "$dir" != "Windows-SysAdmin-ProSuite" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
                   echo "Processing directory: $dir"
-                  mkdir -p "Scripts-PowerShell/$dir"
-                  cp -r "$dir/"* "Scripts-PowerShell/$dir/" || echo "Skipping $dir"
+                  mkdir -p "Windows-SysAdmin-ProSuite/$dir"
+                  cp -r "$dir/"* "Windows-SysAdmin-ProSuite/$dir/" || echo "Skipping $dir"
               fi
           done
 
-          echo "Prepared files:"
-          find Scripts-PowerShell -type f  # List all files in Scripts-PowerShell
+          echo "Prepared files in Windows-SysAdmin-ProSuite:"
+          find Windows-SysAdmin-ProSuite -type f
 
       # Step 5: Build and Pack NuGet Package
       - name: Build and Pack
@@ -86,13 +90,21 @@ jobs:
           ls ./artifacts  # List contents of artifacts directory
 
           # Find the package file
-          package_file=$(find ./artifacts -maxdepth 1 -name "Scripts-PowerShell*.nupkg" | head -n 1)
+          package_file=$(find ./artifacts -maxdepth 1 -name "Windows-SysAdmin-ProSuite*.nupkg" | head -n 1)
           if [[ -z "$package_file" ]]; then
               echo "Error: Package not found in ./artifacts"
               exit 1
           fi
 
           echo "Package successfully created: $package_file"
+
+          # Inspect the contents of the package (Optional but recommended)
+          echo "Inspecting the NuGet package contents..."
+          dotnet nuget locals all --clear  # Clear local caches
+          mkdir -p temp_package
+          tar -xf "$package_file" -C temp_package
+          echo "Contents of the NuGet package:"
+          find temp_package -type f
 
           # Export package path as environment variable
           echo "package_path=$package_file" >> $GITHUB_ENV
