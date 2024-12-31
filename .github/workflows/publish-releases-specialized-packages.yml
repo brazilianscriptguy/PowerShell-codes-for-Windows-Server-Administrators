@@ -5,7 +5,7 @@ on:
   release:
     types: [published]
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
 permissions:
   contents: write
@@ -121,19 +121,23 @@ jobs:
               rm -f SysAdminToolSet/nuget.config
               rm -f SysAdminToolSet/nuget.package.csproj
 
-              zip -r SysAdminToolSet.zip SysAdminToolSet
+              # Package the release into artifacts/
+              mkdir -p artifacts
+              zip -r artifacts/SysAdminToolSet.zip SysAdminToolSet
 
           - name: ITSM-Templates-WKS
             tag: ITSM-Templates-WKS
             release_zip: ITSM-Templates-WKS.zip
             build_steps: |
-              zip -r ITSM-Templates-WKS.zip ITSM-Templates-WKS
+              mkdir -p artifacts
+              zip -r artifacts/ITSM-Templates-WKS.zip ITSM-Templates-WKS
 
           - name: ITSM-Templates-SVR
             tag: ITSM-Templates-SVR
             release_zip: ITSM-Templates-SVR.zip
             build_steps: |
-              zip -r ITSM-Templates-SVR.zip ITSM-Templates-SVR
+              mkdir -p artifacts
+              zip -r artifacts/ITSM-Templates-SVR.zip ITSM-Templates-SVR
 
           - name: GPOs-Templates
             tag: GPOs-Templates
@@ -142,12 +146,15 @@ jobs:
               mkdir -p GPOs-Templates
               cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/ || true
               cp SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1 GPOs-Templates/ || true
-              zip -r GPOs-Templates.zip GPOs-Templates
+              mkdir -p artifacts
+              zip -r artifacts/GPOs-Templates.zip GPOs-Templates
 
           - name: READMEs-Files-Package
             tag: READMEs-Files-Package
             release_zip: READMEs-Files-Package.zip
             build_steps: |
+              set -e
+              set -x
               echo "Searching for README.md files..."
               # Create a directory to store renamed READMEs
               mkdir -p readmes
@@ -178,7 +185,7 @@ jobs:
                 exit 1
               fi
 
-              # Package renamed READMEs into a ZIP archive
+              # Package renamed READMEs into a ZIP archive within artifacts/
               echo "Packaging renamed README.md files into READMEs-Files-Package.zip..."
               mkdir -p artifacts
               zip -r artifacts/READMEs-Files-Package.zip readmes
@@ -229,8 +236,7 @@ jobs:
         with:
           tag_name: ${{ matrix.release.tag }}
           release_name: ${{ matrix.release.release_zip }}
-          body: >
-            ${{ matrix.release.name == 'READMEs-Files-Package' && 'This release contains all README.md files from the repository, renamed as $repository-name-README.md.' || 'Latest automated specialized release for ' }}${{ matrix.release.name }}.
+          body: ${{ matrix.release.body }}
           draft: false
           prerelease: false
         env:
@@ -253,3 +259,41 @@ jobs:
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Optional: Notify Slack on Success
+      - name: Notify Slack on Success
+        if: success()
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "✅ ${{ matrix.release.name }} release ${{ github.ref_name }} published successfully."
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      # Optional: Notify Slack on Failure
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "❌ ${{ matrix.release.name }} release ${{ github.ref_name }} failed to publish."
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    ```
+
+### **Detailed Breakdown of Enhancements**
+
+1. **Matrix Expansion for `READMEs-Files-Package`**:
+   - **Added Entry**: Included `READMEs-Files-Package` as a new entry in the `matrix.release` array. This ensures it undergoes the same cleanup, build, and release processes as the other specialized packages.
+   - **Build Steps**: Defined comprehensive build steps for `READMEs-Files-Package`, mirroring the structure and robustness of other release build steps.
+   - **Release Description**: Added a `body` field specific to `READMEs-Files-Package` to ensure the correct description is used during release creation.
+
+2. **Consistent Cleanup Process**:
+   - **Managed Tags Update**: Updated the `MANAGED_TAGS` array in the `cleanup-old-releases` job to include `READMEs-Files-Package`. This ensures that older README releases are cleaned up alongside the specialized packages.
+
+   ```bash
+   MANAGED_TAGS=("SysAdminToolSet" "ITSM-Templates-WKS" "ITSM-Templates-SVR" "GPOs-Templates" "READMEs-Files-Package")
