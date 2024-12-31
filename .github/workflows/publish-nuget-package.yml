@@ -58,10 +58,11 @@ jobs:
           set -euo pipefail
           echo "Preparing files for NuGet package..."
           mkdir -p NuGetPackageContent
+          cp -r BlueTeam-Tools NuGetPackageContent/ || true
           cp -r Core-ScriptLibrary NuGetPackageContent/ || true
-          cp -r SysAdmin-Tools NuGetPackageContent/ || true
           cp -r ITSM-Templates-SVR NuGetPackageContent/ || true
           cp -r ITSM-Templates-WKS NuGetPackageContent/ || true
+          cp -r SysAdmin-Tools NuGetPackageContent/ || true
           cp README.md NuGetPackageContent/ || true
           cp LICENSE NuGetPackageContent/ || true
           echo "Files prepared for packaging."
