@@ -1,2 +1,0 @@
-- name: Debug Project File
-  run: cat nuget.package.csproj
