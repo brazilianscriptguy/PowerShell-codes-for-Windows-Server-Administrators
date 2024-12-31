@@ -23,13 +23,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq gh
 
-      - name: Authenticate GitHub CLI
+      - name: Configure GitHub CLI for Git Operations
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "${GITHUB_TOKEN}" | gh auth login --with-token
+          gh auth setup-git
 
       - name: Delete Older Releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Fetching all releases..."
           gh release list --limit 100 --json tagName,createdAt | \
@@ -101,13 +103,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y zip jq gh
 
-      - name: Authenticate GitHub CLI
+      - name: Configure GitHub CLI for Git Operations
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "${GITHUB_TOKEN}" | gh auth login --with-token
+          gh auth setup-git
 
       - name: Handle Existing Release and Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if gh release view "${{ matrix.release.tag }}" > /dev/null 2>&1; then
             echo "Release for tag '${{ matrix.release.tag }}' exists. Deleting..."
