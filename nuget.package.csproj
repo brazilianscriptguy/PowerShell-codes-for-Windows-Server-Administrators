@@ -1,29 +1,22 @@
-
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <NoBuild>true</NoBuild>
     <TargetFramework>net7.0</TargetFramework>
+    <NoBuild>true</NoBuild>
     <PackageId>Windows-SysAdmin-ProSuite</PackageId>
-    <Authors>Luiz Hamilton Silva</Authors>
-    <Company>Brazilianscriptguy</Company>
-    <Product>Windows-SysAdmin-ProSuite</Product>
-    <Description>
-      Comprehensive suite of PowerShell and VBScript tools automates Active Directory tasks, advances forensic analysis, 
-      and simplifies script creation. Designed for managing Windows Servers and workstations, these tools ensure accuracy, 
-      efficiency, scalability, and adaptability.
-    </Description>
-    <PackageTags>PowerShell;Automation;SysAdmin;ActiveDirectory;Forensics</PackageTags>
-    <RepositoryUrl>https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite</RepositoryUrl>
-    <PackageOutputPath>./artifacts</PackageOutputPath>
+    <Authors>Your Name</Authors>
+    <Company>Your Company</Company>
+    <Description>A collection of scripts and configuration files for Windows system administration.</Description>
     <Version>$(Version)</Version>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <NoWarn>NU5110;NU5111;NU5123</NoWarn>
+    <PackageOutputPath>./artifacts</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Placeholder/PlaceholderDll.dll" PackagePath="lib/net7.0/" />
+    <!-- Include the placeholder DLL -->
+    <Content Include="bin/Debug/net7.0/PlaceholderDll.dll" PackagePath="lib/net7.0" />
+    <!-- Include other scripts and config files -->
     <Content Include="Scripts/**" PackagePath="content/" />
-    <Content Include="LICENSE" PackagePath="content/" />
-    <Content Include="README.md" PackagePath="content/" />
+    <Content Include="Config/**" PackagePath="content/" />
   </ItemGroup>
+
 </Project>
