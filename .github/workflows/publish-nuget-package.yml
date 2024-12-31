@@ -2,145 +2,96 @@ name: Publish NuGet Package
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
-  schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
-  # ================================
-  # Job: Cleanup Old Releases
-  # ================================
-  cleanup-old-releases:
+  publish:
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq gh
+      # Step 2: Set up .NET
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0'
 
-      - name: Configure GitHub CLI for Git Operations
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Step 3: Generate Version
+      - name: Generate Version
+        id: generate_version
         run: |
-          gh auth setup-git
+          major=1
+          minor=0
+          build=$(date +'%Y%m%d')
+          revision=$(date +'%H%M')
+          version="$major.$minor.$build.$revision"
+          echo "version=$version" >> $GITHUB_ENV
+          echo "Generated version: $version"
 
-      - name: Delete Older Releases
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Step 4: Prepare Files
+      - name: Prepare Files
         run: |
-          set -e
-          MANAGED_TAGS=("SysAdminToolSet" "ITSM-Templates-WKS" "ITSM-Templates-SVR" "GPOs-Templates" "READMEs-Files-Package" "NuGet-Package")
-          for tag in "${MANAGED_TAGS[@]}"; do
-            releases=$(gh release list --tag "$tag" --limit 100 --json tagName,createdAt | jq -r '.[] | .tagName' | head -n -1)
-            for old_tag in $releases; do
-              gh release delete "$old_tag" -y || true
-              git push --delete origin "$old_tag" || true
-            done
+          echo "Preparing Windows-SysAdmin-ProSuite directory..."
+          mkdir -p Windows-SysAdmin-ProSuite
+
+          # Copy LICENSE and README.md
+          cp LICENSE Windows-SysAdmin-ProSuite/ || echo "LICENSE not found"
+          cp README.md Windows-SysAdmin-ProSuite/ || echo "README.md not found"
+
+          # Process all valid directories
+          for dir in */ ; do
+              dir=${dir%/}
+              if [[ "$dir" != "Windows-SysAdmin-ProSuite" && "$dir" != ".github" && "$dir" != "SysAdmin-Tools/GroupPolicyObjects-Templates" ]]; then
+                  echo "Processing directory: $dir"
+                  mkdir -p "Windows-SysAdmin-ProSuite/$dir"
+                  cp -r "$dir/"* "Windows-SysAdmin-ProSuite/$dir/" || echo "Skipping $dir"
+              fi
           done
 
-  # ================================
-  # Job: Build and Release Specialized Packages
-  # ================================
-  build-and-release:
-    needs: cleanup-old-releases
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        task:
-          - name: Specialized Releases
-            matrix:
-              release:
-                - name: SysAdminToolSet
-                  tag: SysAdminToolSet
-                  release_zip: SysAdminToolSet.zip
-                  build_steps: |
-                    mkdir -p SysAdminToolSet
-                    cp LICENSE SysAdminToolSet/
-                    zip -r artifacts/SysAdminToolSet.zip SysAdminToolSet
+          echo "Prepared files:"
+          find Windows-SysAdmin-ProSuite -type f
 
-                - name: ITSM-Templates-WKS
-                  tag: ITSM-Templates-WKS
-                  release_zip: ITSM-Templates-WKS.zip
-                  build_steps: |
-                    mkdir -p artifacts
-                    zip -r artifacts/ITSM-Templates-WKS.zip ITSM-Templates-WKS
-
-          - name: NuGet Package
-            matrix:
-              release:
-                - name: NuGet-Package
-                  tag: NuGet-Package
-                  build_steps: |
-                    mkdir -p ./artifacts
-                    dotnet restore nuget.package.csproj
-                    dotnet pack nuget.package.csproj --output ./artifacts -p:Version=${{ env.version }}
-                    if [[ ! -f ./artifacts/Windows-SysAdmin-ProSuite*.nupkg ]]; then
-                      echo "NuGet package creation failed."
-                      exit 1
-                    fi
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0
-
-      - name: Install Dependencies
+      # Step 5: Build and Pack NuGet Package
+      - name: Build and Pack
         run: |
-          sudo apt-get update
-          sudo apt-get install -y zip jq gh
+          set -euo pipefail
+          echo "Packing the NuGet package..."
+          mkdir -p ./artifacts  # Ensure artifacts directory exists
 
-      - name: Configure GitHub CLI for Git Operations
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh auth setup-git
+          # Build and pack the NuGet package with the generated version
+          dotnet restore nuget.package.csproj
+          dotnet pack nuget.package.csproj --output ./artifacts -p:PackageVersion=${{ env.version }}
+          
+          echo "Checking artifacts directory..."
+          ls ./artifacts  # List contents of artifacts directory
 
-      - name: Handle Existing Release and Tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if gh release view "${{ matrix.release.tag }}" > /dev/null 2>&1; then
-            gh release delete "${{ matrix.release.tag }}" -y || true
-            git push --delete origin "${{ matrix.release.tag }}" || true
+          # Find the package file
+          package_file=$(find ./artifacts -maxdepth 1 -name "Windows-SysAdmin-ProSuite*.nupkg" | head -n 1)
+          if [[ -z "$package_file" ]]; then
+              echo "Error: Package not found in ./artifacts"
+              exit 1
           fi
 
-      - name: Create New Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ matrix.release.tag }}
-          release_name: ${{ matrix.release.release_zip }}
-          body: ${{ matrix.release.body }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "Package successfully created: $package_file"
 
-      - name: Build and Package
+          # Export package path as environment variable
+          echo "package_path=$package_file" >> $GITHUB_ENV
+
+      # Step 6: Publish Package to GitHub Packages
+      - name: Publish to GitHub Packages
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -e
-          mkdir -p artifacts
-          ${{ matrix.release.build_steps }}
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/${{ matrix.release.release_zip }}
-          asset_name: ${{ matrix.release.release_zip }}
-          asset_content_type: application/zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          dotnet nuget push ${{ env.package_path }} --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
