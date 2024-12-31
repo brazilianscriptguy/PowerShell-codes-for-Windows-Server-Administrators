@@ -5,18 +5,24 @@ on:
   release:
     types: [published]
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
 permissions:
   contents: write
 
 jobs:
+  # ================================
+  # Job: Cleanup Old Specialized Releases
+  # ================================
   cleanup-old-releases:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0  # Fetch all history for accurate tag detection
 
       - name: Install Dependencies
         run: |
@@ -29,19 +35,49 @@ jobs:
         run: |
           gh auth setup-git
 
-      - name: Delete Older Releases
+      - name: Delete Older Releases for Managed Tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Fetching all releases..."
-          gh release list --limit 100 --json tagName,createdAt | \
-          jq -r 'sort_by(.createdAt) | .[0:-1] | .[].tagName' | \
-          while read -r tag; do
-            echo "Deleting old release and tag: $tag"
-            gh release delete "$tag" -y || echo "Failed to delete release: $tag"
-            git push --delete origin "$tag" || echo "Failed to delete tag: $tag"
+          set -e  # Exit immediately if a command exits with a non-zero status
+          echo "Fetching managed release tags from the matrix..."
+
+          # Define the list of managed tags based on the matrix
+          MANAGED_TAGS=("SysAdminToolSet" "ITSM-Templates-WKS" "ITSM-Templates-SVR" "GPOs-Templates" "READMEs-Files-Package")
+
+          for tag in "${MANAGED_TAGS[@]}"; do
+            echo "Processing tag: $tag"
+
+            # Fetch all releases with the current tag
+            releases=$(gh release list --tag "$tag" --limit 100 --json name,tagName,createdAt | \
+              jq -r --arg tag "$tag" '.[] | select(.tagName == $tag) | "\(.createdAt) \(.tagName)"')
+
+            if [ -z "$releases" ]; then
+              echo "No releases found for tag '$tag'. Skipping cleanup."
+              continue
+            fi
+
+            # Sort releases by createdAt ascending (oldest first)
+            sorted_releases=$(echo "$releases" | sort)
+
+            # Extract all tag names except the latest release
+            releases_to_delete=$(echo "$sorted_releases" | head -n -1 | awk '{print $2}')
+
+            if [ -z "$releases_to_delete" ]; then
+              echo "Only one release exists for tag '$tag'. No older releases to delete."
+              continue
+            fi
+
+            for old_tag in $releases_to_delete; do
+              echo "Deleting old release and tag: $old_tag"
+              gh release delete "$old_tag" -y || { echo "Failed to delete release: $old_tag"; exit 1; }
+              git push --delete origin "$old_tag" || { echo "Failed to delete tag: $old_tag"; exit 1; }
+            done
           done
 
+  # ================================
+  # Job: Build and Release Specialized Packages
+  # ================================
   build-and-release:
     needs: cleanup-old-releases
     runs-on: ubuntu-latest
@@ -51,6 +87,7 @@ jobs:
           - name: SysAdminToolSet
             tag: SysAdminToolSet
             release_zip: SysAdminToolSet.zip
+            body: "Latest automated specialized release for SysAdminToolSet."
             build_steps: |
               mkdir -p SysAdminToolSet
               cp LICENSE SysAdminToolSet/ || true
@@ -85,28 +122,84 @@ jobs:
               rm -f SysAdminToolSet/nuget.config
               rm -f SysAdminToolSet/nuget.package.csproj
 
-              zip -r SysAdminToolSet.zip SysAdminToolSet
+              # Package the release into artifacts/
+              mkdir -p artifacts
+              zip -r artifacts/SysAdminToolSet.zip SysAdminToolSet
 
           - name: ITSM-Templates-WKS
             tag: ITSM-Templates-WKS
             release_zip: ITSM-Templates-WKS.zip
+            body: "Latest automated specialized release for ITSM-Templates-WKS."
             build_steps: |
-              zip -r ITSM-Templates-WKS.zip ITSM-Templates-WKS
+              mkdir -p artifacts
+              zip -r artifacts/ITSM-Templates-WKS.zip ITSM-Templates-WKS
 
           - name: ITSM-Templates-SVR
             tag: ITSM-Templates-SVR
             release_zip: ITSM-Templates-SVR.zip
+            body: "Latest automated specialized release for ITSM-Templates-SVR."
             build_steps: |
-              zip -r ITSM-Templates-SVR.zip ITSM-Templates-SVR
+              mkdir -p artifacts
+              zip -r artifacts/ITSM-Templates-SVR.zip ITSM-Templates-SVR
 
           - name: GPOs-Templates
             tag: GPOs-Templates
             release_zip: GPOs-Templates.zip
+            body: "Latest automated specialized release for GPOs-Templates."
             build_steps: |
               mkdir -p GPOs-Templates
               cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/ || true
               cp SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1 GPOs-Templates/ || true
-              zip -r GPOs-Templates.zip GPOs-Templates
+              mkdir -p artifacts
+              zip -r artifacts/GPOs-Templates.zip GPOs-Templates
+
+          - name: READMEs-Files-Package
+            tag: READMEs-Files-Package
+            release_zip: READMEs-Files-Package.zip
+            body: "This release contains all README.md files from the repository, renamed as $repository-name-README.md."
+            build_steps: |
+              set -e
+              set -x
+              echo "Searching for README.md files..."
+              # Create a directory to store renamed READMEs
+              mkdir -p readmes
+
+              # Find all README.md files excluding the root README.md
+              find . -type f -iname "README.md" ! -path "./README.md" | while read -r file; do
+                # Extract the immediate parent directory name
+                repo_dir=$(dirname "$file")
+                repo_name=$(basename "$repo_dir")
+
+                # Define the new filename
+                new_filename="${repo_name}-README.md"
+
+                # Copy and rename the README.md to the readmes directory
+                cp "$file" "readmes/$new_filename"
+                echo "Copied and renamed $file to readmes/$new_filename"
+              done
+
+              # List the files in readmes directory
+              echo "Files in readmes directory:"
+              ls -l readmes/
+
+              # Check if readmes directory has files
+              file_count=$(ls -1 readmes/*.md 2>/dev/null | wc -l)
+              echo "Number of README files: $file_count"
+              if [ "$file_count" -eq 0 ]; then
+                echo "No README.md files found to package."
+                exit 1
+              fi
+
+              # Package renamed READMEs into a ZIP archive within artifacts/
+              echo "Packaging renamed README.md files into READMEs-Files-Package.zip..."
+              mkdir -p artifacts
+              zip -r artifacts/READMEs-Files-Package.zip readmes
+              echo "Packaging complete."
+              echo "package_path=$(pwd)/artifacts/READMEs-Files-Package.zip" >> $GITHUB_ENV
+
+              # Verify ZIP integrity
+              echo "Verifying zip integrity..."
+              unzip -t artifacts/READMEs-Files-Package.zip
 
     steps:
       - name: Checkout Repository
@@ -130,12 +223,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if gh release view "${{ matrix.release.tag }}" > /dev/null 2>&1; then
-            echo "Release for tag '${{ matrix.release.tag }}' exists. Deleting..."
-            gh release delete "${{ matrix.release.tag }}" -y || echo "Failed to delete release: ${{ matrix.release.tag }}"
-            git push --delete origin "${{ matrix.release.tag }}" || echo "Failed to delete tag: ${{ matrix.release.tag }}"
+          set -e
+          TAG_NAME="${{ matrix.release.tag }}"
+
+          # Check if release with this tag exists
+          if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
+            echo "Release for tag '${TAG_NAME}' exists. Deleting..."
+            gh release delete "${TAG_NAME}" -y || { echo "Failed to delete release: $TAG_NAME"; exit 1; }
+            git push --delete origin "${TAG_NAME}" || { echo "Failed to delete tag: $TAG_NAME"; exit 1; }
           else
-            echo "No existing release for tag '${{ matrix.release.tag }}'. Proceeding..."
+            echo "No existing release for tag '${TAG_NAME}'. Proceeding..."
           fi
 
       - name: Create New Release
@@ -144,7 +241,7 @@ jobs:
         with:
           tag_name: ${{ matrix.release.tag }}
           release_name: ${{ matrix.release.release_zip }}
-          body: "Latest automated specialized release for ${{ matrix.release.name }}."
+          body: ${{ matrix.release.body }}
           draft: false
           prerelease: false
         env:
@@ -152,9 +249,11 @@ jobs:
 
       - name: Build and Package ${{ matrix.release.name }}
         run: |
+          set -e
+          set -x
           echo "Building and packaging ${{ matrix.release.name }}..."
           ${{ matrix.release.build_steps }}
-          echo "package_path=$(pwd)/${{ matrix.release.release_zip }}" >> $GITHUB_ENV
+          echo "package_path=$(pwd)/artifacts/${{ matrix.release.release_zip }}" >> $GITHUB_ENV
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -165,3 +264,27 @@ jobs:
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Optional: Notify Slack on Success
+      - name: Notify Slack on Success
+        if: success()
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "✅ ${{ matrix.release.name }} release ${{ github.ref_name }} published successfully."
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      # Optional: Notify Slack on Failure
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "❌ ${{ matrix.release.name }} release ${{ github.ref_name }} failed to publish."
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
