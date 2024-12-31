@@ -161,8 +161,12 @@ jobs:
               set -e
               set -x
               echo "Searching for README.md files..."
-              # Create a directory to store renamed READMEs
-              mkdir -p readmes
+              # Create a directory to store renamed READMEs-Files-Package
+              mkdir -p READMEs-Files-Package
+
+              # A) Copy and rename the main README.md to main-README.md
+              cp README.md READMEs-Files-Package/main-README.md
+              echo "Copied and renamed README.md to READMEs-Files-Package/main-README.md"
 
               # Find all README.md files excluding the root README.md
               find . -type f -iname "README.md" ! -path "./README.md" | while read -r file; do
@@ -173,17 +177,17 @@ jobs:
                 # Define the new filename
                 new_filename="${repo_name}-README.md"
 
-                # Copy and rename the README.md to the readmes directory
-                cp "$file" "readmes/$new_filename"
-                echo "Copied and renamed $file to readmes/$new_filename"
+                # Copy and rename the README.md to the READMEs-Files-Package directory
+                cp "$file" "READMEs-Files-Package/$new_filename"
+                echo "Copied and renamed $file to READMEs-Files-Package/$new_filename"
               done
 
-              # List the files in readmes directory
-              echo "Files in readmes directory:"
-              ls -l readmes/
+              # List the files in READMEs-Files-Package directory
+              echo "Files in READMEs-Files-Package directory:"
+              ls -l READMEs-Files-Package/
 
-              # Check if readmes directory has files
-              file_count=$(ls -1 readmes/*.md 2>/dev/null | wc -l)
+              # Check if READMEs-Files-Package directory has files
+              file_count=$(ls -1 READMEs-Files-Package/*.md 2>/dev/null | wc -l)
               echo "Number of README files: $file_count"
               if [ "$file_count" -eq 0 ]; then
                 echo "No README.md files found to package."
@@ -193,7 +197,7 @@ jobs:
               # Package renamed READMEs into a ZIP archive within artifacts/
               echo "Packaging renamed README.md files into READMEs-Files-Package.zip..."
               mkdir -p artifacts
-              zip -r artifacts/READMEs-Files-Package.zip readmes
+              zip -r artifacts/READMEs-Files-Package.zip READMEs-Files-Package
               echo "Packaging complete."
               echo "package_path=$(pwd)/artifacts/READMEs-Files-Package.zip" >> $GITHUB_ENV
 
