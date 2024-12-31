@@ -3,20 +3,27 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <NoBuild>true</NoBuild>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageId>Windows-SysAdmin-ProSuite</PackageId>
-    <Authors>Your Name</Authors>
-    <Company>Your Company</Company>
-    <Description>A collection of scripts and configuration files for Windows system administration.</Description>
+    <Authors>Luiz Hamilton</Authors>
+    <Company>Brazilianscriptguy</Company>
+    <Description>
+      A comprehensive suite of PowerShell scripts and configuration files for Windows System Administration.
+    </Description>
     <Version>$(Version)</Version>
     <PackageOutputPath>./artifacts</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Include the placeholder DLL -->
-    <Content Include="bin/Debug/net7.0/PlaceholderDll.dll" PackagePath="lib/net7.0" />
-    <!-- Include other scripts and config files -->
+    <!-- Include Scripts -->
     <Content Include="Scripts/**" PackagePath="content/" />
+    <!-- Include Config Files -->
     <Content Include="Config/**" PackagePath="content/" />
+    <!-- Include Documentation -->
+    <Content Include="Docs/**" PackagePath="content/" />
+    <!-- Include README and LICENSE -->
+    <Content Include="README.md" PackagePath="content/" />
+    <Content Include="LICENSE" PackagePath="content/" />
   </ItemGroup>
 
 </Project>
