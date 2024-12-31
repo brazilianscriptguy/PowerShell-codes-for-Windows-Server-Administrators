@@ -1,10 +1,10 @@
 name: Publish NuGet Package
 
 on:
-  workflow_dispatch:  # Allows manual triggering of the workflow
+  workflow_dispatch:
   push:
     tags:
-      - 'v*'  # Triggers the workflow on push events with tags matching 'v*'
+      - 'v*'
 
 permissions:
   contents: write
