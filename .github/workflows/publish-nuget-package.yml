@@ -32,10 +32,10 @@ jobs:
           set -euo pipefail
           major=1
           minor=0
-          build=$(date +'%y%m%d')  # Shortened year to fit valid build range
-          revision=$(($(date +'%H') * 60 + $(date +'%M')))  # Ensure revision < 65535
+          build=$(date +'%y%m%d')  # Ensure build is YYYYMMDD format
+          revision=$(date +'%H%M') # Use HHMM to generate a valid revision
           if [ "$revision" -ge 65535 ]; then
-              revision=$((revision % 65535))  # Wrap around to ensure validity
+              revision=$((revision % 65535))  # Wrap around to valid range
           fi
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
@@ -49,9 +49,9 @@ jobs:
               mkdir -p PlaceholderDll
               cd PlaceholderDll
               dotnet new classlib -n PlaceholderDll
-              # Modify the version directly in the project file
-              sed -i "s/<Version>.*<\/Version>/<Version>${{ env.version }}<\/Version>/" PlaceholderDll/PlaceholderDll.csproj
-              dotnet build PlaceholderDll/PlaceholderDll.csproj -p:Version=${{ env.version }} -o ../Placeholder
+              # Inject the version string directly into the project file
+              sed -i "s|<PropertyGroup>|<PropertyGroup><Version>${{ env.version }}</Version>|" PlaceholderDll/PlaceholderDll.csproj
+              dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../Placeholder
               cd ..
               echo "Placeholder .dll generated and stored in Placeholder/PlaceholderDll.dll"
           fi
