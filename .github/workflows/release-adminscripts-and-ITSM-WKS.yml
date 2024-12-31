@@ -1,0 +1,139 @@
+# .github/workflows/release-adminscripts-and-ITSM-WKS.yml
+# Build and Release Workflow for Ubuntu-SysAdmin-ProSuite
+name: Build and Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release-scripts-powershell:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      # Step 2: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip jq
+
+      # Step 3: Create Tag and Release for Scripts-PowerShell
+      - name: Generate Tag and Release Names for Scripts-PowerShell
+        id: generate_scripts_names
+        run: |
+          echo "tag_name=Scripts-PowerShell" >> $GITHUB_ENV
+          echo "release_name=Scripts-PowerShell.zip" >> $GITHUB_ENV
+
+      # Step 4: Create a New Release for Scripts-PowerShell
+      - name: Create New Release for Scripts-PowerShell
+        if: github.event_name != 'release'
+        id: create_scripts_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.tag_name }}
+          release_name: ${{ env.release_name }}
+          body: "Automated release for Scripts-PowerShell."
+          draft: false
+          prerelease: false
+
+      # Step 5: Build and Package Scripts-PowerShell
+      - name: Build and package Scripts-PowerShell
+        id: package_scripts
+        run: |
+          mkdir -p Scripts-PowerShell
+          cp LICENSE Scripts-PowerShell/ || true
+          cp README.md Scripts-PowerShell/ || true
+          cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 Scripts-PowerShell/ || true
+
+          for dir in */ ; do
+              dir=${dir%/}
+              if [[ "$dir" != "Scripts-PowerShell" && "$dir" != ".git" && "$dir" != ".github" && "$dir" != "ITSM-Templates-WKS" ]]; then
+                  mkdir -p Scripts-PowerShell/"$dir"
+                  cp -r "$dir"/* Scripts-PowerShell/"$dir"/ || true
+              fi
+          done
+
+          zip -r Scripts-PowerShell.zip Scripts-PowerShell
+          echo "package_path=$(pwd)/Scripts-PowerShell.zip" >> $GITHUB_ENV
+
+      # Step 6: Upload Scripts-PowerShell Release
+      - name: Upload Scripts-PowerShell Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_scripts_release.outputs.upload_url }}
+          asset_path: ${{ env.package_path }}
+          asset_name: Scripts-PowerShell.zip
+          asset_content_type: application/zip
+
+  build-and-release-itsm-templates:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      # Step 2: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip jq
+
+      # Step 3: Create Tag and Release for ITSM-Templates-WKS
+      - name: Generate Tag and Release Names for ITSM-Templates-WKS
+        id: generate_itsm_names
+        run: |
+          echo "tag_name=ITSM-Templates-WKS" >> $GITHUB_ENV
+          echo "release_name=ITSM-Templates-WKS.zip" >> $GITHUB_ENV
+
+      # Step 4: Create a New Release for ITSM-Templates-WKS
+      - name: Create New Release for ITSM-Templates-WKS
+        if: github.event_name != 'release'
+        id: create_itsm_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.tag_name }}
+          release_name: ${{ env.release_name }}
+          body: "Automated release for ITSM-Templates-WKS."
+          draft: false
+          prerelease: false
+
+      # Step 5: Build and Package ITSM-Templates-WKS
+      - name: Build and package ITSM-Templates-WKS
+        id: package_itsm
+        run: |
+          zip -r ITSM-Templates-WKS.zip ITSM-Templates-WKS
+          echo "package_path=$(pwd)/ITSM-Templates-WKS.zip" >> $GITHUB_ENV
+
+      # Step 6: Upload ITSM-Templates-WKS Release
+      - name: Upload ITSM-Templates-WKS Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_itsm_release.outputs.upload_url }}
+          asset_path: ${{ env.package_path }}
+          asset_name: ITSM-Templates-WKS.zip
+          asset_content_type: application/zip
