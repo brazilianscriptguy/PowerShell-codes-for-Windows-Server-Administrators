@@ -45,11 +45,27 @@ jobs:
         run: |
           sed -i "s|<version>.*</version>|<version>${{ env.version }}</version>|g" nuget.package.nuspec
 
+      - name: Generate Placeholder .dll (if missing)
+        run: |
+          set -euo pipefail
+          mkdir -p NuGetPackageContent/lib/net7.0
+          if [ ! -f "NuGetPackageContent/lib/net7.0/PlaceholderDll.dll" ]; then
+              echo "Generating placeholder .dll..."
+              mkdir -p PlaceholderDll
+              cd PlaceholderDll
+              dotnet new classlib -n PlaceholderDll
+              sed -i 's/<PropertyGroup>/<PropertyGroup><Version>1.0.0<\/Version>/' PlaceholderDll/PlaceholderDll.csproj
+              dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../NuGetPackageContent/lib/net7.0
+              cd ..
+              echo "Placeholder .dll generated at NuGetPackageContent/lib/net7.0/PlaceholderDll.dll"
+          else
+              echo "Placeholder .dll already exists."
+          fi
+
       - name: Prepare Files for NuGet Package
         run: |
           set -euo pipefail
           mkdir -p NuGetPackageContent
-          mkdir -p NuGetPackageContent/lib/net7.0  # Ensure the target directory exists
           cp -r BlueTeam-Tools NuGetPackageContent/ || true
           cp -r Core-ScriptLibrary NuGetPackageContent/ || true
           cp -r ITSM-Templates-SVR NuGetPackageContent/ || true
@@ -57,7 +73,6 @@ jobs:
           cp -r SysAdmin-Tools NuGetPackageContent/ || true
           cp LICENSE NuGetPackageContent/ || true
           cp README.md NuGetPackageContent/ || true
-          cp PlaceholderDll/PlaceholderDll.dll NuGetPackageContent/lib/net7.0/ || true
 
       - name: Pack NuGet Package
         run: |
