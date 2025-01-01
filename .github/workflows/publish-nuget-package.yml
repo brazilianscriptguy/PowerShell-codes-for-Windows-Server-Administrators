@@ -39,7 +39,7 @@ jobs:
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
 
-      # Step 4: Prepare Files
+      # Step 4: Prepare Files for NuGet Package
       - name: Prepare Files for NuGet Package
         run: |
           set -euo pipefail
@@ -61,7 +61,8 @@ jobs:
           echo "Packing the NuGet package..."
           mkdir -p ./artifacts  # Ensure artifacts directory exists
 
-          dotnet nuget pack nuget.package.nuspec --output ./artifacts -p:PackageVersion=${{ env.version }}
+          # Pack the NuGet package using .NET
+          dotnet pack nuget.package.csproj --output ./artifacts -p:PackageVersion=${{ env.version }}
 
           echo "Checking artifacts directory..."
           ls ./artifacts
