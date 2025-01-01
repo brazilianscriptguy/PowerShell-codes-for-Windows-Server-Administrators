@@ -79,72 +79,37 @@ jobs:
           - name: SysAdminToolSet
             tag: SysAdminToolSet
             release_zip: SysAdminToolSet.zip
-            body: "Latest automated specialized release for SysAdminToolSet."
-            build_steps: |
-              mkdir -p SysAdminToolSet
-
-              # Insert content from 'SysAdmin-Tools', excluding 'GroupPolicyObjects-Templates'
-              rsync -av --exclude='GroupPolicyObjects-Templates' SysAdmin-Tools/ SysAdminToolSet/SysAdmin-Tools/
-
-              # Insert the 'BlueTeam-Tools' folder into the release root
-              rsync -av BlueTeam-Tools/ SysAdminToolSet/BlueTeam-Tools/
-
-              # Copy specific files from 'Core-ScriptLibrary' and 'docs' to the release root
-              cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/
-              cp docs/LICENSE SysAdminToolSet/
-              cp docs/README.md SysAdminToolSet/
-
-              # Ensure excluded items are not copied
-              rm -rf SysAdminToolSet/GroupPolicyObjects-Templates
-
-              # Package the release into artifacts
-              mkdir -p artifacts
-              zip -r artifacts/SysAdminToolSet.zip SysAdminToolSet
+            body: |
+              Latest automated specialized release for SysAdminToolSet.
+              [Download SysAdminToolSet](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/${{ matrix.release.tag }}/${{ matrix.release.release_zip }})
 
           - name: ITSM-Templates-WKS
             tag: ITSM-Templates-WKS
             release_zip: ITSM-Templates-WKS.zip
-            body: "Latest automated specialized release for ITSM-Templates-WKS."
-            build_steps: |
-              mkdir -p artifacts
-              zip -r artifacts/ITSM-Templates-WKS.zip ITSM-Templates-WKS
+            body: |
+              Latest automated specialized release for ITSM-Templates-WKS.
+              [Download ITSM-Templates-WKS](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/${{ matrix.release.tag }}/${{ matrix.release.release_zip }})
 
           - name: ITSM-Templates-SVR
             tag: ITSM-Templates-SVR
             release_zip: ITSM-Templates-SVR.zip
-            body: "Latest automated specialized release for ITSM-Templates-SVR."
-            build_steps: |
-              mkdir -p artifacts
-              zip -r artifacts/ITSM-Templates-SVR.zip ITSM-Templates-SVR
+            body: |
+              Latest automated specialized release for ITSM-Templates-SVR.
+              [Download ITSM-Templates-SVR](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/${{ matrix.release.tag }}/${{ matrix.release.release_zip }})
 
           - name: GPOs-Templates
             tag: GPOs-Templates
             release_zip: GPOs-Templates.zip
-            body: "Latest automated specialized release for GPOs-Templates."
-            build_steps: |
-              mkdir -p GPOs-Templates
-              cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/
-              cp SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1 GPOs-Templates/
-              mkdir -p artifacts
-              zip -r artifacts/GPOs-Templates.zip GPOs-Templates
+            body: |
+              Latest automated specialized release for GPOs-Templates.
+              [Download GPOs-Templates](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/${{ matrix.release.tag }}/${{ matrix.release.release_zip }})
 
           - name: READMEs-Files-Package
             tag: READMEs-Files-Package
             release_zip: READMEs-Files-Package.zip
-            body: "This release contains all README.md files from the repository, renamed as $repository-name-README.md."
-            build_steps: |
-              mkdir -p READMEs-Files-Package
-              cp docs/README.md READMEs-Files-Package/main-README.md
-
-              find . -type f -iname "README.md" ! -path "./docs/README.md" | while read -r file; do
-                repo_dir=$(dirname "$file")
-                repo_name=$(basename "$repo_dir")
-                new_filename="${repo_name}-README.md"
-                cp "$file" "READMEs-Files-Package/$new_filename"
-              done
-
-              mkdir -p artifacts
-              zip -r artifacts/READMEs-Files-Package.zip READMEs-Files-Package
+            body: |
+              This release contains all README.md files from the repository, renamed as $repository-name-README.md.
+              [Download READMEs-Files-Package](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/${{ matrix.release.tag }}/${{ matrix.release.release_zip }})
 
     steps:
       - name: Checkout Repository
