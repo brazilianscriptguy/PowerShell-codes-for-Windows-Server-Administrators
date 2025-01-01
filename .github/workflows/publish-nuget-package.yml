@@ -90,5 +90,5 @@ jobs:
         run: |
           set -euo pipefail
           mono ./nuget.exe push ./artifacts/*.nupkg \
-            -ApiKey ${{ secrets.NUGET_AUTH_TOKEN }} \
+            -ApiKey "${{ secrets.NUGET_AUTH_TOKEN }}" \
             -Source "https://nuget.pkg.github.com/brazilianscriptguy/index.json"
