@@ -54,34 +54,35 @@ jobs:
           cp LICENSE NuGetPackageContent/ || true
           echo "Files prepared for packaging."
 
-      # Step 5: Install NuGet CLI
-      - name: Install NuGet CLI
-        run: |
-          set -euo pipefail
-          wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O nuget
-          chmod +x ./nuget
-          export PATH=$PATH:$(pwd)
+# Step 5: Install NuGet CLI
+- name: Install NuGet CLI
+  run: |
+    set -euo pipefail
+    wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O nuget.exe
+    chmod +x ./nuget.exe
 
-      # Step 6: Pack NuGet Package
-      - name: Pack NuGet Package
-        run: |
-          set -euo pipefail
-          echo "Packing the NuGet package..."
-          mkdir -p ./artifacts  # Ensure artifacts directory exists
-          ./nuget pack nuget.package.nuspec -OutputDirectory ./artifacts
-          
-          echo "Checking artifacts directory..."
-          ls ./artifacts
-          
-          # Verify the package file
-          package_file=$(find ./artifacts -maxdepth 1 -name "Windows-SysAdmin-ProSuite*.nupkg" | head -n 1)
-          if [[ -z "$package_file" ]]; then
-              echo "Error: Package not found in ./artifacts"
-              exit 1
-          fi
-          
-          echo "Package successfully created: $package_file"
-          echo "package_path=$package_file" >> $GITHUB_ENV
+# Step 6: Pack NuGet Package
+- name: Pack NuGet Package
+  run: |
+    set -euo pipefail
+    echo "Packing the NuGet package..."
+    mkdir -p ./artifacts  # Ensure artifacts directory exists
+
+    # Use Mono to execute NuGet CLI
+    mono ./nuget.exe pack nuget.package.nuspec -OutputDirectory ./artifacts
+
+    echo "Checking artifacts directory..."
+    ls ./artifacts
+
+    # Verify the package file
+    package_file=$(find ./artifacts -maxdepth 1 -name "Windows-SysAdmin-ProSuite*.nupkg" | head -n 1)
+    if [[ -z "$package_file" ]]; then
+        echo "Error: Package not found in ./artifacts"
+        exit 1
+    fi
+
+    echo "Package successfully created: $package_file"
+    echo "package_path=$package_file" >> $GITHUB_ENV
 
       # Step 7: Publish to GitHub Packages
       - name: Publish to GitHub Packages
