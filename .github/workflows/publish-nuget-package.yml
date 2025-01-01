@@ -15,67 +15,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
 
-      # Step 2: Install Mono (required for NuGet CLI)
       - name: Install Mono
         run: |
           sudo apt-get update
           sudo apt-get install -y mono-complete
 
-      # Step 3: Install NuGet CLI
       - name: Install NuGet CLI
         run: |
-          set -euo pipefail
           wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O nuget.exe
           chmod +x ./nuget.exe
 
-      # Step 4: Prepare Files for NuGet Package
+      - name: Generate Placeholder .dll
+        run: |
+          mkdir -p PlaceholderDll
+          cd PlaceholderDll
+          dotnet new classlib -n PlaceholderDll
+          dotnet build PlaceholderDll/PlaceholderDll.csproj -o .
+          cd ..
+
       - name: Prepare Files for NuGet Package
         run: |
-          set -euo pipefail
-          echo "Preparing files for NuGet package..."
           mkdir -p NuGetPackageContent
           cp -r BlueTeam-Tools NuGetPackageContent/ || true
           cp -r Core-ScriptLibrary NuGetPackageContent/ || true
           cp -r ITSM-Templates-SVR NuGetPackageContent/ || true
           cp -r ITSM-Templates-WKS NuGetPackageContent/ || true
           cp -r SysAdmin-Tools NuGetPackageContent/ || true
-          cp README.md NuGetPackageContent/ || true
           cp LICENSE NuGetPackageContent/ || true
-          echo "Files prepared for packaging."
+          cp README.md NuGetPackageContent/ || true
+          cp PlaceholderDll/PlaceholderDll.dll NuGetPackageContent/lib/net7.0/ || true
 
-      # Step 5: Pack NuGet Package
       - name: Pack NuGet Package
         run: |
-          set -euo pipefail
-          echo "Packing the NuGet package..."
-          mkdir -p ./artifacts  # Ensure artifacts directory exists
-
-          # Use Mono to execute NuGet CLI
+          mkdir -p ./artifacts
           mono ./nuget.exe pack nuget.package.nuspec -OutputDirectory ./artifacts
-
-          echo "Checking artifacts directory..."
           ls ./artifacts
 
-          # Verify the package file
-          package_file=$(find ./artifacts -maxdepth 1 -name "Windows-SysAdmin-ProSuite*.nupkg" | head -n 1)
-          if [[ -z "$package_file" ]]; then
-              echo "Error: Package not found in ./artifacts"
-              exit 1
-          fi
-
-          echo "Package successfully created: $package_file"
-          echo "package_path=$package_file" >> $GITHUB_ENV
-
-      # Step 6: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mono ./nuget.exe push ${{ env.package_path }} -ApiKey ${{ secrets.GITHUB_TOKEN }} -Source "github" --skip-duplicate
+          mono ./nuget.exe push ./artifacts/*.nupkg -ApiKey ${{ secrets.GITHUB_TOKEN }} -Source "github" --skip-duplicate
