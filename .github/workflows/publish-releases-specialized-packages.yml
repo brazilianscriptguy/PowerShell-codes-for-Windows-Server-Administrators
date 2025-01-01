@@ -109,7 +109,7 @@ jobs:
                       --exclude='.gitattributes' \
                       --exclude='.gitignore' \
                       --exclude='nuget.config' \
-                      --exclude='nuget.package.csproj' \
+                      --exclude='nuget.package.nuspec' \
                       ./ SysAdminToolSet/
 
               # **Ensure GroupPolicyObjects-Templates is not present**
