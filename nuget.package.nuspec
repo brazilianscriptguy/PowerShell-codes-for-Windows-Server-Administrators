@@ -11,13 +11,13 @@
     <tags>SysAdmin PowerShell Scripts Templates BlueTeam</tags>
   </metadata>
   <files>
-    <file src="BlueTeam-Tools/**/*" target="content/BlueTeam-Tools" />
-    <file src="Core-ScriptLibrary/**/*" target="content/Core-ScriptLibrary" />
-    <file src="ITSM-Templates-SVR/**/*" target="content/ITSM-Templates-SVR" />
-    <file src="ITSM-Templates-WKS/**/*" target="content/ITSM-Templates-WKS" />
-    <file src="SysAdmin-Tools/**/*" target="content/SysAdmin-Tools" exclude="SysAdmin-Tools/GroupPolicyObjects-Templates/**/*" />
-    <file src="LICENSE" target="content" />
-    <file src="README.md" target="content" />
-    <file src="PlaceholderDll/PlaceholderDll.dll" target="lib/net7.0" />
+    <file src="NuGetPackageContent/BlueTeam-Tools/**/*" target="content/BlueTeam-Tools" />
+    <file src="NuGetPackageContent/Core-ScriptLibrary/**/*" target="content/Core-ScriptLibrary" />
+    <file src="NuGetPackageContent/ITSM-Templates-SVR/**/*" target="content/ITSM-Templates-SVR" />
+    <file src="NuGetPackageContent/ITSM-Templates-WKS/**/*" target="content/ITSM-Templates-WKS" />
+    <file src="NuGetPackageContent/SysAdmin-Tools/**/*" target="content/SysAdmin-Tools" />
+    <file src="NuGetPackageContent/LICENSE" target="content" />
+    <file src="NuGetPackageContent/README.md" target="content" />
+    <file src="NuGetPackageContent/lib/net7.0/PlaceholderDll.dll" target="lib/net7.0" />
   </files>
 </package>
