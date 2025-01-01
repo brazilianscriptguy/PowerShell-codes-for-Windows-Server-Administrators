@@ -22,22 +22,18 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      # Step 2: Set up .NET SDK
-      - name: Set up .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '7.0'
-
-      # Step 3: Generate Version
-      - name: Generate Valid Version
-        id: generate_version
+      # Step 2: Install Mono (required for NuGet CLI)
+      - name: Install Mono
         run: |
-          major=1
-          minor=0
-          build=$(date +'%y%m%d')
-          revision=$(date +'%H%M')
-          version="$major.$minor.$build.$revision"
-          echo "version=$version" >> $GITHUB_ENV
+          sudo apt-get update
+          sudo apt-get install -y mono-complete
+
+      # Step 3: Install NuGet CLI
+      - name: Install NuGet CLI
+        run: |
+          set -euo pipefail
+          wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O nuget.exe
+          chmod +x ./nuget.exe
 
       # Step 4: Prepare Files for NuGet Package
       - name: Prepare Files for NuGet Package
@@ -61,8 +57,8 @@ jobs:
           echo "Packing the NuGet package..."
           mkdir -p ./artifacts  # Ensure artifacts directory exists
 
-          # Pack the NuGet package using .NET
-          dotnet pack nuget.package.csproj --output ./artifacts -p:PackageVersion=${{ env.version }}
+          # Use Mono to execute NuGet CLI
+          mono ./nuget.exe pack nuget.package.nuspec -OutputDirectory ./artifacts
 
           echo "Checking artifacts directory..."
           ls ./artifacts
@@ -82,4 +78,4 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet nuget push ${{ env.package_path }} --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
+          mono ./nuget.exe push ${{ env.package_path }} -ApiKey ${{ secrets.GITHUB_TOKEN }} -Source "github" --skip-duplicate
