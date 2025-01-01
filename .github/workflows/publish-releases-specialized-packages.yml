@@ -105,6 +105,12 @@ jobs:
                       --exclude='Core-ScriptLibrary' \
                       --exclude='SysAdmin-Tools/GroupPolicyObjects-Templates' \
                       --exclude='GroupPolicyObjects-Templates' \
+                      --exclude='artifacts' \
+                      --exclude='config' \
+                      --exclude='docs' \
+                      --exclude='PlaceholderDll' \
+                      --exclude='icon.png' \
+                      --exclude='NuGet' \
                       --exclude='.editorconfig' \
                       --exclude='.gitattributes' \
                       --exclude='.gitignore' \
