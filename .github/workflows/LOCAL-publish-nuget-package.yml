@@ -1,7 +1,10 @@
-name: Publish NuGet Package LOCAL
+name: Publish NuGet Package
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -12,21 +15,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
 
-      # Install Mono and NuGet CLI
-      - name: Install Mono and NuGet CLI
+      - name: Install Mono
         run: |
           sudo apt-get update
           sudo apt-get install -y mono-complete
+
+      - name: Install NuGet CLI
+        run: |
           wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O nuget.exe
           chmod +x ./nuget.exe
 
-      # Publish NuGet Package
       - name: Publish NuGet Package
-        run: |
-          mono ./nuget.exe push ./artifacts/*.nupkg \
-            -ApiKey ${{ secrets.NUGET_AUTH_TOKEN }} \
-            -Source "https://nuget.pkg.github.com/brazilianscriptguy/index.json"
+        run: mono ./nuget.exe push ./artifacts/*.nupkg -ApiKey "${{ secrets.NUGET_AUTH_TOKEN }}" -Source "https://nuget.pkg.github.com/brazilianscriptguy/index.json"
