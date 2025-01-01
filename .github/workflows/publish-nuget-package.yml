@@ -33,15 +33,18 @@ jobs:
 
       - name: Generate Placeholder .dll
         run: |
+          set -euo pipefail
           mkdir -p PlaceholderDll
           cd PlaceholderDll
           dotnet new classlib -n PlaceholderDll
-          dotnet build PlaceholderDll/PlaceholderDll.csproj -o .
+          dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../NuGetPackageContent/lib/net7.0
           cd ..
 
       - name: Prepare Files for NuGet Package
         run: |
+          set -euo pipefail
           mkdir -p NuGetPackageContent
+          mkdir -p NuGetPackageContent/lib/net7.0  # Ensure the target directory exists
           cp -r BlueTeam-Tools NuGetPackageContent/ || true
           cp -r Core-ScriptLibrary NuGetPackageContent/ || true
           cp -r ITSM-Templates-SVR NuGetPackageContent/ || true
@@ -54,6 +57,7 @@ jobs:
 
       - name: Pack NuGet Package
         run: |
+          set -euo pipefail
           mkdir -p ./artifacts
           mono ./nuget.exe pack nuget.package.nuspec -OutputDirectory ./artifacts
           ls ./artifacts
