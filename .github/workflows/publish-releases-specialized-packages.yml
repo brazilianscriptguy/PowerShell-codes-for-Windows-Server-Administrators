@@ -5,74 +5,14 @@ on:
   release:
     types: [published]
   schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+    - cron: '0 0 * * *'
 
 permissions:
   contents: write
 
 jobs:
-  # ================================
-  # Job: Cleanup Old Specialized Releases
-  # ================================
-  cleanup-old-releases:
-    runs-on: ubuntu-22.04  # Specify the runner version explicitly
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0  # Fetch all history for accurate tag detection
-
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq gh
-
-      - name: Configure GitHub CLI for Git Operations
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh auth setup-git
-
-      - name: Delete Older Releases for Managed Tags
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -e
-          echo "Fetching managed release tags from the matrix..."
-          MANAGED_TAGS=("SysAdminToolSet" "ITSM-Templates-WKS" "ITSM-Templates-SVR" "GPOs-Templates" "READMEs-Files-Package")
-
-          for tag in "${MANAGED_TAGS[@]}"; do
-            echo "Processing tag: $tag"
-            releases=$(gh release list --tag "$tag" --limit 100 --json name,tagName,createdAt | jq -r --arg tag "$tag" '.[] | select(.tagName == $tag) | "\(.createdAt) \(.tagName)"')
-
-            if [ -z "$releases" ]; then
-              echo "No releases found for tag '$tag'. Skipping cleanup."
-              continue
-            fi
-
-            sorted_releases=$(echo "$releases" | sort)
-            releases_to_delete=$(echo "$sorted_releases" | head -n -1 | awk '{print $2}')
-
-            if [ -z "$releases_to_delete" ]; then
-              echo "Only one release exists for tag '$tag'. No older releases to delete."
-              continue
-            fi
-
-            for old_tag in $releases_to_delete; do
-              echo "Deleting old release and tag: $old_tag"
-              gh release delete "$old_tag" -y || { echo "Failed to delete release: $old_tag"; exit 1; }
-              git push --delete origin "$old_tag" || { echo "Failed to delete tag: $old_tag"; exit 1; }
-            done
-          done
-
-  # ================================
-  # Job: Build and Release Specialized Packages
-  # ================================
   build-and-release:
-    needs: cleanup-old-releases
-    runs-on: ubuntu-22.04  # Specify the runner version explicitly
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         release_name: ["SysAdminToolSet", "ITSM-Templates-WKS", "ITSM-Templates-SVR", "GPOs-Templates", "READMEs-Files-Package"]
@@ -83,28 +23,6 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y zip jq gh
-
-      - name: Configure GitHub CLI for Git Operations
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh auth setup-git
-
-      - name: Handle Existing Release and Tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -e
-          TAG_NAME="${{ matrix.release_name }}"
-          if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
-            gh release delete "${TAG_NAME}" -y
-            git push --delete origin "${TAG_NAME}"
-          fi
 
       - name: Build and Package ${{ matrix.release_name }}
         env:
@@ -149,6 +67,7 @@ jobs:
               zip -r artifacts/READMEs-Files-Package.zip READMEs-Files-Package
               ;;
           esac
+          echo "package_path=$(pwd)/artifacts/${{ matrix.release_name }}.zip" >> $GITHUB_ENV
 
       - name: Create New Release
         id: create_release
@@ -166,7 +85,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/${{ matrix.release_name }}.zip
+          asset_path: ${{ env.package_path }}
           asset_name: ${{ matrix.release_name }}.zip
           asset_content_type: application/zip
         env:
