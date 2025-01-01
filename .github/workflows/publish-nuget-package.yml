@@ -47,6 +47,7 @@ jobs:
           cp -r ITSM-Templates-SVR NuGetPackageContent/ || true
           cp -r ITSM-Templates-WKS NuGetPackageContent/ || true
           cp -r SysAdmin-Tools NuGetPackageContent/ || true
+          find NuGetPackageContent/SysAdmin-Tools/GroupPolicyObjects-Templates -type f -exec rm -f {} \; || true
           cp LICENSE NuGetPackageContent/ || true
           cp README.md NuGetPackageContent/ || true
           cp PlaceholderDll/PlaceholderDll.dll NuGetPackageContent/lib/net7.0/ || true
