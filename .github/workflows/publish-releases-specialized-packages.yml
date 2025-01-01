@@ -90,8 +90,8 @@ jobs:
             body: "Latest automated specialized release for SysAdminToolSet."
             build_steps: |
               mkdir -p SysAdminToolSet
-              cp /docs/LICENSE SysAdminToolSet/ || true
-              cp /docs/README.md SysAdminToolSet/ || true
+              cp docs/LICENSE SysAdminToolSet/ || true
+              cp docs/README.md SysAdminToolSet/ || true
 
               # Copy only Launch-Script-AutomaticMenu.ps1 to SysAdminToolSet root
               cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/ || true
