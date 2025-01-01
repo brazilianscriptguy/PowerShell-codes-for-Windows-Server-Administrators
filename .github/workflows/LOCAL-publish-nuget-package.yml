@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  publish:
+  publish-local-nugetpkg:
     runs-on: ubuntu-latest
 
     steps:
