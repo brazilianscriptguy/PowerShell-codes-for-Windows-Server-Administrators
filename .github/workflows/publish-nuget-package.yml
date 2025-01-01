@@ -31,14 +31,19 @@ jobs:
           wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O nuget.exe
           chmod +x ./nuget.exe
 
-      - name: Generate Placeholder .dll
+      - name: Generate Dynamic Version
+        id: generate_version
         run: |
-          set -euo pipefail
-          mkdir -p PlaceholderDll
-          cd PlaceholderDll
-          dotnet new classlib -n PlaceholderDll
-          dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../NuGetPackageContent/lib/net7.0
-          cd ..
+          major=1
+          minor=0
+          build=$(date +'%y%m%d')
+          revision=$(date +'%H%M%S')
+          version="$major.$minor.$build.$revision"
+          echo "version=$version" >> $GITHUB_ENV
+
+      - name: Update Version in Nuspec
+        run: |
+          sed -i "s|<version>.*</version>|<version>${{ env.version }}</version>|g" nuget.package.nuspec
 
       - name: Prepare Files for NuGet Package
         run: |
@@ -50,7 +55,6 @@ jobs:
           cp -r ITSM-Templates-SVR NuGetPackageContent/ || true
           cp -r ITSM-Templates-WKS NuGetPackageContent/ || true
           cp -r SysAdmin-Tools NuGetPackageContent/ || true
-          find NuGetPackageContent/SysAdmin-Tools/GroupPolicyObjects-Templates -type f -exec rm -f {} \; || true
           cp LICENSE NuGetPackageContent/ || true
           cp README.md NuGetPackageContent/ || true
           cp PlaceholderDll/PlaceholderDll.dll NuGetPackageContent/lib/net7.0/ || true
@@ -71,4 +75,4 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mono ./nuget.exe push ./artifacts/*.nupkg -ApiKey ${{ secrets.GITHUB_TOKEN }} -Source "github"
+          mono ./nuget.exe push ./artifacts/*.nupkg -ApiKey ${{ secrets.GITHUB_TOKEN }} -Source "github" -SkipDuplicate
