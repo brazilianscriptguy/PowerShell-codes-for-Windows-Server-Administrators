@@ -3,55 +3,70 @@
 *.tmp
 *.temp
 
-# Ignore cache and backup files
+# Cache and Backup Files
 *.bak
 *.swp
 *.swo
 .cache/
 
-# Directories for binaries and build artifacts
+# Binaries and Build Artifacts
 bin/
 obj/
 artifacts/
 
-# Ignore NuGet-specific files
+# NuGet Files
 .nuget/
 .nuget.targets
 NuGet/
 *.nupkg
 
-# Sensitive information
+# Sensitive Information
 *.pfx
 *.cert
 *.key
 *.env
 
-# System-specific files
+# System-specific Files
 Thumbs.db
 .DS_Store
 desktop.ini
 
-# IDE configuration files
+# IDE Configuration Files
 .vscode/
 .idea/
 *.code-workspace
 
-# Config and generated files
+# Configuration and Generated Files
 config/.editorconfig
 config/.gitattributes
 config/.gitignore
 config/nuget.config
 
-# Documentation
+# Documentation Files
 docs/LICENSE
 docs/README.md
 
-# Placeholder files or temporary project files
+# Placeholder Files or Temporary Project Files
 PlaceholderDll/
+PlaceholderDll/*.csproj
 
-# Exclude compiled libraries
+# Compiled Libraries
 NuGetPackageContent/lib/net7.0/*.dll
 
-# Operating system files
+# Operating System Files
 *.~lock.*
 *.directory
+
+# Temporary or Generated Artifacts During Development
+temp/
+tmp/
+*.bak
+*.old
+
+# Exclude Files for Development Tools
+*.user
+*.suo
+*.ncrunch*
+*.log
+_ReSharper*/
+*.vs/
