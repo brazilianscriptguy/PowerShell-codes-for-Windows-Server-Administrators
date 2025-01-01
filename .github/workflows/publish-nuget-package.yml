@@ -58,6 +58,11 @@ jobs:
           mono ./nuget.exe pack nuget.package.nuspec -OutputDirectory ./artifacts
           ls ./artifacts
 
+      - name: Inspect NuGet Package
+        run: |
+          echo "Inspecting the contents of the package..."
+          unzip -l ./artifacts/Windows-SysAdmin-ProSuite*.nupkg || true
+
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
