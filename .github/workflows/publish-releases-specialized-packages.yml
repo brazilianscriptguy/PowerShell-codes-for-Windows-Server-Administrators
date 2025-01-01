@@ -39,28 +39,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -e  # Exit immediately if a command exits with a non-zero status
+          set -e
           echo "Fetching managed release tags from the matrix..."
-
-          # Define the list of managed tags based on the matrix
           MANAGED_TAGS=("SysAdminToolSet" "ITSM-Templates-WKS" "ITSM-Templates-SVR" "GPOs-Templates" "READMEs-Files-Package")
 
           for tag in "${MANAGED_TAGS[@]}"; do
             echo "Processing tag: $tag"
-
-            # Fetch all releases with the current tag
-            releases=$(gh release list --tag "$tag" --limit 100 --json name,tagName,createdAt | \
-              jq -r --arg tag "$tag" '.[] | select(.tagName == $tag) | "\(.createdAt) \(.tagName)"')
+            releases=$(gh release list --tag "$tag" --limit 100 --json name,tagName,createdAt | jq -r --arg tag "$tag" '.[] | select(.tagName == $tag) | "\(.createdAt) \(.tagName)"')
 
             if [ -z "$releases" ]; then
               echo "No releases found for tag '$tag'. Skipping cleanup."
               continue
             fi
 
-            # Sort releases by createdAt ascending (oldest first)
             sorted_releases=$(echo "$releases" | sort)
-
-            # Extract all tag names except the latest release
             releases_to_delete=$(echo "$sorted_releases" | head -n -1 | awk '{print $2}')
 
             if [ -z "$releases_to_delete" ]; then
@@ -90,45 +82,22 @@ jobs:
             body: "Latest automated specialized release for SysAdminToolSet."
             build_steps: |
               mkdir -p SysAdminToolSet
-              cp docs/LICENSE SysAdminToolSet/ || true
-              cp docs/README.md SysAdminToolSet/ || true
 
-              # Copy only Launch-Script-AutomaticMenu.ps1 to SysAdminToolSet root
-              cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/ || true
+              # Insert content from 'SysAdmin-Tools', excluding 'GroupPolicyObjects-Templates'
+              rsync -av --exclude='GroupPolicyObjects-Templates' SysAdmin-Tools/ SysAdminToolSet/SysAdmin-Tools/
 
-              # Use rsync to copy all directories except excluded ones and specific config files
-              rsync -av --exclude='SysAdminToolSet' \
-                      --exclude='.git' \
-                      --exclude='.github' \
-                      --exclude='ITSM-Templates-WKS' \
-                      --exclude='ITSM-Templates-SVR' \
-                      --exclude='Core-ScriptLibrary' \
-                      --exclude='SysAdmin-Tools/GroupPolicyObjects-Templates' \
-                      --exclude='GroupPolicyObjects-Templates' \
-                      --exclude='artifacts' \
-                      --exclude='config' \
-                      --exclude='docs' \
-                      --exclude='PlaceholderDll' \
-                      --exclude='icon.png' \
-                      --exclude='NuGet' \
-                      --exclude='.editorconfig' \
-                      --exclude='.gitattributes' \
-                      --exclude='.gitignore' \
-                      --exclude='nuget.config' \
-                      --exclude='nuget.package.nuspec' \
-                      ./ SysAdminToolSet/
+              # Insert the 'BlueTeam-Tools' folder into the release root
+              rsync -av BlueTeam-Tools/ SysAdminToolSet/BlueTeam-Tools/
 
-              # **Ensure GroupPolicyObjects-Templates is not present**
+              # Copy specific files from 'Core-ScriptLibrary' and 'docs' to the release root
+              cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/
+              cp docs/LICENSE SysAdminToolSet/
+              cp docs/README.md SysAdminToolSet/
+
+              # Ensure excluded items are not copied
               rm -rf SysAdminToolSet/GroupPolicyObjects-Templates
 
-              # **Ensure specific config files are not present**
-              rm -f SysAdminToolSet/.editorconfig
-              rm -f SysAdminToolSet/.gitattributes
-              rm -f SysAdminToolSet/.gitignore
-              rm -f SysAdminToolSet/nuget.config
-              rm -f SysAdminToolSet/nuget.package.csproj
-
-              # Package the release into artifacts/
+              # Package the release into artifacts
               mkdir -p artifacts
               zip -r artifacts/SysAdminToolSet.zip SysAdminToolSet
 
@@ -154,8 +123,8 @@ jobs:
             body: "Latest automated specialized release for GPOs-Templates."
             build_steps: |
               mkdir -p GPOs-Templates
-              cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/ || true
-              cp SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1 GPOs-Templates/ || true
+              cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/
+              cp SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1 GPOs-Templates/
               mkdir -p artifacts
               zip -r artifacts/GPOs-Templates.zip GPOs-Templates
 
@@ -164,52 +133,18 @@ jobs:
             release_zip: READMEs-Files-Package.zip
             body: "This release contains all README.md files from the repository, renamed as $repository-name-README.md."
             build_steps: |
-              set -e
-              set -x
-              echo "Searching for README.md files..."
-              # Create a directory to store renamed READMEs-Files-Package
               mkdir -p READMEs-Files-Package
+              cp docs/README.md READMEs-Files-Package/main-README.md
 
-              # A) Copy and rename the main README.md to main-README.md
-              cp /docs/README.md READMEs-Files-Package/main-README.md
-              echo "Copied and renamed README.md to READMEs-Files-Package/main-README.md"
-
-              # Find all README.md files excluding the root README.md
-              find . -type f -iname "README.md" ! -path "./README.md" | while read -r file; do
-                # Extract the immediate parent directory name
+              find . -type f -iname "README.md" ! -path "./docs/README.md" | while read -r file; do
                 repo_dir=$(dirname "$file")
                 repo_name=$(basename "$repo_dir")
-
-                # Define the new filename
                 new_filename="${repo_name}-README.md"
-
-                # Copy and rename the README.md to the READMEs-Files-Package directory
                 cp "$file" "READMEs-Files-Package/$new_filename"
-                echo "Copied and renamed $file to READMEs-Files-Package/$new_filename"
               done
 
-              # List the files in READMEs-Files-Package directory
-              echo "Files in READMEs-Files-Package directory:"
-              ls -l READMEs-Files-Package/
-
-              # Check if READMEs-Files-Package directory has files
-              file_count=$(ls -1 READMEs-Files-Package/*.md 2>/dev/null | wc -l)
-              echo "Number of README files: $file_count"
-              if [ "$file_count" -eq 0 ]; then
-                echo "No README.md files found to package."
-                exit 1
-              fi
-
-              # Package renamed READMEs into a ZIP archive within artifacts/
-              echo "Packaging renamed README.md files into READMEs-Files-Package.zip..."
               mkdir -p artifacts
               zip -r artifacts/READMEs-Files-Package.zip READMEs-Files-Package
-              echo "Packaging complete."
-              echo "package_path=$(pwd)/artifacts/READMEs-Files-Package.zip" >> $GITHUB_ENV
-
-              # Verify ZIP integrity
-              echo "Verifying zip integrity..."
-              unzip -t artifacts/READMEs-Files-Package.zip
 
     steps:
       - name: Checkout Repository
@@ -235,14 +170,9 @@ jobs:
         run: |
           set -e
           TAG_NAME="${{ matrix.release.tag }}"
-
-          # Check if release with this tag exists
           if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
-            echo "Release for tag '${TAG_NAME}' exists. Deleting..."
-            gh release delete "${TAG_NAME}" -y || { echo "Failed to delete release: $TAG_NAME"; exit 1; }
-            git push --delete origin "${TAG_NAME}" || { echo "Failed to delete tag: $TAG_NAME"; exit 1; }
-          else
-            echo "No existing release for tag '${TAG_NAME}'. Proceeding..."
+            gh release delete "${TAG_NAME}" -y
+            git push --delete origin "${TAG_NAME}"
           fi
 
       - name: Create New Release
@@ -260,41 +190,14 @@ jobs:
       - name: Build and Package ${{ matrix.release.name }}
         run: |
           set -e
-          set -x
-          echo "Building and packaging ${{ matrix.release.name }}..."
           ${{ matrix.release.build_steps }}
-          echo "package_path=$(pwd)/artifacts/${{ matrix.release.release_zip }}" >> $GITHUB_ENV
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.package_path }}
+          asset_path: artifacts/${{ matrix.release.release_zip }}
           asset_name: ${{ matrix.release.release_zip }}
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Optional: Notify Slack on Success
-      - name: Notify Slack on Success
-        if: success()
-        uses: slackapi/slack-github-action@v1.23.0
-        with:
-          payload: |
-            {
-              "text": "✅ ${{ matrix.release.name }} release ${{ github.ref_name }} published successfully."
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      # Optional: Notify Slack on Failure
-      - name: Notify Slack on Failure
-        if: failure()
-        uses: slackapi/slack-github-action@v1.23.0
-        with:
-          payload: |
-            {
-              "text": "❌ ${{ matrix.release.name }} release ${{ github.ref_name }} failed to publish."
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
