@@ -2,34 +2,29 @@ name: Publish NuGet Package
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
 
 permissions:
-  contents: write
   packages: write
+  contents: read
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0
 
-      - name: Install Mono
+      - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y mono-complete
-
-      - name: Install NuGet CLI
-        run: |
-          wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O nuget.exe
-          chmod +x ./nuget.exe
+          sudo apt-get install -y dotnet-sdk-7.0
 
       - name: Publish NuGet Package
-        run: mono ./nuget.exe push ./artifacts/*.nupkg -ApiKey "${{ secrets.NUGET_AUTH_TOKEN }}" -Source "https://nuget.pkg.github.com/brazilianscriptguy/index.json"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dotnet nuget push artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key $GITHUB_TOKEN
