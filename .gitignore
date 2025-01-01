@@ -1,26 +1,65 @@
-# Ignore all log files
+# Ignore log files
 *.log
 
 # Ignore temporary files
 *.tmp
 *.temp
 
-# Ignore directories that might contain temporary or binary files
+# Ignore directories that might contain temporary, binary, or build files
 bin/
 obj/
 temp/
 tmp/
+artifacts/
+out/
 
 # Ignore files that may contain sensitive information
 *.pfx
 *.cert
+*.key
 
-# Ignore Visual Studio Code workspace files
+# Ignore IDE and editor-specific files
 .vscode/
+.idea/
 
-# Ignore all .env files, which might contain sensitive environment variables
+# Ignore .env files containing sensitive environment variables
 *.env
 
-# Ignore specific files that might be generated during development or by specific tools
+# Ignore system-specific files
 Thumbs.db
 .DS_Store
+desktop.ini
+
+# Ignore package manager-specific files
+node_modules/
+package-lock.json
+yarn.lock
+
+# Ignore build and debug files
+*.suo
+*.user
+*.ttf
+*.exe
+*.dll
+*.exe.config
+
+# Ignore NuGet-related files
+.nuget/
+.nuget/packages/
+.nuget.cache
+*.nupkg
+
+# Ignore other auto-generated or temporary files
+*.bak
+*.swp
+*.tmp
+~$*
+*.orig
+
+# Ignore Git-specific files
+.gitignore
+.gitattributes
+
+# Ignore generated files or templates
+**/NuGetPackageContent/
+PlaceholderDll/
