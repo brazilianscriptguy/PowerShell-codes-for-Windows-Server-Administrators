@@ -1,65 +1,57 @@
-# Ignore log files
+# Logs and Temporary Files
 *.log
-
-# Ignore temporary files
 *.tmp
 *.temp
 
-# Ignore directories that might contain temporary, binary, or build files
+# Ignore cache and backup files
+*.bak
+*.swp
+*.swo
+.cache/
+
+# Directories for binaries and build artifacts
 bin/
 obj/
-temp/
-tmp/
 artifacts/
-out/
 
-# Ignore files that may contain sensitive information
+# Ignore NuGet-specific files
+.nuget/
+.nuget.targets
+NuGet/
+*.nupkg
+
+# Sensitive information
 *.pfx
 *.cert
 *.key
-
-# Ignore IDE and editor-specific files
-.vscode/
-.idea/
-
-# Ignore .env files containing sensitive environment variables
 *.env
 
-# Ignore system-specific files
+# System-specific files
 Thumbs.db
 .DS_Store
 desktop.ini
 
-# Ignore package manager-specific files
-node_modules/
-package-lock.json
-yarn.lock
+# IDE configuration files
+.vscode/
+.idea/
+*.code-workspace
 
-# Ignore build and debug files
-*.suo
-*.user
-*.ttf
-*.exe
-*.dll
-*.exe.config
+# Config and generated files
+config/.editorconfig
+config/.gitattributes
+config/.gitignore
+config/nuget.config
 
-# Ignore NuGet-related files
-.nuget/
-.nuget/packages/
-.nuget.cache
-*.nupkg
+# Documentation
+docs/LICENSE
+docs/README.md
 
-# Ignore other auto-generated or temporary files
-*.bak
-*.swp
-*.tmp
-~$*
-*.orig
-
-# Ignore Git-specific files
-.gitignore
-.gitattributes
-
-# Ignore generated files or templates
-**/NuGetPackageContent/
+# Placeholder files or temporary project files
 PlaceholderDll/
+
+# Exclude compiled libraries
+NuGetPackageContent/lib/net7.0/*.dll
+
+# Operating system files
+*.~lock.*
+*.directory
