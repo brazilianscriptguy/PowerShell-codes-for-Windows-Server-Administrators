@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  publish:
+  publish-nuget-pkg:
     runs-on: ubuntu-latest
 
     container:
