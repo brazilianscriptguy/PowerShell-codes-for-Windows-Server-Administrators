@@ -15,10 +15,9 @@
     <file src="Core-ScriptLibrary/**/*" target="content/Core-ScriptLibrary" />
     <file src="ITSM-Templates-SVR/**/*" target="content/ITSM-Templates-SVR" />
     <file src="ITSM-Templates-WKS/**/*" target="content/ITSM-Templates-WKS" />
-    <file src="SysAdmin-Tools/**/*" target="content/SysAdmin-Tools" />
+    <file src="SysAdmin-Tools/**/*" target="content/SysAdmin-Tools" exclude="SysAdmin-Tools/GroupPolicyObjects-Templates/**/*" />
     <file src="LICENSE" target="content" />
     <file src="README.md" target="content" />
-    <!-- Placeholder DLL: Required only if NuGet insists on including a .dll -->
     <file src="PlaceholderDll/PlaceholderDll.dll" target="lib/net7.0" />
   </files>
 </package>
