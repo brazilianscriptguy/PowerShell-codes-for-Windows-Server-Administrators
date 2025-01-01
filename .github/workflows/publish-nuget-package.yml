@@ -62,4 +62,4 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mono ./nuget.exe push ./artifacts/*.nupkg -ApiKey ${{ secrets.GITHUB_TOKEN }} -Source "github" --skip-duplicate
+          mono ./nuget.exe push ./artifacts/*.nupkg -ApiKey ${{ secrets.GITHUB_TOKEN }} -Source "github"
