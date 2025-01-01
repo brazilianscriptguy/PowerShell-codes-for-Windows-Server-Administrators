@@ -10,25 +10,18 @@ permissions:
   contents: read
 
 jobs:
-  publish-local-nugetpkg:
+  publish:
     runs-on: ubuntu-latest
+
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:7.0  # Use .NET SDK 7.0 official container
 
     steps:
       # Step 1: Checkout the code
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Install Dependencies
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget apt-transport-https
-          wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
-          sudo dpkg -i packages-microsoft-prod.deb
-          sudo apt-get update
-          sudo apt-get install -y dotnet-sdk-7.0
-
-      # Step 3: Publish the NuGet package
+      # Step 2: Publish the NuGet package
       - name: Publish NuGet Package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
