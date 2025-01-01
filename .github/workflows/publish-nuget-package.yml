@@ -86,8 +86,7 @@ jobs:
           echo "Inspecting the contents of the package..."
           unzip -l ./artifacts/Windows-SysAdmin-ProSuite*.nupkg || true
 
-      - name: Publish to GitHub Packages
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mono ./nuget.exe push ./artifacts/*.nupkg -ApiKey ${{ secrets.GITHUB_TOKEN }} -Source "github" -SkipDuplicate
+      - name: Publish NuGet Package
+          run: |
+              set -euo pipefail
+              mono ./nuget.exe push ./artifacts/*.nupkg -ApiKey ${{ secrets.GITHUB_TOKEN }} -Source "https://nuget.pkg.github.com/brazilianscriptguy/index.json"
