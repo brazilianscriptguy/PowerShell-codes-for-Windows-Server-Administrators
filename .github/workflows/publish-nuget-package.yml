@@ -1,4 +1,4 @@
-name: Publish NuGet Packages
+name: Publish NuGet Package
 
 on:
   workflow_dispatch:
@@ -89,6 +89,4 @@ jobs:
       - name: Publish NuGet Package
         run: |
           set -euo pipefail
-          mono ./nuget.exe push ./artifacts/*.nupkg \
-            -ApiKey "${{ secrets.NUGET_AUTH_TOKEN }}" \
-            -Source "https://nuget.pkg.github.com/brazilianscriptguy/index.json"
+          mono ./nuget.exe push ./artifacts/*.nupkg -ApiKey "${{ secrets.NUGET_AUTH_TOKEN }}" -Source "https://nuget.pkg.github.com/brazilianscriptguy/index.json"
