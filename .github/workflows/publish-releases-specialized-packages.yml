@@ -75,41 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        release:
-          - name: SysAdminToolSet
-            tag: SysAdminToolSet
-            release_zip: SysAdminToolSet.zip
-            body: |
-              Latest automated specialized release for SysAdminToolSet.
-              [Download SysAdminToolSet](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/${{ matrix.release.tag }}/${{ matrix.release.release_zip }})
-
-          - name: ITSM-Templates-WKS
-            tag: ITSM-Templates-WKS
-            release_zip: ITSM-Templates-WKS.zip
-            body: |
-              Latest automated specialized release for ITSM-Templates-WKS.
-              [Download ITSM-Templates-WKS](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/${{ matrix.release.tag }}/${{ matrix.release.release_zip }})
-
-          - name: ITSM-Templates-SVR
-            tag: ITSM-Templates-SVR
-            release_zip: ITSM-Templates-SVR.zip
-            body: |
-              Latest automated specialized release for ITSM-Templates-SVR.
-              [Download ITSM-Templates-SVR](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/${{ matrix.release.tag }}/${{ matrix.release.release_zip }})
-
-          - name: GPOs-Templates
-            tag: GPOs-Templates
-            release_zip: GPOs-Templates.zip
-            body: |
-              Latest automated specialized release for GPOs-Templates.
-              [Download GPOs-Templates](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/${{ matrix.release.tag }}/${{ matrix.release.release_zip }})
-
-          - name: READMEs-Files-Package
-            tag: READMEs-Files-Package
-            release_zip: READMEs-Files-Package.zip
-            body: |
-              This release contains all README.md files from the repository, renamed as $repository-name-README.md.
-              [Download READMEs-Files-Package](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/${{ matrix.release.tag }}/${{ matrix.release.release_zip }})
+        release_name: ["SysAdminToolSet", "ITSM-Templates-WKS", "ITSM-Templates-SVR", "GPOs-Templates", "READMEs-Files-Package"]
 
     steps:
       - name: Checkout Repository
@@ -134,35 +100,74 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          TAG_NAME="${{ matrix.release.tag }}"
+          TAG_NAME="${{ matrix.release_name }}"
           if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
             gh release delete "${TAG_NAME}" -y
             git push --delete origin "${TAG_NAME}"
           fi
 
+      - name: Build and Package ${{ matrix.release_name }}
+        env:
+          RELEASE_NAME: ${{ matrix.release_name }}
+        run: |
+          case "${RELEASE_NAME}" in
+            SysAdminToolSet)
+              mkdir -p SysAdminToolSet
+              rsync -av --exclude='GroupPolicyObjects-Templates' SysAdmin-Tools/ SysAdminToolSet/SysAdmin-Tools/
+              rsync -av BlueTeam-Tools/ SysAdminToolSet/BlueTeam-Tools/
+              cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/
+              cp docs/LICENSE SysAdminToolSet/
+              cp docs/README.md SysAdminToolSet/
+              mkdir -p artifacts
+              zip -r artifacts/SysAdminToolSet.zip SysAdminToolSet
+              ;;
+            ITSM-Templates-WKS)
+              mkdir -p artifacts
+              zip -r artifacts/ITSM-Templates-WKS.zip ITSM-Templates-WKS
+              ;;
+            ITSM-Templates-SVR)
+              mkdir -p artifacts
+              zip -r artifacts/ITSM-Templates-SVR.zip ITSM-Templates-SVR
+              ;;
+            GPOs-Templates)
+              mkdir -p GPOs-Templates
+              cp -r SysAdmin-Tools/GroupPolicyObjects-Templates/* GPOs-Templates/
+              cp SysAdmin-Tools/ActiveDirectory-Management/Export-n-Import-GPOsTool.ps1 GPOs-Templates/
+              mkdir -p artifacts
+              zip -r artifacts/GPOs-Templates.zip GPOs-Templates
+              ;;
+            READMEs-Files-Package)
+              mkdir -p READMEs-Files-Package
+              cp docs/README.md READMEs-Files-Package/main-README.md
+              find . -type f -iname "README.md" ! -path "./docs/README.md" | while read -r file; do
+                repo_dir=$(dirname "$file")
+                repo_name=$(basename "$repo_dir")
+                new_filename="${repo_name}-README.md"
+                cp "$file" "READMEs-Files-Package/$new_filename"
+              done
+              mkdir -p artifacts
+              zip -r artifacts/READMEs-Files-Package.zip READMEs-Files-Package
+              ;;
+          esac
+
       - name: Create New Release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ matrix.release.tag }}
-          release_name: ${{ matrix.release.release_zip }}
-          body: ${{ matrix.release.body }}
+          tag_name: ${{ matrix.release_name }}
+          release_name: ${{ matrix.release_name }}
+          body: "Latest automated specialized release for ${{ matrix.release_name }}."
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Package ${{ matrix.release.name }}
-        run: |
-          set -e
-          ${{ matrix.release.build_steps }}
-
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/${{ matrix.release.release_zip }}
-          asset_name: ${{ matrix.release.release_zip }}
+          asset_path: artifacts/${{ matrix.release_name }}.zip
+          asset_name: ${{ matrix.release_name }}.zip
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
