@@ -11,7 +11,7 @@ permissions:
   packages: write
 
 jobs:
-  publish-nuget:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,8 +22,8 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      # Step 2: Set up .NET
-      - name: Set up .NET
+      # Step 2: Set up .NET SDK
+      - name: Set up .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
@@ -39,7 +39,7 @@ jobs:
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
 
-      # Step 4: Prepare Files for NuGet Package
+      # Step 4: Prepare Files
       - name: Prepare Files for NuGet Package
         run: |
           set -euo pipefail
@@ -54,24 +54,14 @@ jobs:
           cp LICENSE NuGetPackageContent/ || true
           echo "Files prepared for packaging."
 
-      # Step 5: Install Mono and NuGet CLI
-      - name: Install Mono and NuGet CLI
-        run: |
-          set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install -y mono-runtime
-          wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O nuget.exe
-          chmod +x ./nuget.exe
-
-      # Step 6: Pack NuGet Package
+      # Step 5: Pack NuGet Package
       - name: Pack NuGet Package
         run: |
           set -euo pipefail
           echo "Packing the NuGet package..."
           mkdir -p ./artifacts  # Ensure artifacts directory exists
 
-          # Use Mono to execute NuGet CLI
-          mono ./nuget.exe pack nuget.package.nuspec -OutputDirectory ./artifacts
+          dotnet nuget pack nuget.package.nuspec --output ./artifacts -p:PackageVersion=${{ env.version }}
 
           echo "Checking artifacts directory..."
           ls ./artifacts
@@ -86,9 +76,9 @@ jobs:
           echo "Package successfully created: $package_file"
           echo "package_path=$package_file" >> $GITHUB_ENV
 
-      # Step 7: Publish to GitHub Packages
+      # Step 6: Publish to GitHub Packages
       - name: Publish to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mono ./nuget.exe push ${{ env.package_path }} -ApiKey $NUGET_AUTH_TOKEN -Source "github" --skip-duplicate
+          dotnet nuget push ${{ env.package_path }} --api-key $NUGET_AUTH_TOKEN --source "github" --skip-duplicate
