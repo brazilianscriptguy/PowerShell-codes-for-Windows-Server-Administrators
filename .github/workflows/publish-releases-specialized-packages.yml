@@ -171,7 +171,7 @@ jobs:
               mkdir -p READMEs-Files-Package
 
               # A) Copy and rename the main README.md to main-README.md
-              cp README.md READMEs-Files-Package/main-README.md
+              cp /docs/README.md READMEs-Files-Package/main-README.md
               echo "Copied and renamed README.md to READMEs-Files-Package/main-README.md"
 
               # Find all README.md files excluding the root README.md
