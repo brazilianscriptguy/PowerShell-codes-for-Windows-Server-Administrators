@@ -4,36 +4,88 @@ on:
   workflow_dispatch:
   release:
     types: [published]
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
 permissions:
   packages: write
   contents: read
 
 jobs:
-  publish-nuget-pkg:
-    runs-on: ubuntu-latest
-
-    container:
-      image: mcr.microsoft.com/dotnet/sdk:7.0  # Use .NET SDK 7.0 official container
+  # ================================
+  # Job: Build and Publish NuGet Package
+  # ================================
+  build-and-publish-nuget:
+    runs-on: ubuntu-22.04  # Specify the runner version explicitly
 
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout Code
+      # Step 1: Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0  # Fetch full repository history
 
-      # Step 2: Configure NuGet source
-      - name: Configure NuGet Source
+      # Step 2: Install Dependencies
+      - name: Install Dependencies
         run: |
-          dotnet nuget add source \
-            --name GitHub \
-            --username ${{ github.repository_owner }} \
-            --password ${{ secrets.NUGET_TOKEN }} \
-            https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+          sudo apt-get update
+          sudo apt-get install -y zip jq gh
 
-      # Step 3: Push the NuGet package
+      # Step 3: Configure GitHub CLI for Git Operations
+      - name: Configure GitHub CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth setup-git
+
+      # Step 4: Cleanup Old Releases and Tags
+      - name: Cleanup Old Releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          TAG_NAME="NuGet-Package-Release"
+          if gh release view "${TAG_NAME}" > /dev/null 2>&1; then
+            gh release delete "${TAG_NAME}" -y
+            git push --delete origin "${TAG_NAME}"
+          fi
+
+      # Step 5: Build NuGet Package
+      - name: Build NuGet Package
+        run: |
+          dotnet build -c Release
+          dotnet pack -c Release --output artifacts/
+
+      # Step 6: Publish NuGet Package
       - name: Publish NuGet Package
+        env:
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
         run: |
-          dotnet nuget push artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg \
-            --source "GitHub" \
-            --api-key ${{ secrets.NUGET_TOKEN }} \
-            --skip-duplicate
+          dotnet nuget push artifacts/*.nupkg \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key $NUGET_TOKEN
+
+      # Step 7: Create New GitHub Release
+      - name: Create New Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: NuGet-Package-Release
+          release_name: NuGet Package Release
+          body: "Latest automated NuGet package release."
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 8: Upload Release Assets
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg
+          asset_name: Windows-SysAdmin-ProSuite.1.0.1.nupkg
+          asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
