@@ -18,8 +18,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Fetch and Delete Existing NuGet Package Versions
-      - name: Delete Existing NuGet Package Versions
+      # Step 2: Install Required Dependencies
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      # Step 3: Delete Existing NuGet Package Versions
+      - name: Delete Existing Package Versions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -27,14 +31,22 @@ jobs:
           OWNER="${{ github.repository_owner }}"
           echo "Fetching old package versions for ${PACKAGE_NAME}..."
 
-          API="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions"
+          # Determine API endpoints for user and organization
+          API_USER="https://api.github.com/users/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions"
+          API_ORG="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions"
 
-          # Fetch all package versions
-          response=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" $API)
+          # Fetch package versions using user-level API
+          response=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" $API_USER)
 
-          # Validate the response
+          # Check if the response is valid JSON; otherwise, try the organization-level API
           if ! echo "$response" | jq empty 2>/dev/null; then
-            echo "Error: Invalid response from GitHub API:"
+            echo "Trying organization-level API..."
+            response=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" $API_ORG)
+          fi
+
+          # Validate the response again
+          if ! echo "$response" | jq empty 2>/dev/null; then
+            echo "Error: Failed to fetch package versions."
             echo "$response"
             exit 1
           fi
@@ -51,24 +63,29 @@ jobs:
           # Delete all fetched package versions
           while IFS= read -r package_id; do
             echo "Deleting version ID: $package_id"
-            DELETE_URL="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions/$package_id"
+            DELETE_URL="https://api.github.com/users/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions/$package_id"
             curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" $DELETE_URL || echo "Failed to delete version ID: $package_id"
           done < package_ids.txt
 
           echo "Old versions of ${PACKAGE_NAME} have been cleaned."
 
-      # Step 3: Build the NuGet Package
-      - name: Build NuGet Package
-        run: |
-          mkdir -p artifacts
-          # Ensure the .nupkg file exists in artifacts directory
-          echo "Ensure the artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg exists manually here if pre-built."
-
-      # Step 4: Push the NuGet Package to GitHub Packages
-      - name: Push NuGet Package to GitHub
+      # Step 4: Build and Push NuGet Package
+      - name: Publish NuGet Package
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet nuget push artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg \
-            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key $GITHUB_TOKEN --skip-duplicate
+          PACKAGE_PATH="artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg"
+          SOURCE_URL="https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
+          if [ ! -f "$PACKAGE_PATH" ]; then
+            echo "Error: NuGet package not found at $PACKAGE_PATH"
+            exit 1
+          fi
+
+          echo "Pushing NuGet package to $SOURCE_URL..."
+          dotnet nuget push "$PACKAGE_PATH" \
+            --source "$SOURCE_URL" \
+            --api-key $NUGET_TOKEN \
+            --skip-duplicate
+
+          echo "NuGet package published successfully."
