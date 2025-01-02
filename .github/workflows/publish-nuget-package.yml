@@ -183,9 +183,8 @@ jobs:
    
    **Example of Correct Structure:**
    ```yaml
-   - name: Some Step
-     run: |
-       echo "Running commands"
-     shell: /usr/bin/bash -e {0}
+   - name: Publish NuGet Package
      env:
-       VAR_NAME: value
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     run: |
+       # Commands here
