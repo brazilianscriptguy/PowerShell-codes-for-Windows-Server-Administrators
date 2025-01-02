@@ -93,8 +93,8 @@ jobs:
           cp -r ITSM-Templates-WKS NuGet/NuGetPackageContent/ || true
           cp -r SysAdmin-Tools NuGet/NuGetPackageContent/ || true
           cp -r GPOs-Templates NuGet/NuGetPackageContent/ || true  # Ensure this directory exists or is created
-          cp LICENSE NuGet/NuGetPackageContent/ || true
-          cp README.md NuGet/NuGetPackageContent/ || true
+          cp doc/README.md NuGet/NuGetPackageContent/README.md || true
+          cp LICENSE NuGet/NuGetPackageContent/LICENSE || true
 
       # Step 10: Verify NuGetPackageContent Directory (Optional)
       - name: Verify NuGetPackageContent Directory
@@ -161,3 +161,19 @@ jobs:
                 exit 1
               }
           done
+    ```
+
+### **Detailed Breakdown and Key Corrections**
+
+1. **Proper YAML Indentation:**
+   - **Issue:** YAML is indentation-sensitive. Misaligned keys like `shell` and `env` under `run` can cause syntax errors.
+   - **Solution:** Ensure that `shell` and `env` are **not** nested under `run`. They should be at the same indentation level as `run`.
+
+   **Example of Correct Structure:**
+   ```yaml
+   - name: Some Step
+     run: |
+       echo "Running commands"
+     shell: /usr/bin/bash -e {0}
+     env:
+       VAR_NAME: value
