@@ -96,7 +96,19 @@ jobs:
           cp doc/README.md NuGet/NuGetPackageContent/README.md || true
           cp LICENSE NuGet/NuGetPackageContent/LICENSE || true
 
-      # Step 10: Verify NuGetPackageContent Directory (Optional)
+      # Step 10: Create GPOs-Templates Directory (Virtual) if Not Present
+      - name: Create GPOs-Templates Directory
+        run: |
+          if [ ! -d "NuGet/NuGetPackageContent/GPOs-Templates" ]; then
+            echo "Creating GPOs-Templates directory..."
+            mkdir -p NuGet/NuGetPackageContent/GPOs-Templates
+            echo "Placeholder content for GPOs-Templates" > NuGet/NuGetPackageContent/GPOs-Templates/README.md
+            # Add actual GPO templates here if available
+          else
+            echo "GPOs-Templates directory already exists."
+          fi
+
+      # Step 11: Verify NuGetPackageContent Directory
       - name: Verify NuGetPackageContent Directory
         run: |
           echo "Verifying contents of NuGetPackageContent:"
@@ -104,20 +116,20 @@ jobs:
           echo "Verifying GPOs-Templates directory:"
           ls -la NuGet/NuGetPackageContent/GPOs-Templates/
 
-      # Step 11: Pack NuGet Package Using nuget.exe
+      # Step 12: Pack NuGet Package Using nuget.exe
       - name: Pack NuGet Package
         run: |
           mkdir -p ./artifacts
           mono ./nuget.exe pack NuGet/nuget.package.nuspec -OutputDirectory ./artifacts
           ls ./artifacts
 
-      # Step 12: Inspect NuGet Package (Optional)
+      # Step 13: Inspect NuGet Package (Optional)
       - name: Inspect NuGet Package
         run: |
           echo "Inspecting the contents of the package..."
           unzip -l ./artifacts/Windows-SysAdmin-ProSuite*.nupkg || true
 
-      # Step 13: Fetch Existing NuGet Packages from GitHub Packages
+      # Step 14: Fetch Existing NuGet Packages from GitHub Packages
       - name: Fetch Existing NuGet Packages
         id: fetch-packages
         env:
@@ -134,7 +146,7 @@ jobs:
           echo "Existing Packages:"
           cat existing_packages.txt
 
-      # Step 14: Publish New NuGet Package Using nuget.exe
+      # Step 15: Publish New NuGet Package Using nuget.exe
       - name: Publish NuGet Package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -163,15 +175,15 @@ jobs:
           done
     ```
 
-### **Detailed Breakdown and Key Corrections**
+### **Key Corrections and Enhancements**
 
 1. **Proper YAML Indentation:**
    - **Issue:** YAML is indentation-sensitive. Misaligned keys like `shell` and `env` under `run` can cause syntax errors.
-   - **Solution:** Ensure that `shell` and `env` are **not** nested under `run`. They should be at the same indentation level as `run`.
-
+   - **Solution:** Ensure that `shell` and `env` are **not** nested under `run`. They should be aligned at the same indentation level as `run`.
+   
    **Example of Correct Structure:**
    ```yaml
-   - name: Some Step
+   - name: Step Name
      run: |
        echo "Running commands"
      shell: /usr/bin/bash -e {0}
