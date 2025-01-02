@@ -1,16 +1,16 @@
-name: Publish NuGet Package
+name: Manage and Update NuGet Packages
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
 
 permissions:
   packages: write
   contents: read
 
 jobs:
-  publish-nuget-package:
+  manage-nuget-packages:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,14 +18,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Fetch Published NuGet Packages
+      # Step 2: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      # Step 3: Fetch Published NuGet Packages
       - name: Fetch Published NuGet Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
         run: |
-          echo "Fetching the list of published NuGet packages..."
-          
-          # Fetch the response and print it for debugging
+          echo "Fetching the list of published NuGet packages from GitHub Packages..."
           response=$(curl -s -H "Authorization: Bearer $NUGET_AUTH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/orgs/${{ github.repository_owner }}/packages?package_type=nuget")
@@ -33,54 +37,76 @@ jobs:
           echo "API Response:"
           echo "$response"
 
-          # Verify if the response is valid JSON
+          # Verify JSON Response
           if ! echo "$response" | jq empty 2>/dev/null; then
             echo "Error: Invalid JSON response from the API."
             exit 1
           fi
 
-          # Extract package names
-          echo "$response" | jq -r '.[] | .name' > published_packages.txt || {
-            echo "Error: Failed to extract package names from the response."
+          # Extract Package Names and Versions
+          echo "$response" | jq -r '.[] | "\(.name):\(.latest_version.id)"' > published_packages.txt || {
+            echo "Error: Failed to extract package names and versions from the response."
             exit 1
           }
 
           echo "Published packages:"
           cat published_packages.txt
 
-      # Step 3: Push New NuGet Packages
-      - name: Push NuGet Packages
+      # Step 4: Verify Local NuGet Packages in 'artifacts'
+      - name: Verify Local NuGet Packages
+        run: |
+          echo "Verifying local NuGet packages in the 'artifacts' directory..."
+          ls artifacts/*.nupkg || {
+            echo "Error: No NuGet packages found in the 'artifacts' directory."
+            exit 1
+          }
+
+      # Step 5: Compare and Push New Packages
+      - name: Push New NuGet Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
         run: |
-          echo "Pushing new NuGet packages to GitHub Packages..."
-          for package in artifacts/*.nupkg; do
-            package_name=$(basename "$package")
-            package_base_name="${package_name%.nupkg}"
+          echo "Comparing local packages with published packages..."
+          for file in artifacts/*.nupkg; do
+            package_name=$(basename "$file" | cut -d. -f1) # Extract package name
+            package_version=$(basename "$file" | cut -d. -f2-3) # Extract version
 
-            echo "Processing package: $package_base_name"
-
-            # Check if the package already exists in the published list
-            if grep -q "$package_base_name" published_packages.txt; then
-              echo "Package $package_base_name already exists. Skipping..."
-              continue
-            fi
-
-            # Push the package
-            dotnet nuget push "$package" \
-              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-              --api-key $NUGET_AUTH_TOKEN --skip-duplicate || {
-                echo "Skipping package due to conflict or duplicate: $package"
+            # Check if package and version exist in published packages
+            if grep -q "$package_name:$package_version" published_packages.txt; then
+              echo "Package $package_name version $package_version already exists. Skipping..."
+            else
+              echo "Pushing new package: $package_name version $package_version"
+              dotnet nuget push "$file" \
+                --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+                --api-key $NUGET_AUTH_TOKEN --skip-duplicate || {
+                echo "Failed to push package: $package_name version $package_version"
+                exit 1
               }
+            fi
           done
 
-      # Step 4: Generate Links for Published Packages
-      - name: Generate Links for Published Packages
+      # Step 6: Link Published Packages to GitHub Repository
+      - name: Link NuGet Packages to GitHub Repository
         env:
-          REPO_URL: "https://github.com/${{ github.repository_owner }}/Windows-SysAdmin-ProSuite"
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
         run: |
-          echo "Generating links for published packages..."
-          while IFS= read -r package_name; do
-            echo "Package: $package_name"
-            echo "${REPO_URL}/packages/$package_name"
+          echo "Linking published NuGet packages to the GitHub repository..."
+          while IFS=: read -r package_name package_version; do
+            echo "Processing package: $package_name"
+            curl -X PATCH -H "Authorization: Bearer $NUGET_AUTH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -d '{"repository": "Windows-SysAdmin-ProSuite"}' \
+              "https://api.github.com/orgs/${{ github.repository_owner }}/packages/nuget/$package_name" || {
+              echo "Failed to link package: $package_name"
+            }
+          done < published_packages.txt
+
+      # Step 7: Output Published Package Links
+      - name: Output Published Package Links
+        run: |
+          echo "Generating links for published NuGet packages:"
+          while IFS=: read -r package_name package_version; do
+            echo "Package: $package_name | Version: $package_version"
+            echo "GitHub Packages Link: https://nuget.pkg.github.com/brazilianscriptguy/$package_name"
+            echo "GitHub Repository Link: https://github.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/packages"
           done < published_packages.txt
