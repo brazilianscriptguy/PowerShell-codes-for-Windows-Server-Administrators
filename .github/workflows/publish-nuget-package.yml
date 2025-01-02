@@ -86,16 +86,17 @@ jobs:
       - name: Prepare Files for NuGet Package
         run: |
           mkdir -p NuGet/NuGetPackageContent
+          # Copying directories - ensure these directories exist in your repository
           cp -r BlueTeam-Tools NuGet/NuGetPackageContent/ || true
           cp -r Core-ScriptLibrary NuGet/NuGetPackageContent/ || true
           cp -r ITSM-Templates-SVR NuGet/NuGetPackageContent/ || true
           cp -r ITSM-Templates-WKS NuGet/NuGetPackageContent/ || true
           cp -r SysAdmin-Tools NuGet/NuGetPackageContent/ || true
-          cp -r GPOs-Templates NuGet/NuGetPackageContent/ || true
+          cp -r GPOs-Templates NuGet/NuGetPackageContent/ || true  # Ensure this directory exists or is created
           cp LICENSE NuGet/NuGetPackageContent/ || true
           cp README.md NuGet/NuGetPackageContent/ || true
 
-      # Optional Step: Verify NuGetPackageContent Directory
+      # Step 10: Verify NuGetPackageContent Directory (Optional)
       - name: Verify NuGetPackageContent Directory
         run: |
           echo "Verifying contents of NuGetPackageContent:"
@@ -103,20 +104,20 @@ jobs:
           echo "Verifying GPOs-Templates directory:"
           ls -la NuGet/NuGetPackageContent/GPOs-Templates/
 
-      # Step 10: Pack NuGet Package Using nuget.exe
+      # Step 11: Pack NuGet Package Using nuget.exe
       - name: Pack NuGet Package
         run: |
           mkdir -p ./artifacts
           mono ./nuget.exe pack NuGet/nuget.package.nuspec -OutputDirectory ./artifacts
           ls ./artifacts
 
-      # Step 11: Inspect NuGet Package (Optional)
+      # Step 12: Inspect NuGet Package (Optional)
       - name: Inspect NuGet Package
         run: |
           echo "Inspecting the contents of the package..."
           unzip -l ./artifacts/Windows-SysAdmin-ProSuite*.nupkg || true
 
-      # Step 12: Fetch Existing NuGet Packages from GitHub Packages
+      # Step 13: Fetch Existing NuGet Packages from GitHub Packages
       - name: Fetch Existing NuGet Packages
         id: fetch-packages
         env:
@@ -133,7 +134,7 @@ jobs:
           echo "Existing Packages:"
           cat existing_packages.txt
 
-      # Step 13: Publish New NuGet Package Using nuget.exe
+      # Step 14: Publish New NuGet Package Using nuget.exe
       - name: Publish NuGet Package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
