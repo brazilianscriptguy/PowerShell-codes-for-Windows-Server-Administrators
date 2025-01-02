@@ -1,13 +1,13 @@
 name: Manage NuGet Packages
 
 on:
-  workflow_dispatch: # Manual trigger
-  schedule:          # Daily schedule
-    - cron: '0 2 * * *' # Runs daily at 2:00 AM UTC
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *' # Daily schedule at 2:00 AM UTC
 
 permissions:
-  packages: write # Allows writing to GitHub Packages
-  contents: read  # Allows reading repository contents
+  packages: write
+  contents: read
 
 jobs:
   manage-nuget-packages:
@@ -18,28 +18,32 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Fix Unmet Dependencies and Install .NET SDK
+      # Step 2: Fix Dependencies and Install .NET SDK
       - name: Install Dependencies
         run: |
-          echo "Setting up Microsoft repository for .NET..."
+          echo "Adding required Microsoft repository for .NET..."
           wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
           sudo dpkg -i packages-microsoft-prod.deb
           rm packages-microsoft-prod.deb
-          
-          echo "Installing required packages..."
+
+          echo "Updating package lists..."
           sudo apt-get update
-          sudo apt-get install -y apt-transport-https software-properties-common
 
-          echo "Installing libicu for .NET runtime dependencies..."
-          sudo apt-get install -y libicu-dev
+          echo "Manually resolving libicu dependency..."
+          sudo apt-get install -y libicu-dev || {
+            echo "Fetching compatible libicu version..."
+            wget http://archive.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb
+            sudo dpkg -i libicu66_66.1-2ubuntu2_amd64.deb
+            sudo apt-get install -f -y
+          }
 
-          echo "Installing latest .NET SDK..."
+          echo "Installing .NET SDK..."
           sudo apt-get install -y dotnet-sdk-7.0 || {
-            echo "Fixing conflicts and retrying installation..."
+            echo "Retrying installation with conflict resolution..."
             sudo apt-get -o Dpkg::Options::="--force-overwrite" install -y dotnet-sdk-7.0
           }
 
-      # Step 3: Fetch existing NuGet packages
+      # Step 3: Fetch Existing NuGet Packages
       - name: Fetch Published NuGet Packages
         id: fetch-packages
         env:
@@ -52,18 +56,16 @@ jobs:
 
           echo "API Response: $response"
 
-          # Validate the JSON response
           if ! echo "$response" | jq empty; then
             echo "Error: Invalid JSON response from GitHub API."
             exit 1
           fi
 
-          # Extract existing NuGet package names
           echo "$response" | jq -r '.[].name' > existing_packages.txt
           echo "Existing Packages:"
           cat existing_packages.txt
 
-      # Step 4: Compare and push new packages
+      # Step 4: Compare and Push New Packages
       - name: Push New NuGet Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
@@ -74,7 +76,6 @@ jobs:
             exit 1
           fi
 
-          # Loop through `.nupkg` files in artifacts directory
           for package_path in $artifact_dir/*.nupkg; do
             if [ ! -f "$package_path" ]; then
               echo "No .nupkg files found in artifacts directory."
@@ -84,22 +85,11 @@ jobs:
             package_name=$(basename "$package_path")
             echo "Processing package: $package_name"
 
-            # Extract version from package name
-            if [[ "$package_name" =~ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-              package_version="${BASH_REMATCH[1]}"
-              echo "Package version: $package_version"
-            else
-              echo "Error: Unable to extract version from package name."
-              exit 1
-            fi
-
-            # Check if package already exists
             if grep -q "$package_name" existing_packages.txt; then
               echo "Package $package_name already exists. Skipping..."
               continue
             fi
 
-            # Push package to GitHub Packages
             echo "Pushing $package_name to GitHub Packages..."
             dotnet nuget push "$package_path" \
               --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
@@ -109,14 +99,3 @@ jobs:
                 exit 1
               }
           done
-
-      # Step 5: Output Package Links
-      - name: Generate Package Links
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
-        run: |
-          echo "Generating links for published NuGet packages..."
-          while read -r package_name; do
-            echo "Package: $package_name"
-            echo "Link: https://github.com/users/${{ github.repository_owner }}/packages/nuget/package/$package_name"
-          done < existing_packages.txt
