@@ -18,20 +18,45 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Verify Package Exists
-      - name: Verify NuGet Package
+      # Step 2: Verify Packages Exist
+      - name: Verify NuGet Packages
         run: |
-          if [ ! -f "artifacts/Windows-SysAdmin-ProSuite.1.0.2.nupkg" ]; then
-            echo "Error: NuGet package file not found in artifacts directory."
+          if [ ! -d "artifacts" ]; then
+            echo "Error: Artifacts directory does not exist."
             exit 1
           fi
+          if [ -z "$(ls -A artifacts/*.nupkg 2>/dev/null)" ]; then
+            echo "Error: No NuGet packages found in artifacts directory."
+            exit 1
+          fi
+          echo "NuGet packages found in artifacts directory."
 
-      # Step 3: Push NuGet Package to GitHub
-      - name: Push NuGet Package to GitHub
+      # Step 3: Push NuGet Packages to GitHub Packages
+      - name: Push NuGet Packages
         env:
-          NUGET_AUTH_TOKEN: ${{ vars.NUGET_AUTH_TOKEN }}
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
         run: |
-          echo "Pushing new NuGet package to GitHub Packages..."
-          dotnet nuget push artifacts/*.nupkg \
-            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key $NUGET_AUTH_TOKEN --skip-duplicate
+          echo "Pushing NuGet packages to GitHub Packages..."
+
+          for package in artifacts/*.nupkg; do
+            echo "Checking package: $package"
+
+            # Extract package name and version
+            package_name=$(basename "$package" | cut -d'.' -f1)
+            package_version=$(basename "$package" | cut -d'.' -f2,3)
+
+            # Check if the version already exists in the feed
+            API_URL="https://api.github.com/orgs/${{ github.repository_owner }}/packages/nuget/${package_name}/versions"
+            response=$(curl -s -H "Authorization: Bearer $NUGET_AUTH_TOKEN" -H "Accept: application/vnd.github+json" "$API_URL")
+
+            if echo "$response" | jq -e ".[] | select(.name == \"$package_version\")" > /dev/null 2>&1; then
+              echo "Package version $package_version already exists. Skipping..."
+              continue
+            fi
+
+            # Push the package if the version does not exist
+            echo "Pushing $package to GitHub Packages..."
+            dotnet nuget push "$package" \
+              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+              --api-key $NUGET_AUTH_TOKEN --skip-duplicate
+          done
