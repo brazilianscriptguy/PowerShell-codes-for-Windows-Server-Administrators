@@ -68,16 +68,16 @@ jobs:
       # Step 8: Generate Placeholder .dll (if missing)
       - name: Generate Placeholder .dll (if missing)
         run: |
-          mkdir -p NuGetPackageContent/lib/net7.0
-          if [ ! -f "NuGetPackageContent/lib/net7.0/PlaceholderDll.dll" ]; then
+          mkdir -p NuGet/NuGetPackageContent/lib/net7.0
+          if [ ! -f "NuGet/NuGetPackageContent/lib/net7.0/PlaceholderDll.dll" ]; then
               echo "Generating placeholder .dll..."
               mkdir -p PlaceholderDll
               cd PlaceholderDll
               dotnet new classlib -n PlaceholderDll
               sed -i 's/<PropertyGroup>/<PropertyGroup><Version>1.0.0<\/Version>/' PlaceholderDll/PlaceholderDll.csproj
-              dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../NuGetPackageContent/lib/net7.0
+              dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../NuGet/NuGetPackageContent/lib/net7.0
               cd ..
-              echo "Placeholder .dll generated at NuGetPackageContent/lib/net7.0/PlaceholderDll.dll"
+              echo "Placeholder .dll generated at NuGet/NuGetPackageContent/lib/net7.0/PlaceholderDll.dll"
           else
               echo "Placeholder .dll already exists."
           fi
@@ -85,14 +85,23 @@ jobs:
       # Step 9: Prepare Files for NuGet Package
       - name: Prepare Files for NuGet Package
         run: |
-          mkdir -p NuGetPackageContent
-          cp -r BlueTeam-Tools NuGetPackageContent/ || true
-          cp -r Core-ScriptLibrary NuGetPackageContent/ || true
-          cp -r ITSM-Templates-SVR NuGetPackageContent/ || true
-          cp -r ITSM-Templates-WKS NuGetPackageContent/ || true
-          cp -r SysAdmin-Tools NuGetPackageContent/ || true
-          cp LICENSE NuGetPackageContent/ || true
-          cp README.md NuGetPackageContent/ || true
+          mkdir -p NuGet/NuGetPackageContent
+          cp -r BlueTeam-Tools NuGet/NuGetPackageContent/ || true
+          cp -r Core-ScriptLibrary NuGet/NuGetPackageContent/ || true
+          cp -r ITSM-Templates-SVR NuGet/NuGetPackageContent/ || true
+          cp -r ITSM-Templates-WKS NuGet/NuGetPackageContent/ || true
+          cp -r SysAdmin-Tools NuGet/NuGetPackageContent/ || true
+          cp -r GPOs-Templates NuGet/NuGetPackageContent/ || true
+          cp LICENSE NuGet/NuGetPackageContent/ || true
+          cp README.md NuGet/NuGetPackageContent/ || true
+
+      # Optional Step: Verify NuGetPackageContent Directory
+      - name: Verify NuGetPackageContent Directory
+        run: |
+          echo "Verifying contents of NuGetPackageContent:"
+          ls -la NuGet/NuGetPackageContent/
+          echo "Verifying GPOs-Templates directory:"
+          ls -la NuGet/NuGetPackageContent/GPOs-Templates/
 
       # Step 10: Pack NuGet Package Using nuget.exe
       - name: Pack NuGet Package
