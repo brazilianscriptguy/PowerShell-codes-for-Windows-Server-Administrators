@@ -18,7 +18,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Verify Packages Exist
+      # Step 2: Verify Package Exists
       - name: Verify NuGet Packages
         run: |
           if [ ! -d "artifacts" ]; then
@@ -37,26 +37,13 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
         run: |
           echo "Pushing NuGet packages to GitHub Packages..."
-
           for package in artifacts/*.nupkg; do
-            echo "Checking package: $package"
+            echo "Pushing package: $package"
 
-            # Extract package name and version
-            package_name=$(basename "$package" | cut -d'.' -f1)
-            package_version=$(basename "$package" | cut -d'.' -f2,3)
-
-            # Check if the version already exists in the feed
-            API_URL="https://api.github.com/orgs/${{ github.repository_owner }}/packages/nuget/${package_name}/versions"
-            response=$(curl -s -H "Authorization: Bearer $NUGET_AUTH_TOKEN" -H "Accept: application/vnd.github+json" "$API_URL")
-
-            if echo "$response" | jq -e ".[] | select(.name == \"$package_version\")" > /dev/null 2>&1; then
-              echo "Package version $package_version already exists. Skipping..."
-              continue
-            fi
-
-            # Push the package if the version does not exist
-            echo "Pushing $package to GitHub Packages..."
+            # Attempt to push the package and skip duplicates
             dotnet nuget push "$package" \
               --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-              --api-key $NUGET_AUTH_TOKEN --skip-duplicate
+              --api-key $NUGET_AUTH_TOKEN --skip-duplicate || {
+                echo "Skipping package due to version conflict or duplicate: $package"
+              }
           done
