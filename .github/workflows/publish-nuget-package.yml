@@ -1,4 +1,4 @@
-name: Publish NuGet Package
+name: Manage and Publish NuGet Package
 
 on:
   workflow_dispatch:
@@ -7,19 +7,21 @@ on:
 
 permissions:
   contents: write
-  packages: write  # Required for managing GitHub Packages
+  packages: write  # Required for GitHub Packages management
 
 jobs:
-  publish-nuget-package:
+  manage-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout Repository
+      # Step 1: Checkout the Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for accurate tag detection
 
-      # Step 2: Delete Old Versions of the Package (if any)
-      - name: Clean up Old NuGet Package Versions
+      # Step 2: Cleanup Old NuGet Package Versions
+      - name: Cleanup Old NuGet Package Versions
         env:
           PACKAGE_NAME: "Windows-SysAdmin-ProSuite"
           OWNER: ${{ github.repository_owner }}
@@ -28,41 +30,71 @@ jobs:
           set -e
           echo "Fetching old package versions for ${PACKAGE_NAME}..."
 
-          # API endpoint
+          # Determine API endpoint
           API_URL="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions"
 
           # Fetch all versions of the package
           response=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "$API_URL")
 
-          # Validate JSON response
+          # Validate the JSON response
           if ! echo "$response" | jq empty 2>/dev/null; then
-            echo "Error: Invalid API response or no existing package versions found."
-            exit 0
+            echo "Error: Failed to fetch package versions. Response was not valid JSON."
+            exit 1
           fi
 
-          # Extract package version IDs
-          echo "$response" | jq -r '.[].id' > package_ids.txt
-
-          # Check if package IDs exist
-          if [ ! -s package_ids.txt ]; then
+          # Check if there are any versions to delete
+          if ! echo "$response" | jq -e '.[0].id' 2>/dev/null; then
             echo "No existing package versions found for ${PACKAGE_NAME}."
             exit 0
           fi
 
-          # Delete all package versions
+          # Extract and delete all package versions
+          echo "$response" | jq -r '.[].id' > package_ids.txt
           while IFS= read -r package_id; do
             echo "Deleting version ID: $package_id"
             DELETE_URL="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions/$package_id"
             curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "$DELETE_URL" || echo "Failed to delete version ID: $package_id"
           done < package_ids.txt
-
           echo "Old versions of ${PACKAGE_NAME} have been cleaned."
 
-      # Step 3: Publish the New NuGet Package
-      - name: Publish NuGet Package
+      # Step 3: Push New NuGet Package
+      - name: Push NuGet Package to GitHub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
+          echo "Pushing new NuGet package..."
+
+          # Ensure the package exists
+          if [ ! -f "artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg" ]; then
+            echo "Error: NuGet package file not found in artifacts directory."
+            exit 1
+          fi
+
+          # Push the package with --skip-duplicate to handle retries
           dotnet nuget push artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key $GITHUB_TOKEN
+            --api-key $GITHUB_TOKEN --skip-duplicate
+
+      # Step 4: Verify Published Package
+      - name: Verify Published Package
+        env:
+          PACKAGE_NAME: "Windows-SysAdmin-ProSuite"
+          OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          echo "Verifying the published package for ${PACKAGE_NAME}..."
+
+          # Verify the latest package version
+          API_URL="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions"
+          response=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "$API_URL")
+
+          if ! echo "$response" | jq -e '. | length > 0' 2>/dev/null; then
+            echo "Error: Unable to verify the published package."
+            echo "$response"
+            exit 1
+          fi
+
+          echo "Successfully verified the published package:"
+          echo "$response" | jq -r '.[0] | "Version: \(.name), Published At: \(.created_at)"'
