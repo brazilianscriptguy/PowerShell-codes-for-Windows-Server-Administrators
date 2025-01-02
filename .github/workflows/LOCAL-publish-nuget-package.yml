@@ -1,4 +1,4 @@
-name: Publish Existing NuGet Package
+name: Publish NuGet Package
 
 on:
   workflow_dispatch:
@@ -14,11 +14,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout Repository
+      # Step 1: Checkout the Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Push Existing NuGet Package
+      # Step 2: Delete Existing NuGet Package
+      - name: Delete Existing Package (if any)
+        env:
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+        run: |
+          PACKAGE_NAME="Windows-SysAdmin-ProSuite"
+          PACKAGE_VERSION="1.0.1"
+          OWNER="${{ github.repository_owner }}"
+          DELETE_URL="https://nuget.pkg.github.com/${OWNER}/package/${PACKAGE_NAME}/${PACKAGE_VERSION}"
+
+          echo "Attempting to delete existing package ${PACKAGE_NAME} version ${PACKAGE_VERSION}..."
+          
+          curl -X DELETE \
+            -H "Authorization: Bearer $NUGET_TOKEN" \
+            -H "Accept: application/vnd.github.package-deletion-preview+json" \
+            $DELETE_URL || echo "No existing package found to delete."
+
+      # Step 3: Push NuGet Package to GitHub
       - name: Push NuGet Package to GitHub
         env:
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
@@ -26,32 +43,3 @@ jobs:
           dotnet nuget push artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
             --api-key $NUGET_TOKEN
-
-      # Step 3: Create GitHub Release
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: Windows-SysAdmin-ProSuite
-          release_name: Windows SysAdmin ProSuite Release
-          body: |
-            **Package Metadata:**
-            - Version: 1.0.1
-            - Description: A comprehensive toolkit for Windows SysAdmin tasks.
-            - Publisher: ${{ github.repository_owner }}
-            - Source: [GitHub Packages](https://github.com/${{ github.repository_owner }}/packages)
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Step 4: Attach the `.nupkg` as a Release Asset
-      - name: Attach NuGet Package to Release
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg
-          asset_name: Windows-SysAdmin-ProSuite.1.0.1.nupkg
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
