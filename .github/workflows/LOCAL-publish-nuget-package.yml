@@ -7,7 +7,7 @@ on:
 
 permissions:
   packages: write
-  contents: read
+  contents: write  # Enables attaching assets to releases
 
 jobs:
   publish-nuget-pkg:
@@ -21,7 +21,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Publish the NuGet package
+      # Step 2: Set up .NET environment
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0'
+
+      # Step 3: Publish the NuGet package
       - name: Publish NuGet Package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,3 +35,12 @@ jobs:
           dotnet nuget push artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
             --api-key $GITHUB_TOKEN
+
+      # Step 4: Attach .nupkg file to GitHub release
+      - name: Attach .nupkg to Release
+        if: github.event_name == 'release' && github.event.action == 'published'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_ID=$(gh release view "${{ github.event.release.tag_name }}" --json id -q ".id")
+          gh release upload $RELEASE_ID artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg
