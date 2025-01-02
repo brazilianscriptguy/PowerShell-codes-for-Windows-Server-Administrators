@@ -1,4 +1,4 @@
-name: Publish NuGet Package
+name: Publish and Clean NuGet Package
 
 on:
   workflow_dispatch:
@@ -18,28 +18,49 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Delete Existing NuGet Package (if any)
-      - name: Delete Existing Package (if any)
+      # Step 2: Delete Old Versions of the NuGet Package
+      - name: Delete Old Versions
         env:
-          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PACKAGE_NAME="Windows-SysAdmin-ProSuite"
-          PACKAGE_VERSION="1.0.1"
           OWNER="${{ github.repository_owner }}"
-          DELETE_URL="https://nuget.pkg.github.com/${OWNER}/package/${PACKAGE_NAME}/${PACKAGE_VERSION}"
+          echo "Fetching old package versions for ${PACKAGE_NAME}..."
 
-          echo "Attempting to delete existing package ${PACKAGE_NAME} version ${PACKAGE_VERSION}..."
+          API="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions"
+
+          # Fetch all package versions
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" $API | jq -r '.[].id' > package_ids.txt
+
+          # Delete all fetched versions
+          while IFS= read -r package_id; do
+            echo "Deleting version ID: $package_id"
+            DELETE_URL="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions/$package_id"
+            curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" $DELETE_URL || echo "Failed to delete version ID: $package_id"
+          done < package_ids.txt
           
-          curl -X DELETE \
-            -H "Authorization: Bearer $NUGET_TOKEN" \
-            -H "Accept: application/vnd.github.package-deletion-preview+json" \
-            $DELETE_URL || echo "No existing package found to delete."
+          echo "Old versions of ${PACKAGE_NAME} have been cleaned."
 
-      # Step 3: Push NuGet Package to GitHub
+      # Step 3: Validate .nupkg File
+      - name: Validate NuGet Package
+        run: |
+          if [ ! -f artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg ]; then
+            echo "Error: NuGet package not found in artifacts folder!"
+            exit 1
+          fi
+          echo "NuGet package validated successfully."
+
+      # Step 4: Push New NuGet Package
       - name: Push NuGet Package to GitHub
         env:
-          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           dotnet nuget push artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key $NUGET_TOKEN
+            --api-key $GITHUB_TOKEN \
+            --skip-duplicate
+
+      # Step 5: Confirm Successful Deployment
+      - name: Confirm Deployment
+        run: |
+          echo "NuGet package successfully pushed to GitHub Packages."
