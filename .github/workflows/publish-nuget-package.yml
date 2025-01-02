@@ -14,74 +14,65 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the Repository
+      # Step 1: Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Install Required Tools
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      # Step 3: Delete Existing NuGet Package Versions
-      - name: Delete Existing Package Versions
+      # Step 2: Cleanup Old Versions
+      - name: Clean up Old NuGet Package Versions
         env:
+          PACKAGE_NAME: "Windows-SysAdmin-ProSuite"
+          OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          PACKAGE_NAME="Windows-SysAdmin-ProSuite"
-          OWNER="${{ github.repository_owner }}"
           echo "Fetching old package versions for ${PACKAGE_NAME}..."
 
           # Determine API endpoint
           API_URL="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions"
 
           # Fetch package versions using the API
-          response=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" $API_URL)
+          response=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "$API_URL")
 
-          # Validate the response and extract package version IDs
-          if ! echo "$response" | jq -e '. | length > 0' 2>/dev/null; then
-            echo "No existing package versions found for ${PACKAGE_NAME}."
+          # Debug: Print the response for verification
+          echo "Response from API:"
+          echo "$response"
+
+          # Check if the response is valid JSON
+          if ! echo "$response" | jq empty 2>/dev/null; then
+            echo "Error: Invalid JSON response from the API."
+            exit 1
+          fi
+
+          # Validate the response contains an array of objects with `id`
+          if ! echo "$response" | jq -e '.[0].id' 2>/dev/null; then
+            echo "No existing package versions found or unexpected API response format."
             exit 0
           fi
 
+          # Extract package version IDs
           echo "$response" | jq -r '.[].id' > package_ids.txt
+
+          # Check if any package IDs exist
+          if [ ! -s package_ids.txt ]; then
+            echo "No existing package versions found for ${PACKAGE_NAME}."
+            exit 0
+          fi
 
           # Delete all fetched package versions
           while IFS= read -r package_id; do
             echo "Deleting version ID: $package_id"
             DELETE_URL="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions/$package_id"
-            curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" $DELETE_URL || echo "Failed to delete version ID: $package_id"
+            curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "$DELETE_URL" || echo "Failed to delete version ID: $package_id"
           done < package_ids.txt
 
           echo "Old versions of ${PACKAGE_NAME} have been cleaned."
 
-      # Step 4: Build NuGet Package (if needed)
-      - name: Build NuGet Package
-        run: |
-          mkdir -p artifacts
-          # Placeholder for building the NuGet package if the .nupkg doesn't exist
-          if [ ! -f artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg ]; then
-            echo "Building NuGet package..."
-            dotnet pack -c Release --output artifacts/
-          fi
-
-      # Step 5: Push NuGet Package to GitHub
-      - name: Publish NuGet Package
+      # Step 3: Push New NuGet Package
+      - name: Push NuGet Package to GitHub
         env:
-          NUGET_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PACKAGE_PATH="artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg"
-          SOURCE_URL="https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-
-          if [ ! -f "$PACKAGE_PATH" ]; then
-            echo "Error: NuGet package not found at $PACKAGE_PATH"
-            exit 1
-          fi
-
-          echo "Pushing NuGet package to $SOURCE_URL..."
-          dotnet nuget push "$PACKAGE_PATH" \
-            --source "$SOURCE_URL" \
-            --api-key $NUGET_TOKEN \
-            --skip-duplicate
-
-          echo "NuGet package published successfully."
+          dotnet nuget push artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key $GITHUB_TOKEN
