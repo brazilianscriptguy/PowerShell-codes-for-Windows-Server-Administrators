@@ -18,32 +18,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Verify Package Exists
-      - name: Verify NuGet Packages
-        run: |
-          if [ ! -d "artifacts" ]; then
-            echo "Error: Artifacts directory does not exist."
-            exit 1
-          fi
-          if [ -z "$(ls -A artifacts/*.nupkg 2>/dev/null)" ]; then
-            echo "Error: No NuGet packages found in artifacts directory."
-            exit 1
-          fi
-          echo "NuGet packages found in artifacts directory."
-
-      # Step 3: Push NuGet Packages to GitHub Packages
+      # Step 2: Push NuGet Packages to GitHub Packages
       - name: Push NuGet Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
         run: |
           echo "Pushing NuGet packages to GitHub Packages..."
           for package in artifacts/*.nupkg; do
-            echo "Pushing package: $package"
+            echo "Processing package: $package"
 
-            # Attempt to push the package and skip duplicates
+            # Push package with --skip-duplicate
             dotnet nuget push "$package" \
               --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
               --api-key $NUGET_AUTH_TOKEN --skip-duplicate || {
-                echo "Skipping package due to version conflict or duplicate: $package"
+                echo "Skipping package due to conflict or duplicate: $package"
               }
           done
