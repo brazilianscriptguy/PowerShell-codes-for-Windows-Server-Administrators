@@ -1,0 +1,72 @@
+# Logs and Temporary Files
+*.log
+*.tmp
+*.temp
+
+# Cache and Backup Files
+*.bak
+*.swp
+*.swo
+.cache/
+
+# Binaries and Build Artifacts
+bin/
+obj/
+artifacts/
+
+# NuGet Files
+.nuget/
+.nuget.targets
+NuGet/
+*.nupkg
+
+# Sensitive Information
+*.pfx
+*.cert
+*.key
+*.env
+
+# System-specific Files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# IDE Configuration Files
+.vscode/
+.idea/
+*.code-workspace
+
+# Configuration and Generated Files
+config/.editorconfig
+config/.gitattributes
+config/.gitignore
+config/nuget.config
+
+# Documentation Files
+docs/LICENSE
+docs/README.md
+
+# Placeholder Files or Temporary Project Files
+PlaceholderDll/
+PlaceholderDll/*.csproj
+
+# Compiled Libraries
+NuGetPackageContent/lib/net7.0/*.dll
+
+# Operating System Files
+*.~lock.*
+*.directory
+
+# Temporary or Generated Artifacts During Development
+temp/
+tmp/
+*.bak
+*.old
+
+# Exclude Files for Development Tools
+*.user
+*.suo
+*.ncrunch*
+*.log
+_ReSharper*/
+*.vs/

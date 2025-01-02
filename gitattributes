@@ -1,0 +1,7 @@
+# Ensure LF as the line ending for consistency across platforms
+*.ps1 text eol=lf
+*.vbs text eol=lf
+*.hta text eol=lf
+
+# Handle text files carefully, especially for cross-platform compatibility
+*.txt text eol=lf
