@@ -22,17 +22,19 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      # Step 2: Setup .NET SDK
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '7.0.x'  # Specify your required .NET SDK version
+      # Step 2: Install Mono (Required for nuget.exe on Linux)
+      - name: Install Mono
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mono-complete
 
-      # Optional Step: Verify .NET Installation
-      - name: Verify .NET Installation
-        run: dotnet --info
+      # Step 3: Install NuGet CLI
+      - name: Install NuGet CLI
+        run: |
+          wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O nuget.exe
+          chmod +x ./nuget.exe
 
-      # Step 3: Generate Dynamic Version
+      # Step 4: Generate Dynamic Version
       - name: Generate Dynamic Version
         id: generate_version
         run: |
@@ -43,7 +45,7 @@ jobs:
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
 
-      # Step 4: Verify Nuspec File Exists
+      # Step 5: Verify Nuspec File Exists
       - name: Verify Nuspec File
         run: |
           if [ ! -f "NuGet/nuget.package.nuspec" ]; then
@@ -52,12 +54,12 @@ jobs:
           fi
           echo "NuGet/nuget.package.nuspec found."
 
-      # Step 5: Update Version in Nuspec
+      # Step 6: Update Version in Nuspec
       - name: Update Version in Nuspec
         run: |
           sed -i "s|<version>.*</version>|<version>${{ env.version }}</version>|g" NuGet/nuget.package.nuspec
 
-      # Step 6: Generate Placeholder .dll (if missing)
+      # Step 7: Generate Placeholder .dll (if missing)
       - name: Generate Placeholder .dll (if missing)
         run: |
           mkdir -p NuGetPackageContent/lib/net7.0
@@ -74,7 +76,7 @@ jobs:
               echo "Placeholder .dll already exists."
           fi
 
-      # Step 7: Prepare Files for NuGet Package
+      # Step 8: Prepare Files for NuGet Package
       - name: Prepare Files for NuGet Package
         run: |
           mkdir -p NuGetPackageContent
@@ -86,20 +88,20 @@ jobs:
           cp LICENSE NuGetPackageContent/ || true
           cp README.md NuGetPackageContent/ || true
 
-      # Step 8: Pack NuGet Package Using dotnet CLI
+      # Step 9: Pack NuGet Package Using nuget.exe
       - name: Pack NuGet Package
         run: |
           mkdir -p ./artifacts
-          dotnet pack NuGet/nuget.package.nuspec --output ./artifacts
+          mono ./nuget.exe pack NuGet/nuget.package.nuspec -OutputDirectory ./artifacts
           ls ./artifacts
 
-      # Step 9: Inspect NuGet Package
+      # Step 10: Inspect NuGet Package
       - name: Inspect NuGet Package
         run: |
           echo "Inspecting the contents of the package..."
           unzip -l ./artifacts/Windows-SysAdmin-ProSuite*.nupkg || true
 
-      # Step 10: Fetch Existing NuGet Packages from GitHub Packages
+      # Step 11: Fetch Existing NuGet Packages from GitHub Packages
       - name: Fetch Existing NuGet Packages
         id: fetch-packages
         env:
@@ -116,7 +118,7 @@ jobs:
           echo "Existing Packages:"
           cat existing_packages.txt
 
-      # Step 11: Publish New NuGet Package
+      # Step 12: Publish New NuGet Package Using nuget.exe
       - name: Publish NuGet Package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -135,9 +137,267 @@ jobs:
             fi
 
             echo "Pushing '$package_name' to GitHub Packages..."
-            dotnet nuget push "$package_path" \
-              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-              --api-key "$GITHUB_TOKEN" \
+            mono ./nuget.exe push "$package_path" \
+              -ApiKey "$GITHUB_TOKEN" \
+              -Source "https://nuget.pkg.github.com/brazilianscriptguy/index.json" \
+              --skip-duplicate || {
+                echo "Error: Failed to push '$package_name'."
+                exit 1
+              }
+          done
+    ```
+
+### **Key Changes:**
+
+1. **Correct Path to `.nuspec` File:**
+   - Updated all references from `nuget.package.nuspec` to `NuGet/nuget.package.nuspec`.
+
+2. **Use `nuget.exe` for Packing and Pushing:**
+   - Removed the incorrect use of `dotnet pack` for `.nuspec` files.
+   - Reintroduced `nuget.exe` with Mono for handling `.nuspec` based packaging.
+
+3. **Verification Step:**
+   - Added a step to verify the existence of the `.nuspec` file before proceeding.
+
+4. **Simplified Authentication:**
+   - Utilized `GITHUB_TOKEN` for authentication with GitHub Packages.
+
+### **Additional Recommendations:**
+
+1. **Validate `.nuspec` File Structure:**
+   - Ensure your `.nuspec` file is correctly formatted. Here's a **sample structure** based on your provided file:
+
+     ```xml
+     <?xml version="1.0"?>
+     <package>
+       <metadata>
+         <!-- Package Identification -->
+         <id>Windows-SysAdmin-ProSuite</id>
+         <version>1.0.1</version>
+         <authors>BrazilianScriptGuy</authors>
+         <owners>BrazilianScriptGuy</owners>
+
+         <!-- Package Details -->
+         <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+         <projectUrl>https://github.com/brazilianscriptguy</projectUrl>
+         <iconUrl>https://raw.githubusercontent.com/brazilianscriptguy/Windows-SysAdmin-ProSuite/main/icon.png</iconUrl>
+         <description>A comprehensive suite of PowerShell scripts and templates for system administration.</description>
+         <releaseNotes>Initial release of Windows-SysAdmin-ProSuite. Includes tools for Blue Team, ITSM, Active Directory, Event Logs analysis, and more.</releaseNotes>
+         <tags>active-directory sysadmin siem itsm workstations audit-log admin-tools customize blueteam active-directory-domain-services evtx-analysis sysadmin-tasks sysadmin-tool sysadmin-scripts eventlogs windows-server-2019 organizational-units forensics-tools itsm-solutions</tags>
+
+         <!-- Dependencies (if any) -->
+         <!-- Add dependencies here if required -->
+         <!-- Example:
+         <dependencies>
+           <dependency id="Newtonsoft.Json" version="13.0.1" />
+         </dependencies>
+         -->
+       </metadata>
+       <files>
+         <!-- File Mappings -->
+         <file src="NuGetPackageContent/GPOs-Templates/**/*" target="content/GPOs-Templates" />
+         <file src="NuGetPackageContent/ITSM-Templates-SVR/**/*" target="content/ITSM-Templates-SVR" />
+         <file src="NuGetPackageContent/ITSM-Templates-WKS/**/*" target="content/ITSM-Templates-WKS" />
+         <file src="NuGetPackageContent/SysAdminToolsSet/**/*" target="content/SysAdminToolsSet" />
+         <file src="NuGetPackageContent/LICENSE" target="content" />
+         <file src="NuGetPackageContent/README.md" target="content" />
+         <file src="NuGetPackageContent/lib/net7.0/PlaceholderDll.dll" target="lib/net7.0" />
+       </files>
+     </package>
+     ```
+
+   - **Ensure:**
+     - The root element is `<package>`.
+     - All required child elements are present and correctly formatted.
+
+2. **Debugging Steps:**
+   - **List Directory Contents:** Add a step to list contents of the `NuGet` directory to ensure the `.nuspec` file is present.
+
+     ```yaml
+     - name: List NuGet Directory
+       run: |
+         echo "Listing contents of NuGet directory:"
+         ls -la NuGet/
+     ```
+
+   - **Validate `.nuspec` File:** Use `nuget.exe` to validate the `.nuspec` file.
+
+     ```yaml
+     - name: Validate Nuspec File
+       run: |
+         echo "Validating nuspec file..."
+         mono ./nuget.exe spec NuGet/nuget.package.nuspec
+     ```
+
+3. **Ensure All Source Files Exist:**
+   - Verify that all paths specified in the `<files>` section of your `.nuspec` file exist in the repository.
+
+4. **Permissions and Token Configuration:**
+   - **`GITHUB_TOKEN` Permissions:** Ensure that the `GITHUB_TOKEN` has `packages: write` permissions, which you've already configured in the workflow.
+
+5. **Testing the Workflow:**
+   - **Push a Tag:** Create and push a tag matching the pattern `v*` (e.g., `v1.0.0`) to trigger the workflow.
+   - **Monitor Actions:** Check the **Actions** tab in your repository to monitor the workflow's execution and identify any further issues.
+
+### **Final Workflow with Debugging Steps:**
+
+To aid in troubleshooting, here's the **enhanced workflow** with added debugging steps:
+
+```yaml
+name: Publish NuGet Package
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      # Step 2: Install Mono (Required for nuget.exe on Linux)
+      - name: Install Mono
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mono-complete
+
+      # Step 3: Install NuGet CLI
+      - name: Install NuGet CLI
+        run: |
+          wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O nuget.exe
+          chmod +x ./nuget.exe
+
+      # Step 4: Generate Dynamic Version
+      - name: Generate Dynamic Version
+        id: generate_version
+        run: |
+          major=1
+          minor=0
+          build=$(date +'%y%m%d')
+          revision=$(date +'%H%M%S')
+          version="$major.$minor.$build.$revision"
+          echo "version=$version" >> $GITHUB_ENV
+
+      # Step 5: Verify Nuspec File Exists
+      - name: Verify Nuspec File
+        run: |
+          if [ ! -f "NuGet/nuget.package.nuspec" ]; then
+            echo "Error: NuGet/nuget.package.nuspec does not exist in the repository."
+            exit 1
+          fi
+          echo "NuGet/nuget.package.nuspec found."
+
+      # Step 6: List NuGet Directory for Debugging
+      - name: List NuGet Directory
+        run: |
+          echo "Listing contents of NuGet directory:"
+          ls -la NuGet/
+
+      # Step 7: Validate Nuspec File
+      - name: Validate Nuspec File
+        run: |
+          echo "Validating nuspec file..."
+          mono ./nuget.exe spec NuGet/nuget.package.nuspec
+
+      # Step 8: Update Version in Nuspec
+      - name: Update Version in Nuspec
+        run: |
+          sed -i "s|<version>.*</version>|<version>${{ env.version }}</version>|g" NuGet/nuget.package.nuspec
+
+      # Step 9: Generate Placeholder .dll (if missing)
+      - name: Generate Placeholder .dll (if missing)
+        run: |
+          mkdir -p NuGetPackageContent/lib/net7.0
+          if [ ! -f "NuGetPackageContent/lib/net7.0/PlaceholderDll.dll" ]; then
+              echo "Generating placeholder .dll..."
+              mkdir -p PlaceholderDll
+              cd PlaceholderDll
+              dotnet new classlib -n PlaceholderDll
+              sed -i 's/<PropertyGroup>/<PropertyGroup><Version>1.0.0<\/Version>/' PlaceholderDll/PlaceholderDll.csproj
+              dotnet build PlaceholderDll/PlaceholderDll.csproj -o ../NuGetPackageContent/lib/net7.0
+              cd ..
+              echo "Placeholder .dll generated at NuGetPackageContent/lib/net7.0/PlaceholderDll.dll"
+          else
+              echo "Placeholder .dll already exists."
+          fi
+
+      # Step 10: Prepare Files for NuGet Package
+      - name: Prepare Files for NuGet Package
+        run: |
+          mkdir -p NuGetPackageContent
+          cp -r BlueTeam-Tools NuGetPackageContent/ || true
+          cp -r Core-ScriptLibrary NuGetPackageContent/ || true
+          cp -r ITSM-Templates-SVR NuGetPackageContent/ || true
+          cp -r ITSM-Templates-WKS NuGetPackageContent/ || true
+          cp -r SysAdmin-Tools NuGetPackageContent/ || true
+          cp LICENSE NuGetPackageContent/ || true
+          cp README.md NuGetPackageContent/ || true
+
+      # Step 11: Pack NuGet Package Using nuget.exe
+      - name: Pack NuGet Package
+        run: |
+          mkdir -p ./artifacts
+          mono ./nuget.exe pack NuGet/nuget.package.nuspec -OutputDirectory ./artifacts
+          ls ./artifacts
+
+      # Step 12: Inspect NuGet Package
+      - name: Inspect NuGet Package
+        run: |
+          echo "Inspecting the contents of the package..."
+          unzip -l ./artifacts/Windows-SysAdmin-ProSuite*.nupkg || true
+
+      # Step 13: Fetch Existing NuGet Packages from GitHub Packages
+      - name: Fetch Existing NuGet Packages
+        id: fetch-packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching existing NuGet packages from GitHub Packages..."
+          
+          # Fetch package names and store in existing_packages.txt
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+               -H "Accept: application/vnd.github+json" \
+               "https://api.github.com/users/${{ github.repository_owner }}/packages?package_type=nuget&per_page=100" | \
+               jq -r '.[].name' > existing_packages.txt
+          
+          echo "Existing Packages:"
+          cat existing_packages.txt
+
+      # Step 14: Publish New NuGet Package Using nuget.exe
+      - name: Publish NuGet Package
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          artifact_dir="artifacts"
+          
+          for package_path in "$artifact_dir"/*.nupkg; do
+            [ -e "$package_path" ] || continue  # Skip if no .nupkg files
+
+            package_name=$(basename "$package_path")
+            echo "Processing package: $package_name"
+
+            if grep -Fxq "$package_name" existing_packages.txt; then
+              echo "Package '$package_name' already exists. Skipping..."
+              continue
+            fi
+
+            echo "Pushing '$package_name' to GitHub Packages..."
+            mono ./nuget.exe push "$package_path" \
+              -ApiKey "$GITHUB_TOKEN" \
+              -Source "https://nuget.pkg.github.com/brazilianscriptguy/index.json" \
               --skip-duplicate || {
                 echo "Error: Failed to push '$package_name'."
                 exit 1
