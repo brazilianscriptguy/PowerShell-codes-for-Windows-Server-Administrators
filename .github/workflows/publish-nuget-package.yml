@@ -183,7 +183,7 @@ jobs:
    
    **Example of Correct Structure:**
    ```yaml
-   - name: Step Name
+   - name: Some Step
      run: |
        echo "Running commands"
      shell: /usr/bin/bash -e {0}
