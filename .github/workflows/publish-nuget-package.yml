@@ -1,13 +1,13 @@
-name: Manage NuGet Packages
+name: Manage and Publish NuGet Packages
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual triggering
   schedule:
-    - cron: '0 2 * * *' # Daily schedule at 2:00 AM UTC
+    - cron: '0 2 * * *'  # Runs daily at 2:00 AM UTC
 
 permissions:
-  packages: write
-  contents: read
+  packages: write        # Grants write access to GitHub Packages
+  contents: read         # Grants read access to repository contents
 
 jobs:
   manage-nuget-packages:
@@ -22,65 +22,99 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.0.x' # Specify the desired .NET SDK version
+          dotnet-version: '7.0.x'  # Specify the desired .NET SDK version
 
-      # Optional: Verify .NET Installation
+      # Optional Step: Verify .NET Installation
       - name: Verify .NET Installation
         run: dotnet --info
 
-      # Step 3: Fetch Existing NuGet Packages
-      - name: Fetch Published NuGet Packages
+      # Step 3: Fetch Existing NuGet Packages from GitHub Packages
+      - name: Fetch Existing NuGet Packages
         id: fetch-packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
         run: |
-          echo "Fetching published NuGet packages from GitHub Packages..."
-          response=$(curl -s -H "Authorization: Bearer $NUGET_AUTH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/users/${{ github.repository_owner }}/packages?package_type=nuget")
+          echo "Fetching existing NuGet packages from GitHub Packages..."
+          
+          # GitHub API Endpoint for user packages
+          API_URL="https://api.github.com/users/${{ github.repository_owner }}/packages?package_type=nuget&per_page=100"
 
-          echo "API Response: $response"
+          # Initialize an empty array to store package names
+          existing_packages=()
 
-          if ! echo "$response" | jq empty; then
-            echo "Error: Invalid JSON response from GitHub API."
-            exit 1
-          fi
+          # Fetch packages (handle pagination if necessary)
+          while [ "$API_URL" != "null" ]; do
+            response=$(curl -s -H "Authorization: Bearer $NUGET_AUTH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "$API_URL")
+            
+            # Check for authentication errors
+            if echo "$response" | jq -e 'has("message")'; then
+              message=$(echo "$response" | jq -r '.message')
+              echo "Error fetching packages: $message"
+              exit 1
+            fi
 
-          echo "$response" | jq -r '.[].name' > existing_packages.txt
+            # Extract package names and append to the array
+            package_names=$(echo "$response" | jq -r '.[].name')
+            existing_packages+=($package_names)
+
+            # Determine the next page URL from the 'Link' header
+            LINK_HEADER=$(curl -I -s -H "Authorization: Bearer $NUGET_AUTH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "$API_URL" | grep -i '^Link:')
+            
+            # Extract the 'next' URL if it exists
+            if echo "$LINK_HEADER" | grep -q 'rel="next"'; then
+              API_URL=$(echo "$LINK_HEADER" | sed -n 's/.*<\(.*\)>; rel="next".*/\1/p')
+            else
+              API_URL="null"
+            fi
+          done
+
+          # Save existing package names to a file
+          printf "%s\n" "${existing_packages[@]}" > existing_packages.txt
           echo "Existing Packages:"
           cat existing_packages.txt
 
-      # Step 4: Compare and Push New Packages
+      # Step 4: Identify and Push New NuGet Packages
       - name: Push New NuGet Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
         run: |
           artifact_dir="artifacts"
+          
+          # Check if the artifacts directory exists
           if [ ! -d "$artifact_dir" ]; then
-            echo "Error: Artifacts directory not found."
+            echo "Error: Artifacts directory '$artifact_dir' not found."
             exit 1
           fi
 
+          # Iterate over each .nupkg file in the artifacts directory
           for package_path in "$artifact_dir"/*.nupkg; do
+            # Check if any .nupkg files are present
             if [ ! -f "$package_path" ]; then
-              echo "No .nupkg files found in artifacts directory."
+              echo "No .nupkg files found in '$artifact_dir' directory."
               continue
             fi
 
             package_name=$(basename "$package_path")
             echo "Processing package: $package_name"
 
-            if grep -q "$package_name" existing_packages.txt; then
-              echo "Package $package_name already exists. Skipping..."
+            # Check if the package already exists
+            if grep -Fxq "$package_name" existing_packages.txt; then
+              echo "Package '$package_name' already exists. Skipping..."
               continue
             fi
 
-            echo "Pushing $package_name to GitHub Packages..."
+            echo "Pushing '$package_name' to GitHub Packages..."
+
+            # Push the package using dotnet CLI
             dotnet nuget push "$package_path" \
               --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
               --api-key "$NUGET_AUTH_TOKEN" \
               --skip-duplicate || {
-                echo "Error: Failed to push $package_name"
+                echo "Error: Failed to push '$package_name'."
                 exit 1
               }
           done
