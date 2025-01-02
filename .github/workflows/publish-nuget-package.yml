@@ -18,7 +18,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Install Required Dependencies
+      # Step 2: Install Required Tools
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
@@ -27,49 +27,45 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           PACKAGE_NAME="Windows-SysAdmin-ProSuite"
           OWNER="${{ github.repository_owner }}"
           echo "Fetching old package versions for ${PACKAGE_NAME}..."
 
-          # Determine API endpoints for user and organization
-          API_USER="https://api.github.com/users/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions"
-          API_ORG="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions"
+          # Determine API endpoint
+          API_URL="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions"
 
-          # Fetch package versions using user-level API
-          response=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" $API_USER)
+          # Fetch package versions using the API
+          response=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" $API_URL)
 
-          # Check if the response is valid JSON; otherwise, try the organization-level API
-          if ! echo "$response" | jq empty 2>/dev/null; then
-            echo "Trying organization-level API..."
-            response=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" $API_ORG)
-          fi
-
-          # Validate the response again
-          if ! echo "$response" | jq empty 2>/dev/null; then
-            echo "Error: Failed to fetch package versions."
-            echo "$response"
-            exit 1
-          fi
-
-          # Extract package version IDs
-          echo "$response" | jq -r '.[].id' > package_ids.txt
-
-          # Check if any package IDs exist
-          if [ ! -s package_ids.txt ]; then
+          # Validate the response and extract package version IDs
+          if ! echo "$response" | jq -e '. | length > 0' 2>/dev/null; then
             echo "No existing package versions found for ${PACKAGE_NAME}."
             exit 0
           fi
 
+          echo "$response" | jq -r '.[].id' > package_ids.txt
+
           # Delete all fetched package versions
           while IFS= read -r package_id; do
             echo "Deleting version ID: $package_id"
-            DELETE_URL="https://api.github.com/users/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions/$package_id"
-            curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" $DELETE_URL || echo "Failed to delete version ID: $package_id"
+            DELETE_URL="https://api.github.com/orgs/${OWNER}/packages/nuget/${PACKAGE_NAME}/versions/$package_id"
+            curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" $DELETE_URL || echo "Failed to delete version ID: $package_id"
           done < package_ids.txt
 
           echo "Old versions of ${PACKAGE_NAME} have been cleaned."
 
-      # Step 4: Build and Push NuGet Package
+      # Step 4: Build NuGet Package (if needed)
+      - name: Build NuGet Package
+        run: |
+          mkdir -p artifacts
+          # Placeholder for building the NuGet package if the .nupkg doesn't exist
+          if [ ! -f artifacts/Windows-SysAdmin-ProSuite.1.0.1.nupkg ]; then
+            echo "Building NuGet package..."
+            dotnet pack -c Release --output artifacts/
+          fi
+
+      # Step 5: Push NuGet Package to GitHub
       - name: Publish NuGet Package
         env:
           NUGET_TOKEN: ${{ secrets.GITHUB_TOKEN }}
