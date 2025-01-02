@@ -26,7 +26,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.0.x'  # Specify the desired .NET SDK version
+          dotnet-version: '7.0.x'  # Specify your required .NET SDK version
 
       # Optional Step: Verify .NET Installation
       - name: Verify .NET Installation
@@ -46,11 +46,11 @@ jobs:
       # Step 4: Verify Nuspec File Exists
       - name: Verify Nuspec File
         run: |
-          if [ ! -f "nuget.package.nuspec" ]; then
-            echo "Error: nuget.package.nuspec does not exist in the repository."
+          if [ ! -f "NuGet/nuget.package.nuspec" ]; then
+            echo "Error: NuGet/nuget.package.nuspec does not exist in the repository."
             exit 1
           fi
-          echo "nuget.package.nuspec found."
+          echo "NuGet/nuget.package.nuspec found."
 
       # Step 5: Update Version in Nuspec
       - name: Update Version in Nuspec
@@ -60,7 +60,6 @@ jobs:
       # Step 6: Generate Placeholder .dll (if missing)
       - name: Generate Placeholder .dll (if missing)
         run: |
-          set -euo pipefail
           mkdir -p NuGetPackageContent/lib/net7.0
           if [ ! -f "NuGetPackageContent/lib/net7.0/PlaceholderDll.dll" ]; then
               echo "Generating placeholder .dll..."
@@ -78,7 +77,6 @@ jobs:
       # Step 7: Prepare Files for NuGet Package
       - name: Prepare Files for NuGet Package
         run: |
-          set -euo pipefail
           mkdir -p NuGetPackageContent
           cp -r BlueTeam-Tools NuGetPackageContent/ || true
           cp -r Core-ScriptLibrary NuGetPackageContent/ || true
@@ -91,9 +89,8 @@ jobs:
       # Step 8: Pack NuGet Package Using dotnet CLI
       - name: Pack NuGet Package
         run: |
-          set -euo pipefail
           mkdir -p ./artifacts
-          dotnet pack nuget.package.nuspec --output ./artifacts
+          dotnet pack NuGet/nuget.package.nuspec --output ./artifacts
           ls ./artifacts
 
       # Step 9: Inspect NuGet Package
@@ -102,11 +99,47 @@ jobs:
           echo "Inspecting the contents of the package..."
           unzip -l ./artifacts/Windows-SysAdmin-ProSuite*.nupkg || true
 
-      # Step 10: Publish NuGet Package Using dotnet CLI
-      - name: Publish NuGet Package
+      # Step 10: Fetch Existing NuGet Packages from GitHub Packages
+      - name: Fetch Existing NuGet Packages
+        id: fetch-packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
-          dotnet nuget push ./artifacts/*.nupkg \
-            --source "https://nuget.pkg.github.com/brazilianscriptguy/index.json" \
-            --api-key "${{ secrets.GITHUB_TOKEN }}" \
-            --skip-duplicate
+          echo "Fetching existing NuGet packages from GitHub Packages..."
+          
+          # Fetch package names and store in existing_packages.txt
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+               -H "Accept: application/vnd.github+json" \
+               "https://api.github.com/users/${{ github.repository_owner }}/packages?package_type=nuget&per_page=100" | \
+               jq -r '.[].name' > existing_packages.txt
+          
+          echo "Existing Packages:"
+          cat existing_packages.txt
+
+      # Step 11: Publish New NuGet Package
+      - name: Publish NuGet Package
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          artifact_dir="artifacts"
+          
+          for package_path in "$artifact_dir"/*.nupkg; do
+            [ -e "$package_path" ] || continue  # Skip if no .nupkg files
+
+            package_name=$(basename "$package_path")
+            echo "Processing package: $package_name"
+
+            if grep -Fxq "$package_name" existing_packages.txt; then
+              echo "Package '$package_name' already exists. Skipping..."
+              continue
+            fi
+
+            echo "Pushing '$package_name' to GitHub Packages..."
+            dotnet nuget push "$package_path" \
+              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+              --api-key "$GITHUB_TOKEN" \
+              --skip-duplicate || {
+                echo "Error: Failed to push '$package_name'."
+                exit 1
+              }
+          done
