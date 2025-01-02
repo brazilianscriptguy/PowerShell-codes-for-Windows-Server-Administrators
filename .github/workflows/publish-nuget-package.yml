@@ -54,24 +54,18 @@ jobs:
           fi
           echo "NuGet/nuget.package.nuspec found."
 
-      # Step 6: List NuGet Directory for Debugging
+      # Step 6: List NuGet Directory for Debugging (Optional)
       - name: List NuGet Directory
         run: |
           echo "Listing contents of NuGet directory:"
           ls -la NuGet/
 
-      # Step 7: Validate Nuspec File
-      - name: Validate Nuspec File
-        run: |
-          echo "Validating nuspec file..."
-          mono ./nuget.exe spec NuGet/nuget.package.nuspec
-
-      # Step 8: Update Version in Nuspec
+      # Step 7: Update Version in Nuspec
       - name: Update Version in Nuspec
         run: |
           sed -i "s|<version>.*</version>|<version>${{ env.version }}</version>|g" NuGet/nuget.package.nuspec
 
-      # Step 9: Generate Placeholder .dll (if missing)
+      # Step 8: Generate Placeholder .dll (if missing)
       - name: Generate Placeholder .dll (if missing)
         run: |
           mkdir -p NuGetPackageContent/lib/net7.0
@@ -88,7 +82,7 @@ jobs:
               echo "Placeholder .dll already exists."
           fi
 
-      # Step 10: Prepare Files for NuGet Package
+      # Step 9: Prepare Files for NuGet Package
       - name: Prepare Files for NuGet Package
         run: |
           mkdir -p NuGetPackageContent
@@ -100,20 +94,20 @@ jobs:
           cp LICENSE NuGetPackageContent/ || true
           cp README.md NuGetPackageContent/ || true
 
-      # Step 11: Pack NuGet Package Using nuget.exe
+      # Step 10: Pack NuGet Package Using nuget.exe
       - name: Pack NuGet Package
         run: |
           mkdir -p ./artifacts
           mono ./nuget.exe pack NuGet/nuget.package.nuspec -OutputDirectory ./artifacts
           ls ./artifacts
 
-      # Step 12: Inspect NuGet Package
+      # Step 11: Inspect NuGet Package (Optional)
       - name: Inspect NuGet Package
         run: |
           echo "Inspecting the contents of the package..."
           unzip -l ./artifacts/Windows-SysAdmin-ProSuite*.nupkg || true
 
-      # Step 13: Fetch Existing NuGet Packages from GitHub Packages
+      # Step 12: Fetch Existing NuGet Packages from GitHub Packages
       - name: Fetch Existing NuGet Packages
         id: fetch-packages
         env:
@@ -130,7 +124,7 @@ jobs:
           echo "Existing Packages:"
           cat existing_packages.txt
 
-      # Step 14: Publish New NuGet Package Using nuget.exe
+      # Step 13: Publish New NuGet Package Using nuget.exe
       - name: Publish NuGet Package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -157,3 +151,73 @@ jobs:
                 exit 1
               }
           done
+    ```
+
+### **Key Corrections and Enhancements**
+
+1. **Removed the "Validate Nuspec File" Step:**
+   - **Reason:** The command `nuget.exe spec NuGet/nuget.package.nuspec` is incorrect and misinterprets the `.nuspec` file path as a package ID.
+   - **Action:** Removed this step to prevent the error.
+
+2. **Proper Indentation:**
+   - Ensured that `run`, `shell`, and `env` are correctly aligned and not nested improperly.
+   - Each step starts with a `-` followed by `name` and the respective actions.
+
+3. **Authentication Handling:**
+   - **Removed `nuget.config`:** Since embedding secrets directly in configuration files is insecure and GitHub Actions cannot interpolate secrets within files.
+   - **Handled Credentials in Workflow Steps:** Passed the `GITHUB_TOKEN` directly as the `-ApiKey` in the `nuget.exe push` command.
+
+4. **Ensured Correct `.nuspec` File Path:**
+   - All references to the `.nuspec` file are updated to `NuGet/nuget.package.nuspec`.
+
+5. **Optional Debugging Steps:**
+   - **List NuGet Directory:** Helps verify the presence of the `.nuspec` file.
+   - **Inspect NuGet Package:** Optional step to list the contents of the generated `.nupkg` file.
+
+### **Handling `nuget.config`**
+
+Since GitHub Actions cannot interpolate secrets within files like `nuget.config`, it's best to **remove** or **not use** the `nuget.config` file in this context. Instead, handle all NuGet configurations within the workflow steps.
+
+**Action:**
+
+1. **Remove `nuget.config` from Your Repository:**
+   - This prevents confusion and potential misconfigurations.
+
+2. **Ensure Authentication is Handled in Workflow Steps:**
+   - As shown in the updated workflow, pass the `GITHUB_TOKEN` directly in the `nuget.exe push` command.
+
+### **Final Checklist**
+
+1. **Ensure `.nuspec` File Exists:**
+   - Confirm that `NuGet/nuget.package.nuspec` is present in your repository.
+
+2. **Validate `.nuspec` File Structure:**
+   - Ensure the `.nuspec` file is correctly formatted. Based on your provided file, it appears correctly structured.
+
+3. **Remove `nuget.config`:**
+   - Since authentication is handled within the workflow, the `nuget.config` file is unnecessary and should be removed to avoid conflicts.
+
+4. **Test the Workflow:**
+   - **Create and Push a Tag:**
+     ```bash
+     git tag v1.0.1
+     git push origin v1.0.1
+     ```
+   - **Monitor the Workflow Run:**
+     - Navigate to the **Actions** tab in your GitHub repository.
+     - Select the **"Publish NuGet Package"** workflow and monitor its execution.
+
+5. **Ensure GitHub Secrets are Correct:**
+   - **`GITHUB_TOKEN`:** Automatically provided by GitHub Actions with the permissions defined in the `permissions` section.
+   - **No Other Tokens Needed:** Since `nuget.config` is removed, no need for additional tokens like `NUGET_TOKEN`.
+
+6. **Verify Package Publication:**
+   - After a successful workflow run, check your GitHub Packages repository to confirm the new package is published.
+
+### **Example Tag Push Command**
+
+To trigger the workflow via a tag push, use the following Git commands:
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
