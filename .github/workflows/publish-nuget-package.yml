@@ -43,12 +43,21 @@ jobs:
           version="$major.$minor.$build.$revision"
           echo "version=$version" >> $GITHUB_ENV
 
-      # Step 4: Update Version in Nuspec
+      # Step 4: Verify Nuspec File Exists
+      - name: Verify Nuspec File
+        run: |
+          if [ ! -f "nuget.package.nuspec" ]; then
+            echo "Error: nuget.package.nuspec does not exist in the repository."
+            exit 1
+          fi
+          echo "nuget.package.nuspec found."
+
+      # Step 5: Update Version in Nuspec
       - name: Update Version in Nuspec
         run: |
-          sed -i "s|<version>.*</version>|<version>${{ env.version }}</version>|g" nuget.package.nuspec
+          sed -i "s|<version>.*</version>|<version>${{ env.version }}</version>|g" NuGet/nuget.package.nuspec
 
-      # Step 5: Generate Placeholder .dll (if missing)
+      # Step 6: Generate Placeholder .dll (if missing)
       - name: Generate Placeholder .dll (if missing)
         run: |
           set -euo pipefail
@@ -66,7 +75,7 @@ jobs:
               echo "Placeholder .dll already exists."
           fi
 
-      # Step 6: Prepare Files for NuGet Package
+      # Step 7: Prepare Files for NuGet Package
       - name: Prepare Files for NuGet Package
         run: |
           set -euo pipefail
@@ -79,7 +88,7 @@ jobs:
           cp LICENSE NuGetPackageContent/ || true
           cp README.md NuGetPackageContent/ || true
 
-      # Step 7: Pack NuGet Package Using dotnet CLI
+      # Step 8: Pack NuGet Package Using dotnet CLI
       - name: Pack NuGet Package
         run: |
           set -euo pipefail
@@ -87,13 +96,13 @@ jobs:
           dotnet pack nuget.package.nuspec --output ./artifacts
           ls ./artifacts
 
-      # Step 8: Inspect NuGet Package
+      # Step 9: Inspect NuGet Package
       - name: Inspect NuGet Package
         run: |
           echo "Inspecting the contents of the package..."
           unzip -l ./artifacts/Windows-SysAdmin-ProSuite*.nupkg || true
 
-      # Step 9: Publish NuGet Package Using dotnet CLI
+      # Step 10: Publish NuGet Package Using dotnet CLI
       - name: Publish NuGet Package
         run: |
           set -euo pipefail
