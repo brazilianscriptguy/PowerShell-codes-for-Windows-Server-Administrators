@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
+      # Step 1: Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
 
       # Step 2: Fix Dependencies and Install .NET SDK
-      - name: Install Dependencies
+      - name: Fix Dependencies and Install .NET
         run: |
           echo "Adding required Microsoft repository for .NET..."
           wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
@@ -27,11 +27,15 @@ jobs:
           rm packages-microsoft-prod.deb
 
           echo "Updating package lists..."
-          sudo apt-get update
+          sudo apt-get update || {
+            echo "Error updating package lists. Retrying..."
+            sudo apt-get clean
+            sudo apt-get update
+          }
 
-          echo "Manually resolving libicu dependency..."
+          echo "Resolving libicu dependencies..."
           sudo apt-get install -y libicu-dev || {
-            echo "Fetching compatible libicu version..."
+            echo "Manually installing libicu..."
             wget http://archive.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb
             sudo dpkg -i libicu66_66.1-2ubuntu2_amd64.deb
             sudo apt-get install -f -y
@@ -39,8 +43,11 @@ jobs:
 
           echo "Installing .NET SDK..."
           sudo apt-get install -y dotnet-sdk-7.0 || {
-            echo "Retrying installation with conflict resolution..."
-            sudo apt-get -o Dpkg::Options::="--force-overwrite" install -y dotnet-sdk-7.0
+            echo "Retrying with conflict resolution..."
+            sudo apt-get -o Dpkg::Options::="--force-overwrite" install -y dotnet-sdk-7.0 || {
+              echo "Force installing .NET dependencies..."
+              sudo apt-get install -f -y
+            }
           }
 
       # Step 3: Fetch Existing NuGet Packages
