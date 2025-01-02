@@ -1,23 +1,86 @@
-# Step 2: Fix Dependencies and Install .NET SDK
-- name: Fix Dependencies and Install .NET
-  run: |
-    echo "Adding required Microsoft repository for Ubuntu 22.04..."
-    wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-    sudo dpkg -i packages-microsoft-prod.deb
-    rm packages-microsoft-prod.deb
+name: Manage NuGet Packages
 
-    echo "Updating package lists..."
-    sudo apt-get update || {
-      echo "Error updating package lists. Retrying..."
-      sudo apt-get clean
-      sudo apt-get update
-    }
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *' # Daily schedule at 2:00 AM UTC
 
-    echo "Installing .NET SDK..."
-    sudo apt-get install -y dotnet-sdk-7.0 || {
-      echo "Retrying with conflict resolution..."
-      sudo apt-get -o Dpkg::Options::="--force-overwrite" install -y dotnet-sdk-7.0 || {
-        echo "Force installing .NET dependencies..."
-        sudo apt-get install -f -y
-      }
-    }
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  manage-nuget-packages:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Setup .NET SDK
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x' # Specify the desired .NET SDK version
+
+      # Optional: Verify .NET Installation
+      - name: Verify .NET Installation
+        run: dotnet --info
+
+      # Step 3: Fetch Existing NuGet Packages
+      - name: Fetch Published NuGet Packages
+        id: fetch-packages
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
+        run: |
+          echo "Fetching published NuGet packages from GitHub Packages..."
+          response=$(curl -s -H "Authorization: Bearer $NUGET_AUTH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/users/${{ github.repository_owner }}/packages?package_type=nuget")
+
+          echo "API Response: $response"
+
+          if ! echo "$response" | jq empty; then
+            echo "Error: Invalid JSON response from GitHub API."
+            exit 1
+          fi
+
+          echo "$response" | jq -r '.[].name' > existing_packages.txt
+          echo "Existing Packages:"
+          cat existing_packages.txt
+
+      # Step 4: Compare and Push New Packages
+      - name: Push New NuGet Packages
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
+        run: |
+          artifact_dir="artifacts"
+          if [ ! -d "$artifact_dir" ]; then
+            echo "Error: Artifacts directory not found."
+            exit 1
+          fi
+
+          for package_path in "$artifact_dir"/*.nupkg; do
+            if [ ! -f "$package_path" ]; then
+              echo "No .nupkg files found in artifacts directory."
+              continue
+            fi
+
+            package_name=$(basename "$package_path")
+            echo "Processing package: $package_name"
+
+            if grep -q "$package_name" existing_packages.txt; then
+              echo "Package $package_name already exists. Skipping..."
+              continue
+            fi
+
+            echo "Pushing $package_name to GitHub Packages..."
+            dotnet nuget push "$package_path" \
+              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+              --api-key "$NUGET_AUTH_TOKEN" \
+              --skip-duplicate || {
+                echo "Error: Failed to push $package_name"
+                exit 1
+              }
+          done
