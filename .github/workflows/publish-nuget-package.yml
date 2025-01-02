@@ -22,13 +22,16 @@ jobs:
       - name: Install Dependencies
         run: |
           echo "Setting up Microsoft repository for .NET..."
-          wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+          wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
           sudo dpkg -i packages-microsoft-prod.deb
           rm packages-microsoft-prod.deb
           
           echo "Installing required packages..."
           sudo apt-get update
-          sudo apt-get install -y apt-transport-https dotnet-sdk-6.0 jq
+          sudo apt-get install -y apt-transport-https
+          
+          echo "Installing latest .NET SDK..."
+          sudo apt-get install -y dotnet-sdk-7.0
 
       # Step 3: Fetch existing NuGet packages
       - name: Fetch Published NuGet Packages
