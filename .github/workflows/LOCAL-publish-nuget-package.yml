@@ -18,7 +18,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Delete Existing NuGet Package
+      # Step 2: Delete Existing NuGet Package (if any)
       - name: Delete Existing Package (if any)
         env:
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
