@@ -5,7 +5,7 @@ on:
   release:
     types: [published]
   schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+    - cron: '0 25 * * *'  # Runs daily at midnight UTC
 
 permissions:
   contents: write
@@ -138,8 +138,8 @@ jobs:
               ;;
             READMEs-Files-Package)
               mkdir -p READMEs-Files-Package
-              cp docs/README.md READMEs-Files-Package/main-README.md
-              find . -type f -iname "README.md" ! -path "./docs/README.md" | while read -r file; do
+              cp README.md READMEs-Files-Package/main-README.md
+              find . -type f -iname "README.md" ! -path ".README.md" | while read -r file; do
                 repo_dir=$(dirname "$file")
                 repo_name=$(basename "$repo_dir")
                 new_filename="${repo_name}-README.md"
