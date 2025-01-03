@@ -85,3 +85,7 @@ indent_size = 4
 [*.{conf,ini}]
 indent_style = space
 indent_size = 4
+
+# Settings for PNG files (image files)
+[*.png]
+charset = binary               # Treat PNG files as binary
