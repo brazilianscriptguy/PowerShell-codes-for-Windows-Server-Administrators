@@ -5,7 +5,7 @@ on:
   release:
     types: [published]
   schedule:
-    - cron: '0 25 * * *'  # Runs daily at midnight UTC
+    - cron: '30 1 * * *'  # Runs daily at 01:30 UTC
 
 permissions:
   contents: write
@@ -116,8 +116,8 @@ jobs:
               rsync -av --exclude='GroupPolicyObjects-Templates' SysAdmin-Tools/ SysAdminToolSet/SysAdmin-Tools/
               rsync -av BlueTeam-Tools/ SysAdminToolSet/BlueTeam-Tools/
               cp Core-ScriptLibrary/Launch-Script-AutomaticMenu.ps1 SysAdminToolSet/
-              cp docs/LICENSE SysAdminToolSet/
-              cp docs/README.md SysAdminToolSet/
+              cp README.md SysAdminToolSet/
+              cp LICENSE SysAdminToolSet/
               mkdir -p artifacts
               zip -r artifacts/SysAdminToolSet.zip SysAdminToolSet
               ;;
@@ -139,7 +139,7 @@ jobs:
             READMEs-Files-Package)
               mkdir -p READMEs-Files-Package
               cp README.md READMEs-Files-Package/main-README.md
-              find . -type f -iname "README.md" ! -path ".README.md" | while read -r file; do
+              find . -type f -iname "README.md" ! -path "./README.md" | while read -r file; do
                 repo_dir=$(dirname "$file")
                 repo_name=$(basename "$repo_dir")
                 new_filename="${repo_name}-README.md"
