@@ -1,7 +1,65 @@
-# Ensure LF as the line ending for consistency across platforms
+# ===============================
+# Enforce LF as line ending for all text files
+# ===============================
+
+# PowerShell, VBScript, and HTA files
 *.ps1 text eol=lf
 *.vbs text eol=lf
 *.hta text eol=lf
 
-# Handle text files carefully, especially for cross-platform compatibility
+# YAML and JSON files
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+
+# Markdown and text files
+*.md text eol=lf
 *.txt text eol=lf
+
+# XML-based files (e.g., config, csproj, nuspec)
+*.xml text eol=lf
+*.config text eol=lf
+*.csproj text eol=lf
+*.nuspec text eol=lf
+
+# JavaScript and TypeScript files
+*.js text eol=lf
+*.ts text eol=lf
+
+# Shell scripts and configuration files
+*.sh text eol=lf
+*.conf text eol=lf
+*.ini text eol=lf
+
+# ===============================
+# Treat specific file types as binary
+# ===============================
+
+# Binary files (e.g., executables, archives, NuGet packages)
+*.exe binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.7z binary
+*.iso binary
+*.nupkg binary
+
+# Backup files
+*.bak binary
+
+# Image files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg binary
+
+# ===============================
+# Notes for consistency
+# ===============================
+
+# The 'text' attribute ensures consistent line endings across platforms.
+# The 'eol=lf' forces LF as the line ending, ideal for cross-platform projects.
+# The 'binary' attribute ensures Git doesn't attempt to normalize or alter these files.
+
