@@ -1,7 +1,3 @@
-﻿# =========================
-# PowerShell Script to Build and Publish NuGet Package
-# Enhanced and Fixed Version: January 3, 2025
-# =========================
 
 # Hide PowerShell console window for a cleaner GUI experience
 Add-Type @"
@@ -203,17 +199,6 @@ function Prepare-Files {
     }
 }
 
-# Placeholder for the next set of functions and GUI setup...
-
-# =========================
-# END OF BLOCK 1 (500 LINES)
-# =========================
-
-# =========================
-# PowerShell Script to Build and Publish NuGet Package
-# Continuation from Block 1
-# =========================
-
 # Function: Verify-VirtualDirectory
 function Verify-VirtualDirectory {
     Log-Message "Verifying contents of NuGetPackageContent..."
@@ -413,14 +398,6 @@ $buttonRun.Add_Click({
 
 # Show GUI Form
 $form.ShowDialog()
-
-# =========================
-# END OF BLOCK 2 (500 LINES)
-# =========================
-# =========================
-# PowerShell Script to Build and Publish NuGet Package
-# Continuation from Block 2
-# =========================
 
 # Function: Fetch-ExistingPackages
 function Fetch-ExistingPackages {
