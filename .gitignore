@@ -1,72 +1,101 @@
+# =====================================
 # Logs and Temporary Files
+# =====================================
 *.log
 *.tmp
 *.temp
 
+# =====================================
 # Cache and Backup Files
+# =====================================
 *.bak
 *.swp
 *.swo
 .cache/
 
+# =====================================
 # Binaries and Build Artifacts
+# =====================================
 bin/
 obj/
-artifacts/
+artifacts/                # Exclude artifacts folder
+artifacts/**              # Exclude all subfolders and files in artifacts/
 
-# NuGet Files
+# =====================================
+# NuGet Files and Folders
+# =====================================
 .nuget/
 .nuget.targets
-NuGet/
+NuGet/                   # Exclude NuGet folder
+NuGet/**                 # Exclude all subfolders and files in NuGet/
 *.nupkg
 
+# =====================================
 # Sensitive Information
+# =====================================
 *.pfx
 *.cert
 *.key
 *.env
 
+# =====================================
 # System-specific Files
+# =====================================
 Thumbs.db
 .DS_Store
 desktop.ini
 
-# IDE Configuration Files
+# =====================================
+# IDE Configuration and Workspace Files
+# =====================================
 .vscode/
 .idea/
 *.code-workspace
+*.user
+*.suo
 
+# =====================================
 # Configuration and Generated Files
-config/.editorconfig
-config/.gitattributes
-config/.gitignore
-config/nuget.config
+# =====================================
+/config/.editorconfig
+/config/.gitattributes
+/config/.gitignore
+/config/nuget.config
 
+# =====================================
 # Documentation Files
-docs/LICENSE
-docs/README.md
+# =====================================
+/docs/LICENSE
+/docs/README.md
 
-# Placeholder Files or Temporary Project Files
-PlaceholderDll/
-PlaceholderDll/*.csproj
+# =====================================
+# Placeholder and Special Project Folders
+# =====================================
+PlaceholderDll/          # Exclude PlaceholderDll folder
+PlaceholderDll/**        # Exclude all subfolders and files in PlaceholderDll/
+PlaceholderDll/*.csproj  # Exclude specific csproj files in PlaceholderDll/
 
+# =====================================
 # Compiled Libraries
+# =====================================
 NuGetPackageContent/lib/net7.0/*.dll
 
-# Operating System Files
+# =====================================
+# Operating System and Miscellaneous Files
+# =====================================
 *.~lock.*
 *.directory
 
-# Temporary or Generated Artifacts During Development
+# =====================================
+# Temporary or Generated Artifacts
+# =====================================
 temp/
 tmp/
-*.bak
 *.old
 
-# Exclude Files for Development Tools
-*.user
-*.suo
+# =====================================
+# Development Tool Exclusions
+# =====================================
 *.ncrunch*
-*.log
 _ReSharper*/
 *.vs/
