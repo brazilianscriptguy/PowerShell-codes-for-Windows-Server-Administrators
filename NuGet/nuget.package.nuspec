@@ -24,12 +24,13 @@
     -->
   </metadata>
   <files>
-  <file src="NuGetPackageContent/GPOs-Templates/**/*" target="content/GPOs-Templates" />
-  <file src="NuGetPackageContent/ITSM-Templates-SVR/**/*" target="content/ITSM-Templates-SVR" />
-  <file src="NuGetPackageContent/ITSM-Templates-WKS/**/*" target="content/ITSM-Templates-WKS" />
-  <file src="NuGetPackageContent/SysAdminToolsSet/**/*" target="content/SysAdminToolsSet" />
-  <file src="NuGetPackageContent/LICENSE" target="content" />
-  <file src="NuGetPackageContent/README.md" target="content" />
-  <file src="NuGetPackageContent/lib/net7.0/PlaceholderDll.dll" target="lib/net7.0" />
-</files>
+    <!-- File Mappings -->
+    <file src="NuGetPackageContent/GPOs-Templates/**/*" target="content/GPOs-Templates" />
+    <file src="NuGetPackageContent/ITSM-Templates-SVR/**/*" target="content/ITSM-Templates-SVR" />
+    <file src="NuGetPackageContent/ITSM-Templates-WKS/**/*" target="content/ITSM-Templates-WKS" />
+    <file src="NuGetPackageContent/SysAdminToolsSet/**/*" target="content/SysAdminToolsSet" />
+    <file src="NuGetPackageContent/LICENSE" target="content" />
+    <file src="NuGetPackageContent/README.md" target="content" />
+    <file src="NuGetPackageContent/lib/net7.0/PlaceholderDll.dll" target="lib/net7.0" />
+  </files>
 </package>
