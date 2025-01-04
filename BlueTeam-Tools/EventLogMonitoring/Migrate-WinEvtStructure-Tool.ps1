@@ -3,15 +3,16 @@
     PowerShell Script to Move Windows Event Log Default Paths with GUI and Enhanced Permissions Handling
 
 .DESCRIPTION
-    Provides a graphical user interface (GUI) for users to specify a target drive.
-    Moves the default paths of Windows Event Logs to the root of the specified drive and updates the registry accordingly.
+    Provides a graphical user interface (GUI) for users to confirm the target drive.
+    Moves the default paths of Windows Event Logs to the specified drive root and updates the registry accordingly.
     Stops the Event Log service to move locked .evtx files and ensures necessary permissions are set on the new drive.
+    Stores script execution logs in 'C:\Logs-TEMP'.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    2.2.0 - January 3, 2025
+    2.3.0 - January 3, 2025
 
 .NOTES
     - Requires running with administrative privileges.
@@ -47,8 +48,8 @@ Add-Type -AssemblyName System.Drawing
 
 # Define global variables
 $scriptName     = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$defaultLogDir  = 'C:\Logs-TEMP'  # Script logs folder
-$logDir         = $defaultLogDir
+$logDir         = 'C:\Logs-TEMP'  # Script's action logs directory
+$TargetWinEvtLogs = 'L:\'         # Drive where Windows Event Logs will be moved
 $logFileName    = "$scriptName.log"
 $logPath        = Join-Path -Path $logDir -ChildPath $logFileName
 
@@ -302,7 +303,7 @@ function Move-EventLogs {
     param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [string]$TargetDrive,
+        [string]$TargetWinEvtLogs,
 
         [Parameter(Mandatory)]
         [System.Windows.Forms.ProgressBar]$ProgressBar
@@ -311,20 +312,23 @@ function Move-EventLogs {
     try {
         Write-Log -Message "Script execution started." -Level "INFO"
 
-        # Validate and create the target drive path (root)
-        if (-not (Test-Path -Path $TargetDrive)) {
+        # Validate and create the script's log directory
+        Initialize-LogDirectory -Path $logDir
+
+        # Validate and confirm the target drive path
+        if (-not (Test-Path -Path $TargetWinEvtLogs)) {
             [System.Windows.Forms.MessageBox]::Show(
-                "The specified drive '$TargetDrive' does not exist.",
+                "The specified drive '$TargetWinEvtLogs' does not exist.",
                 "Invalid Drive",
                 [System.Windows.Forms.MessageBoxButtons]::OK,
                 [System.Windows.Forms.MessageBoxIcon]::Error
             )
-            Write-Log -Message "Specified drive '$TargetDrive' does not exist." -Level "ERROR"
+            Write-Log -Message "Specified drive '$TargetWinEvtLogs' does not exist." -Level "ERROR"
             return
         }
 
         # Apply default ACLs to the target drive
-        Apply-Default-ACLs-to-Drive -DrivePath $TargetDrive
+        Apply-Default-ACLs-to-Drive -DrivePath $TargetWinEvtLogs
 
         # Retrieve all event log names
         $logNames = Retrieve-EventLogs
@@ -356,7 +360,7 @@ function Move-EventLogs {
 
                 # Escape log name by replacing invalid characters with '-'
                 $escapedLogName = $logName -replace '[\\/:"*?<>|]', '-'
-                $targetLogFile = Join-Path -Path $TargetDrive -ChildPath "$escapedLogName.evtx"
+                $targetLogFile = Join-Path -Path $TargetWinEvtLogs -ChildPath "$escapedLogName.evtx"
 
                 # Define new log file path
                 $newLogFilePath = $targetLogFile
@@ -408,7 +412,7 @@ $form.MaximizeBox = $false
 
 # Label for Target Drive
 $labelTargetDrive = New-Object System.Windows.Forms.Label
-$labelTargetDrive.Text = 'Enter the target drive letter (e.g., "L:\"):'
+$labelTargetDrive.Text = 'Enter the target drive letter for Event Logs (e.g., "L:\"):'
 $labelTargetDrive.Location = New-Object System.Drawing.Point(10, 20)
 $labelTargetDrive.AutoSize = $true
 $form.Controls.Add($labelTargetDrive)
@@ -417,7 +421,7 @@ $form.Controls.Add($labelTargetDrive)
 $textBoxTargetDrive = New-Object System.Windows.Forms.TextBox
 $textBoxTargetDrive.Location = New-Object System.Drawing.Point(10, 40)
 $textBoxTargetDrive.Size = New-Object System.Drawing.Size(460, 20)
-$textBoxTargetDrive.Text = $defaultLogDir
+$textBoxTargetDrive.Text = $TargetWinEvtLogs  # Default to 'L:\'
 $form.Controls.Add($textBoxTargetDrive)
 
 # Progress Bar
@@ -443,8 +447,8 @@ $executeButton.Enabled = $true
 
 # Add Click Event
 $executeButton.Add_Click({
-    $targetDrive = $textBoxTargetDrive.Text.Trim()
-    if ([string]::IsNullOrWhiteSpace($targetDrive)) {
+    $targetWinEvtLogs = $textBoxTargetDrive.Text.Trim()
+    if ([string]::IsNullOrWhiteSpace($targetWinEvtLogs)) {
         [System.Windows.Forms.MessageBox]::Show(
             "Please enter the target drive letter.",
             "Input Required",
@@ -456,18 +460,18 @@ $executeButton.Add_Click({
     }
 
     # Validate target drive path format
-    if (-not ($targetDrive -match '^[A-Z]:\\$')) {
+    if (-not ($targetWinEvtLogs -match '^[A-Z]:\\$')) {
         [System.Windows.Forms.MessageBox]::Show(
             "Please enter a valid drive letter path (e.g., 'L:\').",
             "Invalid Path",
             [System.Windows.Forms.MessageBoxButtons]::OK,
             [System.Windows.Forms.MessageBoxIcon]::Warning
         )
-        Write-Log -Message "Invalid target drive path: $targetDrive" -Level "WARN"
+        Write-Log -Message "Invalid target drive path: $targetWinEvtLogs" -Level "WARN"
         return
     }
 
-    Move-EventLogs -TargetDrive $targetDrive -ProgressBar $progressBar
+    Move-EventLogs -TargetWinEvtLogs $targetWinEvtLogs -ProgressBar $progressBar
 })
 
 $form.Controls.Add($executeButton)
