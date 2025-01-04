@@ -1,17 +1,17 @@
 <#
 .SYNOPSIS
-    PowerShell Script to Move Event Log Default Paths with GUI and Enhanced Error Handling
+    PowerShell Script to Move Windows Event Log Default Paths with GUI and Enhanced Permissions Handling
 
 .DESCRIPTION
-    Provides a graphical user interface (GUI) for users to specify a target root folder.
-    Moves the default paths of Windows Event Logs to the specified location and updates the registry accordingly.
-    Stops the Event Log service to move locked .evtx files.
+    Provides a graphical user interface (GUI) for users to specify a target drive.
+    Moves the default paths of Windows Event Logs to the root of the specified drive and updates the registry accordingly.
+    Stops the Event Log service to move locked .evtx files and ensures necessary permissions are set on the new drive.
 
 .AUTHOR
     Luiz Hamilton Silva - @brazilianscriptguy
 
 .VERSION
-    2.0.0 - October 24, 2024
+    2.2.0 - January 3, 2025
 
 .NOTES
     - Requires running with administrative privileges.
@@ -46,11 +46,11 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 # Define global variables
-$scriptName    = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
-$defaultLogDir = 'C:\Logs-TEMP'
-$logDir        = $defaultLogDir
-$logFileName   = "$scriptName.log"
-$logPath       = Join-Path -Path $logDir -ChildPath $logFileName
+$scriptName     = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)
+$defaultLogDir  = 'C:\Logs-TEMP'  # Script logs folder
+$logDir         = $defaultLogDir
+$logFileName    = "$scriptName.log"
+$logPath        = Join-Path -Path $logDir -ChildPath $logFileName
 
 # Function: Initialize-LogDirectory
 function Initialize-LogDirectory {
@@ -61,6 +61,9 @@ function Initialize-LogDirectory {
     try {
         if (-not (Test-Path -Path $Path)) {
             New-Item -Path $Path -ItemType Directory -Force -ErrorAction Stop | Out-Null
+            Write-Log -Message "Log directory created at $Path" -Level "INFO"
+        } else {
+            Write-Log -Message "Log directory already exists at $Path" -Level "DEBUG"
         }
     } catch {
         [System.Windows.Forms.MessageBox]::Show(
@@ -129,73 +132,177 @@ if (-not $IsAdmin) {
     exit
 }
 
-# Create and configure the main form
-$form = New-Object System.Windows.Forms.Form
-$form.Text = 'Move Event Log Default Paths'
-$form.Size = New-Object System.Drawing.Size(500, 500)
-$form.StartPosition = 'CenterScreen'
-$form.FormBorderStyle = 'FixedDialog'
-$form.MaximizeBox = $false
+# Function: Grant-Permissions
+function Grant-Permissions {
+    param (
+        [Parameter(Mandatory)]
+        [string]$FolderPath
+    )
+    try {
+        $acl = Get-Acl -Path $FolderPath
 
-# Label for Target Root Folder
-$labelTargetRootFolder = New-Object System.Windows.Forms.Label
-$labelTargetRootFolder.Text = 'Enter the target root folder (e.g., "L:\"):'
-$labelTargetRootFolder.Location = New-Object System.Drawing.Point(10, 20)
-$labelTargetRootFolder.AutoSize = $true
-$form.Controls.Add($labelTargetRootFolder)
+        # Define the accounts to grant permissions
+        $accounts = @("SYSTEM", "Administrators", "LOCAL SERVICE", "NETWORK SERVICE")
 
-# TextBox for Target Root Folder
-$textBoxTargetRootFolder = New-Object System.Windows.Forms.TextBox
-$textBoxTargetRootFolder.Location = New-Object System.Drawing.Point(10, 40)
-$textBoxTargetRootFolder.Size = New-Object System.Drawing.Size(460, 20)
-$textBoxTargetRootFolder.Text = $defaultLogDir
-$form.Controls.Add($textBoxTargetRootFolder)
+        foreach ($account in $accounts) {
+            switch ($account) {
+                "SYSTEM" {
+                    $permission = "FullControl"
+                }
+                "Administrators" {
+                    $permission = "FullControl"
+                }
+                "LOCAL SERVICE" {
+                    $permission = "ReadAndExecute, Read"
+                }
+                "NETWORK SERVICE" {
+                    $permission = "ReadAndExecute, Read"
+                }
+                default {
+                    $permission = "ReadAndExecute, Read"
+                }
+            }
 
-# Progress Bar
-$progressBar = New-Object System.Windows.Forms.ProgressBar
-$progressBar.Location = New-Object System.Drawing.Point(10, 70)
-$progressBar.Size = New-Object System.Drawing.Size(460, 20)
-$progressBar.Minimum = 0
-$form.Controls.Add($progressBar)
+            $accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+                $account,
+                $permission,
+                "ContainerInherit,ObjectInherit",
+                "None",
+                "Allow"
+            )
+            $acl.SetAccessRule($accessRule)
+        }
 
-# Log Box
-$logBox = New-Object System.Windows.Forms.ListBox
-$logBox.Location = New-Object System.Drawing.Point(10, 100)
-$logBox.Size = New-Object System.Drawing.Size(460, 300)
-$form.Controls.Add($logBox)
-$script:logBox = $logBox  # Make logBox accessible globally for logging
-
-# Execute Button
-$executeButton = New-Object System.Windows.Forms.Button
-$executeButton.Text = 'Move Logs'
-$executeButton.Location = New-Object System.Drawing.Point(10, 420)
-$executeButton.Size = New-Object System.Drawing.Size(100, 30)
-$executeButton.Enabled = $true
-
-# Add Click Event
-$executeButton.Add_Click({
-    $targetFolder = $textBoxTargetRootFolder.Text
-    if ([string]::IsNullOrWhiteSpace($targetFolder)) {
-        [System.Windows.Forms.MessageBox]::Show(
-            "Please enter the target root folder.",
-            "Input Required",
-            [System.Windows.Forms.MessageBoxButtons]::OK,
-            [System.Windows.Forms.MessageBoxIcon]::Warning
-        )
-        Write-Log -Message "Target root folder input was empty." -Level "WARN"
-        return
+        Set-Acl -Path $FolderPath -AclObject $acl -ErrorAction Stop
+        Write-Log -Message "Granted necessary permissions to $FolderPath." -Level "INFO"
+    } catch {
+        Write-Log -Message "Failed to set permissions on ${FolderPath}: $_" -Level "ERROR"
+        throw $_
     }
-    Move-EventLogs -TargetFolder $targetFolder -ProgressBar $progressBar
-})
+}
 
-$form.Controls.Add($executeButton)
+# Function: Retrieve-EventLogs
+function Retrieve-EventLogs {
+    try {
+        Write-Log -Message "Retrieving event log names from registry and Logs directory." -Level "INFO"
+
+        # Get event log names from the registry
+        $registryLogsPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog"
+        $regLogs = Get-ChildItem -Path $registryLogsPath -ErrorAction Stop | Select-Object -ExpandProperty PSChildName
+
+        # Get event log files from the Logs directory
+        $logFilesPath = "$env:SystemRoot\system32\winevt\Logs"
+        $logFiles = Get-ChildItem -Path $logFilesPath -Filter *.evtx -ErrorAction SilentlyContinue | 
+                    Select-Object -ExpandProperty BaseName
+
+        # Combine and remove duplicates
+        $logNames = ($regLogs + $logFiles) | Sort-Object -Unique
+
+        Write-Log -Message "Retrieved $($logNames.Count) unique event logs." -Level "INFO"
+        return $logNames
+    } catch {
+        Write-Log -Message "Failed to retrieve event logs: $_" -Level "ERROR"
+        throw $_
+    }
+}
+
+# Function: Stop-EventLogService
+function Stop-EventLogService {
+    try {
+        Write-Log -Message "Stopping Windows Event Log service..." -Level "INFO"
+        Stop-Service -Name "EventLog" -Force -ErrorAction Stop
+        Write-Log -Message "Windows Event Log service stopped." -Level "INFO"
+    } catch {
+        Write-Log -Message "Failed to stop Windows Event Log service: $_" -Level "ERROR"
+        [System.Windows.Forms.MessageBox]::Show(
+            "Failed to stop Windows Event Log service. Please ensure you have administrative privileges.",
+            "Error",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Error
+        )
+        throw $_
+    }
+}
+
+# Function: Start-EventLogService
+function Start-EventLogService {
+    try {
+        Write-Log -Message "Starting Windows Event Log service..." -Level "INFO"
+        Start-Service -Name "EventLog" -ErrorAction Stop
+        Write-Log -Message "Windows Event Log service started." -Level "INFO"
+    } catch {
+        Write-Log -Message "Failed to start Windows Event Log service: $_" -Level "ERROR"
+        [System.Windows.Forms.MessageBox]::Show(
+            "Failed to start Windows Event Log service. Please start it manually.",
+            "Error",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Error
+        )
+    }
+}
+
+# Function: Update-RegistryPath
+function Update-RegistryPath {
+    param (
+        [Parameter(Mandatory)]
+        [string]$LogName,
+
+        [Parameter(Mandatory)]
+        [string]$NewLogFilePath
+    )
+    try {
+        $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\$LogName"
+        Set-ItemProperty -Path $regPath -Name "File" -Value $NewLogFilePath -ErrorAction Stop
+        Write-Log -Message "Updated registry path for '$LogName' to '$NewLogFilePath'." -Level "INFO"
+    } catch {
+        Write-Log -Message "Failed to update registry for '$LogName': $_" -Level "ERROR"
+        throw $_
+    }
+}
+
+# Function: Move-LogFile
+function Move-LogFile {
+    param (
+        [Parameter(Mandatory)]
+        [string]$SourcePath,
+
+        [Parameter(Mandatory)]
+        [string]$DestinationPath
+    )
+    try {
+        if (Test-Path -Path $SourcePath) {
+            Move-Item -Path $SourcePath -Destination $DestinationPath -Force -ErrorAction Stop
+            Write-Log -Message "Moved log file from '$SourcePath' to '$DestinationPath'." -Level "INFO"
+        } else {
+            Write-Log -Message "Source log file '$SourcePath' does not exist. Skipping move." -Level "WARN"
+        }
+    } catch {
+        Write-Log -Message "Failed to move log file from '$SourcePath' to '$DestinationPath': $_" -Level "ERROR"
+        throw $_
+    }
+}
+
+# Function: Apply-Default-ACLs-to-Drive
+function Apply-Default-ACLs-to-Drive {
+    param (
+        [Parameter(Mandatory)]
+        [string]$DrivePath
+    )
+    try {
+        Write-Log -Message "Applying default ACLs to drive '$DrivePath'." -Level "INFO"
+        Grant-Permissions -FolderPath $DrivePath
+    } catch {
+        Write-Log -Message "Failed to apply default ACLs to drive '$DrivePath': $_" -Level "ERROR"
+        throw $_
+    }
+}
 
 # Function: Move-EventLogs
 function Move-EventLogs {
     param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [string]$TargetFolder,
+        [string]$TargetDrive,
 
         [Parameter(Mandatory)]
         [System.Windows.Forms.ProgressBar]$ProgressBar
@@ -204,46 +311,23 @@ function Move-EventLogs {
     try {
         Write-Log -Message "Script execution started." -Level "INFO"
 
-        # Validate and create the target root folder
-        if (-not (Test-Path -Path $TargetFolder)) {
-            try {
-                New-Item -Path $TargetFolder -ItemType Directory -Force -ErrorAction Stop | Out-Null
-                Write-Log -Message "Created target root folder at $TargetFolder." -Level "INFO"
-            } catch {
-                [System.Windows.Forms.MessageBox]::Show(
-                    "Failed to create target root folder at $TargetFolder.",
-                    "Error",
-                    [System.Windows.Forms.MessageBoxButtons]::OK,
-                    [System.Windows.Forms.MessageBoxIcon]::Error
-                )
-                Write-Log -Message "Failed to create target root folder: $_" -Level "ERROR"
-                return
-            }
-        }
-
-        # Retrieve all event log names
-        Write-Log -Message "Retrieving event log names." -Level "INFO"
-        $logNames = @()
-
-        # Handle potential errors when listing event logs
-        try {
-            $allLogs = Get-WinEvent -ListLog * -ErrorAction SilentlyContinue
-        } catch {
-            Write-Log -Message "Failed to retrieve event logs: $_" -Level "ERROR"
+        # Validate and create the target drive path (root)
+        if (-not (Test-Path -Path $TargetDrive)) {
             [System.Windows.Forms.MessageBox]::Show(
-                "Failed to retrieve event logs. Please check your permissions.",
-                "Error",
+                "The specified drive '$TargetDrive' does not exist.",
+                "Invalid Drive",
                 [System.Windows.Forms.MessageBoxButtons]::OK,
                 [System.Windows.Forms.MessageBoxIcon]::Error
             )
+            Write-Log -Message "Specified drive '$TargetDrive' does not exist." -Level "ERROR"
             return
         }
 
-        foreach ($log in $allLogs) {
-            if ($log.LogName) {
-                $logNames += $log.LogName
-            }
-        }
+        # Apply default ACLs to the target drive
+        Apply-Default-ACLs-to-Drive -DrivePath $TargetDrive
+
+        # Retrieve all event log names
+        $logNames = Retrieve-EventLogs
 
         $totalLogs = $logNames.Count
 
@@ -261,74 +345,28 @@ function Move-EventLogs {
         $ProgressBar.Maximum = $totalLogs
         $ProgressBar.Value = 0
 
-        # Attempt to copy original ACL; handle permission errors
-        try {
-            $originalAcl = Get-Acl -Path "$env:SystemRoot\system32\winevt\Logs" -ErrorAction Stop
-        } catch {
-            Write-Log -Message "Failed to retrieve ACL from original logs directory: $_" -Level "ERROR"
-            $originalAcl = $null
-        }
+        # Stop the Event Log service
+        Stop-EventLogService
 
         $currentLogNumber = 0
-
-        # Stop the Event Log service
-        Write-Log -Message "Stopping Windows Event Log service..." -Level "INFO"
-        try {
-            Stop-Service -Name "EventLog" -Force -ErrorAction Stop
-            Write-Log -Message "Windows Event Log service stopped." -Level "INFO"
-        } catch {
-            Write-Log -Message "Failed to stop Windows Event Log service: $_" -Level "ERROR"
-            [System.Windows.Forms.MessageBox]::Show(
-                "Failed to stop Windows Event Log service. Please ensure you have administrative privileges.",
-                "Error",
-                [System.Windows.Forms.MessageBoxButtons]::OK,
-                [System.Windows.Forms.MessageBoxIcon]::Error
-            )
-            return
-        }
 
         foreach ($logName in $logNames) {
             try {
                 $currentLogNumber++
 
-                # Escape log name by replacing '/' with '-'
-                $escapedLogName = $logName.Replace('/', '-')
-                $targetLogFolder = Join-Path -Path $TargetFolder -ChildPath $escapedLogName
+                # Escape log name by replacing invalid characters with '-'
+                $escapedLogName = $logName -replace '[\\/:"*?<>|]', '-'
+                $targetLogFile = Join-Path -Path $TargetDrive -ChildPath "$escapedLogName.evtx"
 
-                # Create target folder if it doesn't exist
-                if (-not (Test-Path -Path $targetLogFolder)) {
-                    New-Item -Path $targetLogFolder -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
-                    Write-Log -Message "Created folder for log '$logName' at $targetLogFolder." -Level "DEBUG"
-                }
-
-                # Set ACL for the target folder if we have the ACL
-                if ($originalAcl) {
-                    try {
-                        Set-Acl -Path $targetLogFolder -AclObject $originalAcl -ErrorAction SilentlyContinue
-                        Write-Log -Message "Set ACL for $targetLogFolder based on original Logs directory." -Level "DEBUG"
-                    } catch {
-                        Write-Log -Message "Failed to set ACL for ${targetLogFolder}: $_" -Level "ERROR"
-                    }
-                }
+                # Define new log file path
+                $newLogFilePath = $targetLogFile
 
                 # Update the registry to point to the new log file location
-                $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\$logName"
-
-                $newLogFilePath = Join-Path -Path $targetLogFolder -ChildPath "$escapedLogName.evtx"
-
-                # Attempt to set the registry property; ignore errors
-                Set-ItemProperty -Path $regPath -Name "File" -Value ("$newLogFilePath") -ErrorAction SilentlyContinue
+                Update-RegistryPath -LogName $logName -NewLogFilePath $newLogFilePath
 
                 # Move existing log file if it exists
                 $originalLogFile = Join-Path -Path "$env:SystemRoot\system32\winevt\Logs" -ChildPath "$escapedLogName.evtx"
-                if (Test-Path -Path $originalLogFile) {
-                    try {
-                        Move-Item -Path $originalLogFile -Destination $newLogFilePath -Force -ErrorAction SilentlyContinue
-                        Write-Log -Message "Moved existing log file '$originalLogFile' to '$newLogFilePath'." -Level "DEBUG"
-                    } catch {
-                        Write-Log -Message "Failed to move log file '$originalLogFile': $_" -Level "ERROR"
-                    }
-                }
+                Move-LogFile -SourcePath $originalLogFile -DestinationPath $newLogFilePath
 
                 Write-Log -Message "Processed log '$logName'." -Level "INFO"
             } catch {
@@ -340,23 +378,11 @@ function Move-EventLogs {
         }
 
         # Start the Event Log service
-        Write-Log -Message "Starting Windows Event Log service..." -Level "INFO"
-        try {
-            Start-Service -Name "EventLog" -ErrorAction Stop
-            Write-Log -Message "Windows Event Log service started." -Level "INFO"
-        } catch {
-            Write-Log -Message "Failed to start Windows Event Log service: $_" -Level "ERROR"
-            [System.Windows.Forms.MessageBox]::Show(
-                "Failed to start Windows Event Log service. Please start it manually.",
-                "Error",
-                [System.Windows.Forms.MessageBoxButtons]::OK,
-                [System.Windows.Forms.MessageBoxIcon]::Error
-            )
-        }
+        Start-EventLogService
 
-        Write-Log -Message "Script completed." -Level "INFO"
+        Write-Log -Message "Script completed successfully." -Level "INFO"
         [System.Windows.Forms.MessageBox]::Show(
-            "Event logs processing completed. Please check the log for details.",
+            "Event logs have been successfully moved and reconfigured. Please check the log for details.",
             "Completed",
             [System.Windows.Forms.MessageBoxButtons]::OK,
             [System.Windows.Forms.MessageBoxIcon]::Information
@@ -371,6 +397,80 @@ function Move-EventLogs {
         )
     }
 }
+
+# Create and configure the main form
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'Move Event Log Default Paths'
+$form.Size = New-Object System.Drawing.Size(500, 550)
+$form.StartPosition = 'CenterScreen'
+$form.FormBorderStyle = 'FixedDialog'
+$form.MaximizeBox = $false
+
+# Label for Target Drive
+$labelTargetDrive = New-Object System.Windows.Forms.Label
+$labelTargetDrive.Text = 'Enter the target drive letter (e.g., "L:\"):'
+$labelTargetDrive.Location = New-Object System.Drawing.Point(10, 20)
+$labelTargetDrive.AutoSize = $true
+$form.Controls.Add($labelTargetDrive)
+
+# TextBox for Target Drive
+$textBoxTargetDrive = New-Object System.Windows.Forms.TextBox
+$textBoxTargetDrive.Location = New-Object System.Drawing.Point(10, 40)
+$textBoxTargetDrive.Size = New-Object System.Drawing.Size(460, 20)
+$textBoxTargetDrive.Text = $defaultLogDir
+$form.Controls.Add($textBoxTargetDrive)
+
+# Progress Bar
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+$progressBar.Location = New-Object System.Drawing.Point(10, 70)
+$progressBar.Size = New-Object System.Drawing.Size(460, 20)
+$progressBar.Minimum = 0
+$form.Controls.Add($progressBar)
+
+# Log Box
+$logBox = New-Object System.Windows.Forms.ListBox
+$logBox.Location = New-Object System.Drawing.Point(10, 100)
+$logBox.Size = New-Object System.Drawing.Size(460, 350)
+$form.Controls.Add($logBox)
+$script:logBox = $logBox  # Make logBox accessible globally for logging
+
+# Execute Button
+$executeButton = New-Object System.Windows.Forms.Button
+$executeButton.Text = 'Move Logs'
+$executeButton.Location = New-Object System.Drawing.Point(10, 470)
+$executeButton.Size = New-Object System.Drawing.Size(100, 30)
+$executeButton.Enabled = $true
+
+# Add Click Event
+$executeButton.Add_Click({
+    $targetDrive = $textBoxTargetDrive.Text.Trim()
+    if ([string]::IsNullOrWhiteSpace($targetDrive)) {
+        [System.Windows.Forms.MessageBox]::Show(
+            "Please enter the target drive letter.",
+            "Input Required",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+        Write-Log -Message "Target drive input was empty." -Level "WARN"
+        return
+    }
+
+    # Validate target drive path format
+    if (-not ($targetDrive -match '^[A-Z]:\\$')) {
+        [System.Windows.Forms.MessageBox]::Show(
+            "Please enter a valid drive letter path (e.g., 'L:\').",
+            "Invalid Path",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+        Write-Log -Message "Invalid target drive path: $targetDrive" -Level "WARN"
+        return
+    }
+
+    Move-EventLogs -TargetDrive $targetDrive -ProgressBar $progressBar
+})
+
+$form.Controls.Add($executeButton)
 
 # Show the form
 $form.ShowDialog() | Out-Null
